@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<odoo>
+  <record id="module_dissertation_admission_category" model="ir.module.category">
+    <field name="name">Dissertation Admission</field>
+  </record>
+
+  <!-- Dissertation User Group -->
+  <record id="dissertation_admission_group_user" model="res.groups">
+    <field name="name">User</field>
+    <field name="category_id"
+           ref="module_dissertation_admission_category"/>
+    <field name="implied_ids"
+           eval="[(4, ref('base.group_user'))]"/>
+  </record>
+
+</odoo>

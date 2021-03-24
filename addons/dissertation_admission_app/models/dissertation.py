@@ -2,7 +2,7 @@ from odoo import api, fields, models
 from odoo.exceptions import Warning
 
 class Dissertation(models.Model):
-    _name = 'dissertation_admition.dissertation'
+    _name = 'dissertation_admission.dissertation'
     _description = 'Dissertação'
 
     name = fields.Char('Titulo', required=True)
