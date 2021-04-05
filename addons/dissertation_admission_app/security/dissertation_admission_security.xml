@@ -7,10 +7,29 @@
   <!-- Dissertation User Group -->
   <record id="dissertation_admission_group_user" model="res.groups">
     <field name="name">User</field>
-    <field name="category_id"
-           ref="module_dissertation_admission_category"/>
-    <field name="implied_ids"
-           eval="[(4, ref('base.group_user'))]"/>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+
+  <!-- Dissertation User Group -->
+  <record id="dissertation_admission_group_adviser" model="res.groups">
+    <field name="name">Orientador</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+
+  <!-- Dissertation User Group -->
+  <record id="dissertation_admission_group_direction" model="res.groups">
+    <field name="name">Secretaria Direção de Curso</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+
+  <record model="ir.rule" id="edit_created_dissertation">
+    <field name="name">Advisers Can Only Edit Their Own Creations</field>
+    <field name="model_id" ref="model_dissertation_admission_dissertation"/>
+    <field name="domain_force">['|',('create_uid','=',False),('create_uid','=',user.id)]</field>
+    <field name="groups" eval="[(4, ref('dissertation_admission_group_adviser'))]"/>
   </record>
 
 </odoo>
