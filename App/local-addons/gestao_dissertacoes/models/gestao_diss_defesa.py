@@ -1,14 +1,16 @@
 from odoo import api, models, fields
 
-
+'''
 class Defesa(models.Model):
     _name = "gest_diss.defesa"
     _description = 'Defesa de um aluno'
 
-    data = fields.Char(string="Título", required=True)
-    hora = fields.One2one('gest_diss.aluno', required=True)
-    local = fields.One2one('gest_diss.docente', required=True) # opção entre presencial ou virtual
-    sala = fields.One2one('gest_diss.docente', required=True) # link zoom ou sala fisica
-    arguente = fields.One2one('gest_diss.docente', required=True)
+    data_hora = fields.Datetime('Data e Hora', required=True)
+    local = fields.Selection([('presencial', 'Presencial'), ('virtual', 'Virtual')], required=True)
+    sala = fields.Char(string="Sala", required=True)
+    arguente = fields.One2one('gest_diss.arguente', required=True)
     presidente = fields.One2one('gest_diss.docente', required=True)
-    vogais = fields.One2many('gest_diss.docente', required=True)
+    vogal_1 = fields.One2many('gest_diss.docente', required=True)
+    vogal_2 = fields.One2many('gest_diss.docente', required=True)
+'''
+

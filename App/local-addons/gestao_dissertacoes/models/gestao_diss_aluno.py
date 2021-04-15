@@ -3,9 +3,11 @@ from odoo import api, models, fields
 
 class Aluno(models.Model):
     _name = "gest_diss.aluno"
-    numero = fields.Char(string="Número", required=True)
+    _description = 'Aluno'
+
     nome = fields.Char(string="Nome", required=True)
-    curso = fields.Selection([('MIEI', 'MIEI'), ('MIEBIOM', 'MIEBIOM')], required=True)
-    genero = fields.Selection([('m', 'masculino'), ('f', 'feminino')], required=True)
+    numero = fields.Char(string="Número", required=True)
+    curso = fields.Selection([('miei', 'MIEI'), ('miebiom', 'MIEBIOM')], required=True)
+    genero = fields.Selection([('m', 'Masculino'), ('f', 'Feminino')], required=True)
     email = fields.Char(string="Email")
 
