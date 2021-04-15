@@ -7,6 +7,6 @@ class Dissertacao(models.Model):
 
     titulo = fields.Char(string="Título", required=True)
     #aluno = fields.One2one('gest_diss.aluno', required=True)
-    #docente = fields.One2one('gest_diss.docente', required=True)
+    #orientador = fields.One2one('gest_diss.docente', required=True)
     nota = fields.Integer(string="Nota", required=True)
 
