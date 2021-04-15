@@ -4,8 +4,9 @@ from odoo import api, models, fields
 class Processo(models.Model):
     _name = "gest_diss.processo"
     _description = 'Processo de gestão da dissertação'
+    _inherits = {'gest_diss.dissertacao': "dissertacao_id"}
 
-    dissertacao = fields.Char('gest_diss.dissertacao', required=True)
+    dissertacao_id = fields.Many2one('gest_diss.dissertacao', 'Dissertação')
     data_homologacao = fields.Date(string="Data de Homologação", required=True)
     estado = fields.Selection([
         ('registado', 'Registado'),
@@ -19,3 +20,4 @@ class Processo(models.Model):
         ('finalizado', 'Finalizado')
     ], required=True)
     #defesa =
+

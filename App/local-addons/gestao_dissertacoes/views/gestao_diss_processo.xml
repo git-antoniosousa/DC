@@ -3,7 +3,7 @@
 
     <record id="gestao_diss_processo_action" model="ir.actions.act_window">
         <field name="name">Gestão de Dissertações - Processos</field>
-        <field name="res_model">gest_diss.aluno</field> <!--  Atualizar depois o modelo com o correto -->
+        <field name="res_model">gest_diss.processo</field> <!--  Atualizar depois o modelo com o correto -->
         <field name="type">ir.actions.act_window</field>
         <field name="view_mode">tree,form,kanban</field>
     </record>
@@ -14,13 +14,12 @@
     <!-- Tree(list) View -->
     <record id="gestao_diss_processo_view_tree" model="ir.ui.view">
         <field name="name">Listagem de Processos</field>
-        <field name="model">gest_diss.aluno</field> <!-- mudar dps o modelo-->
+        <field name="model">gest_diss.processo</field> <!-- mudar dps o modelo-->
         <field name="arch" type="xml">
             <tree>
-                <field name="numero"/>
-                <field name="nome"/>
-                <field name="curso"/>
-                <field name="email"/>
+                <field name="dissertacao_id" widget="many2one"/>
+                <field name="data_homologacao"/>
+                <field name="estado"/>
             </tree>
         </field>
     </record>
