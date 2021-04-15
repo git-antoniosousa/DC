@@ -4,11 +4,26 @@
     <record id="gestao_diss_processo_action" model="ir.actions.act_window">
         <field name="name">Gestão de Dissertações - Processos</field>
         <field name="res_model">gest_diss.aluno</field> <!--  Atualizar depois o modelo com o correto -->
+        <field name="type">ir.actions.act_window</field>
         <field name="view_mode">tree,form,kanban</field>
     </record>
 
     <menuitem name="Gestão de Dissertações" id="gestao_diss_menu_base" />
     <menuitem name="Processos" id="gestao_diss_processo_menu" parent="gestao_diss_menu_base" action="gestao_diss_processo_action"/>
+
+    <!-- Tree(list) View -->
+    <record id="gestao_diss_processo_view_tree" model="ir.ui.view">
+        <field name="name">Listagem de Processos</field>
+        <field name="model">gest_diss.aluno</field> <!-- mudar dps o modelo-->
+        <field name="arch" type="xml">
+            <tree>
+                <field name="numero"/>
+                <field name="nome"/>
+                <field name="curso"/>
+                <field name="email"/>
+            </tree>
+        </field>
+    </record>
 
     <!-- Adicionar depois aqui uma search view com filtros etc, ver exemplo do codigo chapter 12 da drive que coloquei no discord -->
 

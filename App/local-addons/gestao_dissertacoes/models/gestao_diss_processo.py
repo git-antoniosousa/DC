@@ -1,6 +1,6 @@
 from odoo import api, models, fields
 
-'''
+
 class Processo(models.Model):
     _name = "gest_diss.processo"
     _description = 'Processo de gestão da dissertação'
@@ -18,5 +18,4 @@ class Processo(models.Model):
         ('aguardar_versao_final', 'A Aguardar Versão Final'),
         ('finalizado', 'Finalizado')
     ], required=True)
-    defesa = 
-'''
+    #defesa =
