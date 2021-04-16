@@ -11,6 +11,19 @@
     <menuitem name="Gestão de Dissertações" id="gestao_diss_menu_base" />
     <menuitem name="Processos" id="gestao_diss_processo_menu" parent="gestao_diss_menu_base" action="gestao_diss_processo_action"/>
 
+    <!-- Form View -->
+    <record id="gestao_diss_processo_view_form" model="ir.ui.view">
+        <field name="name">Formulário do Processo</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="estado_id" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
+                </header>
+            </form>
+        </field>
+    </record>
+
     <!-- Tree(list) View -->
     <record id="gestao_diss_processo_view_tree" model="ir.ui.view">
         <field name="name">Listagem de Processos</field>
@@ -19,7 +32,7 @@
             <tree>
                 <field name="dissertacao_id" widget="many2one"/>
                 <field name="data_homologacao"/>
-                <field name="estado"/>
+                <field name="estado_id"/>
             </tree>
         </field>
     </record>
