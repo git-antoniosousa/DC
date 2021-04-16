@@ -7,6 +7,5 @@ class Dissertacao(models.Model):
     _rec_name = "titulo"
 
     titulo = fields.Char(string="Título", required=True)
-    aluno = fields.Many2one('gest_diss.aluno', required=True)
     orientador = fields.Many2one('gest_diss.docente', required=True)
     nota = fields.Integer(string="Nota", required=True)
