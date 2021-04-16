@@ -6,7 +6,6 @@ class Processo(models.Model):
     _description = 'Processo de gestão da dissertação'
 
     aluno_id = fields.Many2one('gest_diss.aluno', "Aluno")
-    dissertacao_id = fields.Many2one('gest_diss.dissertacao', 'Dissertação')
 
     juri_presidente_id = fields.Many2one('gest_diss.docente', 'Presidente')
     juri_vogal1_id = fields.Many2one('gest_diss.docente', 'Vogal 1')
