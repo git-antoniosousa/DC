@@ -20,6 +20,26 @@
                 <header>
                     <field name="estado_id" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
                 </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="aluno_id"/>
+                            <field name="diss_titulo" />
+                            <field name="orientador_id"/>
+                            <field name="coorientador_id"/>
+                        </group>
+                        <group>
+                            <field name="juri_presidente_id"/>
+                            <field name="juri_vogal1_id"/>
+                            <field name="juri_vogal2_id"/>
+                            <field name="arguente_id" />
+                        </group>
+                        <group>
+                            <field name="data_homologacao"/>
+                            <field name="nota"/>
+                        </group>
+                    </group>
+                </sheet>
             </form>
         </field>
     </record>
@@ -30,7 +50,14 @@
         <field name="model">gest_diss.processo</field> <!-- mudar dps o modelo-->
         <field name="arch" type="xml">
             <tree>
-                <field name="dissertacao_id" widget="many2one"/>
+                <field name="aluno_id" widget="many2one"/>
+                <field name="juri_presidente_id" widget="many2one"/>
+                <field name="juri_vogal1_id" widget="many2one"/>
+                <field name="juri_vogal2_id" widget="many2one"/>
+                <field name="arguente_id" widget="many2one"/>
+                <field name="orientador_id" widget="many2one"/>
+                <field name="coorientador_id" widget="many2one"/>
+                <field name="defesa_id" widget="many2one"/>
                 <field name="data_homologacao"/>
                 <field name="estado_id"/>
             </tree>

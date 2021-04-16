@@ -4,6 +4,7 @@ from odoo import api, models, fields
 class Docente(models.Model):
     _name = "gest_diss.docente"
     _description = 'Docente'
+    _rec_name = 'nome'
 
     nome = fields.Char(string="Nome", required=True)
     numero = fields.Char(string="Número", required=True)

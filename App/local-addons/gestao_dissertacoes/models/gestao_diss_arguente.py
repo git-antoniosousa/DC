@@ -4,6 +4,7 @@ from odoo import api, models, fields
 class Arguente(models.Model):
     _name = "gest_diss.arguente"
     _description = 'Arguente'
+    _rec_name = 'nome'
 
     nome = fields.Char(string="Nome", required=True)
     entidade_patronal = fields.Char(string="Entidade Patronal", required=True) # ter tabela com empresas?

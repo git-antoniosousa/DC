@@ -4,7 +4,7 @@ from odoo import api, models, fields
 class Processo(models.Model):
     _name = "gest_diss.processo"
     _description = 'Processo de gestão da dissertação'
-    _inherits = {'gest_diss.dissertacao': "dissertacao_id"}
+    _rec_name = 'aluno_id'
 
     @api.model
     def _default_processo_stage(self):
@@ -12,16 +12,32 @@ class Processo(models.Model):
         return Estado.search([], limit=1)
 
     dissertacao_id = fields.Many2one('gest_diss.dissertacao', 'Dissertação')
-    data_homologacao = fields.Date(string="Data de Homologação", required=True)
+
+    aluno_id = fields.Many2one('gest_diss.aluno', "Aluno")
+
+    juri_presidente_id = fields.Many2one('gest_diss.docente', 'Presidente')
+    juri_vogal1_id = fields.Many2one('gest_diss.docente', 'Vogal 1')
+    juri_vogal2_id = fields.Many2one('gest_diss.docente', 'Vogal 2')
+    arguente_id = fields.Many2one('gest_diss.arguente', 'Arguente')
+    orientador_id = fields.Many2one('gest_diss.docente', 'Orientador')
+    coorientador_id = fields.Many2one('gest_diss.docente', 'Co-orientador')
+    defesa_id = fields.Many2one('gest_diss.defesa', 'Defesa')
+
+    diss_titulo = fields.Char(string="Título")
+    nota = fields.Integer(string="Nota")
+
+    data_homologacao = fields.Date(string="Data de Homologação")
     estado_id = fields.Many2one(
         'gest_diss.processo.estado',
         default=_default_processo_stage
     )
 
+    defesa_id = fields.Many2one('gest_diss.defesa', "Defesa")
+
     def write(self, vals):
         processo = super(Processo, self).write(vals)
-        if self.stage_id.book_state:
-            self.book_id.state = self.stage_id.book_state
+        if self.estado_id.estado:
+            self.estado_id.estado = self.estado_id.estado
         return processo
 
 class ProcessoEstado(models.Model):
@@ -43,4 +59,5 @@ class ProcessoEstado(models.Model):
         ('registo_nota', 'Registo de Nota'),
         ('aguardar_versao_final', 'A Aguardar Versão Final'),
         ('finalizado', 'Finalizado')
+
     ], 'Estado', default="registado")
