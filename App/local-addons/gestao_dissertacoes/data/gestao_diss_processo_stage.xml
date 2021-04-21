@@ -1,53 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-    <record id="stage_registo" model="gest_diss.processo.stage">
-        <field name="name">Registo</field>
+    <record id="stage_registo" model="gest_diss.processo.estado">
+        <field name="name">Registo Inicial</field>
         <field name="sequence">1</field>
-        <field name="processo_state">registo</field>
+        <field name="estado">registo_inicial</field>
     </record>
-    <record id="stage_correcoes" model="gest_diss.processo.stage">
+    <record id="stage_correcoes" model="gest_diss.processo.estado">
         <field name="name">Correções</field>
         <field name="sequence">5</field>
-        <field name="processo_state">correcoes</field>
+        <field name="estado">correcoes</field>
     </record>
-    <record id="stage_proposta_juri" model="gest_diss.processo.stage">
+    <record id="stage_proposta_juri" model="gest_diss.processo.estado">
         <field name="name">Proposta de Júri</field>
         <field name="sequence">15</field>
-        <field name="processo_state">proposta_juri</field>
+        <field name="estado">proposta_juri</field>
     </record>
-    <record id="stage_homologacao" model="gest_diss.processo.stage">
+    <record id="stage_homologacao" model="gest_diss.processo.estado">
         <field name="name">Homologação</field>
         <field name="sequence">25</field>
-        <field name="processo_state">homologacao</field>
+        <field name="estado">homologacao</field>
     </record>
-    <record id="stage_ata_primeira_reuniao" model="gest_diss.processo.stage">
+    <record id="stage_ata_primeira_reuniao" model="gest_diss.processo.estado">
         <field name="name">Ata 1º Reunião</field>
         <field name="sequence">35</field>
         <field name="fold" eval="True"/>
-        <field name="processo_state">ata_primeira_reuniao</field>
+        <field name="estado">ata_primeira_reuniao</field>
     </record>
-        <record id="stage_declaracao_aluno" model="gest_diss.processo.stage">
+        <record id="stage_declaracao_aluno" model="gest_diss.processo.estado">
         <field name="name">Declaração do Aluno</field>
-        <field name="sequence">35</field>
+        <field name="sequence">45</field>
         <field name="fold" eval="True"/>
-        <field name="processo_state">declaracao_aluno</field>
+        <field name="estado">declaracao_aluno</field>
     </record>
-    <record id="stage_ata_prova" model="gest_diss.processo.stage">
+    <record id="stage_ata_prova" model="gest_diss.processo.estado">
         <field name="name">Ata da Prova</field>
-        <field name="sequence">35</field>
+        <field name="sequence">55</field>
         <field name="fold" eval="True"/>
-        <field name="processo_state">ata_prova</field>
+        <field name="estado">ata_prova</field>
     </record>
-    <record id="stage_registo_nota" model="gest_diss.processo.stage">
+    <record id="stage_registo_nota" model="gest_diss.processo.estado">
         <field name="name">Registo de Nota</field>
-        <field name="sequence">35</field>
+        <field name="sequence">65</field>
         <field name="fold" eval="True"/>
-        <field name="processo_state">registo_nota</field>
+        <field name="estado">registo_nota</field>
     </record>
-    <record id="stage_versao_final" model="gest_diss.processo.stage">
+    <record id="stage_versao_final" model="gest_diss.processo.estado">
         <field name="name">Versão Final</field>
-        <field name="sequence">35</field>
+        <field name="sequence">75</field>
         <field name="fold" eval="True"/>
-        <field name="processo_state">versao_final</field>
+        <field name="estado">aguardar_versao_final</field>
+    </record>
+    <record id="stage_finalizado" model="gest_diss.processo.estado">
+        <field name="name">Finalizado</field>
+        <field name="sequence">85</field>
+        <field name="fold" eval="True"/>
+        <field name="estado">finalizado</field>
     </record>
 </odoo>
