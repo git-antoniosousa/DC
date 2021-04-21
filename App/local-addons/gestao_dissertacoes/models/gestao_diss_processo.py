@@ -30,5 +30,4 @@ class Processo(models.Model):
         ('aguardar_versao_final', 'A Aguardar Versão Final'),
         ('finalizado', 'Finalizado')
     ], required=True)
-    defesa_id = fields.Many2one('gest_diss.defesa', "Defesa")
 
