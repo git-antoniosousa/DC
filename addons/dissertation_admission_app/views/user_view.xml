@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="view_users_form_inherit" model="ir.ui.view">
+        <field name="name">res.users.form.inherit</field>
+        <field name="model">res.users</field>
+        <field eval="12" name="priority" />
+        <field name="inherit_id" ref="base.view_users_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/notebook/page[@name='access_rights']/group" position="after">
+                <group string="Informação Universitária" style="width:50%">
+                    <field string="Nº Mecanográfico" name="university_id"/>
+                    <field string="Curso(s)" name="course" widget="many2many_tags"/>
+                    <field string="Centro de Investigação" name="investigation_center"/>
+                    <field string="Departamento" name="department"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

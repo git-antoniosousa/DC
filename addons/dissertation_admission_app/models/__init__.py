@@ -1,2 +1,2 @@
 from . import dissertation
-from . import student
+from . import university_user
