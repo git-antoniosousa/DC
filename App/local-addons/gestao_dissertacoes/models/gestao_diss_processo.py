@@ -2,26 +2,25 @@ from odoo import api, models, fields
 
 
 class Processo(models.Model):
-    _name = "gest_diss.processo"
-    _description = 'Processo de gestão da dissertação'
-    _rec_name = 'aluno_id'
 
     @api.model
     def _default_processo_stage(self):
         Estado = self.env['gest_diss.processo.estado']
         return Estado.search([], limit=1)
 
+    _name = "gest_diss.processo"
+    _description = 'Processo de gestão da dissertação'
+    _rec_name = 'aluno_id'
+    _inherits = {'gest_diss.aluno':
+                     'aluno_id'}
+
     dissertacao_id = fields.Many2one('gest_diss.dissertacao', 'Dissertação')
-
     aluno_id = fields.Many2one('gest_diss.aluno', "Aluno")
+    defesa_id = fields.Many2one('gest_diss.defesa', 'Defesa')
+    juri_id = fields.Many2one('gest_diss.juri', 'Júri')
 
-    juri_presidente_id = fields.Many2one('gest_diss.docente', 'Presidente')
-    juri_vogal1_id = fields.Many2one('gest_diss.docente', 'Vogal 1')
-    juri_vogal2_id = fields.Many2one('gest_diss.docente', 'Vogal 2')
-    arguente_id = fields.Many2one('gest_diss.arguente', 'Arguente')
     orientador_id = fields.Many2one('gest_diss.docente', 'Orientador')
     coorientador_id = fields.Many2one('gest_diss.docente', 'Co-orientador')
-    defesa_id = fields.Many2one('gest_diss.defesa', 'Defesa')
 
     diss_titulo = fields.Char(string="Título")
     nota = fields.Integer(string="Nota")
@@ -32,13 +31,16 @@ class Processo(models.Model):
         default=_default_processo_stage
     )
 
-    defesa_id = fields.Many2one('gest_diss.defesa', "Defesa")
-
     def write(self, vals):
         processo = super(Processo, self).write(vals)
         if self.estado_id.estado:
             self.estado_id.estado = self.estado_id.estado
         return processo
+
+    def confirma_estado(self):
+        for rec in self:
+            rec.estado_id.estado = 'correcoes'
+
 
 class ProcessoEstado(models.Model):
     _name = 'gest_diss.processo.estado'
@@ -61,3 +63,5 @@ class ProcessoEstado(models.Model):
         ('finalizado', 'Finalizado')
 
     ], 'Estado', default="registado")
+
+
