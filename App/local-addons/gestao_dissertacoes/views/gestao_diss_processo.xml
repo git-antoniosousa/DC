@@ -3,7 +3,7 @@
 
     <record id="gestao_diss_processo_action" model="ir.actions.act_window">
         <field name="name">Gestão de Dissertações - Processos</field>
-        <field name="res_model">gest_diss.processo</field> <!--  Atualizar depois o modelo com o correto -->
+        <field name="res_model">gest_diss.processo</field>
         <field name="type">ir.actions.act_window</field>
         <field name="view_mode">tree,form,kanban</field>
     </record>
@@ -11,7 +11,17 @@
     <menuitem name="Gestão de Dissertações" id="gestao_diss_menu_base" />
     <menuitem name="Processos" id="gestao_diss_processo_menu" parent="gestao_diss_menu_base" action="gestao_diss_processo_action"/>
 
-<!-- Form View -->
+    <!-- Action Gerar Edital
+    <record id="model_gest_diss_processo_gerar_edital_action" model="ir.actions.server">
+        <field name="name">Gerar Edital</field>
+        <field name="model_id" ref="gest_diss.processo"/>
+        <field name="binding_model_id" ref="gest_diss.processo"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="code">action = records.gerar_edital_action()</field>
+    </record>
+     -->
+
+    <!-- Form View -->
     <record id="gestao_diss_processo_view_form" model="ir.ui.view">
         <field name="name">Formulário do Processo</field>
         <field name="model">gest_diss.processo</field>
@@ -26,8 +36,6 @@
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
                             <field name="aluno_id"/>
                             <field name="diss_titulo" />
-                            <field name="ficheiro_dissertacao" filename="nome_ficheiro_dissertacao"/>
-                            <field name="nome_ficheiro_dissertacao" invisible="1"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
                             <field name="orientador_id"/>
@@ -46,9 +54,7 @@
                     </group>
                 </sheet>
                 <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
+
                 </div>
             </form>
         </field>
@@ -61,11 +67,11 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="aluno_id" widget="many2one"/>
-                <field name="juri_id" widget="many2one"/>
+                <field name="juri_id" optional="hide" widget="many2one"/>
                 <field name="orientador_id" widget="many2one"/>
                 <field name="coorientador_id" widget="many2one"/>
-                <field name="defesa_id" widget="many2one"/>
-                <field name="data_homologacao"/>
+                <field name="defesa_id" optional="hide" widget="many2one"/>
+                <field name="data_homologacao" optional="hide"/>
                 <field name="estado"/>
             </tree>
         </field>

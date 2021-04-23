@@ -16,13 +16,6 @@ class Processo(models.Model):
     coorientador_id = fields.Many2one('gest_diss.docente', 'Co-orientador')
 
     diss_titulo = fields.Char(string="Título")
-    nome_ficheiro_dissertacao = fields.Char("Nome do Ficheiro da Dissertação")
-    ficheiro_dissertacao = fields.Binary(string='Dissertação', attachment=True)
-
-    @api.constrains('ficheiro_dissertacao')
-    def _check_file(self):
-        if str(self.nome_ficheiro_dissertacao.split(".")[1]) != 'pdf':
-            raise ValidationError("Não pode fazer upload de ficheiros diferentes de PDF.")
 
     nota = fields.Integer(string="Nota")
 
@@ -46,3 +39,6 @@ class Processo(models.Model):
             raise ValidationError("Preencha o campo aluno e orientador e opcionalmente coorientador para registar o aluno.")
         else:
             return self.write({'estado': 'correcoes'})
+
+    def gerar_edital_action(self):
+        x = 10
