@@ -14,8 +14,8 @@
              'views/gestao_diss_arguente.xml',
              'views/gestao_diss_docente.xml',
              'views/gestao_diss_dashboard.xml',
-             'views/gestao_diss_entidade_patronal.xml',
-             'data/gestao_diss_processo_stage.xml'],
+             'views/gestao_diss_entidade_patronal.xml'
+             ],
     'demo': [],
     'installable': True,
     'application': True,

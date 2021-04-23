@@ -11,35 +11,45 @@
     <menuitem name="Gestão de Dissertações" id="gestao_diss_menu_base" />
     <menuitem name="Processos" id="gestao_diss_processo_menu" parent="gestao_diss_menu_base" action="gestao_diss_processo_action"/>
 
-    <!-- Form View -->
+<!-- Form View -->
     <record id="gestao_diss_processo_view_form" model="ir.ui.view">
         <field name="name">Formulário do Processo</field>
         <field name="model">gest_diss.processo</field>
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <field name="estado_id" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
+                    <button name="registo_aluno_action" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
+                    <field name="estado" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
                 </header>
                 <sheet>
                     <group>
-                        <group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
                             <field name="aluno_id"/>
                             <field name="diss_titulo" />
-                            <field name="orientador_id"/>s
+                            <field name="ficheiro_dissertacao" filename="nome_ficheiro_dissertacao"/>
+                            <field name="nome_ficheiro_dissertacao" invisible="1"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
+                            <field name="orientador_id"/>
                             <field name="coorientador_id"/>
                         </group>
-                        <group>
-                            <field name="juri_presidente_id"/>
-                            <field name="juri_vogal1_id"/>
-                            <field name="juri_vogal2_id"/>
-                            <field name="arguente_id" />
+                        <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
+                            <field name="juri_id"/>
                         </group>
-                        <group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
+                            <field name="defesa_id"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
                             <field name="data_homologacao"/>
                             <field name="nota"/>
                         </group>
                     </group>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -51,15 +61,12 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="aluno_id" widget="many2one"/>
-                <field name="juri_presidente_id" widget="many2one"/>
-                <field name="juri_vogal1_id" widget="many2one"/>
-                <field name="juri_vogal2_id" widget="many2one"/>
-                <field name="arguente_id" widget="many2one"/>
+                <field name="juri_id" widget="many2one"/>
                 <field name="orientador_id" widget="many2one"/>
                 <field name="coorientador_id" widget="many2one"/>
                 <field name="defesa_id" widget="many2one"/>
                 <field name="data_homologacao"/>
-                <field name="estado_id"/>
+                <field name="estado"/>
             </tree>
         </field>
     </record>

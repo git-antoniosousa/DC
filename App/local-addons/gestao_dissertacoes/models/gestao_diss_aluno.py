@@ -9,6 +9,12 @@ class Aluno(models.Model):
     nome = fields.Char(string="Nome", required=True)
     numero = fields.Char(string="Número", required=True)
     curso = fields.Selection([('miei', 'MIEI'), ('miebiom', 'MIEBIOM')], required=True)
-    genero = fields.Selection([('m', 'Masculino'), ('f', 'Feminino')], required=True)
     email = fields.Char(string="Email")
+
+    def name_get(self):
+        data = []
+        for obj in self:
+            f = f"({obj.numero}) {obj.nome} | {obj.curso}"
+            data.append((obj.id, f))
+        return data
 
