@@ -12,8 +12,8 @@ class Processo(models.Model):
     defesa_id = fields.Many2one('gest_diss.defesa', 'Defesa')
     juri_id = fields.Many2one('gest_diss.juri', 'Júri')
 
-    orientador_id = fields.Many2one('gest_diss.docente', 'Orientador')
-    coorientador_id = fields.Many2one('gest_diss.docente', 'Co-orientador')
+    orientador_id = fields.Many2one('res.partner', 'Orientador')
+    coorientador_id = fields.Many2one('res.partner', 'Co-orientador')
 
     diss_titulo = fields.Char(string="Título")
 
