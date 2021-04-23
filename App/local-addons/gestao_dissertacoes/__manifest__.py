@@ -11,12 +11,13 @@
     'depends': ['base'],
     'license': "LGPL-3",
     'data': ['views/gestao_diss_processo.xml',
-             'views/gestao_diss_arguente.xml',
+             'views/gestao_diss_membro_juri.xml',
              'views/gestao_diss_docente.xml',
-             'views/gestao_diss_dashboard.xml',
-             'views/gestao_diss_entidade_patronal.xml'
+             'views/gestao_diss_dashboard.xml'
              ],
-    'demo': [],
+    'demo': [
+
+    ],
     'installable': True,
     'application': True,
     'auto_install': False,

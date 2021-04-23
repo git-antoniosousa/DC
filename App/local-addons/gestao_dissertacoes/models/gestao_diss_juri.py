@@ -6,8 +6,8 @@ class Juri(models.Model):
     _description = 'Júri'
     _rec_name = "juri_presidente_id"
 
-    juri_presidente_id = fields.Many2one('gest_diss.docente', 'Presidente')
-    juri_vogal_id = fields.Many2one('gest_diss.docente', 'Vogal')
+    juri_presidente_id = fields.Many2one('res.partner', 'Presidente')
+    juri_vogal_id = fields.Many2one('res.partner', 'Vogal')
     arguente_id = fields.Many2one('gest_diss.arguente', 'Arguente')
 
     def name_get(self):

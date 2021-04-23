@@ -29,6 +29,15 @@
             <form>
                 <header>
                     <button name="registo_aluno_action" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
+                    <button name="correcoes_action" string="Registar Correções" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
+                    <button name="prop_juri_action" string="Registar Júri" type="object" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}"/>
+                    <button name="homologacao_action" string="Registar Homologação" type="object" attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}"/>
+                    <button name="ata_primeira_reuniao_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}"/>
+                    <button name="declaracao_aluno_action" string="Registar Declaração" type="object" attrs="{'invisible': [('estado', 'not in', ['declaracao_aluno'])]}"/>
+                    <button name="ata_prova_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}"/>
+                    <button name="registo_nota_action" string="Registar Nota" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}"/>
+                    <button name="aguardar_versao_final_action" string="Registar Versão Final" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_versao_final'])]}"/>
+                    <button name="finalizar_action" string="Finalizar" type="object" attrs="{'invisible': [('estado', 'not in', ['finalizado'])]}"/>
                     <field name="estado" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
                 </header>
                 <sheet>
@@ -47,9 +56,23 @@
                         <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
                             <field name="defesa_id"/>
                         </group>
-                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
+                         <group attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}">
                             <field name="data_homologacao"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
                             <field name="nota"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}">
+                            <sheet>
+                                <div class="form-group">
+                                    <p>Correções</p>
+                                    <textarea id="w3review" name="w3review" rows="4" cols="50">
+                                       O ficheiro x não está bem preenchido
+                                    </textarea>
+                                    <button name="enviar_correcoes_action" string="Enviar Documento" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
+                                    <button name="enviar_correcoes_action" string="Pré-Visualizar" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
+                                </div>
+                            </sheet>
                         </group>
                     </group>
                 </sheet>

@@ -18,8 +18,8 @@ class Processo(models.Model):
     
     juri_id = fields.Many2one('gest_diss.juri', 'Júri')
 
-    orientador_id = fields.Many2one('gest_diss.docente', 'Orientador')
-    coorientador_id = fields.Many2one('gest_diss.docente', 'Co-orientador')
+    orientador_id = fields.Many2one('res.partner', 'Orientador')
+    coorientador_id = fields.Many2one('res.partner', 'Co-orientador')
 
     diss_titulo = fields.Char(string="Título")
 
@@ -46,5 +46,35 @@ class Processo(models.Model):
         else:
             return self.write({'estado': 'correcoes'})
 
+    def correcoes_action(self):
+        pass
+
+    def prop_juri_action(self):
+        pass
+
+    def homologacao_action(self):
+        pass
+
+    def ata_primeira_reuniao_action(self):
+        pass
+
+    def declaracao_aluno_action(self):
+        pass
+
+    def ata_prova_action(self):
+        pass
+
+    def registo_nota_action(self):
+        pass
+
+    def aguardar_versao_final_action(self):
+        pass
+
+    def finalizar_action(self):
+        pass
+
     def gerar_edital_action(self):
         x = 10
+
+    def enviar_correcoes_action(self):
+        pass
