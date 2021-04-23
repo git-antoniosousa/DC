@@ -1,5 +1,5 @@
 from odoo import api, models, fields
-from odoo.odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError
 
 
 class Processo(models.Model):
@@ -9,7 +9,13 @@ class Processo(models.Model):
     _rec_name = 'aluno_id'
 
     aluno_id = fields.Many2one('gest_diss.aluno', "Aluno")
+
+    curso_filter = fields.Selection(related='aluno_id.curso', store=True)
+
     defesa_id = fields.Many2one('gest_diss.defesa', 'Defesa')
+    
+    data_defesa_filter = fields.Datetime(related='defesa_id.data_hora', store=True)
+    
     juri_id = fields.Many2one('gest_diss.juri', 'Júri')
 
     orientador_id = fields.Many2one('res.partner', 'Orientador')
@@ -40,5 +46,35 @@ class Processo(models.Model):
         else:
             return self.write({'estado': 'correcoes'})
 
+    def correcoes_action(self):
+        pass
+
+    def prop_juri_action(self):
+        pass
+
+    def homologacao_action(self):
+        pass
+
+    def ata_primeira_reuniao_action(self):
+        pass
+
+    def declaracao_aluno_action(self):
+        pass
+
+    def ata_prova_action(self):
+        pass
+
+    def registo_nota_action(self):
+        pass
+
+    def aguardar_versao_final_action(self):
+        pass
+
+    def finalizar_action(self):
+        pass
+
     def gerar_edital_action(self):
         x = 10
+
+    def enviar_correcoes_action(self):
+        pass

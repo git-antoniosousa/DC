@@ -29,6 +29,15 @@
             <form>
                 <header>
                     <button name="registo_aluno_action" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
+                    <button name="correcoes_action" string="Registar Correções" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
+                    <button name="prop_juri_action" string="Registar Júri" type="object" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}"/>
+                    <button name="homologacao_action" string="Registar Homologação" type="object" attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}"/>
+                    <button name="ata_primeira_reuniao_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}"/>
+                    <button name="declaracao_aluno_action" string="Registar Declaração" type="object" attrs="{'invisible': [('estado', 'not in', ['declaracao_aluno'])]}"/>
+                    <button name="ata_prova_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}"/>
+                    <button name="registo_nota_action" string="Registar Nota" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}"/>
+                    <button name="aguardar_versao_final_action" string="Registar Versão Final" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_versao_final'])]}"/>
+                    <button name="finalizar_action" string="Finalizar" type="object" attrs="{'invisible': [('estado', 'not in', ['finalizado'])]}"/>
                     <field name="estado" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
                 </header>
                 <sheet>
@@ -47,9 +56,23 @@
                         <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
                             <field name="defesa_id"/>
                         </group>
-                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
+                         <group attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}">
                             <field name="data_homologacao"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
                             <field name="nota"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}">
+                            <sheet>
+                                <div class="form-group">
+                                    <p>Correções</p>
+                                    <textarea id="w3review" name="w3review" rows="4" cols="50">
+                                       O ficheiro x não está bem preenchido
+                                    </textarea>
+                                    <button name="enviar_correcoes_action" string="Enviar Documento" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
+                                    <button name="enviar_correcoes_action" string="Pré-Visualizar" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
+                                </div>
+                            </sheet>
                         </group>
                     </group>
                 </sheet>
@@ -78,6 +101,43 @@
     </record>
 
     <!-- Adicionar depois aqui uma search view com filtros etc, ver exemplo do codigo chapter 12 da drive que coloquei no discord -->
-
+    <!-- Search options -->
+    <record id="gestao_diss_processo_view_search" model="ir.ui.view">
+        <field name="name">gestao_diss_processo_view_search</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="aluno_id" widget="many2one"/>
+                <field name="juri_id" widget="many2one"/>
+                <field name="estado"/>
+                <field name="orientador_id" widget="many2one"/>
+                <field name="coorientador_id" widget="many2one"/>
+                <field name="defesa_id" widget="many2one"/>
+                <field name="data_homologacao"/>
+                <group string="Datas">
+                    <filter string="Data de Homologação" name="filter_data_homologacao" date="data_homologacao"/>
+                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_defesa_filter"/>
+                </group>
+                <newline/>
+                <group string="Estado">
+                    <filter name="filter_estado_registo_incial" string="Registo Inicial" domain="[('estado', '=', 'registo_inicial')]"/>
+                    <filter name="filter_estado_correcoes" string="Correções" domain="[('estado', '=', 'correcoes')]"/>
+                    <filter name="filter_estado_proposta_juri" string="Proposta Júri" domain="[('estado', '=', 'proposta_juri')]"/>
+                    <filter name="filter_estado_homologacao" string="Homologação" domain="[('estado', '=', 'homologacao')]"/>
+                    <filter name="filter_estado_ata_primeira_reuniao" string="Ata da Primeira Reunião" domain="[('estado', '=', 'ata_primeira_reuniao')]"/>
+                    <filter name="filter_estado_declaracao_aluno" string="Declaração do Aluno" domain="[('estado', '=', 'declarao_aluno')]"/>
+                    <filter name="filter_estado_ata_prova" string="Ata da Prova" domain="[('estado', '=', 'ata_prova')]"/>
+                    <filter name="filter_estado_registo_nota" string="Registo de Nota" domain="[('estado', '=', 'registo_nota')]"/>
+                    <filter name="filter_estado_aguardar_versao_final" string="Aguardar Versão Final" domain="[('estado', '=', 'aguardar_versao_final')]"/>
+                    <filter name="filter_estado_finalizado" string="Finalizado" domain="[('estado', '=', 'finalizado')]"/>
+                </group>
+                <group expand="0" string="Agrupar por...">
+                    <filter name="group_by_estado" string="Estado" context="{'group_by':'estado'}"/>
+                    <filter name="group_by_orientador" string="Orientador" context="{'group_by':'orientador_id'}"/>
+                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso_filter'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 
 </odoo>
