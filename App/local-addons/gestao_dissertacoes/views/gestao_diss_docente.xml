@@ -2,26 +2,10 @@
 <odoo>
     <record id='gestao_diss_docente_action' model='ir.actions.act_window'>
         <field name="name">Gestão de Dissertações - Docentes</field>
-        <field name="res_model">gest_diss.docente</field>
+        <field name="res_model">res.partner</field>
         <field name="view_mode">tree,form</field>
     </record>
 
     <menuitem name="Docentes" id="gestao_diss_docente_menu" parent="gestao_diss_menu_base" action="gestao_diss_docente_action"/>
-
-    <!-- Tree(list) View -->
-    <record id="gestao_diss_docente_view_tree" model="ir.ui.view">
-        <field name="name">Listagem de Docentes</field>
-        <field name="model">gest_diss.docente</field>
-        <field name="arch" type="xml">
-            <tree>
-                <field name="numero"/>
-                <field name="nome"/>
-                <field name="cargo"/>
-                <field name="email"/>
-            </tree>
-        </field>
-    </record>
-
-    <!-- Adicionar depois aqui uma search view com filtros etc, ver exemplo do codigo chapter 12 da drive que coloquei no discord -->
 
 </odoo>

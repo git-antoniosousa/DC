@@ -1,24 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id='gestao_diss_arguente_action' model='ir.actions.act_window'>
-        <field name="name">Gestão de Dissertações - Arguentes</field>
-        <field name="res_model">gest_diss.arguente</field>
+    <record id='gestao_diss_membro_juri_action' model='ir.actions.act_window'>
+        <field name="name">Gestão de Dissertações - Membros do Júri</field>
+        <field name="res_model">res.partner</field>
         <field name="view_mode">tree,form</field>
     </record>
 
-    <menuitem name="Arguentes" id="gestao_diss_arguente_menu" parent="gestao_diss_menu_base" action="gestao_diss_arguente_action"/>
-    <menuitem name="Listagem Arguentes" sequence="1" id="gestao_diss_arguentes_menu" parent="gestao_diss_arguente_menu" action="gestao_diss_arguente_action"/>
+    <menuitem name="Membros do Júri" id="gestao_diss_membro_juri_menu" parent="gestao_diss_menu_base" action="gestao_diss_membro_juri_action"/>
+
+    <!-- Form -->
+    <record id="partner_view_form" model="ir.ui.view">
+        <field name="name">partner_view_form</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <h1 class="oe_inline">Ficha Membro do Júri</h1>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="name" required="True"/>
+                            <field name="email"/>
+                            <field name="phone"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
 
     <!-- Tree(list) View -->
-    <record id="gestao_diss_arguente_view_tree" model="ir.ui.view">
-        <field name="name">Listagem de Arguentes</field>
-        <field name="model">gest_diss.arguente</field>
+    <record id="gestao_diss_membro_juri_view_tree" model="ir.ui.view">
+        <field name="name">Listagem de Membros do Júri</field>
+        <field name="model">res.partner</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="nome"/>
-                <field name="entidade_patronal"/>
-                <field name="cargo"/>
-                <field name="email"/>
+                <field name="name"/>
             </tree>
         </field>
     </record>

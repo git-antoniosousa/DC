@@ -11,6 +11,8 @@ class Aluno(models.Model):
     curso = fields.Selection([('miei', 'MIEI'), ('miebiom', 'MIEBIOM')], required=True)
     email = fields.Char(string="Email")
 
+    # ficha de um aluno pode ser um res partner
+
     def name_get(self):
         data = []
         for obj in self:
