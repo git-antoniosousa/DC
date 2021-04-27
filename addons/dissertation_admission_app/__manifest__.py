@@ -9,6 +9,9 @@
      'views/student_view.xml',
      'views/adviser_view.xml',
      'views/dissertation_view.xml',
+     'demo/course.xml',
+     'demo/department.xml',
+     'demo/investigation_center.xml'
  ],
  'application': True,
  'installable': True,
