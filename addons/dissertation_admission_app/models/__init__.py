@@ -1,2 +1,8 @@
 from . import dissertation
-from . import university_user
+
+from . import student
+from . import adviser
+
+from . import course
+from . import department
+from . import investigation_center

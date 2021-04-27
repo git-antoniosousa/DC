@@ -4,30 +4,34 @@
     <menuitem id="dissertation_admission_menu" 
               name="Admissão dissertações" />
 
-    <act_window id="action_dissertation_admission_dissertation" 
-                name="Dissertações" 
-                res_model="dissertation_admission.dissertation" 
-                view_mode="tree,form" />
+    <act_window id="action_dissertation_admission_dissertation" name="Dissertações"
+                res_model="dissertation_admission.dissertation" view_mode="tree,form" />
+    <menuitem id="menu_dissertation_admission_dissertation" name="Dissertações"
+	            action="action_dissertation_admission_dissertation" parent="dissertation_admission_menu" />
 
-    <menuitem id="menu_dissertation_admission_dissertation"
-              name="Dissertações"
-	            action="action_dissertation_admission_dissertation"
-              parent="dissertation_admission_menu" />
+    <act_window id="action_dissertation_admission_student" name="Estudantes"
+                res_model="dissertation_admission.student" view_mode="tree,form" />
+    <menuitem id="menu_dissertation_admission_student" name="Estudantes"
+              action="action_dissertation_admission_student" parent="dissertation_admission_menu" />
 
-    <!--
-    <record id="view_users_form_inherit" model="ir.ui.view">
-        <field name="name">res.users.form.inherit</field>
-        <field name="model">res.users</field>
-        <field eval="12" name="priority" />
-        <field name="inherit_id" ref="base.view_users_form" />
-        <field name="arch" type="xml">
-           <xpath expr="//form/sheet/notebook/page[@name='access_rights']/group" position="after">
-              <group string="Numero de estudante" style="width:50%">
-                  <field name="student_number" widget="char"/>
-                  <field name="student_course" widget="char"/>
-              </group>
-           </xpath>
-        </field>
-    </record>
-    -->
+    <act_window id="action_dissertation_admission_course" name="Cursos"
+                res_model="dissertation_admission.course" view_mode="tree,form" />
+    <menuitem id="menu_dissertation_admission_course" name="Cursos"
+              action="action_dissertation_admission_course" parent="dissertation_admission_menu" />
+
+    <act_window id="action_dissertation_admission_adviser" name="Orientadores"
+                res_model="dissertation_admission.adviser" view_mode="tree,form" />
+    <menuitem id="menu_dissertation_admission_adviser" name="Orientadores"
+              action="action_dissertation_admission_adviser" parent="dissertation_admission_menu" />
+
+    <act_window id="action_dissertation_admission_department" name="Departamentos"
+                res_model="dissertation_admission.department" view_mode="tree,form" />
+    <menuitem id="menu_dissertation_admission_department" name="Departamentos"
+              action="action_dissertation_admission_department" parent="dissertation_admission_menu" />
+
+    <act_window id="action_dissertation_admission_investigation_center" name="Centros de Investigação"
+                res_model="dissertation_admission.investigation_center" view_mode="tree,form" />
+    <menuitem id="menu_dissertation_admission_investigation_center" name="Centros de Investigação"
+              action="action_dissertation_admission_investigation_center" parent="dissertation_admission_menu" />
+
 </odoo>

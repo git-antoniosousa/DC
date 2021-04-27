@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <!-- Adviser Form -->
+    <record id="view_dissertation_admission_adviser_form" model="ir.ui.view">
+        <field name="name">Adviser Form</field>
+        <field name="model">dissertation_admission.adviser</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet string="Orientador" >
+                    <group col="4" modifiers="{}">
+                        <field string="Utilizador" name="user_id" on_change="1" required="True" id="user_id"/>
+                        <field string="Palavra-Passe" name="password" required="True" id="password" password="True"/>
+                        <field string="Número Mecanográfico" name="university_id" required="True" id="university_id"/>
+                        <field string="Cursos" name="courses" required="True" id="courses" widget="many2many_tags" />
+                        <field string="Centro de Investigação" name="investigation_center" required="True" id="investigation_center" widget="many2many_tags"/>
+                        <field string="Departamento" name="department" required="True" id="department" widget="many2one"/>
+                        <field string="Permissões" name="perms" id="perms"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

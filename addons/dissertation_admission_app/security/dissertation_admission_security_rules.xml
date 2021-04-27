@@ -8,12 +8,14 @@
       <field name="groups" eval="[(4, ref('dissertation_admission_group_student'))]"/>
     </record>
 
+    <!--
     <record model="ir.rule" id="only_see_in_course">
         <field name="name">Can Only See Dissertations In Its Course</field>
         <field name="model_id" ref="model_dissertation_admission_dissertation"/>
-        <field name="domain_force">[('user.course','=','0')]</field>
+        <field name="domain_force">[('course','in',user.course.id)]</field>
         <field name="groups" eval="[(4, ref('dissertation_admission_group_student'))]"/>
     </record>
+    -->
 
     <record model="ir.rule" id="edit_created_dissertation">
       <field name="name">Can Only Read And Edit Own Creations</field>
