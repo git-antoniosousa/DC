@@ -8,7 +8,7 @@
 		<field name="arch" type="xml">
 			<form >
 				<sheet string="Dissertação">
-					<group col="4" modifiers="{}">
+					<group>
 						<field name="name" required="True" id="name"/>
 						<field name="description" required="True" colspan="4" id="description"/>
 						<field name="state" required="True" id="state"/>
@@ -18,6 +18,7 @@
 						<field name="coadviser_id" can_create="true" id="coadviser_id"/>
 						<field name="student_id" id="student_id"/>
 						<field name="candidates" id="candidates" widget="many2many_tags"/>
+						<field name="create_uid" id="create_uid"/>
 						<field name="reviews" colspan="2" id="reviews"/>
 					</group>
 					<button string="Candidatar" name="register_candidate" type="object"

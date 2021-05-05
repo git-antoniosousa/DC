@@ -1,8 +1,8 @@
 from odoo import api, fields, models, exceptions
 import logging
+from . import dissertation_user
 
 _logger = logging.getLogger(__name__)
-
 
 class Adviser(models.Model):
     perms = [
@@ -24,12 +24,21 @@ class Adviser(models.Model):
 
     @api.model
     def create(self, values):
-        values['login'] = self.env['res.users'].browse(values['user_id']).email
+        user = self.env['res.users'].browse(values['user_id'])
+        values['login'] = user.email
         values['tz'] = 'Europe/Lisbon'
+        dissertation_user.check_already_assigned(user)
         res = super(Adviser, self).create(values)
-
-        if not res.coadviser_only:
-            group = self.env.ref('dissertation_admission_app.dissertation_admission_group_adviser')
-            group.write({'users': [(4, res.user_id.id)]})
-
+        dissertation_user.recalculate_permissions(self.env, user, res.perms)
         return res
+
+    def write(self, vals):
+        res = super(Adviser, self).write(vals)
+        _logger.info('\n\n\n\n\n')
+        _logger.info(str(self.perms))
+        dissertation_user.recalculate_permissions(self.env, self.user_id, self.perms)
+        return res
+
+    def unlink(self):
+        dissertation_user.recalculate_permissions(self.env, self.user_id, None)
+        return super(Adviser, self).unlink()
