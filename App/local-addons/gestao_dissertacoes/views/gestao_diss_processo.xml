@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
+    <template id="assets_backend" name="company logo assets" inherit_id="web.assets_backend">
+        <xpath expr="//link[last()]" position="after">
+            <link rel="stylesheet" href="/gestao_dissertacoes/static/src/css/aluno.css"/>
+        </xpath>
+    </template>
     <record id="gestao_diss_processo_action" model="ir.actions.act_window">
         <field name="name">Gestão de Dissertações - Processos</field>
         <field name="res_model">gest_diss.processo</field>
@@ -43,20 +47,34 @@
                 <sheet>
                     <group>
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
-                            <field name="aluno_id"/>
-                            <field name="diss_titulo" />
+                            <sheet>
+                                <h1 style="margin-bottom: 20px"><u>Aluno</u></h1>
+                            </sheet>
+                            <field name="nome" required="1"/>
+                            <field name="numero" required="1"/>
+                            <field name="curso" required="1"/>
+                            <field name="email" required="1"/>
+                            <field name="diss_titulo" required="1"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
-                            <field name="orientador_id"/>
-                            <field name="coorientador_id"/>
+                            <sheet>
+                                <h1 style="margin-bottom: 20px"><u>Orientador(es)</u></h1>
+                            </sheet>
+                            <field name="orientador_id" required="1"/>
+                            <field name="coorientador_id" required="1"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
                             <field name="juri_id"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
-                            <field name="defesa_id"/>
+                            <sheet>
+                                <h1 style="margin-bottom: 20px"><u>Defesa</u></h1>
+                            </sheet>
+                            <field name="data_hora"/>
+                            <field name="local"/>
+                            <field name="sala"/>
                         </group>
-                         <group attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}">
+                        <group attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}">
                             <field name="data_homologacao"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
@@ -67,7 +85,7 @@
                                 <div class="form-group">
                                     <p>Correções</p>
                                     <textarea id="w3review" name="w3review" rows="4" cols="50">
-                                       O ficheiro x não está bem preenchido
+                                        O ficheiro x não está bem preenchido
                                     </textarea>
                                     <button name="enviar_correcoes_action" string="Enviar Documento" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
                                     <button name="enviar_correcoes_action" string="Pré-Visualizar" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
@@ -89,11 +107,16 @@
         <field name="model">gest_diss.processo</field> <!-- mudar dps o modelo-->
         <field name="arch" type="xml">
             <tree>
-                <field name="aluno_id" widget="many2one"/>
+                <field name="nome"/>
+                <field name="numero"/>
+                <field name="curso"/>
+                <field name="email"/>
                 <field name="juri_id" optional="hide" widget="many2one"/>
                 <field name="orientador_id" widget="many2one"/>
                 <field name="coorientador_id" widget="many2one"/>
-                <field name="defesa_id" optional="hide" widget="many2one"/>
+                <field name="data_hora"/>
+                <field name="local"/>
+                <field name="sala"/>
                 <field name="data_homologacao" optional="hide"/>
                 <field name="estado"/>
             </tree>
@@ -107,16 +130,21 @@
         <field name="model">gest_diss.processo</field>
         <field name="arch" type="xml">
             <search>
-                <field name="aluno_id" widget="many2one"/>
+                <field name="nome"/>
+                <field name="numero"/>
+                <field name="curso"/>
+                <field name="email"/>
                 <field name="juri_id" widget="many2one"/>
                 <field name="estado"/>
                 <field name="orientador_id" widget="many2one"/>
                 <field name="coorientador_id" widget="many2one"/>
-                <field name="defesa_id" widget="many2one"/>
+                <field name="data_hora"/>
+                <field name="local"/>
+                <field name="sala"/>
                 <field name="data_homologacao"/>
                 <group string="Datas">
                     <filter string="Data de Homologação" name="filter_data_homologacao" date="data_homologacao"/>
-                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_defesa_filter"/>
+<!--                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_defesa_filter"/>-->
                 </group>
                 <newline/>
                 <group string="Estado">
@@ -134,7 +162,7 @@
                 <group expand="0" string="Agrupar por...">
                     <filter name="group_by_estado" string="Estado" context="{'group_by':'estado'}"/>
                     <filter name="group_by_orientador" string="Orientador" context="{'group_by':'orientador_id'}"/>
-                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso_filter'}"/>
+                    <!--                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso_filter'}"/>-->
                 </group>
             </search>
         </field>
