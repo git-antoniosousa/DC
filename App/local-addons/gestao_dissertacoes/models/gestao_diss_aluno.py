@@ -6,9 +6,9 @@ class Aluno(models.Model):
     _description = 'Aluno'
     _rec_name = "numero"
 
-    nome = fields.Char(string="Nome", required=True)
-    numero = fields.Char(string="Número", required=True)
-    curso = fields.Selection([('miei', 'MIEI'), ('miebiom', 'MIEBIOM')], required=True)
+    nome = fields.Char(string="Nome")
+    numero = fields.Char(string="Número")
+    curso = fields.Selection([('miei', 'MIEI'), ('miebiom', 'MIEBIOM')])
     email = fields.Char(string="Email")
 
     # ficha de um aluno pode ser um res partner

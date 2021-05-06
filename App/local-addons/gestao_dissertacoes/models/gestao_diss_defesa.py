@@ -6,9 +6,9 @@ class Defesa(models.Model):
     _description = 'Defesa de um aluno'
     _rec_name = 'data_hora'
 
-    data_hora = fields.Datetime('Data e Hora', required=True)
-    local = fields.Selection([('presencial', 'Presencial'), ('virtual', 'Virtual')], required=True)
-    sala = fields.Char(string="Sala", required=True)
+    data_hora = fields.Datetime('Data e Hora')
+    local = fields.Selection([('presencial', 'Presencial'), ('virtual', 'Virtual')])
+    sala = fields.Char(string="Sala")
 
 
 

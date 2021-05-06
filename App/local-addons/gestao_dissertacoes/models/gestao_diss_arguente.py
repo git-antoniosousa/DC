@@ -6,8 +6,8 @@ class Arguente(models.Model):
     _description = 'Arguente'
     _rec_name = 'nome'
 
-    nome = fields.Char(string="Nome", required=True)
-    entidade_patronal = fields.Char(string="Entidade Patronal", required=True) # ter tabela com empresas?
-    cargo = fields.Char(string="Cargo", required=True)
-    email = fields.Char(string="Email", required=True)
+    nome = fields.Char(string="Nome")
+    entidade_patronal = fields.Char(string="Entidade Patronal") # ter tabela com empresas?
+    cargo = fields.Char(string="Cargo")
+    email = fields.Char(string="Email")
     contacto_tel = fields.Char(string="Contacto Telefónico")
