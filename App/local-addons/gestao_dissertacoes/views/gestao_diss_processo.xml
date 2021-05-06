@@ -5,6 +5,7 @@
         <field name="name">Gestão de Dissertações - Processos</field>
         <field name="res_model">gest_diss.processo</field>
         <field name="type">ir.actions.act_window</field>
+        <field name="context">{'group_by':'curso_filter'}</field>
         <field name="view_mode">tree,form,kanban</field>
     </record>
 
@@ -37,7 +38,6 @@
                     <button name="ata_prova_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}"/>
                     <button name="registo_nota_action" string="Registar Nota" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}"/>
                     <button name="aguardar_versao_final_action" string="Registar Versão Final" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_versao_final'])]}"/>
-                    <button name="finalizar_action" string="Finalizar" type="object" attrs="{'invisible': [('estado', 'not in', ['finalizado'])]}"/>
                     <field name="estado" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
                 </header>
                 <sheet>
@@ -77,7 +77,6 @@
                     </group>
                 </sheet>
                 <div class="oe_chatter">
-
                 </div>
             </form>
         </field>
@@ -86,7 +85,7 @@
     <!-- Tree(list) View -->
     <record id="gestao_diss_processo_view_tree" model="ir.ui.view">
         <field name="name">Listagem de Processos</field>
-        <field name="model">gest_diss.processo</field> <!-- mudar dps o modelo-->
+        <field name="model">gest_diss.processo</field>
         <field name="arch" type="xml">
             <tree>
                 <field name="aluno_id" widget="many2one"/>
@@ -100,7 +99,6 @@
         </field>
     </record>
 
-    <!-- Adicionar depois aqui uma search view com filtros etc, ver exemplo do codigo chapter 12 da drive que coloquei no discord -->
     <!-- Search options -->
     <record id="gestao_diss_processo_view_search" model="ir.ui.view">
         <field name="name">gestao_diss_processo_view_search</field>

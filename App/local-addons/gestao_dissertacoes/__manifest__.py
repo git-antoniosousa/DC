@@ -8,11 +8,10 @@
     'author': "Joel Ferreira, João Linhares, Rui Azevedo",
     'category': 'Uncategorized',
     'version': '1.0.0',
-    'depends': ['base'],
+    'depends': ['base', 'report_py3o'],
     'license': "LGPL-3",
     'data': ['views/gestao_diss_processo.xml',
              'views/gestao_diss_membro_juri.xml',
-             'views/gestao_diss_docente.xml',
              'views/gestao_diss_dashboard.xml'
              ],
     'demo': [
