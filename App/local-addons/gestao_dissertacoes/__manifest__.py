@@ -12,7 +12,7 @@
     'depends': ['base',],
     'license': "LGPL-3",
     'data': [
-             'reports/doc_homologacao_report.xml',
+             #'reports/doc_homologacao_report.xml',
              'views/gestao_diss_processo.xml',
              'views/gestao_diss_membro_juri.xml',
              #'views/gestao_diss_docente.xml',
