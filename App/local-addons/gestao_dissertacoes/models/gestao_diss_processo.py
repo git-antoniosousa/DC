@@ -1,5 +1,5 @@
 from odoo import api, models, fields
-from odoo.odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError
 
 
 class Processo(models.Model):
@@ -46,34 +46,34 @@ class Processo(models.Model):
             return self.write({'estado': 'correcoes'})
 
     def correcoes_action(self):
-        pass
+        return self.write({'estado': 'proposta_juri'})
 
     def prop_juri_action(self):
-        pass
+        return self.write({'estado': 'homologacao'})
 
     def homologacao_action(self):
-        pass
+        return self.write({'estado': 'ata_primeira_reuniao'})
 
     def ata_primeira_reuniao_action(self):
-        pass
+        return self.write({'estado': 'declaracao_aluno'})
 
     def declaracao_aluno_action(self):
-        pass
+        return self.write({'estado': 'ata_prova'})
 
     def ata_prova_action(self):
-        pass
+        return self.write({'estado': 'registo_nota'})
 
     def registo_nota_action(self):
-        pass
+        return self.write({'estado': 'aguardar_versao_final'})
 
     def aguardar_versao_final_action(self):
-        pass
+        return self.write({'estado': 'finalizado'})
 
     def finalizar_action(self):
         pass
 
     def gerar_edital_action(self):
-        x = 10
+        pass
 
     def enviar_correcoes_action(self):
         pass
