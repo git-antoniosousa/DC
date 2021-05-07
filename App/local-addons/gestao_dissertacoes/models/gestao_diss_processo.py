@@ -29,7 +29,7 @@ class Processo(models.Model):
     ], string='Estado', readonly=True, copy=False, index=True, tracking=3, default='registo_inicial')
 
 
-    def registo_aluno_actio(self):
+    def registo_aluno_action(self):
         if self.nome and self.numero and self.curso and self.email \
                 and self.diss_titulo and self.orientador_id and self.coorientador_id:
             return self.write({'estado': 'correcoes'})
