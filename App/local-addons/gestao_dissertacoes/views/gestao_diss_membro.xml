@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem name="Membros" id="gestao_diss_membro_menu" parent="gestao_diss_menu_base" action="gestao_diss_membro_action"/>
+
+    <!-- Form -->
+    <record id="base.view_partner_form" model="ir.ui.view">
+        <field name="name">membro_view_form</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <h1 class="oe_inline">Ficha Membro</h1>
+                    </group>
+                    <group>
+                        <field name="name" required="True"/>
+                        <field name="email" required="True"/>
+                        <field name="phone" required="True"/>
+                        <field name="company_id" string="Local de Trabalho"/>
+                    </group>
+                    <group>
+                        <label for="street" string="Morada"/>
+                          <div class="o_address_format">
+                                <field name="street" placeholder="Rua" class="o_address_street"/>
+                                <field name="city" placeholder="Cidade" class="o_address_street"/>
+                                <field name="zip" placeholder="Código postal" class="o_address_street"/>
+                            </div>
+                    </group>
+                    <group>
+                        <field name="tipo_de_membro" widget="radio" required="True"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree(list) View -->
+    <record id="gestao_diss_membro_view_tree" model="ir.ui.view">
+        <field name="name">Listagem de Membros</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Adicionar depois aqui uma search view com filtros etc, ver exemplo do codigo chapter 12 da drive que coloquei no discord -->
+
+    <record id='gestao_diss_membro_action' model='ir.actions.act_window'>
+        <field name="name">Gestão de Dissertações - Membros</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('gestao_diss_membro_view_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('base.view_partner_form')})]"/>
+        <field name="domain">
+                [('is_company','=',False)]
+            </field>
+        <field name="context">
+                { 'default_is_company': False, 'hide_is_company': True }
+            </field>
+    </record>
+</odoo>

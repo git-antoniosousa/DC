@@ -14,7 +14,7 @@
     'data': [
              #'reports/doc_homologacao_report.xml',
              'views/gestao_diss_processo.xml',
-             'views/gestao_diss_membro_juri.xml',
+             'views/gestao_diss_membro.xml',
              #'views/gestao_diss_docente.xml',
              'views/gestao_diss_dashboard.xml'
              ],
