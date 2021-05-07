@@ -72,5 +72,11 @@ class Processo(models.Model):
     def gerar_edital_action(self):
         x = 10
 
+    def gerar_doc_homologacao_action(self):
+        return {
+            'type': 'ir.actions.report',
+            'report_name': 'res_users_report_py3o',
+        }
+
     def enviar_correcoes_action(self):
         pass
