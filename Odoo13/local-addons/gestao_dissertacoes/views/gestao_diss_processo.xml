@@ -16,9 +16,7 @@
                 <field name="numero"/>
                 <field name="curso"/>
                 <field name="email"/>
-                <field name="juri_presidente_id"/>
-                <field name="juri_arguente_id"/>
-                <field name="juri_vogal_id"/>
+                <field name="juri_id" widget="many2one"/>
                 <field name="estado"/>
                 <field name="orientador_id" widget="many2one"/>
                 <field name="coorientador_id" widget="many2one"/>
@@ -28,7 +26,7 @@
                 <field name="data_homologacao"/>
                 <group string="Datas">
                     <filter string="Data de Homologação" name="filter_data_homologacao" date="data_homologacao"/>
-                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_hora"/>
+<!--                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_defesa_filter"/>-->
                 </group>
                 <newline/>
                 <group string="Estado">
@@ -46,7 +44,7 @@
                 <group expand="0" string="Agrupar por...">
                     <filter name="group_by_estado" string="Estado" context="{'group_by':'estado'}"/>
                     <filter name="group_by_orientador" string="Orientador" context="{'group_by':'orientador_id'}"/>
-                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso'}"/>
+                    <!--                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso_filter'}"/>-->
                 </group>
             </search>
         </field>
@@ -57,7 +55,6 @@
         <field name="res_model">gest_diss.processo</field>
         <field name="type">ir.actions.act_window</field>
         <field name="view_mode">tree,form,kanban</field>
-        <field name="context">{'search_default_group_by_curso': 1}</field>
         <field name="search_view_id" ref="gestao_diss_processo_view_search"/>
     </record>
 
@@ -81,7 +78,7 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="registo_aluno_action" class="oe_highlight" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
+                    <button name="registo_aluno_action" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
                     <button name="correcoes_action" string="Registar Correções" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
                     <button name="prop_juri_action" string="Registar Júri" type="object" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}"/>
                     <button name="homologacao_action" string="Registar Homologação" type="object" attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}"/>
@@ -98,26 +95,21 @@
                             <sheet>
                                 <h1 style="margin-bottom: 20px"><u>Aluno</u></h1>
                             </sheet>
-                            <field name="nome"/>
-                            <field name="numero"/>
-                            <field name="curso"/>
-                            <field name="email"/>
-                            <field name="diss_titulo"/>
+                            <field name="nome" required="1"/>
+                            <field name="numero" required="1"/>
+                            <field name="curso" required="1"/>
+                            <field name="email" required="1"/>
+                            <field name="diss_titulo" required="1"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
                             <sheet>
                                 <h1 style="margin-bottom: 20px"><u>Orientador(es)</u></h1>
                             </sheet>
-                            <field name="orientador_id"/>
-                            <field name="coorientador_id"/>
+                            <field name="orientador_id" required="1"/>
+                            <field name="coorientador_id" required="1"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
-                            <sheet>
-                                <h1 style="margin-bottom: 20px"><u>Júri</u></h1>
-                            </sheet>
-                            <field name="juri_presidente_id"/>
-                            <field name="juri_arguente_id"/>
-                            <field name="juri_vogal_id"/>
+                            <field name="juri_id"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
                             <sheet>
@@ -164,14 +156,12 @@
                 <field name="numero"/>
                 <field name="curso"/>
                 <field name="email"/>
-                <field name="juri_presidente_id"/>
-                <field name="juri_arguente_id"/>
-                <field name="juri_vogal_id"/>
+                <field name="juri_id" optional="hide" widget="many2one"/>
                 <field name="orientador_id" widget="many2one"/>
                 <field name="coorientador_id" widget="many2one"/>
-                <field name="data_hora" optional="hide"/>
-                <field name="local" optional="hide"/>
-                <field name="sala" optional="hide"/>
+                <field name="data_hora"/>
+                <field name="local"/>
+                <field name="sala"/>
                 <field name="data_homologacao" optional="hide"/>
                 <field name="estado"/>
             </tree>
