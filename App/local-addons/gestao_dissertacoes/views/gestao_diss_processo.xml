@@ -27,7 +27,7 @@
                 <field name="data_homologacao"/>
                 <group string="Datas">
                     <filter string="Data de Homologação" name="filter_data_homologacao" date="data_homologacao"/>
-<!--                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_defesa_filter"/>-->
+                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_hora"/>
                 </group>
                 <newline/>
                 <group string="Estado">
@@ -45,7 +45,7 @@
                 <group expand="0" string="Agrupar por...">
                     <filter name="group_by_estado" string="Estado" context="{'group_by':'estado'}"/>
                     <filter name="group_by_orientador" string="Orientador" context="{'group_by':'orientador_id'}"/>
-                    <!--                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso_filter'}"/>-->
+                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso'}"/>
                 </group>
             </search>
         </field>
@@ -56,6 +56,7 @@
         <field name="res_model">gest_diss.processo</field>
         <field name="type">ir.actions.act_window</field>
         <field name="view_mode">tree,form,kanban</field>
+        <field name="context">{'search_default_group_by_curso': 1}</field>
         <field name="search_view_id" ref="gestao_diss_processo_view_search"/>
     </record>
 
@@ -168,9 +169,9 @@
                 <field name="juri_vogal_id"/>
                 <field name="orientador_id" widget="many2one"/>
                 <field name="coorientador_id" widget="many2one"/>
-                <field name="data_hora"/>
-                <field name="local"/>
-                <field name="sala"/>
+                <field name="data_hora" optional="hide"/>
+                <field name="local" optional="hide"/>
+                <field name="sala" optional="hide"/>
                 <field name="data_homologacao" optional="hide"/>
                 <field name="estado"/>
             </tree>
