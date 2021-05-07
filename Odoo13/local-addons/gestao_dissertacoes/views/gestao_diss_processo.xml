@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_backend" name="company logo assets" inherit_id="web.assets_backend">
+        <xpath expr="//link[last()]" position="after">
+            <link rel="stylesheet" href="/gestao_dissertacoes/static/src/css/aluno.css"/>
+        </xpath>
+    </template>
+
+        <!-- Search options -->
+    <record id="gestao_diss_processo_view_search" model="ir.ui.view">
+        <field name="name">gestao_diss_processo_view_search</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="nome"/>
+                <field name="numero"/>
+                <field name="curso"/>
+                <field name="email"/>
+                <field name="juri_id" widget="many2one"/>
+                <field name="estado"/>
+                <field name="orientador_id" widget="many2one"/>
+                <field name="coorientador_id" widget="many2one"/>
+                <field name="data_hora"/>
+                <field name="local"/>
+                <field name="sala"/>
+                <field name="data_homologacao"/>
+                <group string="Datas">
+                    <filter string="Data de Homologação" name="filter_data_homologacao" date="data_homologacao"/>
+<!--                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_defesa_filter"/>-->
+                </group>
+                <newline/>
+                <group string="Estado">
+                    <filter name="filter_estado_registo_incial" string="Registo Inicial" domain="[('estado', '=', 'registo_inicial')]"/>
+                    <filter name="filter_estado_correcoes" string="Correções" domain="[('estado', '=', 'correcoes')]"/>
+                    <filter name="filter_estado_proposta_juri" string="Proposta Júri" domain="[('estado', '=', 'proposta_juri')]"/>
+                    <filter name="filter_estado_homologacao" string="Homologação" domain="[('estado', '=', 'homologacao')]"/>
+                    <filter name="filter_estado_ata_primeira_reuniao" string="Ata da Primeira Reunião" domain="[('estado', '=', 'ata_primeira_reuniao')]"/>
+                    <filter name="filter_estado_declaracao_aluno" string="Declaração do Aluno" domain="[('estado', '=', 'declarao_aluno')]"/>
+                    <filter name="filter_estado_ata_prova" string="Ata da Prova" domain="[('estado', '=', 'ata_prova')]"/>
+                    <filter name="filter_estado_registo_nota" string="Registo de Nota" domain="[('estado', '=', 'registo_nota')]"/>
+                    <filter name="filter_estado_aguardar_versao_final" string="Aguardar Versão Final" domain="[('estado', '=', 'aguardar_versao_final')]"/>
+                    <filter name="filter_estado_finalizado" string="Finalizado" domain="[('estado', '=', 'finalizado')]"/>
+                </group>
+                <group expand="0" string="Agrupar por...">
+                    <filter name="group_by_estado" string="Estado" context="{'group_by':'estado'}"/>
+                    <filter name="group_by_orientador" string="Orientador" context="{'group_by':'orientador_id'}"/>
+                    <!--                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso_filter'}"/>-->
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="gestao_diss_processo_action" model="ir.actions.act_window">
+        <field name="name">Gestão de Dissertações - Processos</field>
+        <field name="res_model">gest_diss.processo</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="search_view_id" ref="gestao_diss_processo_view_search"/>
+    </record>
+
+    <menuitem name="Gestão de Dissertações" id="gestao_diss_menu_base" />
+    <menuitem name="Processos" id="gestao_diss_processo_menu" parent="gestao_diss_menu_base" action="gestao_diss_processo_action"/>
+
+    <!-- Action Gerar Edital
+    <record id="model_gest_diss_processo_gerar_edital_action" model="ir.actions.server">
+        <field name="name">Gerar Edital</field>
+        <field name="model_id" ref="gest_diss.processo"/>
+        <field name="binding_model_id" ref="gest_diss.processo"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="code">action = records.gerar_edital_action()</field>
+    </record>
+     -->
+
+    <!-- Form View -->
+    <record id="gestao_diss_processo_view_form" model="ir.ui.view">
+        <field name="name">Formulário do Processo</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="registo_aluno_action" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
+                    <button name="correcoes_action" string="Registar Correções" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
+                    <button name="prop_juri_action" string="Registar Júri" type="object" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}"/>
+                    <button name="homologacao_action" string="Registar Homologação" type="object" attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}"/>
+                    <button name="ata_primeira_reuniao_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}"/>
+                    <button name="declaracao_aluno_action" string="Registar Declaração" type="object" attrs="{'invisible': [('estado', 'not in', ['declaracao_aluno'])]}"/>
+                    <button name="ata_prova_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}"/>
+                    <button name="registo_nota_action" string="Registar Nota" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}"/>
+                    <button name="aguardar_versao_final_action" string="Registar Versão Final" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_versao_final'])]}"/>
+                    <field name="estado" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
+                            <sheet>
+                                <h1 style="margin-bottom: 20px"><u>Aluno</u></h1>
+                            </sheet>
+                            <field name="nome" required="1"/>
+                            <field name="numero" required="1"/>
+                            <field name="curso" required="1"/>
+                            <field name="email" required="1"/>
+                            <field name="diss_titulo" required="1"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
+                            <sheet>
+                                <h1 style="margin-bottom: 20px"><u>Orientador(es)</u></h1>
+                            </sheet>
+                            <field name="orientador_id" required="1"/>
+                            <field name="coorientador_id" required="1"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
+                            <field name="juri_id"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
+                            <sheet>
+                                <h1 style="margin-bottom: 20px"><u>Defesa</u></h1>
+                            </sheet>
+                            <field name="data_hora"/>
+                            <field name="local"/>
+                            <field name="sala"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}">
+                            <field name="data_homologacao"/>
+                            <button name="gerar_doc_homologacao_action" string="Gerar Homologação" type="object"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
+                            <field name="nota"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}">
+                            <sheet>
+                                <div class="form-group">
+                                    <p>Correções</p>
+                                    <textarea id="w3review" name="w3review" rows="4" cols="50">
+                                        O ficheiro x não está bem preenchido
+                                    </textarea>
+                                    <button name="enviar_correcoes_action" string="Enviar Documento" type="object"/>
+                                    <button name="enviar_correcoes_action" string="Pré-Visualizar" type="object"/>
+                                </div>
+                            </sheet>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree(list) View -->
+    <record id="gestao_diss_processo_view_tree" model="ir.ui.view">
+        <field name="name">Listagem de Processos</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="nome"/>
+                <field name="numero"/>
+                <field name="curso"/>
+                <field name="email"/>
+                <field name="juri_id" optional="hide" widget="many2one"/>
+                <field name="orientador_id" widget="many2one"/>
+                <field name="coorientador_id" widget="many2one"/>
+                <field name="data_hora"/>
+                <field name="local"/>
+                <field name="sala"/>
+                <field name="data_homologacao" optional="hide"/>
+                <field name="estado"/>
+            </tree>
+        </field>
+    </record>
+
+
+</odoo>
