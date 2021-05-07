@@ -5,6 +5,52 @@
             <link rel="stylesheet" href="/gestao_dissertacoes/static/src/css/aluno.css"/>
         </xpath>
     </template>
+
+    <record id="gestao_diss_processo_view_search" model="ir.ui.view">
+        <field name="name">gestao_diss_processo_view_search</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="nome"/>
+                <field name="numero"/>
+                <field name="curso"/>
+                <field name="email"/>
+                <field name="juri_presidente_id"/>
+                <field name="juri_arguente_id"/>
+                <field name="juri_vogal_id"/>
+                <field name="estado"/>
+                <field name="orientador_id" widget="many2one"/>
+                <field name="coorientador_id" widget="many2one"/>
+                <field name="data_hora"/>
+                <field name="local"/>
+                <field name="sala"/>
+                <field name="data_homologacao"/>
+                <group string="Datas">
+                    <filter string="Data de Homologação" name="filter_data_homologacao" date="data_homologacao"/>
+<!--                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_defesa_filter"/>-->
+                </group>
+                <newline/>
+                <group string="Estado">
+                    <filter name="filter_estado_registo_incial" string="Registo Inicial" domain="[('estado', '=', 'registo_inicial')]"/>
+                    <filter name="filter_estado_correcoes" string="Correções" domain="[('estado', '=', 'correcoes')]"/>
+                    <filter name="filter_estado_proposta_juri" string="Proposta Júri" domain="[('estado', '=', 'proposta_juri')]"/>
+                    <filter name="filter_estado_homologacao" string="Homologação" domain="[('estado', '=', 'homologacao')]"/>
+                    <filter name="filter_estado_ata_primeira_reuniao" string="Ata da Primeira Reunião" domain="[('estado', '=', 'ata_primeira_reuniao')]"/>
+                    <filter name="filter_estado_declaracao_aluno" string="Declaração do Aluno" domain="[('estado', '=', 'declarao_aluno')]"/>
+                    <filter name="filter_estado_ata_prova" string="Ata da Prova" domain="[('estado', '=', 'ata_prova')]"/>
+                    <filter name="filter_estado_registo_nota" string="Registo de Nota" domain="[('estado', '=', 'registo_nota')]"/>
+                    <filter name="filter_estado_aguardar_versao_final" string="Aguardar Versão Final" domain="[('estado', '=', 'aguardar_versao_final')]"/>
+                    <filter name="filter_estado_finalizado" string="Finalizado" domain="[('estado', '=', 'finalizado')]"/>
+                </group>
+                <group expand="0" string="Agrupar por...">
+                    <filter name="group_by_estado" string="Estado" context="{'group_by':'estado'}"/>
+                    <filter name="group_by_orientador" string="Orientador" context="{'group_by':'orientador_id'}"/>
+                    <!--                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso_filter'}"/>-->
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="gestao_diss_processo_action" model="ir.actions.act_window">
         <field name="name">Gestão de Dissertações - Processos</field>
         <field name="res_model">gest_diss.processo</field>
@@ -33,7 +79,7 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="registo_aluno_action" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
+                    <button name="registo_aluno_action" class="oe_highlight" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
                     <button name="correcoes_action" string="Registar Correções" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
                     <button name="prop_juri_action" string="Registar Júri" type="object" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}"/>
                     <button name="homologacao_action" string="Registar Homologação" type="object" attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}"/>
@@ -51,21 +97,26 @@
                             <sheet>
                                 <h1 style="margin-bottom: 20px"><u>Aluno</u></h1>
                             </sheet>
-                            <field name="nome" required="1"/>
-                            <field name="numero" required="1"/>
-                            <field name="curso" required="1"/>
-                            <field name="email" required="1"/>
-                            <field name="diss_titulo" required="1"/>
+                            <field name="nome"/>
+                            <field name="numero"/>
+                            <field name="curso"/>
+                            <field name="email"/>
+                            <field name="diss_titulo"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
                             <sheet>
                                 <h1 style="margin-bottom: 20px"><u>Orientador(es)</u></h1>
                             </sheet>
-                            <field name="orientador_id" required="1"/>
-                            <field name="coorientador_id" required="1"/>
+                            <field name="orientador_id"/>
+                            <field name="coorientador_id"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
-                            <field name="juri_id"/>
+                            <sheet>
+                                <h1 style="margin-bottom: 20px"><u>Júri</u></h1>
+                            </sheet>
+                            <field name="juri_presidente_id"/>
+                            <field name="juri_arguente_id"/>
+                            <field name="juri_vogal_id"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
                             <sheet>
@@ -112,7 +163,9 @@
                 <field name="numero"/>
                 <field name="curso"/>
                 <field name="email"/>
-                <field name="juri_id" optional="hide" widget="many2one"/>
+                <field name="juri_presidente_id"/>
+                <field name="juri_arguente_id"/>
+                <field name="juri_vogal_id"/>
                 <field name="orientador_id" widget="many2one"/>
                 <field name="coorientador_id" widget="many2one"/>
                 <field name="data_hora"/>
@@ -124,49 +177,9 @@
         </field>
     </record>
 
+
     <!-- Adicionar depois aqui uma search view com filtros etc, ver exemplo do codigo chapter 12 da drive que coloquei no discord -->
     <!-- Search options -->
-    <record id="gestao_diss_processo_view_search" model="ir.ui.view">
-        <field name="name">gestao_diss_processo_view_search</field>
-        <field name="model">gest_diss.processo</field>
-        <field name="arch" type="xml">
-            <search>
-                <field name="nome"/>
-                <field name="numero"/>
-                <field name="curso"/>
-                <field name="email"/>
-                <field name="juri_id" widget="many2one"/>
-                <field name="estado"/>
-                <field name="orientador_id" widget="many2one"/>
-                <field name="coorientador_id" widget="many2one"/>
-                <field name="data_hora"/>
-                <field name="local"/>
-                <field name="sala"/>
-                <field name="data_homologacao"/>
-                <group string="Datas">
-                    <filter string="Data de Homologação" name="filter_data_homologacao" date="data_homologacao"/>
-<!--                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_defesa_filter"/>-->
-                </group>
-                <newline/>
-                <group string="Estado">
-                    <filter name="filter_estado_registo_incial" string="Registo Inicial" domain="[('estado', '=', 'registo_inicial')]"/>
-                    <filter name="filter_estado_correcoes" string="Correções" domain="[('estado', '=', 'correcoes')]"/>
-                    <filter name="filter_estado_proposta_juri" string="Proposta Júri" domain="[('estado', '=', 'proposta_juri')]"/>
-                    <filter name="filter_estado_homologacao" string="Homologação" domain="[('estado', '=', 'homologacao')]"/>
-                    <filter name="filter_estado_ata_primeira_reuniao" string="Ata da Primeira Reunião" domain="[('estado', '=', 'ata_primeira_reuniao')]"/>
-                    <filter name="filter_estado_declaracao_aluno" string="Declaração do Aluno" domain="[('estado', '=', 'declarao_aluno')]"/>
-                    <filter name="filter_estado_ata_prova" string="Ata da Prova" domain="[('estado', '=', 'ata_prova')]"/>
-                    <filter name="filter_estado_registo_nota" string="Registo de Nota" domain="[('estado', '=', 'registo_nota')]"/>
-                    <filter name="filter_estado_aguardar_versao_final" string="Aguardar Versão Final" domain="[('estado', '=', 'aguardar_versao_final')]"/>
-                    <filter name="filter_estado_finalizado" string="Finalizado" domain="[('estado', '=', 'finalizado')]"/>
-                </group>
-                <group expand="0" string="Agrupar por...">
-                    <filter name="group_by_estado" string="Estado" context="{'group_by':'estado'}"/>
-                    <filter name="group_by_orientador" string="Orientador" context="{'group_by':'orientador_id'}"/>
-                    <!--                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso_filter'}"/>-->
-                </group>
-            </search>
-        </field>
-    </record>
+
 
 </odoo>

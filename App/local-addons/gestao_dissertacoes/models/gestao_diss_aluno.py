@@ -13,10 +13,10 @@ class Aluno(models.Model):
 
     # ficha de um aluno pode ser um res partner
 
-    def name_get(self):
-        data = []
-        for obj in self:
-            f = f"({obj.numero}) {obj.nome} | {obj.curso}"
-            data.append((obj.id, f))
-        return data
+    # def name_get(self):
+    #     data = []
+    #     for obj in self:
+    #         f = f"({obj.numero}) {obj.nome} | {obj.curso}"
+    #         data.append((obj.id, f))
+    #     return data
 

@@ -1,28 +1,16 @@
 from odoo import api, models, fields
-from odoo.odoo.exceptions import ValidationError
-
+from odoo.odoo.exceptions import ValidationError, UserError
+from odoo.odoo.tools.translate import _
 
 class Processo(models.Model):
     _name = "gest_diss.processo"
-    _inherit = ['gest_diss.aluno', 'gest_diss.defesa']
+    _inherit = ['gest_diss.aluno', 'gest_diss.defesa', 'gest_diss.juri']
     _description = 'Processo de gestão da dissertação'
-    # _rec_name = 'aluno_id'
-
-    # aluno_id = fields.Many2one('gest_diss.aluno', "Aluno")
-
-    # curso_filter = fields.Selection(related='aluno_id.curso', store=True)
-
-    # defesa_id = fields.Many2one('gest_diss.defesa', 'Defesa')
-
-    # data_defesa_filter = fields.Datetime(related='defesa_id.data_hora', store=True)
-
-    juri_id = fields.Many2one('gest_diss.juri', 'Júri')
 
     orientador_id = fields.Many2one('res.partner', 'Orientador')
     coorientador_id = fields.Many2one('res.partner', 'Co-orientador')
 
     diss_titulo = fields.Char(string="Título da Tese")
-
     nota = fields.Integer(string="Nota")
 
     data_homologacao = fields.Date(string="Data de Homologação")
@@ -40,10 +28,12 @@ class Processo(models.Model):
         ('finalizado', 'Finalizado')
     ], string='Estado', readonly=True, copy=False, index=True, tracking=3, default='registo_inicial')
 
-    def registo_aluno_action(self):
+
+    def registo_aluno_actio(self):
         if self.nome and self.numero and self.curso and self.email \
                 and self.diss_titulo and self.orientador_id and self.coorientador_id:
             return self.write({'estado': 'correcoes'})
+
 
     def correcoes_action(self):
         pass
