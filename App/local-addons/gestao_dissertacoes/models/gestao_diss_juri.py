@@ -8,7 +8,7 @@ class Juri(models.Model):
 
     juri_presidente_id = fields.Many2one('res.partner', 'Presidente')
     juri_vogal_id = fields.Many2one('res.partner', 'Vogal')
-    arguente_id = fields.Many2one('gest_diss.arguente', 'Arguente')
+    arguente_id = fields.Many2one('res.partner', 'Arguente')
 
     def name_get(self):
         data = []
