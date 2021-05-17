@@ -5,6 +5,7 @@
 	<record id="view_dissertation_admission_dissertation_form" model="ir.ui.view">
 		<field name="name">Dissertation Form</field>
 		<field name="model">dissertation_admission.dissertation</field>
+		<field name="priority" eval="1"/>
 		<field name="arch" type="xml">
 			<form >
 				<sheet string="Dissertação">
@@ -27,6 +28,41 @@
 							groups="dissertation_admission_app.dissertation_admission_group_student"/>
 				</sheet>
 			</form>
+		</field>
+	</record>
+
+	<!-- Dissertation Simple Form -->
+	<record id="view_dissertation_admission_dissertation_simple_form" model="ir.ui.view">
+		<field name="name">Dissertation Simple Form</field>
+		<field name="model">dissertation_admission.dissertation</field>
+		<field name="arch" type="xml">
+			<form >
+				<sheet string="Dissertação">
+					<group>
+						<field name="name" required="True" id="name"/>
+						<field name="description" required="True"  colspan="4" id="description"/>
+						<field name="course" id="course" required="True" widget="many2many_tags"/>
+						<field name="adviser_id" id="adviser_id"/>
+						<field name="coadviser_id" can_create="true" id="coadviser_id"/>
+						<field name="candidates" id="candidates" widget="many2many_tags"/>
+					</group>
+					<button string="Candidatar" name="register_candidate" type="object"
+							confirm="Tem a certeza que quer candidatar-se a esta dissertação?"
+							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
+							groups="dissertation_admission_app.dissertation_admission_group_student"/>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+	<!-- Tree view -->
+	<record id="view_dissertation_admission_dissertation_tree" model="ir.ui.view">
+		<field name="name">dissertation_view_tree</field>
+		<field name="model">dissertation_admission.dissertation</field>
+		<field name="arch" type="xml">
+			<tree>
+				<field name="name"/>
+			</tree>
 		</field>
 	</record>
 
