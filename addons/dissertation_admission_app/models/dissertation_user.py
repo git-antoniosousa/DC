@@ -5,7 +5,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 def check_already_assigned(user):
-    if user.student_uid:
+    if user.student_uid or user.adviser_uid or user.direction_uid:
         raise exceptions.UserError('O utilizador já tem permissões atribuídas para admissões de dissertação.')
 
 

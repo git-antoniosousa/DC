@@ -46,4 +46,11 @@
     <field name="implied_ids" eval="[(4, ref('dissertation_admission_app.dissertation_admission_group_adviser')), (4, ref('dissertation_admission_app.dissertation_admission_group_direction'))]"/>
   </record>
 
+  <!-- Dissertation Course Admin Group -->
+  <record id="dissertation_admission_group_admin" model="res.groups">
+    <field name="name">Administrador</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+
 </odoo>
