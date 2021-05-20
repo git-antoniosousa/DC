@@ -23,7 +23,8 @@
         'demo/processos.xml'
     ],
     'css': [
-        'static/src/css/aluno.css'
+        'static/src/css/aluno.css',
+        'static/src/css/processo.css'
     ],
     'installable': True,
     'application': True,

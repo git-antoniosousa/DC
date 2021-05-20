@@ -33,7 +33,16 @@ class Processo(models.Model):
         if self.nome and self.numero and self.curso and self.email \
                 and self.diss_titulo and self.orientador_id and self.coorientador_id:
             return self.write({'estado': 'correcoes'})
-
+        else:
+            return {
+                'name': 'Mensagem de Erro',
+                'type': 'ir.actions.act_window',
+                'res_model': 'gest.wizard',
+                'view_mode': 'form',
+                #'view_type': 'form',
+                'target': 'new',
+                'flags': {'form': {'action_buttons': False}}
+            }
 
     def correcoes_action(self):
         return self.write({'estado': 'proposta_juri'})

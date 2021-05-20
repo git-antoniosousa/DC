@@ -3,10 +3,11 @@
     <template id="assets_backend" name="company logo assets" inherit_id="web.assets_backend">
         <xpath expr="//link[last()]" position="after">
             <link rel="stylesheet" href="/gestao_dissertacoes/static/src/css/aluno.css"/>
+            <link rel="stylesheet" href="/gestao_dissertacoes/static/src/css/processo.css"/>
         </xpath>
     </template>
 
-        <!-- Search options -->
+    <!-- Search options -->
     <record id="gestao_diss_processo_view_search" model="ir.ui.view">
         <field name="name">gestao_diss_processo_view_search</field>
         <field name="model">gest_diss.processo</field>
@@ -80,9 +81,6 @@
         <field name="model">gest_diss.processo</field>
         <field name="arch" type="xml">
             <form>
-                <sheet>
-                    <h1>hello world</h1>
-                </sheet>
                 <header>
                     <button name="registo_aluno_action" class="oe_highlight" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
                     <button name="correcoes_action" string="Registar Correções" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
@@ -96,7 +94,29 @@
                     <field name="estado" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
                 </header>
                 <sheet>
+                    <!-- Pin da informação do aluno -->
+                    <group attrs="{'invisible': [('estado', 'in', ['registo_inicial'])]}">
+                        <group>
+                            <h2>Aluno</h2>
+                            <field name="nome" readonly="1"/>
+                            <field name="numero" readonly="1"/>
+                            <field name="curso" readonly="1"/>
+                            <field name="email" readonly="1"/>
+                            <field name="diss_titulo" readonly="1"/>
+                            <field name="orientador_id" readonly="1"/>
+                            <field name="coorientador_id" readonly="1"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'in', ['registo_inicial','correcoes','proposta_juri'])]}">
+                            <h2>Júri</h2>
+                            <field name="juri_presidente_id" readonly="1"/>
+                            <field name="juri_arguente_id" readonly="1"/>
+                            <field name="juri_vogal_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <hr/>
                     <group>
+
+                        <!-- Registo Inicial -->
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
                             <sheet>
                                 <h1 style="margin-bottom: 20px"><u>Aluno</u></h1>
@@ -114,6 +134,20 @@
                             <field name="orientador_id"/>
                             <field name="coorientador_id"/>
                         </group>
+                        <!-- Correções  -->
+                        <group attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}">
+                            <sheet>
+                                <div class="form-group">
+                                    <p>Correções</p>
+                                    <textarea id="w3review" name="w3review" rows="4" cols="50">
+                                        O ficheiro x não está bem preenchido
+                                    </textarea>
+                                    <button name="enviar_correcoes_action" string="Enviar Documento" type="object"/>
+                                    <button name="enviar_correcoes_action" string="Pré-Visualizar" type="object"/>
+                                </div>
+                            </sheet>
+                        </group>
+                        <!-- Proposta do Júri  -->
                         <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
                             <sheet>
                                 <h1 style="margin-bottom: 20px"><u>Júri</u></h1>
@@ -130,28 +164,91 @@
                             <field name="local"/>
                             <field name="sala"/>
                         </group>
+                        <!-- Homologação  -->
                         <group attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}">
                             <field name="data_homologacao"/>
                         </group>
+                        <!-- Registo de Nota  -->
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
                             <field name="nota"/>
                         </group>
-                        <group attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}">
-                            <sheet>
-                                <div class="form-group">
-                                    <p>Correções</p>
-                                    <textarea id="w3review" name="w3review" rows="4" cols="50">
-                                        O ficheiro x não está bem preenchido
-                                    </textarea>
-                                    <button name="enviar_correcoes_action" string="Enviar Documento" type="object"/>
-                                    <button name="enviar_correcoes_action" string="Pré-Visualizar" type="object"/>
-                                </div>
-                            </sheet>
-                        </group>
                     </group>
                 </sheet>
-                <div class="oe_chatter">
-                </div>
+                <!-- <sheet>
+                     <sheet>
+                         <h1>hello world</h1>
+                         <field name="nome"/>
+                     </sheet>
+                     <header>
+                         <button name="registo_aluno_action" class="oe_highlight" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
+                         <button name="correcoes_action" string="Registar Correções" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
+                         <button name="prop_juri_action" string="Registar Júri" type="object" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}"/>
+                         <button name="homologacao_action" string="Registar Homologação" type="object" attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}"/>
+                         <button name="ata_primeira_reuniao_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}"/>
+                         <button name="declaracao_aluno_action" string="Registar Declaração" type="object" attrs="{'invisible': [('estado', 'not in', ['declaracao_aluno'])]}"/>
+                         <button name="ata_prova_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}"/>
+                         <button name="registo_nota_action" string="Registar Nota" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}"/>
+                         <button name="aguardar_versao_final_action" string="Registar Versão Final" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_versao_final'])]}"/>
+                         <field name="estado" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
+                     </header>
+                     <sheet>
+                         <group>
+                             <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
+                                 <sheet>
+                                     <h1 style="margin-bottom: 20px"><u>Aluno</u></h1>
+                                 </sheet>
+                                 <field name="nome"/>
+                                 <field name="numero"/>
+                                 <field name="curso"/>
+                                 <field name="email"/>
+                                 <field name="diss_titulo"/>
+                             </group>
+                             <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
+                                 <sheet>
+                                     <h1 style="margin-bottom: 20px"><u>Orientador(es)</u></h1>
+                                 </sheet>
+                                 <field name="orientador_id"/>
+                                 <field name="coorientador_id"/>
+                             </group>
+                             <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
+                                 <sheet>
+                                     <h1 style="margin-bottom: 20px"><u>Júri</u></h1>
+                                 </sheet>
+                                 <field name="juri_presidente_id"/>
+                                 <field name="juri_arguente_id"/>
+                                 <field name="juri_vogal_id"/>
+                             </group>
+                             <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
+                                 <sheet>
+                                     <h1 style="margin-bottom: 20px"><u>Defesa</u></h1>
+                                 </sheet>
+                                 <field name="data_hora"/>
+                                 <field name="local"/>
+                                 <field name="sala"/>
+                             </group>
+                             <group attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}">
+                                 <field name="data_homologacao"/>
+                             </group>
+                             <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
+                                 <field name="nota"/>
+                             </group>
+                             <group attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}">
+                                 <sheet>
+                                     <div class="form-group">
+                                         <p>Correções</p>
+                                         <textarea id="w3review" name="w3review" rows="4" cols="50">
+                                             O ficheiro x não está bem preenchido
+                                         </textarea>
+                                         <button name="enviar_correcoes_action" string="Enviar Documento" type="object"/>
+                                         <button name="enviar_correcoes_action" string="Pré-Visualizar" type="object"/>
+                                     </div>
+                                 </sheet>
+                             </group>
+                         </group>
+                     </sheet>
+                     <div class="oe_chatter">
+                     </div>
+                 </sheet>-->
             </form>
         </field>
     </record>
