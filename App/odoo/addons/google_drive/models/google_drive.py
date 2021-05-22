@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+
 import ast
 import logging
 import json
@@ -178,7 +179,7 @@ class GoogleDrive(models.Model):
         return config_values
 
     name = fields.Char('Template Name', required=True)
-    model_id = fields.Many2one('ir.model', 'Model', required=True, ondelete='cascade')
+    model_id = fields.Many2one('ir.model', 'Model', required=True)
     model = fields.Char('Related Model', related='model_id.model', readonly=True)
     filter_id = fields.Many2one('ir.filters', 'Filter', domain="[('model_id', '=', model)]")
     google_drive_template_url = fields.Char('Template URL', required=True)
@@ -194,15 +195,14 @@ class GoogleDrive(models.Model):
         return None
 
     def _compute_ressource_id(self):
+        result = {}
         for record in self:
-            if record.google_drive_template_url:
-                word = self._get_key_from_url(record.google_drive_template_url)
-                if word:
-                    record.google_drive_resource_id = word
-                else:
-                    raise UserError(_("Please enter a valid Google Document URL."))
+            word = self._get_key_from_url(record.google_drive_template_url)
+            if word:
+                record.google_drive_resource_id = word
             else:
-                record.google_drive_resource_id = False
+                raise UserError(_("Please enter a valid Google Document URL."))
+        return result
 
     def _compute_client_id(self):
         google_drive_client_id = self.env['ir.config_parameter'].sudo().get_param('google_drive_client_id')

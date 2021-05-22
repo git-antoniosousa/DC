@@ -8,7 +8,7 @@
               "Tawasta, "
               "Vizucom, "
               "Sprintit",
-    "category": "Accounting/Localizations/Account Charts",
+    "category": "Localization",
     "description": """
 This is the Odoo module to manage the accounting in Finland.
 ============================================================

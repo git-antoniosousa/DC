@@ -4,7 +4,7 @@ import base64
 import random
 import re
 
-from odoo import api, fields, models, modules
+from odoo import api, fields, models, modules, _
 
 
 class ImLivechatChannel(models.Model):
@@ -33,10 +33,6 @@ class ImLivechatChannel(models.Model):
     default_message = fields.Char('Welcome Message', default='How may I help you?',
         help="This is an automated 'welcome' message that your visitor will see when they initiate a new conversation.")
     input_placeholder = fields.Char('Chat Input Placeholder', help='Text that prompts the user to initiate the chat.')
-    header_background_color = fields.Char(default="#875A7B", help="Default background color of the channel header once open")
-    title_color = fields.Char(default="#FFFFFF", help="Default title color of the channel once open")
-    button_background_color = fields.Char(default="#878787", help="Default background color of the Livechat button")
-    button_text_color = fields.Char(default="#FFFFFF", help="Default text color of the Livechat button")
 
     # computed fields
     web_page = fields.Char('Web Page', compute='_compute_web_page_link', store=False, readonly=True,
@@ -65,18 +61,16 @@ class ImLivechatChannel(models.Model):
         }
         for record in self:
             values["channel_id"] = record.id
-            record.script_external = view._render(values) if record.id else False
+            record.script_external = view.render(values)
 
     def _compute_web_page_link(self):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         for record in self:
-            record.web_page = "%s/im_livechat/support/%i" % (base_url, record.id) if record.id else False
+            record.web_page = "%s/im_livechat/support/%i" % (base_url, record.id)
 
     @api.depends('channel_ids')
     def _compute_nbr_channel(self):
-        data = self.env['mail.channel'].read_group([
-            ('livechat_channel_id', 'in', self._ids),
-            ('channel_message_ids', '!=', False)], ['__count'], ['livechat_channel_id'], lazy=False)
+        data = self.env['mail.channel'].read_group([('livechat_channel_id', 'in', self._ids)], ['__count'], ['livechat_channel_id'], lazy=False)
         channel_count = {x['livechat_channel_id'][0]: x['__count'] for x in data}
         for record in self:
             record.nbr_channel = channel_count.get(record.id, 0)
@@ -98,7 +92,7 @@ class ImLivechatChannel(models.Model):
             :returns : the ir.action 'action_view_rating' with the correct domain
         """
         self.ensure_one()
-        action = self.env['ir.actions.act_window']._for_xml_id('im_livechat.rating_rating_action_view_livechat_rating')
+        action = self.env['ir.actions.act_window'].for_xml_id('im_livechat', 'rating_rating_action_view_livechat_rating')
         action['domain'] = [('parent_res_id', '=', self.id), ('parent_res_model', '=', 'im_livechat.channel')]
         return action
 
@@ -123,7 +117,6 @@ class ImLivechatChannel(models.Model):
                 channel_partner_to_add.append((4, visitor_user.partner_id.id))
         return {
             'channel_partner_ids': channel_partner_to_add,
-            'livechat_active': True,
             'livechat_operator_id': operator_partner_id,
             'livechat_channel_id': self.id,
             'anonymous_name': False if user_id else anonymous_name,
@@ -184,9 +177,9 @@ class ImLivechatChannel(models.Model):
             FROM mail_channel c
             LEFT OUTER JOIN mail_message_mail_channel_rel r ON c.id = r.mail_channel_id
             LEFT OUTER JOIN mail_message m ON r.mail_message_id = m.id
-            WHERE c.channel_type = 'livechat' 
+            WHERE m.create_date > ((now() at time zone 'UTC') - interval '30 minutes')
+            AND c.channel_type = 'livechat'
             AND c.livechat_operator_id in %s
-            AND m.create_date > ((now() at time zone 'UTC') - interval '30 minutes')
             GROUP BY c.livechat_operator_id
             ORDER BY COUNT(DISTINCT c.id) asc""", (tuple(operators.mapped('partner_id').ids),))
         active_channels = self.env.cr.dictfetchall()
@@ -211,10 +204,6 @@ class ImLivechatChannel(models.Model):
         self.ensure_one()
 
         return {
-            'header_background_color': self.header_background_color,
-            'button_background_color': self.button_background_color,
-            'title_color': self.title_color,
-            'button_text_color': self.button_text_color,
             'button_text': self.button_text,
             'input_placeholder': self.input_placeholder,
             'default_message': self.default_message,
@@ -225,12 +214,13 @@ class ImLivechatChannel(models.Model):
     def get_livechat_info(self, username='Visitor'):
         self.ensure_one()
 
+        if username == 'Visitor':
+            username = _('Visitor')
         info = {}
         info['available'] = len(self._get_available_users()) > 0
         info['server_url'] = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         if info['available']:
             info['options'] = self._get_channel_infos()
-            info['options']['current_partner_id'] = self.env.user.partner_id.id
             info['options']["default_username"] = username
         return info
 

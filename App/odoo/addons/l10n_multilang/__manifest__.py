@@ -4,7 +4,7 @@
 {
     'name': 'Multi Language Chart of Accounts',
     'version': '1.1',
-    'category': 'Accounting/Localizations',
+    'category': 'Localization',
     'description': """
     * Multi language support for Chart of Accounts, Taxes, Tax Codes, Journals,
       Accounting Templates, Analytic Chart of Accounts and Analytic Journals.

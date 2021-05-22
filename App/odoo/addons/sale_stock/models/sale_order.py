@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import json
-import logging
 from datetime import datetime, timedelta
 from collections import defaultdict
 
 from odoo import api, fields, models, _
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare, float_round
-from odoo.tools.float_utils import float_repr
-from odoo.tools.misc import format_date
 from odoo.exceptions import UserError
-
-
-_logger = logging.getLogger(__name__)
 
 
 class SaleOrder(models.Model):
@@ -21,9 +14,9 @@ class SaleOrder(models.Model):
 
     @api.model
     def _default_warehouse_id(self):
-        # !!! Any change to the default value may have to be repercuted
-        # on _init_column() below.
-        return self.env.user._get_default_warehouse_id()
+        company = self.env.company.id
+        warehouse_ids = self.env['stock.warehouse'].search([('company_id', '=', company)], limit=1)
+        return warehouse_ids
 
     incoterm = fields.Many2one(
         'account.incoterms', 'Incoterm',
@@ -47,29 +40,6 @@ class SaleOrder(models.Model):
                                           "the order lines in case of Service products. In case of shipping, the shipping policy of "
                                           "the order will be taken into account to either use the minimum or maximum lead time of "
                                           "the order lines.")
-    json_popover = fields.Char('JSON data for the popover widget', compute='_compute_json_popover')
-    show_json_popover = fields.Boolean('Has late picking', compute='_compute_json_popover')
-
-    def _init_column(self, column_name):
-        """ Ensure the default warehouse_id is correctly assigned
-
-        At column initialization, the ir.model.fields for res.users.property_warehouse_id isn't created,
-        which means trying to read the property field to get the default value will crash.
-        We therefore enforce the default here, without going through
-        the default function on the warehouse_id field.
-        """
-        if column_name != "warehouse_id":
-            return super(SaleOrder, self)._init_column(column_name)
-        field = self._fields[column_name]
-        default = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
-        value = field.convert_to_write(default, self)
-        value = field.convert_to_column(value, self)
-        if value is not None:
-            _logger.debug("Table '%s': setting default value of new column %s to %r",
-                self._table, column_name, value)
-            query = 'UPDATE "%s" SET "%s"=%s WHERE "%s" IS NULL' % (
-                self._table, column_name, field.column_format, column_name)
-            self._cr.execute(query, (value,))
 
     @api.depends('picking_ids.date_done')
     def _compute_effective_date(self):
@@ -92,10 +62,9 @@ class SaleOrder(models.Model):
 
     @api.model
     def create(self, vals):
-        if 'warehouse_id' not in vals and 'company_id' in vals:
-            user = self.env['res.users'].browse(vals.get('user_id', False))
-            vals['warehouse_id'] = user.with_company(vals.get('company_id'))._get_default_warehouse_id().id
-        return super().create(vals)
+        if 'warehouse_id' not in vals and 'company_id' in vals and vals.get('company_id') != self.env.company.id:
+            vals['warehouse_id'] = self.env['stock.warehouse'].search([('company_id', '=', vals.get('company_id'))], limit=1).id
+        return super(SaleOrder, self).create(vals)
 
     def write(self, values):
         if values.get('order_line') and self.state == 'sale':
@@ -112,11 +81,6 @@ class SaleOrder(models.Model):
                         You should probably update the partner on this document.""") % addresses
                 picking.activity_schedule('mail.mail_activity_data_warning', note=message, user_id=self.env.user.id)
 
-        if values.get('commitment_date'):
-            # protagate commitment_date as the deadline of the related stock move.
-            # TODO: Log a note on each down document
-            self.order_line.move_ids.date_deadline = fields.Datetime.to_datetime(values.get('commitment_date'))
-
         res = super(SaleOrder, self).write(values)
         if values.get('order_line') and self.state == 'sale':
             for order in self:
@@ -129,20 +93,6 @@ class SaleOrder(models.Model):
                     documents = {k:v for k, v in documents.items() if k[0].state != 'cancel'}
                     order._log_decrease_ordered_quantity(documents)
         return res
-
-    def _compute_json_popover(self):
-        for order in self:
-            late_stock_picking = order.picking_ids.filtered(lambda p: p.delay_alert_date)
-            order.json_popover = json.dumps({
-                'popoverTemplate': 'sale_stock.DelayAlertWidget',
-                'late_elements': [{
-                        'id': late_move.id,
-                        'name': late_move.display_name,
-                        'model': 'stock.picking',
-                    } for late_move in late_stock_picking
-                ]
-            })
-            order.show_json_popover = bool(late_stock_picking)
 
     def _action_confirm(self):
         self.order_line._action_launch_stock_rule()
@@ -157,12 +107,7 @@ class SaleOrder(models.Model):
     def _onchange_company_id(self):
         if self.company_id:
             warehouse_id = self.env['ir.default'].get_model_defaults('sale.order').get('warehouse_id')
-            self.warehouse_id = warehouse_id or self.user_id.with_company(self.company_id.id)._get_default_warehouse_id().id
-
-    @api.onchange('user_id')
-    def onchange_user_id(self):
-        super().onchange_user_id()
-        self.warehouse_id = self.user_id.with_company(self.company_id.id)._get_default_warehouse_id().id
+            self.warehouse_id = warehouse_id or self.env['stock.warehouse'].search([('company_id', '=', self.company_id.id)], limit=1)
 
     @api.onchange('partner_shipping_id')
     def _onchange_partner_shipping_id(self):
@@ -185,7 +130,7 @@ class SaleOrder(models.Model):
         of given sales order ids. It can either be a in a list or in a form
         view, if there is only one delivery order to show.
         '''
-        action = self.env["ir.actions.actions"]._for_xml_id("stock.action_picking_tree_all")
+        action = self.env.ref('stock.action_picking_tree_all').read()[0]
 
         pickings = self.mapped('picking_ids')
         if len(pickings) > 1:
@@ -212,7 +157,7 @@ class SaleOrder(models.Model):
             if sale_order.state == 'sale' and sale_order.order_line:
                 sale_order_lines_quantities = {order_line: (order_line.product_uom_qty, 0) for order_line in sale_order.order_line}
                 documents = self.env['stock.picking']._log_activity_get_documents(sale_order_lines_quantities, 'move_ids', 'UP')
-        self.picking_ids.filtered(lambda p: p.state != 'done').action_cancel()
+        self.mapped('picking_ids').filtered(lambda p: p.state != 'done').action_cancel()
         if documents:
             filtered_documents = {}
             for (parent, responsible), rendering_context in documents.items():
@@ -248,16 +193,10 @@ class SaleOrder(models.Model):
                 'impacted_pickings': impacted_pickings,
                 'cancel': cancel
             }
-            return self.env.ref('sale_stock.exception_on_so')._render(values=values)
+            return self.env.ref('sale_stock.exception_on_so').render(values=values)
 
         self.env['stock.picking']._log_activity(_render_note_exception_quantity_so, documents)
 
-    def _show_cancel_wizard(self):
-        res = super(SaleOrder, self)._show_cancel_wizard()
-        for order in self:
-            if any(picking.state == 'done' for picking in order.picking_ids) and not order._context.get('disable_cancel_warning'):
-                return True
-        return res
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
@@ -267,64 +206,47 @@ class SaleOrderLine(models.Model):
     route_id = fields.Many2one('stock.location.route', string='Route', domain=[('sale_selectable', '=', True)], ondelete='restrict', check_company=True)
     move_ids = fields.One2many('stock.move', 'sale_line_id', string='Stock Moves')
     product_type = fields.Selection(related='product_id.type')
-    virtual_available_at_date = fields.Float(compute='_compute_qty_at_date', digits='Product Unit of Measure')
+    virtual_available_at_date = fields.Float(compute='_compute_qty_at_date')
     scheduled_date = fields.Datetime(compute='_compute_qty_at_date')
-    forecast_expected_date = fields.Datetime(compute='_compute_qty_at_date')
-    free_qty_today = fields.Float(compute='_compute_qty_at_date', digits='Product Unit of Measure')
+    free_qty_today = fields.Float(compute='_compute_qty_at_date')
     qty_available_today = fields.Float(compute='_compute_qty_at_date')
-    warehouse_id = fields.Many2one(related='order_id.warehouse_id')
-    qty_to_deliver = fields.Float(compute='_compute_qty_to_deliver', digits='Product Unit of Measure')
+    warehouse_id = fields.Many2one('stock.warehouse', compute='_compute_qty_at_date')
+    qty_to_deliver = fields.Float(compute='_compute_qty_to_deliver')
     is_mto = fields.Boolean(compute='_compute_is_mto')
     display_qty_widget = fields.Boolean(compute='_compute_qty_to_deliver')
 
-    @api.depends('product_type', 'product_uom_qty', 'qty_delivered', 'state', 'move_ids', 'product_uom')
+    @api.depends('product_id', 'product_uom_qty', 'qty_delivered', 'state', 'product_uom')
     def _compute_qty_to_deliver(self):
         """Compute the visibility of the inventory widget."""
         for line in self:
             line.qty_to_deliver = line.product_uom_qty - line.qty_delivered
-            if line.state in ('draft', 'sent', 'sale') and line.product_type == 'product' and line.product_uom and line.qty_to_deliver > 0:
-                if line.state == 'sale' and not line.move_ids:
-                    line.display_qty_widget = False
-                else:
-                    line.display_qty_widget = True
+            if line.state == 'draft' and line.product_type == 'product' and line.product_uom and line.qty_to_deliver > 0:
+                line.display_qty_widget = True
             else:
                 line.display_qty_widget = False
 
-    @api.depends(
-        'product_id', 'customer_lead', 'product_uom_qty', 'product_uom', 'order_id.commitment_date',
-        'move_ids', 'move_ids.forecast_expected_date', 'move_ids.forecast_availability')
+    @api.depends('product_id', 'customer_lead', 'product_uom_qty', 'product_uom', 'order_id.warehouse_id', 'order_id.commitment_date')
     def _compute_qty_at_date(self):
         """ Compute the quantity forecasted of product at delivery date. There are
         two cases:
          1. The quotation has a commitment_date, we take it as delivery date
          2. The quotation hasn't commitment_date, we compute the estimated delivery
             date based on lead time"""
-        treated = self.browse()
-        # If the state is already in sale the picking is created and a simple forecasted quantity isn't enough
-        # Then used the forecasted data of the related stock.move
-        for line in self.filtered(lambda l: l.state == 'sale'):
-            if not line.display_qty_widget:
-                continue
-            moves = line.move_ids.filtered(lambda m: m.product_id == line.product_id)
-            line.forecast_expected_date = max(moves.filtered("forecast_expected_date").mapped("forecast_expected_date"), default=False)
-            line.qty_available_today = 0
-            line.free_qty_today = 0
-            for move in moves:
-                line.qty_available_today += move.product_uom._compute_quantity(move.reserved_availability, line.product_uom)
-                line.free_qty_today += move.product_id.uom_id._compute_quantity(move.forecast_availability, line.product_uom)
-            line.scheduled_date = line.order_id.commitment_date or line._expected_date()
-            line.virtual_available_at_date = False
-            treated |= line
-
         qty_processed_per_product = defaultdict(lambda: 0)
         grouped_lines = defaultdict(lambda: self.env['sale.order.line'])
         # We first loop over the SO lines to group them by warehouse and schedule
         # date in order to batch the read of the quantities computed field.
-        for line in self.filtered(lambda l: l.state in ('draft', 'sent')):
+        for line in self:
             if not (line.product_id and line.display_qty_widget):
                 continue
-            grouped_lines[(line.warehouse_id.id, line.order_id.commitment_date or line._expected_date())] |= line
+            line.warehouse_id = line.order_id.warehouse_id
+            if line.order_id.commitment_date:
+                date = line.order_id.commitment_date
+            else:
+                date = line._expected_date()
+            grouped_lines[(line.warehouse_id.id, date)] |= line
 
+        treated = self.browse()
         for (warehouse, scheduled_date), lines in grouped_lines.items():
             product_qties = lines.mapped('product_id').with_context(to_date=scheduled_date, warehouse=warehouse).read([
                 'qty_available',
@@ -341,21 +263,18 @@ class SaleOrderLine(models.Model):
                 line.qty_available_today = qty_available_today - qty_processed_per_product[line.product_id.id]
                 line.free_qty_today = free_qty_today - qty_processed_per_product[line.product_id.id]
                 line.virtual_available_at_date = virtual_available_at_date - qty_processed_per_product[line.product_id.id]
-                line.forecast_expected_date = False
-                product_qty = line.product_uom_qty
                 if line.product_uom and line.product_id.uom_id and line.product_uom != line.product_id.uom_id:
                     line.qty_available_today = line.product_id.uom_id._compute_quantity(line.qty_available_today, line.product_uom)
                     line.free_qty_today = line.product_id.uom_id._compute_quantity(line.free_qty_today, line.product_uom)
                     line.virtual_available_at_date = line.product_id.uom_id._compute_quantity(line.virtual_available_at_date, line.product_uom)
-                    product_qty = line.product_uom._compute_quantity(product_qty, line.product_id.uom_id)
-                qty_processed_per_product[line.product_id.id] += product_qty
+                qty_processed_per_product[line.product_id.id] += line.product_uom_qty
             treated |= lines
         remaining = (self - treated)
         remaining.virtual_available_at_date = False
         remaining.scheduled_date = False
-        remaining.forecast_expected_date = False
         remaining.free_qty_today = False
         remaining.qty_available_today = False
+        remaining.warehouse_id = False
 
     @api.depends('product_id', 'route_id', 'order_id.warehouse_id', 'product_id.route_ids')
     def _compute_is_mto(self):
@@ -430,9 +349,6 @@ class SaleOrderLine(models.Model):
         res = super(SaleOrderLine, self).write(values)
         if lines:
             lines._action_launch_stock_rule(previous_product_uom_qty)
-        if 'customer_lead' in values and self.state == 'sale' and not self.order_id.commitment_date:
-            # Propagate deadline on related stock move
-            self.move_ids.date_deadline = self.order_id.date_order + timedelta(days=self.customer_lead or 0.0)
         return res
 
     @api.depends('order_id.state')
@@ -496,20 +412,22 @@ class SaleOrderLine(models.Model):
         """
         values = super(SaleOrderLine, self)._prepare_procurement_values(group_id)
         self.ensure_one()
-        # Use the delivery date if there is else use date_order and lead time
-        date_deadline = self.order_id.commitment_date or (self.order_id.date_order + timedelta(days=self.customer_lead or 0.0))
-        date_planned = date_deadline - timedelta(days=self.order_id.company_id.security_lead)
+        date_planned = self.order_id.date_order\
+            + timedelta(days=self.customer_lead or 0.0) - timedelta(days=self.order_id.company_id.security_lead)
         values.update({
             'group_id': group_id,
             'sale_line_id': self.id,
             'date_planned': date_planned,
-            'date_deadline': date_deadline,
             'route_ids': self.route_id,
             'warehouse_id': self.order_id.warehouse_id or False,
             'partner_id': self.order_id.partner_shipping_id.id,
-            'product_description_variants': self._get_sale_order_line_multiline_description_variants(),
             'company_id': self.order_id.company_id,
         })
+        for line in self.filtered("order_id.commitment_date"):
+            date_planned = fields.Datetime.from_string(line.order_id.commitment_date) - timedelta(days=line.order_id.company_id.security_lead)
+            values.update({
+                'date_planned': fields.Datetime.to_string(date_planned),
+            })
         return values
 
     def _get_qty_procurement(self, previous_product_uom_qty=False):
@@ -555,7 +473,6 @@ class SaleOrderLine(models.Model):
         precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         procurements = []
         for line in self:
-            line = line.with_company(line.company_id)
             if line.state != 'sale' or not line.product_id.type in ('consu','product'):
                 continue
             qty = line._get_qty_procurement(previous_product_uom_qty)
@@ -612,13 +529,7 @@ class SaleOrderLine(models.Model):
             return {
                 'warning': {
                     'title': _('Warning'),
-                    'message': _(
-                        "This product is packaged by %(pack_size).2f %(pack_name)s. You should sell %(quantity).2f %(unit)s.",
-                        pack_size=pack.qty,
-                        pack_name=default_uom.name,
-                        quantity=newqty,
-                        unit=self.product_uom.name
-                    ),
+                    'message': _("This product is packaged by %.2f %s. You should sell %.2f %s.") % (pack.qty, default_uom.name, newqty, self.product_uom.name),
                 },
             }
         return {}

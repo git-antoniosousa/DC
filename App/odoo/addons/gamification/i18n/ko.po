@@ -3,30 +3,25 @@
 # 	* gamification
 # 
 # Translators:
-# Linkup <link-up@naver.com>, 2020
-# Martin Trigaux, 2020
+# Martin Trigaux, 2019
+# Link Up링크업 <linkup.way@gmail.com>, 2019
+# Seongseok Shin <shinss61@hotmail.com>, 2019
+# Linkup <link-up@naver.com>, 2019
 # JH CHOI <hwangtog@gmail.com>, 2020
-# Link Up링크업 <linkup.way@gmail.com>, 2020
-# Seongseok Shin <shinss61@hotmail.com>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-29 15:48+0000\n"
-"PO-Revision-Date: 2020-09-07 08:12+0000\n"
-"Last-Translator: Seongseok Shin <shinss61@hotmail.com>, 2020\n"
+"POT-Creation-Date: 2019-12-05 12:34+0000\n"
+"PO-Revision-Date: 2019-08-26 09:10+0000\n"
+"Last-Translator: JH CHOI <hwangtog@gmail.com>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/odoo/teams/41243/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__rank_users_count
-msgid "# Users"
-msgstr ""
 
 #. module: gamification
 #: code:addons/gamification/models/challenge.py:0
@@ -95,8 +90,8 @@ msgid ""
 "                        % endif\n"
 "                        <br/><br/>\n"
 "                        Thank you,\n"
-"                        % if object.sender_id.signature:\n"
-"                            <br/>\n"
+"                        <br/>\n"
+"                        % if object.sender_id and object.sender_id.signature:\n"
 "                            ${object.sender_id.signature | safe}\n"
 "                        % endif\n"
 "                    </div>\n"
@@ -141,6 +136,103 @@ msgid ""
 "</td></tr>\n"
 "</table>"
 msgstr ""
+"<?xml version=\"1.0\"?>\n"
+"<table border=\"0\" cellpadding=\"0\" style=\"padding-top: 16px; background-color: #F1F1F1; color: #454748; width: 100%; border-collapse:separate;\"><tr><td align=\"center\">\n"
+"<table border=\"0\" width=\"590\" cellpadding=\"0\" style=\"padding: 16px; background-color: white; color: #454748; border-collapse:separate;\" summary=\"o_mail_notification\">\n"
+"<tbody>\n"
+"    <!-- HEADER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table width=\"590\" border=\"0\" cellpadding=\"0\" style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\">\n"
+"                    <span style=\"font-size: 10px;\">귀하의 배지</span><br/>\n"
+"                    <span style=\"font-size: 20px; font-weight: bold;\">\n"
+"                        ${object.badge_id.name}\n"
+"                    </span>\n"
+"                </td><td valign=\"middle\" align=\"right\">\n"
+"                    <img src=\"/logo.png?company=${object.user_id.company_id.id}\" style=\"padding: 0px; margin: 0px; height: auto; width: 80px;\" alt=\"${object.user_id.company_id.name}\"/>\n"
+"                </td></tr>\n"
+"                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- CONTENT -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table width=\"590\" border=\"0\" cellpadding=\"0\" style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"top\" style=\"font-size: 14px;\">\n"
+"                    <div>\n"
+"                        ${object.user_id.name}님 축하합니다!<br/>\n"
+"                        방금 <strong>${object.badge_id.name}</strong> 배지를 받았습니다!<br/>\n"
+"                        % if object.badge_id.description\n"
+"                            <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" style=\"width: 560px; margin-top: 5px;\">\n"
+"                            <tbody><tr>\n"
+"                                <td valign=\"center\">\n"
+"                                    <img src=\"/web/image/gamification.badge/${object.badge_id.id}/image_128/80x80\" style=\"padding: 0px; margin: 0px; height: auto; width: 80px;\" alt=\"${user.company_id.name}\"/>\n"
+"                                </td>\n"
+"                                <td valign=\"center\">\n"
+"                                    <cite>${object.badge_id.description}</cite>\n"
+"                                </td>\n"
+"                            </tr></tbody>\n"
+"                            </table>\n"
+"                        % endif\n"
+"                        <br/>\n"
+"                        % if object.sender_id\n"
+"                            이 배지는 <strong>${object.sender_id.name}</strong>에 의해 부여되었습니다.\n"
+"                        % endif\n"
+"                        <br/>\n"
+"                        % if object.comment\n"
+"                            ${object.comment}\n"
+"                        % endif\n"
+"                        <br/><br/>\n"
+"                        감사합니다.\n"
+"                        <br/>\n"
+"                        % if object.sender_id and object.sender_id.signature:\n"
+"                            ${object.sender_id.signature | safe}\n"
+"                        % endif\n"
+"                    </div>\n"
+"                </td></tr>\n"
+"                <tr><td style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- FOOTER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table width=\"590\" border=\"0\" cellpadding=\"0\" style=\"min-width: 590px; background-color: white; font-size: 12px; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\" align=\"left\">\n"
+"                    ${object.user_id.company_id.name}\n"
+"                </td></tr>\n"
+"                <tr><td valign=\"middle\" align=\"left\" style=\"opacity: 0.7;\">\n"
+"                    ${object.user_id.company_id.phone}\n"
+"                    % if object.user_id.company_id.email\n"
+"                        | <a href=\"'mailto:%s' % ${object.user_id.company_id.email}\" style=\"text-decoration:none; color: #454748;\">${object.user_id.company_id.email}</a>\n"
+"                    % endif\n"
+"                    % if object.user_id.company_id.website\n"
+"                        | <a href=\"'%s' % ${object.user_id.company_id.website}\" style=\"text-decoration:none; color: #454748;\">\n"
+"                        ${object.user_id.company_id.website}\n"
+"                    </a>\n"
+"                    % endif\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"</tbody>\n"
+"</table>\n"
+"</td></tr>\n"
+"<!-- POWERED BY -->\n"
+"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
+"    <table width=\"590\" border=\"0\" cellpadding=\"0\" style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;\">\n"
+"      <tr><td style=\"text-align: center; font-size: 14px;\">\n"
+"        <a target=\"_blank\" href=\"https://www.odoo.com?utm_source=db&amp;utm_medium=gamification\" style=\"color: #875A7B;\">Odoo</a> 제공\n"
+"      </td></tr>\n"
+"    </table>\n"
+"</td></tr>\n"
+"</table>"
 
 #. module: gamification
 #: code:addons/gamification/models/challenge.py:0
@@ -159,10 +251,8 @@ msgstr "<br/>어느 누구도 모든 목표에 도달하는 데 성공하지 못
 #. module: gamification
 #: code:addons/gamification/models/challenge.py:0
 #, python-format
-msgid ""
-"<br/>Reward (badge %(badge_name)s) for every succeeding user was sent to "
-"%(users)s."
-msgstr ""
+msgid "<br/>Reward (badge %s) for every succeeding user was sent to %s."
+msgstr "<br/>이어지는 모든 사용자에 대한 보상 (%s 뱃지)이 %s로 발송되었습니다."
 
 #. module: gamification
 #: code:addons/gamification/models/challenge.py:0
@@ -187,9 +277,7 @@ msgid ""
 "                <p>\n"
 "                    You just reached a new rank : <strong>${object.rank_id.name}</strong>\n"
 "                </p>\n"
-"                % if object.next_rank_id.name\n"
-"                    <p>Continue your work to become a <strong>${object.next_rank_id.name}</strong> !</p>\n"
-"                % endif\n"
+"                <p>Continue your work to become a <strong>${object.next_rank_id.name}</strong> !</p>\n"
 "                <div style=\"margin: 16px 0px 16px 0px;\">\n"
 "                    % set gamification_redirection_data = object.get_gamification_redirection_data()\n"
 "                    % for data in gamification_redirection_data\n"
@@ -205,32 +293,66 @@ msgid ""
 "                </p>\n"
 "            </td>\n"
 "        </tr>\n"
-"        % if user.signature\n"
-"        <tr>\n"
-"            <td style=\"padding:15px 20px 10px 20px;\">\n"
-"                ${user.signature | safe}\n"
-"            </td>\n"
-"        </tr>\n"
-"        % endif\n"
 "    </tbody>\n"
 " </table>\n"
 "</div>"
 msgstr ""
+"<div style=\"background:#F0F0F0;color:#515166;padding:10px 0px;font-family:Arial,Helvetica,sans-serif;font-size:14px;\">\n"
+"<table style=\"width:600px;margin:0px auto;background:white;border:1px solid #e1e1e1;\">\n"
+"    <tbody>\n"
+"        <tr>\n"
+"            <td style=\"padding:15px 20px 10px 20px;\">\n"
+"                <p>\n"
+"                    축하합니다\n"
+"                    <span>${object.name or ''}</span>!\n"
+"                </p>\n"
+"                <p>\n"
+"                    다음 등급에 도달했습니다 : <strong>${object.rank_id.name}</strong>\n"
+"                </p>\n"
+"                <p>계속해서 <strong>${object.next_rank_id.name}</strong> 등급이 되십시오!</p>\n"
+"                <div style=\"margin: 16px 0px 16px 0px;\">\n"
+"                    % set gamification_redirection_data = object.get_gamification_redirection_data()\n"
+"                    % for data in gamification_redirection_data\n"
+"                        % set url = data['url']\n"
+"                        % set label = data['label']\n"
+"                        <a href=\"${url}\" style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">${label}</a>\n"
+"                    % endfor\n"
+"                </div>\n"
+"            </td>\n"
+"            <td style=\"padding:15px 20px 10px 20px;\">\n"
+"                <p style=\"text-align: center;\">\n"
+"                    <img src=\"/web/image/gamification.karma.rank/${object.rank_id.id}/image_128\"/>\n"
+"                </p>\n"
+"            </td>\n"
+"        </tr>\n"
+"    </tbody>\n"
+" </table>\n"
+"</div>"
 
 #. module: gamification
 #: model:mail.template,body_html:gamification.email_template_goal_reminder
 msgid ""
 "<div>\n"
 "    <strong>Reminder ${object.name}</strong><br/>\n"
-"    You have not updated your progress for the goal ${object.definition_id.name} (currently reached at ${object.completeness}%) for at least ${object.remind_update_delay} days. Do not forget to do it.\n"
-"    <br/><br/>\n"
-"    Thank you,\n"
-"    % if object.challenge_id.manager_id.signature:\n"
-"        <br/>\n"
-"        ${object.challenge_id.manager_id.signature | safe}\n"
+"You have not updated your progress for the goal ${object.definition_id.name} (currently reached at ${object.completeness}%) for at least ${object.remind_update_delay} days. Do not forget to do it.\n"
+"<br/><br/>\n"
+"Thank you,\n"
+"    <br/>\n"
+"    % if object.challenge_id.manager_id and object.challenge_id.manager_id.signature:\n"
+"    ${object.challenge_id.manager_id.signature | safe}\n"
 "    % endif\n"
 "</div>"
 msgstr ""
+"<div>\n"
+"    <strong>${object.name} 미리 알림</strong><br/>\n"
+"적어도 ${object.remind_update_delay}일 동안 ${object.definition_id.name} 목표(${object.completeness}%에 도달)에 대한 진행 상황을 업데이트 하지 않았습니다. 잊지 마시기 바랍니다.\n"
+"<br/><br/>\n"
+"감사합니다.\n"
+"    <br/>\n"
+"    % if object.challenge_id.manager_id and object.challenge_id.manager_id.signature:\n"
+"    ${object.challenge_id.manager_id.signature | safe}\n"
+"    % endif\n"
+"</div>"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_kanban_view
@@ -267,11 +389,6 @@ msgid ""
 msgstr ""
 "<span class=\"o_stat_text\">관련</span>\n"
 "                                <span class=\"o_stat_text\">목표</span>"
-
-#. module: gamification
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_rank_view_form
-msgid "<span class=\"o_stat_text\">Users</span>"
-msgstr ""
 
 #. module: gamification
 #: model:mail.template,body_html:gamification.simple_report_template
@@ -684,9 +801,11 @@ msgstr ""
 #. module: gamification
 #: model_terms:ir.actions.act_window,help:gamification.goal_definition_list_action
 msgid ""
-"A goal definition is a technical specification of a condition to reach.\n"
+"A goal definition is a technical model of goal defining a condition to reach.\n"
 "                The dates, values to reach or users are defined in goal instance."
 msgstr ""
+"목표 정의는 도달 조건을 정의하는 목표의 기술적 모델입니다.\n"
+"                날짜, 도달하려는 값 또는 사용자가 목표 인스턴스에 정의됩니다."
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_challenge_line__condition
@@ -723,13 +842,13 @@ msgstr "선택한 사용자 목록"
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__action_id
 msgid "Action"
-msgstr "조치"
+msgstr "추가 작업"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__message_needaction
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__message_needaction
 msgid "Action Needed"
-msgstr "필요한 조치"
+msgstr "작업이 필요함"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__active
@@ -752,7 +871,7 @@ msgid "Alternative to a list of users"
 msgstr "사용자 목록에 대한 대체 항목"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_challenge__challenge_category
+#: model:ir.model.fields,field_description:gamification.field_gamification_challenge__category
 msgid "Appears in"
 msgstr "다음에 표시"
 
@@ -760,7 +879,7 @@ msgstr "다음에 표시"
 #: model_terms:ir.ui.view,arch_db:gamification.badge_form_view
 #: model_terms:ir.ui.view,arch_db:gamification.gamification_badge_view_search
 msgid "Archived"
-msgstr "아카이브됨"
+msgstr "보존"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.challenge_form_view
@@ -815,7 +934,7 @@ msgstr "학사"
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge_user_wizard__badge_id
 #: model_terms:ir.ui.view,arch_db:gamification.badge_form_view
 msgid "Badge"
-msgstr "뱃지"
+msgstr "배지"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.badge_form_view
@@ -962,7 +1081,7 @@ msgstr "마감한 목표"
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge_user__comment
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge_user_wizard__comment
 msgid "Comment"
-msgstr "댓글"
+msgstr "의견"
 
 #. module: gamification
 #: model:gamification.challenge,name:gamification.challenge_base_discover
@@ -980,17 +1099,6 @@ msgstr "완성도"
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_search_view
 msgid "Computation Mode"
 msgstr "연산 모드"
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_challenge_line__condition
-msgid "Condition"
-msgstr "조건"
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__consolidated
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_search
-msgid "Consolidated"
-msgstr ""
 
 #. module: gamification
 #: model:ir.actions.act_window,name:gamification.action_new_simplified_res_users
@@ -1043,9 +1151,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__create_uid
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__create_uid
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__create_uid
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__create_uid
 msgid "Created by"
-msgstr "작성자"
+msgstr "작성인"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__create_date
@@ -1057,7 +1164,6 @@ msgstr "작성자"
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__create_date
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__create_date
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__create_date
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__create_date
 msgid "Created on"
 msgstr "작성일"
 
@@ -1088,22 +1194,17 @@ msgid "Date Field"
 msgstr "날짜 필드"
 
 #. module: gamification
-#: model:ir.model.fields,help:gamification.field_gamification_goal__computation_mode
-#: model:ir.model.fields,help:gamification.field_gamification_goal_definition__computation_mode
-msgid ""
-"Define how the goals will be computed. The result of the operation will be "
-"stored in the field 'Current'."
-msgstr ""
-
-#. module: gamification
-#: model:ir.model.fields,help:gamification.field_gamification_challenge__challenge_category
+#: model:ir.model.fields,help:gamification.field_gamification_challenge__category
 msgid "Define the visibility of the challenge through menus"
 msgstr "메뉴를 통한 도전의 가시성 정의"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_goal__definition_condition
-msgid "Definition Condition"
-msgstr ""
+#: model:ir.model.fields,help:gamification.field_gamification_goal__computation_mode
+#: model:ir.model.fields,help:gamification.field_gamification_goal_definition__computation_mode
+msgid ""
+"Defined how will be computed the goals. The result of the operation will be "
+"stored in the field 'Current'."
+msgstr "정의된 목표 계산 방법. 작업 결과는 '현재' 필드에 저장됩니다."
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal__definition_description
@@ -1130,13 +1231,11 @@ msgstr "그들이 무엇을 했는지, 그리고 왜 그것이 중요한지 설�
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__description
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__description
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__description
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_rank_view_form
 msgid "Description"
-msgstr "내용"
+msgstr "설명"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__visibility_mode
-#: model:ir.model.fields,field_description:gamification.field_gamification_goal__definition_display
 msgid "Display Mode"
 msgstr "화면 모드"
 
@@ -1150,12 +1249,11 @@ msgstr "화면 모드"
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__display_name
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__display_name
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__display_name
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__display_name
-#: model:ir.model.fields,field_description:gamification.field_res_users__display_name
 msgid "Display Name"
-msgstr "이름 표시"
+msgstr "표시 이름"
 
 #. module: gamification
+#: model:ir.model.fields,field_description:gamification.field_gamification_goal__definition_display
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__display_mode
 msgid "Displayed as"
 msgstr "다음으로 표시함"
@@ -1191,7 +1289,7 @@ msgstr "완료"
 #: model:ir.model.fields.selection,name:gamification.selection__gamification_goal__state__draft
 #: model_terms:ir.ui.view,arch_db:gamification.goal_search_view
 msgid "Draft"
-msgstr "임시"
+msgstr "초안"
 
 #. module: gamification
 #: model_terms:gamification.karma.rank,description_motivational:gamification.rank_newbie
@@ -1218,7 +1316,7 @@ msgstr "배치 모드에 대한 평가 식"
 #. module: gamification
 #: model:ir.model.fields.selection,name:gamification.selection__gamification_badge__rule_auth__everyone
 msgid "Everyone"
-msgstr "전체"
+msgstr "전체 공개"
 
 #. module: gamification
 #: model:ir.model.fields.selection,name:gamification.selection__gamification_goal_definition__display_mode__boolean
@@ -1256,7 +1354,7 @@ msgstr "팔로워 (채널)"
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__message_partner_ids
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__message_partner_ids
 msgid "Followers (Partners)"
-msgstr "팔로워 (파트너)"
+msgstr "팔로워 (협력사)"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__reward_first_id
@@ -1280,8 +1378,8 @@ msgstr "모든 후속 사용자를 위한"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_form_view
-msgid "Formatting Options"
-msgstr ""
+msgid "Formating Options"
+msgstr "포맷 옵션"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__level
@@ -1291,7 +1389,7 @@ msgstr "게시판 뱃지 수준"
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_kanban_view
 msgid "From"
-msgstr "보낸 사람"
+msgstr "출고 창고"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__full_suffix
@@ -1306,7 +1404,7 @@ msgstr "업적 배지"
 #. module: gamification
 #: model:ir.model,name:gamification.model_gamification_challenge
 msgid "Gamification Challenge"
-msgstr "도전 과제 업적"
+msgstr "업적 도전 과제"
 
 #. module: gamification
 #: model:ir.model,name:gamification.model_gamification_goal
@@ -1351,13 +1449,6 @@ msgid "Gamification: Goal Challenge Check"
 msgstr "업적 : 도전 과제 목표 확인"
 
 #. module: gamification
-#: model:ir.actions.server,name:gamification.ir_cron_consolidate_last_month_ir_actions_server
-#: model:ir.cron,cron_name:gamification.ir_cron_consolidate_last_month
-#: model:ir.cron,name:gamification.ir_cron_consolidate_last_month
-msgid "Gamification: Karma tracking consolidation"
-msgstr ""
-
-#. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__goal_id
 #: model_terms:ir.ui.view,arch_db:gamification.goal_form_view
 #: model_terms:ir.ui.view,arch_db:gamification.view_challenge_kanban
@@ -1395,6 +1486,8 @@ msgid "Goal List"
 msgstr "목표 목록"
 
 #. module: gamification
+#: model:ir.model.fields,field_description:gamification.field_gamification_challenge_line__condition
+#: model:ir.model.fields,field_description:gamification.field_gamification_goal__definition_condition
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__condition
 msgid "Goal Performance"
 msgstr "목표 실적"
@@ -1422,7 +1515,7 @@ msgstr "목표"
 #. module: gamification
 #: model:ir.model.fields.selection,name:gamification.selection__gamification_badge__level__gold
 msgid "Gold"
-msgstr "금"
+msgstr "금메달"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_res_users__gold_badge
@@ -1468,7 +1561,6 @@ msgstr "수여하는 중"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.challenge_search_view
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_search
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_search_view
 #: model_terms:ir.ui.view,arch_db:gamification.goal_search_view
 msgid "Group By"
@@ -1491,11 +1583,11 @@ msgstr "숨김"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_form_view
-msgid "How is the goal computed?"
-msgstr ""
+msgid "How to compute the goal?"
+msgstr "목표를 계산하는 방법은 무엇입니까?"
 
 #. module: gamification
-#: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__challenge_category__hr
+#: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__category__hr
 msgid "Human Resources / Engagement"
 msgstr "인적 자원 / 참여"
 
@@ -1509,8 +1601,6 @@ msgstr "인적 자원 / 참여"
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__id
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__id
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__id
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__id
-#: model:ir.model.fields,field_description:gamification.field_res_users__id
 msgid "ID"
 msgstr "ID"
 
@@ -1530,7 +1620,7 @@ msgstr "최대 값이 설정됐을 경우"
 #: model:ir.model.fields,help:gamification.field_gamification_challenge__message_needaction
 #: model:ir.model.fields,help:gamification.field_gamification_challenge__message_unread
 msgid "If checked, new messages require your attention."
-msgstr "만약 선택하였으면, 새 메시지에 주의를 기울여야 합니다."
+msgstr "선택하면 새로운 메시지를 주목할 필요가 있습니다."
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_badge__message_has_error
@@ -1589,9 +1679,10 @@ msgstr ""
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_goal_definition__batch_distinctive_field
 msgid ""
-"In batch mode, this indicates which field distinguishes one user from the "
-"other, e.g. user_id, partner_id..."
+"In batch mode, this indicates which field distinct one user form the other, "
+"e.g. user_id, partner_id..."
 msgstr ""
+"일괄 처리 모드에서 이것은 한 사용자가 다른 사용자를 구분하는 필드를 나타냅니다. 예 : user_id, partner_id ..."
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_goal__last_update
@@ -1614,11 +1705,6 @@ msgid "Individual Goals"
 msgstr "개별 목표"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__model_inherited_ids
-msgid "Inherited models"
-msgstr "상속된 모델"
-
-#. module: gamification
 #: model:gamification.challenge.line,name:gamification.line_base_admin3
 #: model:gamification.goal.definition,name:gamification.definition_base_invite
 msgid "Invite new Users"
@@ -1628,17 +1714,12 @@ msgstr "새로운 사용자를 초대"
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__message_is_follower
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__message_is_follower
 msgid "Is Follower"
-msgstr "팔로워입니다"
+msgstr "팔로워 여부"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_res_users__karma
 msgid "Karma"
 msgstr "명성"
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_res_users__karma_tracking_ids
-msgid "Karma Changes"
-msgstr ""
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge____last_update
@@ -1650,10 +1731,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition____last_update
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard____last_update
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank____last_update
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking____last_update
-#: model:ir.model.fields,field_description:gamification.field_res_users____last_update
 msgid "Last Modified on"
-msgstr "최근 수정"
+msgstr "최근 수정일"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__last_report_date
@@ -1675,7 +1754,6 @@ msgstr "최근 갱신"
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__write_uid
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__write_uid
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__write_uid
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__write_uid
 msgid "Last Updated by"
 msgstr "최근 갱신한 사람"
 
@@ -1689,9 +1767,8 @@ msgstr "최근 갱신한 사람"
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__write_date
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__write_date
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__write_date
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__write_date
 msgid "Last Updated on"
-msgstr "최근 갱신 날짜"
+msgstr "최근 갱신일"
 
 #. module: gamification
 #: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__visibility_mode__ranking
@@ -1722,6 +1799,11 @@ msgstr "설정할 목표의 목록"
 #: model:ir.model.fields,help:gamification.field_gamification_challenge__user_ids
 msgid "List of users participating to the challenge"
 msgstr "도전에 참여하는 사용자의 목록"
+
+#. module: gamification
+#: model:gamification.goal.definition,name:gamification.definition_nbr_following
+msgid "Mail Group Following"
+msgstr "팔로잉하는 메일 그룹"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__message_main_attachment_id
@@ -1790,7 +1872,6 @@ msgstr "월간 총계"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__description_motivational
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_rank_view_form
 msgid "Motivational"
 msgstr "동기 부여"
 
@@ -1833,11 +1914,6 @@ msgstr "하지않음"
 #: model:ir.model.fields,help:gamification.field_gamification_challenge__remind_update_delay
 msgid "Never reminded if no value or zero is specified."
 msgstr "값이 지정되지 않았거나 0이 지정되지 않았음을 알리지 않았습니다."
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__new_value
-msgid "New Karma Value"
-msgstr ""
 
 #. module: gamification
 #: model:mail.template,subject:gamification.email_template_badge_received
@@ -1915,13 +1991,13 @@ msgstr "작업 수"
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__message_has_error_counter
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__message_has_error_counter
 msgid "Number of errors"
-msgstr "오류 횟수"
+msgstr "에러 수"
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_badge__message_needaction_counter
 #: model:ir.model.fields,help:gamification.field_gamification_challenge__message_needaction_counter
 msgid "Number of messages which requires an action"
-msgstr "조치가 필요한 메시지 수"
+msgstr "작업이 필요한 메시지 수"
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_badge__message_has_error_counter
@@ -1936,14 +2012,9 @@ msgid "Number of unread messages"
 msgstr "읽지 않은 메시지 수"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_badge__granted_users_count
+#: model:ir.model.fields,field_description:gamification.field_gamification_badge__stat_count_distinct
 msgid "Number of users"
 msgstr "사용자 인원수"
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__old_value
-msgid "Old Karma Value"
-msgstr ""
 
 #. module: gamification
 #: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__report_message_frequency__onchange
@@ -2157,7 +2228,7 @@ msgstr "사용자 정보가 없는 개인적인 도전을 위한 진행 상황 �
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.challenge_form_view
 msgid "Reward"
-msgstr "보상"
+msgstr "포상"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__reward_failure
@@ -2187,7 +2258,7 @@ msgstr "도전 과제에 대한 포상"
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_search_view
 msgid "Running"
-msgstr "실행 중"
+msgstr "유지"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.challenge_search_view
@@ -2197,7 +2268,7 @@ msgstr "진행 중인 도전"
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_form_view
 msgid "Schedule"
-msgstr "예약"
+msgstr "계획표"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.gamification_badge_view_search
@@ -2225,11 +2296,6 @@ msgid "Search Ranks"
 msgstr "검색 순위"
 
 #. module: gamification
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_search
-msgid "Search Trackings"
-msgstr ""
-
-#. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.badge_form_view
 msgid ""
 "Security rules to define who is allowed to manually grant badges. Not "
@@ -2254,7 +2320,7 @@ msgstr "보낸 사람"
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge_line__sequence
 msgid "Sequence"
-msgstr "순차적"
+msgstr "순서"
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_challenge_line__sequence
@@ -2285,7 +2351,7 @@ msgid "Set your Timezone"
 msgstr "시간대 설정"
 
 #. module: gamification
-#: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__challenge_category__other
+#: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__category__other
 msgid "Settings / Gamification Tools"
 msgstr "설정 / 업적 시스템 도구"
 
@@ -2297,7 +2363,7 @@ msgstr "회사 설정"
 #. module: gamification
 #: model:ir.model.fields.selection,name:gamification.selection__gamification_badge__level__silver
 msgid "Silver"
-msgstr "은"
+msgstr "실버"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_res_users__silver_badge
@@ -2326,7 +2392,7 @@ msgstr "목표 시작"
 #: model_terms:ir.ui.view,arch_db:gamification.challenge_search_view
 #: model_terms:ir.ui.view,arch_db:gamification.goal_search_view
 msgid "State"
-msgstr "상태"
+msgstr "시/도"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.badge_form_view
@@ -2341,7 +2407,7 @@ msgstr "학생"
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.challenge_form_view
 msgid "Subscriptions"
-msgstr "구독"
+msgstr "구독 관리"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge_line__definition_full_suffix
@@ -2354,12 +2420,6 @@ msgstr "접미사"
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__invited_user_ids
 msgid "Suggest to users"
 msgstr "사용자에게 제안"
-
-#. module: gamification
-#: model_terms:ir.ui.view,arch_db:gamification.challenge_form_view
-#: model_terms:ir.ui.view,arch_db:gamification.challenge_line_list_view
-msgid "Target"
-msgstr "목표"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge_line__target_goal
@@ -2443,11 +2503,6 @@ msgid "The list of instances of this badge granted to users"
 msgstr "사용자에게 부여 된 이 배지의 인스턴스 목록"
 
 #. module: gamification
-#: model:ir.model.fields,help:gamification.field_gamification_goal_definition__model_inherited_ids
-msgid "The list of models that extends the current model."
-msgstr "현재 모델 목록을 확장하십시오."
-
-#. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_badge__unique_owner_ids
 msgid "The list of unique users having received this badge."
 msgstr "이 배지를 받은 고유 사용자 목록입니다."
@@ -2467,19 +2522,27 @@ msgstr "한 사람당 한 달에 이 배지를 보낼 수 있는 최대 횟수�
 #: code:addons/gamification/models/goal.py:0
 #, python-format
 msgid ""
-"The model configuration for the definition %(name)s seems incorrect, please check it.\n"
+"The model configuration for the definition %s seems incorrect, please check it.\n"
 "\n"
-"%(error)s not found"
+"%s not found"
 msgstr ""
+"%s 정의의 모델 구성이 잘못되었습니다. 확인하십시오.\n"
+"\n"
+"\n"
+"%s 찾을 수 없음"
 
 #. module: gamification
 #: code:addons/gamification/models/goal.py:0
 #, python-format
 msgid ""
-"The model configuration for the definition %(name)s seems incorrect, please check it.\n"
+"The model configuration for the definition %s seems incorrect, please check it.\n"
 "\n"
-"%(field_name)s not stored"
+"%s not stored"
 msgstr ""
+"%s 정의의 모델 구성이 잘못되었습니다. 확인하십시오.\n"
+"\n"
+"\n"
+"%s 찾을 수 없음"
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_goal_definition__model_id
@@ -2510,7 +2573,7 @@ msgid "The number of time the current user has sent this badge this month."
 msgstr "현재 사용자가 이번 달에 이 배지를 보낸 시간입니다."
 
 #. module: gamification
-#: model:ir.model.fields,help:gamification.field_gamification_badge__granted_users_count
+#: model:ir.model.fields,help:gamification.field_gamification_badge__stat_count_distinct
 msgid "The number of time this badge has been received by unique users."
 msgstr "고유 사용자가 이 배지를 받은 시간입니다."
 
@@ -2520,14 +2583,9 @@ msgid "The number of time this badge has been received this month."
 msgstr "이번 달에 이 배지를 받은 횟수입니다."
 
 #. module: gamification
-#: model:ir.model.fields,help:gamification.field_gamification_badge__granted_count
+#: model:ir.model.fields,help:gamification.field_gamification_badge__stat_count
 msgid "The number of time this badge has been received."
 msgstr "이 배지를 받은 시간입니다."
-
-#. module: gamification
-#: model:ir.model.constraint,message:gamification.constraint_gamification_karma_rank_karma_min_check
-msgid "The required karma has to be above 0."
-msgstr ""
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_challenge_line__definition_monetary
@@ -2591,7 +2649,7 @@ msgstr "이 배지는 사용자가 보낼 수 없습니다."
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_kanban_view
 msgid "To"
-msgstr "종료"
+msgstr "입고 창고"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal__target_goal
@@ -2604,31 +2662,9 @@ msgid "To update"
 msgstr "갱신하기"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_badge__granted_count
+#: model:ir.model.fields,field_description:gamification.field_gamification_badge__stat_count
 msgid "Total"
 msgstr "합계"
-
-#. module: gamification
-#: model:ir.model,name:gamification.model_gamification_karma_tracking
-msgid "Track Karma Changes"
-msgstr ""
-
-#. module: gamification
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_form
-msgid "Tracking"
-msgstr "추적"
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__tracking_date
-msgid "Tracking Date"
-msgstr ""
-
-#. module: gamification
-#: model:ir.actions.act_window,name:gamification.gamification_karma_tracking_action
-#: model:ir.ui.menu,name:gamification.gamification_karma_tracking_menu
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_tree
-msgid "Trackings"
-msgstr ""
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__unique_owner_ids
@@ -2644,18 +2680,18 @@ msgstr "단위"
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__message_unread
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__message_unread
 msgid "Unread Messages"
-msgstr "읽지 않은 메세지"
+msgstr "읽지 않은 메시지"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__message_unread_counter
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__message_unread_counter
 msgid "Unread Messages Counter"
-msgstr "읽지 않은 메세지 수"
+msgstr "읽지 않은 메시지 수"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.view_goal_wizard_update_current
 msgid "Update"
-msgstr "갱신"
+msgstr "업데이트"
 
 #. module: gamification
 #: code:addons/gamification/models/goal.py:0
@@ -2667,8 +2703,6 @@ msgstr "%s 갱신"
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge_user__user_id
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge_user_wizard__user_id
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal__user_id
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__user_id
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_search
 #: model_terms:ir.ui.view,arch_db:gamification.goal_search_view
 msgid "User"
 msgstr "사용자"
@@ -2679,7 +2713,6 @@ msgid "User domain"
 msgstr "사용자 도메인"
 
 #. module: gamification
-#: model:ir.actions.act_window,name:gamification.action_current_rank_users
 #: model:ir.model,name:gamification.model_res_users
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__user_ids
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__user_ids
@@ -2690,6 +2723,11 @@ msgstr "사용자"
 #: model:ir.model.fields,help:gamification.field_gamification_karma_rank__user_ids
 msgid "Users having this rank"
 msgstr "이 등급에 해당하는 사용자"
+
+#. module: gamification
+#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_rank_view_form
+msgid "Users to that rank"
+msgstr "해당 등급의 사용자"
 
 #. module: gamification
 #: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__period__weekly
@@ -2833,6 +2871,15 @@ msgstr "예 : 무료 머그잔을 얻으려면 이 등급에 도달하십시오!
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_form_view
 msgid "e.g. days"
 msgstr "예시 : 일"
+
+#. module: gamification
+#: model_terms:ir.ui.view,arch_db:gamification.goal_definition_form_view
+msgid ""
+"e.g. result = env['mail.followers'].search_count([('res_model', '=', "
+"'mail.channel'), ('partner_id', '=', object.user_id.partner_id.id)])"
+msgstr ""
+"e.g. result = env['mail.followers'].search_count([('res_model', '=', "
+"'mail.channel'), ('partner_id', '=', object.user_id.partner_id.id)])"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_form_view

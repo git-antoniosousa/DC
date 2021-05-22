@@ -3,20 +3,20 @@
 # 	* sale_stock
 # 
 # Translators:
-# Martin Trigaux, 2020
+# Martin Trigaux, 2019
+# Link Up링크업 <linkup.way@gmail.com>, 2019
+# Linkup <link-up@naver.com>, 2019
+# Seongseok Shin <shinss61@hotmail.com>, 2019
+# Mark Lee <odoos@soti.33mail.com>, 2019
 # JH CHOI <hwangtog@gmail.com>, 2020
-# Link Up링크업 <linkup.way@gmail.com>, 2020
-# Seongseok Shin <shinss61@hotmail.com>, 2020
-# Mark Lee <odoos@soti.33mail.com>, 2020
-# Linkup <link-up@naver.com>, 2021
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-29 13:46+0000\n"
-"PO-Revision-Date: 2020-09-07 08:18+0000\n"
-"Last-Translator: Linkup <link-up@naver.com>, 2021\n"
+"POT-Creation-Date: 2019-09-27 09:11+0000\n"
+"PO-Revision-Date: 2019-08-26 09:14+0000\n"
+"Last-Translator: JH CHOI <hwangtog@gmail.com>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/odoo/teams/41243/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -67,7 +67,7 @@ msgstr "<span class=\"o_stat_text\">판매</span>"
 #. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.product_template_view_form_inherit_stock
 msgid "<span class=\"o_stat_text\">Sold</span>"
-msgstr "<span class=\"o_stat_text\">판매 완료</span>"
+msgstr "<span class=\"o_stat_text\">품절</span>"
 
 #. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.sale_stock_report_invoice_document
@@ -100,7 +100,6 @@ msgid "<strong>Incoterm: </strong>"
 msgstr "<strong>국제 상업 약관 : </strong>"
 
 #. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.report_invoice_document_inherit_sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.report_saleorder_document_inherit_sale_stock
 msgid "<strong>Incoterm:</strong>"
 msgstr "<strong>국제 상업 약관 :</strong>"
@@ -138,7 +137,7 @@ msgstr "사후 관리"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "All planned operations included"
 msgstr "모든 계획된 작업 포함"
@@ -158,21 +157,14 @@ msgstr "가능한 빨리"
 #: code:addons/sale_stock/static/src/js/qty_at_date_widget.js:0
 #, python-format
 msgid "Availability"
-msgstr "가용성"
+msgstr "사용 가능성"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "Available"
 msgstr "사용 가능"
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "Available in stock"
-msgstr ""
 
 #. module: sale_stock
 #: model:ir.model.fields,help:sale_stock.field_stock_rules_report__so_route_ids
@@ -182,7 +174,7 @@ msgstr "SO 명세 특정 경로를 적용하도록 선택하십시오."
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_res_company
 msgid "Companies"
-msgstr "회사들"
+msgstr "회사"
 
 #. module: sale_stock
 #: model:ir.model.fields,help:sale_stock.field_sale_order__effective_date
@@ -197,12 +189,7 @@ msgstr "설정 구성"
 #. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.sale_order_portal_content_inherit_sale_stock
 msgid "Date:"
-msgstr "날짜:"
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_res_users__property_warehouse_id
-msgid "Default Warehouse"
-msgstr ""
+msgstr "날짜 :"
 
 #. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.view_order_form_inherit_sale_stock
@@ -210,14 +197,9 @@ msgid "Delivery"
 msgstr "배송"
 
 #. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_cancel__display_delivery_alert
-msgid "Delivery Alert"
-msgstr ""
-
-#. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order__delivery_count
 msgid "Delivery Orders"
-msgstr "출고"
+msgstr "배송 주문서"
 
 #. module: sale_stock
 #: model:ir.model.fields,help:sale_stock.field_sale_order__expected_date
@@ -234,29 +216,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sale_stock.field_res_config_settings__group_lot_on_invoice
 msgid "Display Lots & Serial Numbers on Invoices"
 msgstr "송장에 로트 및 일련 번호 표시"
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_account_move__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_account_move_line__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_procurement_group__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_product_template__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_product_product_replenishment__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_stock_rule__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_res_company__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_res_users__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_cancel__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_sale_report__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_location_route__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_move__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_picking__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_production_lot__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rule__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rules_report__display_name
-msgid "Display Name"
-msgstr "이름 표시"
 
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__display_qty_widget
@@ -286,16 +245,6 @@ msgid ""
 msgstr "다음 배송 주문에서 협력사를 변경하는 것을 잊지 마십시오 : %s"
 
 #. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.res_config_settings_view_form_stock
-msgid "Documentation"
-msgstr "문서화"
-
-#. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.sale_report_product_product_replenishment
-msgid "Draft SO"
-msgstr ""
-
-#. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order__effective_date
 msgid "Effective Date"
 msgstr "유효 날짜"
@@ -319,64 +268,26 @@ msgstr "예외 :"
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order__expected_date
 msgid "Expected Date"
-msgstr "예정일"
+msgstr "예상된 날짜"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "Expected Delivery"
 msgstr "예정된 배송"
 
 #. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.view_order_form_inherit_sale_stock
-msgid "Expected:"
-msgstr "예상됨 :"
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__forecast_expected_date
-msgid "Forecast Expected Date"
-msgstr ""
-
-#. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "Forecasted Stock"
-msgstr "예상 재고"
+msgstr "재고 예측 완료"
 
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__free_qty_today
 msgid "Free Qty Today"
 msgstr "오늘 무료 수량"
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order__show_json_popover
-msgid "Has late picking"
-msgstr ""
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_account_move__id
-#: model:ir.model.fields,field_description:sale_stock.field_account_move_line__id
-#: model:ir.model.fields,field_description:sale_stock.field_procurement_group__id
-#: model:ir.model.fields,field_description:sale_stock.field_product_template__id
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_product_product_replenishment__id
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_stock_rule__id
-#: model:ir.model.fields,field_description:sale_stock.field_res_company__id
-#: model:ir.model.fields,field_description:sale_stock.field_res_config_settings__id
-#: model:ir.model.fields,field_description:sale_stock.field_res_users__id
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order__id
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_cancel__id
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__id
-#: model:ir.model.fields,field_description:sale_stock.field_sale_report__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_location_route__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_move__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_picking__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_production_lot__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rule__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rules_report__id
-msgid "ID"
-msgstr "ID"
 
 #. module: sale_stock
 #: model:ir.model.fields,help:sale_stock.field_sale_order__picking_policy
@@ -402,19 +313,14 @@ msgstr "국제 상업 약관"
 #: model:ir.model.fields,field_description:sale_stock.field_res_config_settings__group_display_incoterm
 #: model_terms:ir.ui.view,arch_db:sale_stock.res_config_settings_view_form_sale
 msgid "Incoterms"
-msgstr "인코텀즈"
+msgstr "국제 상업 약관"
 
 #. module: sale_stock
 #: model:ir.model.fields,help:sale_stock.field_sale_order__incoterm
 msgid ""
 "International Commercial Terms are a series of predefined commercial terms "
 "used in international transactions."
-msgstr "Incoterm(국제 상업 약관)은 국제 거래에서 사용되는 미리 정의된 상업 용어의 시리즈입니다."
-
-#. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.res_users_view_form
-msgid "Inventory"
-msgstr "재고"
+msgstr "국제 상업 약관은 국제 거래에서 사용되는 미리 정의된 상업 용어의 시리즈입니다."
 
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_stock_location_route
@@ -432,42 +338,14 @@ msgid "Is Mto"
 msgstr "Mto 여부"
 
 #. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order__json_popover
-msgid "JSON data for the popover widget"
-msgstr ""
-
-#. module: sale_stock
 #: model:ir.model,name:sale_stock.model_account_move
-msgid "Journal Entry"
-msgstr "분개"
+msgid "Journal Entries"
+msgstr "분개장 기입 항목"
 
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_account_move_line
 msgid "Journal Item"
 msgstr "분개 항목"
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_account_move____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_account_move_line____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_procurement_group____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_product_template____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_product_product_replenishment____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_stock_rule____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_res_company____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_res_config_settings____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_res_users____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_cancel____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_line____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_sale_report____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_location_route____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_move____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_picking____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_production_lot____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rule____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rules_report____last_update
-msgid "Last Modified on"
-msgstr "최근 수정"
 
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_stock_production_lot
@@ -524,21 +402,7 @@ msgstr "배송 예정일을 다음으로 이동"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "No enough future availaibility"
-msgstr ""
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "No future availaibility"
-msgstr ""
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "On"
 msgstr "사용"
@@ -552,7 +416,7 @@ msgstr "주문한 수량이 감소했습니다!"
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__product_packaging
 msgid "Package"
-msgstr "포장품"
+msgstr "꾸러미"
 
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_res_config_settings__default_picking_policy
@@ -568,7 +432,7 @@ msgstr "조달 그룹"
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_product_template
 msgid "Product Template"
-msgstr "상품 양식"
+msgstr "상품 서식"
 
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__product_type
@@ -584,20 +448,6 @@ msgstr "오늘 가능한 수량"
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__qty_to_deliver
 msgid "Qty To Deliver"
 msgstr "배송할 수량"
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "Remaining demand available at"
-msgstr ""
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "Reserved"
-msgstr "예약됨"
 
 #. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.res_config_settings_view_form_stock
@@ -647,11 +497,6 @@ msgid "Sales Order"
 msgstr "판매 주문"
 
 #. module: sale_stock
-#: model:ir.model,name:sale_stock.model_sale_order_cancel
-msgid "Sales Order Cancel"
-msgstr ""
-
-#. module: sale_stock
 #: model:ir.model,name:sale_stock.model_sale_order_line
 msgid "Sales Order Line"
 msgstr "판매 주문 명세"
@@ -659,7 +504,7 @@ msgstr "판매 주문 명세"
 #. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.stock_location_route_view_form_inherit_sale_stock
 msgid "Sales Order Lines"
-msgstr "판매 주문 명세"
+msgstr "판매 주문 내역"
 
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_stock_production_lot__sale_order_ids
@@ -717,13 +562,6 @@ msgid "Sold in the last 365 days"
 msgstr "최근 1년간 판매"
 
 #. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.sale_order_cancel_view_form_inherit
-msgid ""
-"Some products have already been delivered. Returns can be created from the "
-"Delivery Orders."
-msgstr ""
-
-#. module: sale_stock
 #: model:ir.model,name:sale_stock.model_stock_move
 msgid "Stock Move"
 msgstr "재고 이동"
@@ -733,11 +571,6 @@ msgstr "재고 이동"
 #: model:ir.model.fields.selection,name:sale_stock.selection__sale_order_line__qty_delivered_method__stock_move
 msgid "Stock Moves"
 msgstr "재고 이동"
-
-#. module: sale_stock
-#: model:ir.model,name:sale_stock.model_report_stock_report_product_product_replenishment
-msgid "Stock Replenishment Report"
-msgstr "재고 재보충 보고서"
 
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_stock_rule
@@ -755,13 +588,6 @@ msgid "Stock rule report"
 msgstr "재고 규칙 보고서"
 
 #. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "The delivery"
-msgstr ""
-
-#. module: sale_stock
 #: code:addons/sale_stock/models/sale_order.py:0
 #, python-format
 msgid ""
@@ -776,14 +602,12 @@ msgstr ""
 #. module: sale_stock
 #: code:addons/sale_stock/models/sale_order.py:0
 #, python-format
-msgid ""
-"This product is packaged by %(pack_size).2f %(pack_name)s. You should sell "
-"%(quantity).2f %(unit)s."
-msgstr ""
+msgid "This product is packaged by %.2f %s. You should sell %.2f %s."
+msgstr "이 상품은 %.2f%s로 포장되어 있습니다. %.2f%s를 판매해야 합니다."
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "This product is replenished on demand."
 msgstr "이 제품은 요청시 보충됩니다."
@@ -791,21 +615,16 @@ msgstr "이 제품은 요청시 보충됩니다."
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_stock_picking
 msgid "Transfer"
-msgstr "전송"
+msgstr "이송"
 
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order__picking_ids
 msgid "Transfers"
-msgstr "이동"
-
-#. module: sale_stock
-#: model:ir.model,name:sale_stock.model_res_users
-msgid "Users"
-msgstr "사용자"
+msgstr "이송"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "View Forecast"
 msgstr "예측 보기"
@@ -892,10 +711,3 @@ msgstr "다음 대신 주문됨"
 #: model_terms:ir.ui.view,arch_db:sale_stock.exception_on_picking
 msgid "processed instead of"
 msgstr "다음 대신 처리됨"
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "will be late."
-msgstr ""

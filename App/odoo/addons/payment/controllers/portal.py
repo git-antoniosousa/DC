@@ -260,7 +260,7 @@ class WebsitePayment(http.Controller):
         if partner_id:
             values['pms'] = request.env['payment.token'].search([
                 ('acquirer_id', 'in', acquirers.ids),
-                ('partner_id', 'child_of', partner.commercial_partner_id.id)
+                ('partner_id', '=', partner_id)
             ])
         else:
             values['pms'] = []
@@ -306,6 +306,7 @@ class WebsitePayment(http.Controller):
 
         render_values = {
             'partner_id': partner_id,
+            'type': tx.type,
         }
 
         return acquirer.sudo().render(tx.reference, float(amount), int(currency_id), values=render_values)

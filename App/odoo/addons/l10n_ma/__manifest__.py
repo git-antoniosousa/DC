@@ -6,7 +6,7 @@
 {
     'name': 'Maroc - Accounting',
     'author': 'kazacube',
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     'description': """
 This is the base module to manage the accounting chart for Maroc.
 =================================================================

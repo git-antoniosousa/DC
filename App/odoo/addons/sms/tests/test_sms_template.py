@@ -2,10 +2,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.tests.common import SavepointCase, users
-from odoo.addons.mail.tests.common import mail_new_test_user
-from odoo.exceptions import AccessError
+from odoo.addons.test_mail.tests.common import mail_new_test_user
 from odoo.tests import tagged
-from odoo.tools import mute_logger
+from odoo.exceptions import AccessError
 
 
 @tagged('post_install')
@@ -27,8 +26,7 @@ class TestSmsTemplateAccessRights(SavepointCase):
         cls.sms_templates = cls.env['sms.template'].create(vals)
 
     @users('user_employee')
-    @mute_logger('odoo.models.unlink')
-    def test_access_rights_user(self):
+    def test_access_rights_user_sms_template(self):
         # Check if a member of group_user can only read on sms.template
         for sms_template in self.env['sms.template'].browse(self.sms_templates.ids):
             self.assertTrue(bool(sms_template.name))
@@ -44,8 +42,7 @@ class TestSmsTemplateAccessRights(SavepointCase):
                 sms_template.unlink()
 
     @users('user_system')
-    @mute_logger('odoo.models.unlink', 'odoo.addons.base.models.ir_model')
-    def test_access_rights_system(self):
+    def test_access_rights_manager_sms_template(self):
         admin = self.env.ref('base.user_admin')
         for sms_template in self.env['sms.template'].browse(self.sms_templates.ids):
             self.assertTrue(bool(sms_template.name))

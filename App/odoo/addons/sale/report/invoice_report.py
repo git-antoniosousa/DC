@@ -11,3 +11,6 @@ class AccountInvoiceReport(models.Model):
 
     def _select(self):
         return super(AccountInvoiceReport, self)._select() + ", move.team_id as team_id"
+
+    def _group_by(self):
+        return super(AccountInvoiceReport, self)._group_by() + ", move.team_id"

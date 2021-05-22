@@ -4,21 +4,20 @@
 import logging
 import os
 import odoo
-
-from . import lint_case
+from odoo.tests.common import TransactionCase
 
 _logger = logging.getLogger(__name__)
 MARKERS = [b'<' * 7, b'>' * 7]
 EXTENSIONS = ('.py', '.js', '.xml', '.less', '.sass')
 
 
-class TestConflictMarkers(lint_case.LintCase):
+class TestConflictMarkers(TransactionCase):
 
     def check_file(self, fullpath_name):
 
         with open(fullpath_name, 'rb') as f:
             content = f.read()
-            self.assertFalse(any(m in content for m in MARKERS), 'Conflict markers found in %s' % fullpath_name)
+            self.assertFalse(any([m in content for m in MARKERS]), 'Conflict markers found in %s' % fullpath_name)
 
     def test_conflict_markers(self):
         """ Test that there are no conflict markers left in Odoo files """

@@ -57,11 +57,11 @@ class TestVendorBillISR(common.SavepointCase):
         """
         self.env.company.country_id = self.env.ref('base.ch')
         form = Form(self.env["account.move"].with_context(
-            default_move_type="in_invoice"), view="l10n_ch.isr_invoice_form")
+            default_type="in_invoice"), view="l10n_ch.isr_invoice_form")
         form.partner_id = self.supplier1
-        form.partner_bank_id = self.bank_acc_isr
+        form.invoice_partner_bank_id = self.bank_acc_isr
 
-        form.payment_reference = ISR_REFERENCE_GOOD
+        form.invoice_payment_ref = ISR_REFERENCE_GOOD
         invoice = form.save()
 
         self.assertFalse(invoice.l10n_ch_isr_needs_fixing)
@@ -75,11 +75,11 @@ class TestVendorBillISR(common.SavepointCase):
         """
         self.env.company.country_id = self.env.ref('base.ch')
         form = Form(self.env["account.move"].with_context(
-            default_move_type="in_invoice"), view="l10n_ch.isr_invoice_form")
+            default_type="in_invoice"), view="l10n_ch.isr_invoice_form")
         form.partner_id = self.supplier1
-        form.partner_bank_id = self.bank_acc_isr
+        form.invoice_partner_bank_id = self.bank_acc_isr
 
-        form.payment_reference = ISR_REFERENCE_ZEROS
+        form.invoice_payment_ref = ISR_REFERENCE_ZEROS
         invoice = form.save()
 
         self.assertFalse(invoice.l10n_ch_isr_needs_fixing)
@@ -94,11 +94,11 @@ class TestVendorBillISR(common.SavepointCase):
         """
         self.env.company.country_id = self.env.ref('base.ch')
         form = Form(self.env["account.move"].with_context(
-            default_move_type="in_invoice"), view="l10n_ch.isr_invoice_form")
+            default_type="in_invoice"), view="l10n_ch.isr_invoice_form")
         form.partner_id = self.supplier1
-        form.partner_bank_id = self.bank_acc_isr
+        form.invoice_partner_bank_id = self.bank_acc_isr
 
-        form.payment_reference = ISR_REFERENCE_NO_ZEROS
+        form.invoice_payment_ref = ISR_REFERENCE_NO_ZEROS
         invoice = form.save()
 
         self.assertFalse(invoice.l10n_ch_isr_needs_fixing)
@@ -109,11 +109,11 @@ class TestVendorBillISR(common.SavepointCase):
         """
         self.env.company.country_id = self.env.ref('base.ch')
         form = Form(self.env["account.move"].with_context(
-            default_move_type="in_invoice"), view="l10n_ch.isr_invoice_form")
+            default_type="in_invoice"), view="l10n_ch.isr_invoice_form")
         form.partner_id = self.supplier1
-        form.partner_bank_id = self.bank_acc_isr
+        form.invoice_partner_bank_id = self.bank_acc_isr
 
-        form.payment_reference = ISR_REFERENCE_BAD
+        form.invoice_payment_ref = ISR_REFERENCE_BAD
         invoice = form.save()
 
         self.assertTrue(invoice.l10n_ch_isr_needs_fixing)

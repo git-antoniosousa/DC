@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.addons.test_mass_mailing.models.mailing_models import MailingBLacklist
-from odoo.addons.test_mass_mailing.tests import common
-from odoo.exceptions import UserError
+from unittest.mock import patch
+
 from odoo.tests.common import users
+from odoo.addons.test_mass_mailing.tests import common
+from odoo.addons.test_mass_mailing.models.mass_mail_test import MassMailTestBlacklist
+from odoo.exceptions import AccessError, UserError
 
 
-class TestBLMixin(common.TestMassMailCommon):
+class TestBLMixin(common.MassMailingCase):
 
     @classmethod
     def setUpClass(cls):
@@ -21,51 +23,51 @@ class TestBLMixin(common.TestMassMailCommon):
             'active': False,
         }])
 
-    @users('employee')
+    @users('emp')
     def test_bl_mixin_primary_field_consistency(self):
-        MailingBLacklist._primary_email = 'not_a_field'
+        MassMailTestBlacklist._primary_email = 'not_a_field'
         with self.assertRaises(UserError):
-            self.env['mailing.test.blacklist'].search([('is_blacklisted', '=', False)])
+            self.env['mass.mail.test.bl'].search([('is_blacklisted', '=', False)])
 
-        MailingBLacklist._primary_email = ['not_a_str']
+        MassMailTestBlacklist._primary_email = ['not_a_str']
         with self.assertRaises(UserError):
-            self.env['mailing.test.blacklist'].search([('is_blacklisted', '=', False)])
+            self.env['mass.mail.test.bl'].search([('is_blacklisted', '=', False)])
 
-        MailingBLacklist._primary_email = 'email_from'
-        self.env['mailing.test.blacklist'].search([('is_blacklisted', '=', False)])
+        MassMailTestBlacklist._primary_email = 'email_from'
+        self.env['mass.mail.test.bl'].search([('is_blacklisted', '=', False)])
 
-    @users('employee')
+    @users('emp')
     def test_bl_mixin_is_blacklisted(self):
         """ Test is_blacklisted field computation """
-        record = self.env['mailing.test.blacklist'].create({'email_from': 'arya.stark@example.com'})
+        record = self.env['mass.mail.test.bl'].create({'email_from': 'arya.stark@example.com'})
         self.assertTrue(record.is_blacklisted)
 
-        record = self.env['mailing.test.blacklist'].create({'email_from': 'not.arya.stark@example.com'})
+        record = self.env['mass.mail.test.bl'].create({'email_from': 'not.arya.stark@example.com'})
         self.assertFalse(record.is_blacklisted)
 
-    @users('employee')
+    @users('emp')
     def test_bl_mixin_search_blacklisted(self):
         """ Test is_blacklisted field search implementation """
-        record1 = self.env['mailing.test.blacklist'].create({'email_from': 'arya.stark@example.com'})
-        record2 = self.env['mailing.test.blacklist'].create({'email_from': 'not.arya.stark@example.com'})
+        record1 = self.env['mass.mail.test.bl'].create({'email_from': 'arya.stark@example.com'})
+        record2 = self.env['mass.mail.test.bl'].create({'email_from': 'not.arya.stark@example.com'})
 
-        search_res = self.env['mailing.test.blacklist'].search([('is_blacklisted', '=', False)])
+        search_res = self.env['mass.mail.test.bl'].search([('is_blacklisted', '=', False)])
         self.assertEqual(search_res, record2)
 
-        search_res = self.env['mailing.test.blacklist'].search([('is_blacklisted', '!=', True)])
+        search_res = self.env['mass.mail.test.bl'].search([('is_blacklisted', '!=', True)])
         self.assertEqual(search_res, record2)
 
-        search_res = self.env['mailing.test.blacklist'].search([('is_blacklisted', '=', True)])
+        search_res = self.env['mass.mail.test.bl'].search([('is_blacklisted', '=', True)])
         self.assertEqual(search_res, record1)
 
-        search_res = self.env['mailing.test.blacklist'].search([('is_blacklisted', '!=', False)])
+        search_res = self.env['mass.mail.test.bl'].search([('is_blacklisted', '!=', False)])
         self.assertEqual(search_res, record1)
 
-    @users('employee')
+    @users('emp')
     def test_bl_mixin_search_blacklisted_format(self):
         """ Test is_blacklisted field search using email parsing """
-        record1 = self.env['mailing.test.blacklist'].create({'email_from': 'Arya Stark <arya.stark@example.com>'})
+        record1 = self.env['mass.mail.test.bl'].create({'email_from': 'Arya Stark <arya.stark@example.com>'})
         self.assertTrue(record1.is_blacklisted)
 
-        search_res = self.env['mailing.test.blacklist'].search([('is_blacklisted', '=', True)])
+        search_res = self.env['mass.mail.test.bl'].search([('is_blacklisted', '=', True)])
         self.assertEqual(search_res, record1)

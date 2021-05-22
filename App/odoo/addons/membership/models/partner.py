@@ -39,7 +39,7 @@ class Partner(models.Model):
 
     @api.depends('member_lines.account_invoice_line',
                  'member_lines.account_invoice_line.move_id.state',
-                 'member_lines.account_invoice_line.move_id.payment_state',
+                 'member_lines.account_invoice_line.move_id.invoice_payment_state',
                  'member_lines.account_invoice_line.move_id.partner_id',
                  'free_member',
                  'member_lines.date_to', 'member_lines.date_from',
@@ -90,7 +90,7 @@ class Partner(models.Model):
                     # if there is an old invoice paid, set the state to 'old'
                     if ((mline.date_from or date.min) < today and (mline.date_to or date.min) < today and \
                             (mline.date_from or date.min) <= (mline.date_to or date.min) and \
-                            mline.account_invoice_id and mline.account_invoice_id.payment_state in ('in_payment', 'paid')):
+                            mline.account_invoice_id and mline.account_invoice_id.invoice_payment_state == 'paid'):
                         state = 'old'
                         break
 
@@ -126,7 +126,7 @@ class Partner(models.Model):
                 raise UserError(_("Partner doesn't have an address to make the invoice."))
 
             invoice_vals_list.append({
-                'move_type': 'out_invoice',
+                'type': 'out_invoice',
                 'partner_id': partner.id,
                 'invoice_line_ids': [
                     (0, None, {'product_id': product.id, 'quantity': 1, 'price_unit': amount, 'tax_ids': [(6, 0, product.taxes_id.ids)]})

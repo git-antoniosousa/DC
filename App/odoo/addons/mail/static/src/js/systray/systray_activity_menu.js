@@ -7,8 +7,6 @@ var SystrayMenu = require('web.SystrayMenu');
 var Widget = require('web.Widget');
 var QWeb = core.qweb;
 
-const { Component } = owl;
-
 /**
  * Menu item appended in the systray part of the navbar, redirects to the next
  * activities of all app
@@ -24,7 +22,7 @@ var ActivityMenu = Widget.extend({
     },
     start: function () {
         this._$activitiesPreview = this.$('.o_mail_systray_dropdown_items');
-        Component.env.bus.on('activity_updated', this, this._updateCounter);
+        this.call('mail_service', 'getMailBus').on('activity_updated', this, this._updateCounter);
         this._updateCounter();
         this._updateActivityPreview();
         return this._super();
@@ -61,16 +59,6 @@ var ActivityMenu = Widget.extend({
             model: model,
             method: 'get_activity_view_id'
         });
-    },
-    /**
-     * Return views to display when coming from systray depending on the model.
-     *
-     * @private
-     * @param {string} model
-     * @returns {Array[]} output the list of views to display.
-     */
-    _getViewsList(model) {
-        return [[false, 'kanban'], [false, 'list'], [false, 'form']];
     },
     /**
      * Update(render) activity system tray view on activity updation.
@@ -124,20 +112,13 @@ var ActivityMenu = Widget.extend({
         if (actionXmlid) {
             this.do_action(actionXmlid);
         } else {
-            var domain = [['activity_ids.user_id', '=', session.uid]]
-            if (targetAction.data('domain')) {
-                domain = domain.concat(targetAction.data('domain'))
-            }
-            
             this.do_action({
                 type: 'ir.actions.act_window',
                 name: targetAction.data('model_name'),
                 views: [[false, 'activity'], [false, 'kanban'], [false, 'list'], [false, 'form']],
                 view_mode: 'activity',
                 res_model: targetAction.data('res_model'),
-                domain: domain,
-            }, {
-                clear_breadcrumbs: true,
+                domain: [['activity_ids.user_id', '=', session.uid]],
             });
         }
     },
@@ -160,19 +141,13 @@ var ActivityMenu = Widget.extend({
         // Necessary because activity_ids of mail.activity.mixin has auto_join
         // So, duplicates are faking the count and "Load more" doesn't show up
         context['force_search_count'] = 1;
-        
-        var domain = [['activity_ids.user_id', '=', session.uid]]
-        if (data.domain) {
-            domain = domain.concat(data.domain)
-        }
-        
         this.do_action({
             type: 'ir.actions.act_window',
             name: data.model_name,
             res_model:  data.res_model,
-            views: this._getViewsList(data.res_model),
+            views: [[false, 'kanban'], [false, 'list'], [false, 'form']],
             search_view_id: [false],
-            domain: domain,
+            domain: [['activity_user_id', '=', session.uid]],
             context:context,
         }, {
             clear_breadcrumbs: true,

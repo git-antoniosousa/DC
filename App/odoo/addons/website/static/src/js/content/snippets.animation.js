@@ -8,7 +8,6 @@ odoo.define('website.content.snippets.animation', function (require) {
 var Class = require('web.Class');
 var config = require('web.config');
 var core = require('web.core');
-const dom = require('web.dom');
 var mixins = require('web.mixins');
 var publicWidget = require('web.public.widget');
 var utils = require('web.utils');
@@ -124,15 +123,12 @@ var AnimationEffect = Class.extend(mixins.ParentedMixin, {
         // Initialize the animation startEvents, startTarget, endEvents, endTarget and callbacks
         this._updateCallback = updateCallback;
         this.startEvents = startEvents || 'scroll';
-        const mainScrollingElement = $().getScrollingElement()[0];
-        const mainScrollingTarget = mainScrollingElement === document.documentElement ? window : mainScrollingElement;
-        this.$startTarget = $($startTarget ? $startTarget : this.startEvents === 'scroll' ? mainScrollingTarget : window);
+        this.$startTarget = $($startTarget || window);
         if (options.getStateCallback) {
             this._getStateCallback = options.getStateCallback;
-        } else if (this.startEvents === 'scroll' && this.$startTarget[0] === mainScrollingTarget) {
-            const $scrollable = this.$startTarget;
+        } else if (this.startEvents === 'scroll' && this.$startTarget[0] === window) {
             this._getStateCallback = function () {
-                return $scrollable.scrollTop();
+                return window.pageYOffset;
             };
         } else if (this.startEvents === 'resize' && this.$startTarget[0] === window) {
             this._getStateCallback = function () {
@@ -434,18 +430,18 @@ registry.slider = publicWidget.Widget.extend({
     selector: '.carousel',
     disabledInEditableMode: false,
     edit_events: {
-        'content_changed': '_onContentChanged',
+        'slid.bs.carousel': '_onEditionSlide',
     },
 
     /**
      * @override
      */
     start: function () {
-        this.$('img').on('load.slider', () => this._computeHeights());
-        this._computeHeights();
-        // Initialize carousel and pause if in edit mode.
-        this.$target.carousel(this.editableMode ? 'pause' : undefined);
-        $(window).on('resize.slider', _.debounce(() => this._computeHeights(), 250));
+        if (!this.editableMode) {
+            this.$('img').on('load.slider', this._onImageLoaded.bind(this));
+            this._computeHeights();
+        }
+        this.$target.carousel();
         return this._super.apply(this, arguments);
     },
     /**
@@ -459,7 +455,6 @@ registry.slider = publicWidget.Widget.extend({
         _.each(this.$('.carousel-item'), function (el) {
             $(el).css('min-height', '');
         });
-        $(window).off('.slider');
     },
 
     //--------------------------------------------------------------------------
@@ -472,7 +467,6 @@ registry.slider = publicWidget.Widget.extend({
     _computeHeights: function () {
         var maxHeight = 0;
         var $items = this.$('.carousel-item');
-        $items.css('min-height', '');
         _.each($items, function (el) {
             var $item = $(el);
             var isActive = $item.hasClass('active');
@@ -483,7 +477,9 @@ registry.slider = publicWidget.Widget.extend({
             }
             $item.toggleClass('active', isActive);
         });
-        $items.css('min-height', maxHeight);
+        _.each($items, function (el) {
+            $(el).css('min-height', maxHeight);
+        });
     },
 
     //--------------------------------------------------------------------------
@@ -493,12 +489,18 @@ registry.slider = publicWidget.Widget.extend({
     /**
      * @private
      */
-    _onContentChanged: function (ev) {
+    _onEditionSlide: function () {
+        this._computeHeights();
+    },
+    /**
+     * @private
+     */
+    _onImageLoaded: function () {
         this._computeHeights();
     },
 });
 
-registry.Parallax = Animation.extend({
+registry.parallax = Animation.extend({
     selector: '.parallax',
     disabledInEditableMode: false,
     effects: [{
@@ -534,13 +536,27 @@ registry.Parallax = Animation.extend({
      */
     _rebuild: function () {
         // Add/find bg DOM element to hold the parallax bg (support old v10.0 parallax)
-        this.$bg = this.$('> .s_parallax_bg');
+        if (!this.$bg || !this.$bg.length) {
+            this.$bg = this.$('> .s_parallax_bg');
+            if (!this.$bg.length) {
+                this.$bg = $('<span/>', {
+                    class: 's_parallax_bg' + (this.$target.hasClass('oe_custom_bg') ? ' oe_custom_bg' : ''),
+                }).prependTo(this.$target);
+            }
+        }
+        var urlTarget = this.$target.css('background-image');
+        if (urlTarget !== 'none') {
+            this.$bg.css('background-image', urlTarget);
+        }
+        this.$target.css('background-image', 'none');
 
         // Get parallax speed
         this.speed = parseFloat(this.$target.attr('data-scroll-background-ratio') || 0);
 
         // Reset offset if parallax effect will not be performed and leave
+        this.$target.toggleClass('s_parallax_is_fixed', this.speed === 1);
         var noParallaxSpeed = (this.speed === 0 || this.speed === 1);
+        this.$target.toggleClass('s_parallax_no_overflow_hidden', noParallaxSpeed);
         if (noParallaxSpeed) {
             this.$bg.css({
                 transform: '',
@@ -557,10 +573,9 @@ registry.Parallax = Animation.extend({
         this.ratio = this.speed * (this.viewport / 10);
 
         // Provide a "safe-area" to limit parallax
-        const absoluteRatio = Math.abs(this.ratio);
         this.$bg.css({
-            top: -absoluteRatio,
-            bottom: -absoluteRatio,
+            top: -this.ratio,
+            bottom: -this.ratio,
         });
     },
 
@@ -593,6 +608,38 @@ registry.Parallax = Animation.extend({
             // Normalize accordingly to current options
             return Math.round(this.ratio * (2 * r - 1));
         }
+    },
+});
+
+registry.share = publicWidget.Widget.extend({
+    selector: '.s_share, .oe_share', // oe_share for compatibility
+
+    /**
+     * @override
+     */
+    start: function () {
+        var urlRegex = /(\?(?:|.*&)(?:u|url|body)=)(.*?)(&|#|$)/;
+        var titleRegex = /(\?(?:|.*&)(?:title|text|subject)=)(.*?)(&|#|$)/;
+        var url = encodeURIComponent(window.location.href);
+        var title = encodeURIComponent($('title').text());
+        this.$('a').each(function () {
+            var $a = $(this);
+            $a.attr('href', function (i, href) {
+                return href.replace(urlRegex, function (match, a, b, c) {
+                    return a + url + c;
+                }).replace(titleRegex, function (match, a, b, c) {
+                    return a + title + c;
+                });
+            });
+            if ($a.attr('target') && $a.attr('target').match(/_blank/i) && !$a.closest('.o_editable').length) {
+                $a.on('click', function () {
+                    window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=550,width=600');
+                    return false;
+                });
+            }
+        });
+
+        return this._super.apply(this, arguments);
     },
 });
 
@@ -771,6 +818,198 @@ registry.backgroundVideo = publicWidget.Widget.extend({
     },
 });
 
+registry.ul = publicWidget.Widget.extend({
+    selector: 'ul.o_ul_folded, ol.o_ul_folded',
+    events: {
+        'click .o_ul_toggle_next': '_onToggleNextClick',
+        'click .o_ul_toggle_self': '_onToggleSelfClick',
+    },
+
+    //--------------------------------------------------------------------------
+    // Handlers
+    //--------------------------------------------------------------------------
+
+    /**
+     * Called when a "toggle next" ul is clicked.
+     *
+     * @private
+     */
+    _onToggleNextClick: function (ev) {
+        ev.preventDefault();
+        var $target = $(ev.currentTarget);
+        $target.toggleClass('o_open');
+        $target.closest('li').next().toggleClass('o_close');
+    },
+    /**
+     * Called when a "toggle self" ul is clicked.
+     *
+     * @private
+     */
+    _onToggleSelfClick: function (ev) {
+        ev.preventDefault();
+        var $target = $(ev.currentTarget);
+        $target.toggleClass('o_open');
+        $target.closest('li').find('ul,ol').toggleClass('o_close');
+    },
+});
+
+registry.gallery = publicWidget.Widget.extend({
+    selector: '.o_gallery:not(.o_slideshow)',
+    xmlDependencies: ['/website/static/src/xml/website.gallery.xml'],
+    events: {
+        'click img': '_onClickImg',
+    },
+
+    //--------------------------------------------------------------------------
+    // Handlers
+    //--------------------------------------------------------------------------
+
+    /**
+     * Called when an image is clicked. Opens a dialog to browse all the images
+     * with a bigger size.
+     *
+     * @private
+     * @param {Event} ev
+     */
+    _onClickImg: function (ev) {
+        var self = this;
+        var $cur = $(ev.currentTarget);
+
+        var urls = [];
+        var idx = undefined;
+        var milliseconds = undefined;
+        var params = undefined;
+        var $images = $cur.closest('.o_gallery').find('img');
+        var size = 0.8;
+        var dimensions = {
+            min_width: Math.round(window.innerWidth * size * 0.9),
+            min_height: Math.round(window.innerHeight * size),
+            max_width: Math.round(window.innerWidth * size * 0.9),
+            max_height: Math.round(window.innerHeight * size),
+            width: Math.round(window.innerWidth * size * 0.9),
+            height: Math.round(window.innerHeight * size)
+        };
+
+        $images.each(function () {
+            urls.push($(this).attr('src'));
+        });
+        var $img = ($cur.is('img') === true) ? $cur : $cur.closest('img');
+        idx = urls.indexOf($img.attr('src'));
+
+        milliseconds = $cur.closest('.o_gallery').data('interval') || false;
+        var $modal = $(qweb.render('website.gallery.slideshow.lightbox', {
+            srcs: urls,
+            index: idx,
+            dim: dimensions,
+            interval: milliseconds,
+            id: _.uniqueId('slideshow_'),
+        }));
+        $modal.modal({
+            keyboard: true,
+            backdrop: true,
+        });
+        $modal.on('hidden.bs.modal', function () {
+            $(this).hide();
+            $(this).siblings().filter('.modal-backdrop').remove(); // bootstrap leaves a modal-backdrop
+            $(this).remove();
+        });
+        $modal.find('.modal-content, .modal-body.o_slideshow').css('height', '100%');
+        $modal.appendTo(document.body);
+
+        $modal.one('shown.bs.modal', function () {
+            self.trigger_up('widgets_start_request', {
+                editableMode: false,
+                $target: $modal.find('.modal-body.o_slideshow'),
+            });
+        });
+    },
+});
+
+registry.gallerySlider = publicWidget.Widget.extend({
+    selector: '.o_slideshow',
+    xmlDependencies: ['/website/static/src/xml/website.gallery.xml'],
+    disabledInEditableMode: false,
+
+    /**
+     * @override
+     */
+    start: function () {
+        var self = this;
+        this.$carousel = this.$target.is('.carousel') ? this.$target : this.$target.find('.carousel');
+        this.$indicator = this.$carousel.find('.carousel-indicators');
+        this.$prev = this.$indicator.find('li.o_indicators_left').css('visibility', ''); // force visibility as some databases have it hidden
+        this.$next = this.$indicator.find('li.o_indicators_right').css('visibility', '');
+        var $lis = this.$indicator.find('li[data-slide-to]');
+        var nbPerPage = Math.floor(this.$indicator.width() / $lis.first().outerWidth(true)) - 3; // - navigator - 1 to leave some space
+        var realNbPerPage = nbPerPage || 1;
+        var nbPages = Math.ceil($lis.length / realNbPerPage);
+
+        var index;
+        var page;
+        update();
+
+        function hide() {
+            $lis.each(function (i) {
+                $(this).toggleClass('d-none', i < page * nbPerPage || i >= (page + 1) * nbPerPage);
+            });
+            if (self.editableMode) { // do not remove DOM in edit mode
+                return;
+            }
+            if (page <= 0) {
+                self.$prev.detach();
+            } else {
+                self.$prev.prependTo(self.$indicator);
+            }
+            if (page >= nbPages - 1) {
+                self.$next.detach();
+            } else {
+                self.$next.appendTo(self.$indicator);
+            }
+        }
+
+        function update() {
+            const active = $lis.filter('.active');
+            index = active.length ? $lis.index(active) : 0;
+            page = Math.floor(index / realNbPerPage);
+            hide();
+        }
+
+        this.$carousel.on('slide.bs.carousel.gallery_slider', function () {
+            setTimeout(function () {
+                var $item = self.$carousel.find('.carousel-inner .carousel-item-prev, .carousel-inner .carousel-item-next');
+                var index = $item.index();
+                $lis.removeClass('active')
+                    .filter('[data-slide-to="' + index + '"]')
+                    .addClass('active');
+            }, 0);
+        });
+        this.$indicator.on('click.gallery_slider', '> li:not([data-slide-to])', function () {
+            page += ($(this).hasClass('o_indicators_left') ? -1 : 1);
+            page = Math.max(0, Math.min(nbPages - 1, page)); // should not be necessary
+            self.$carousel.carousel(page * realNbPerPage);
+            hide();
+        });
+        this.$carousel.on('slid.bs.carousel.gallery_slider', update);
+
+        return this._super.apply(this, arguments);
+    },
+    /**
+     * @override
+     */
+    destroy: function () {
+        this._super.apply(this, arguments);
+
+        if (!this.$indicator) {
+            return;
+        }
+
+        this.$prev.prependTo(this.$indicator);
+        this.$next.appendTo(this.$indicator);
+        this.$carousel.off('.gallery_slider');
+        this.$indicator.off('.gallery_slider');
+    },
+});
+
 registry.socialShare = publicWidget.Widget.extend({
     selector: '.oe_social_share',
     xmlDependencies: ['/website/static/src/xml/website.share.xml'],
@@ -823,7 +1062,7 @@ registry.socialShare = publicWidget.Widget.extend({
         var socialNetworks = {
             'facebook': 'https://www.facebook.com/sharer/sharer.php?u=' + url,
             'twitter': 'https://twitter.com/intent/tweet?original_referer=' + url + '&text=' + encodeURIComponent(title + hashtags + ' - ') + url,
-            'linkedin': 'https://www.linkedin.com/sharing/share-offsite/?url=' + url,
+            'linkedin': 'https://www.linkedin.com/shareArticle?mini=true&url=' + url + '&title=' + encodeURIComponent(title),
         };
         if (!_.contains(_.keys(socialNetworks), social)) {
             return;
@@ -853,33 +1092,56 @@ registry.socialShare = publicWidget.Widget.extend({
     },
 });
 
+registry.facebookPage = publicWidget.Widget.extend({
+    selector: '.o_facebook_page',
+    disabledInEditableMode: false,
+
+    /**
+     * @override
+     */
+    start: function () {
+        var def = this._super.apply(this, arguments);
+
+        var params = _.pick(this.$el.data(), 'href', 'height', 'tabs', 'small_header', 'hide_cover', 'show_facepile');
+        if (!params.href) {
+            return def;
+        }
+        params.width = utils.confine(Math.floor(this.$el.width()), 180, 500);
+
+        var src = $.param.querystring('https://www.facebook.com/plugins/page.php', params);
+        this.$iframe = $('<iframe/>', {
+            src: src,
+            class: 'o_temp_auto_element',
+            width: params.width,
+            height: params.height,
+            css: {
+                border: 'none',
+                overflow: 'hidden',
+            },
+            scrolling: 'no',
+            frameborder: '0',
+            allowTransparency: 'true',
+        });
+        this.$el.append(this.$iframe);
+
+        return def;
+    },
+    /**
+     * @override
+     */
+    destroy: function () {
+        this._super.apply(this, arguments);
+
+        if (this.$iframe) {
+            this.$iframe.remove();
+        }
+    },
+});
+
 registry.anchorSlide = publicWidget.Widget.extend({
     selector: 'a[href^="/"][href*="#"], a[href^="#"]',
     events: {
         'click': '_onAnimateClick',
-    },
-
-    //--------------------------------------------------------------------------
-    // Private
-    //--------------------------------------------------------------------------
-
-    /**
-     * @private
-     * @param {jQuery} $el the element to scroll to.
-     * @param {string} [scrollValue='true'] scroll value
-     * @returns {Promise}
-     */
-    async _scrollTo($el, scrollValue = 'true') {
-        return dom.scrollTo($el[0], {
-            duration: scrollValue === 'true' ? 500 : 0,
-            extraOffset: this._computeExtraOffset(),
-        });
-    },
-    /**
-     * @private
-     */
-    _computeExtraOffset() {
-        return 0;
     },
 
     //--------------------------------------------------------------------------
@@ -898,133 +1160,13 @@ registry.anchorSlide = publicWidget.Widget.extend({
             return;
         }
         var $anchor = $(hash);
-        const scrollValue = $anchor.attr('data-anchor');
-        if (!$anchor.length || !scrollValue) {
+        if (!$anchor.length || !$anchor.attr('data-anchor')) {
             return;
         }
         ev.preventDefault();
-        this._scrollTo($anchor, scrollValue);
-    },
-});
-
-registry.FullScreenHeight = publicWidget.Widget.extend({
-    selector: '.o_full_screen_height',
-    disabledInEditableMode: false,
-
-    /**
-     * @override
-     */
-    start() {
-        if (this.$el.outerHeight() > this._computeIdealHeight()) {
-            // Only initialize if taller than the ideal height as some extra css
-            // rules may alter the full-screen-height class behavior in some
-            // cases (blog...).
-            this._adaptSize();
-            $(window).on('resize.FullScreenHeight', _.debounce(() => this._adaptSize(), 250));
-        }
-        return this._super(...arguments);
-    },
-    /**
-     * @override
-     */
-    destroy() {
-        this._super(...arguments);
-        $(window).off('.FullScreenHeight');
-        this.el.style.setProperty('min-height', '');
-    },
-
-    //--------------------------------------------------------------------------
-    // Private
-    //--------------------------------------------------------------------------
-
-    /**
-     * @private
-     */
-    _adaptSize() {
-        const height = this._computeIdealHeight();
-        this.el.style.setProperty('min-height', `${height}px`, 'important');
-    },
-    /**
-     * @private
-     */
-    _computeIdealHeight() {
-        const windowHeight = $(window).outerHeight();
-        // Doing it that way allows to considerer fixed headers, hidden headers,
-        // connected users, ...
-        const firstContentEl = $('#wrapwrap > main > :first-child')[0]; // first child to consider the padding-top of main
-        const mainTopPos = firstContentEl.getBoundingClientRect().top + dom.closestScrollable(firstContentEl.parentNode).scrollTop;
-        return (windowHeight - mainTopPos);
-    },
-});
-
-registry.ScrollButton = registry.anchorSlide.extend({
-    selector: '.o_scroll_button',
-
-    /**
-     * @override
-     */
-    _onAnimateClick: function (ev) {
-        ev.preventDefault();
-        const $nextSection = this.$el.closest('section').next('section');
-        if ($nextSection.length) {
-            this._scrollTo($nextSection);
-        }
-    },
-});
-
-registry.FooterSlideout = publicWidget.Widget.extend({
-    selector: '#wrapwrap:has(.o_footer_slideout)',
-    disabledInEditableMode: false,
-
-    /**
-     * @override
-     */
-    async start() {
-        const $main = this.$('> main');
-        const slideoutEffect = $main.outerHeight() >= $(window).outerHeight();
-        this.el.classList.toggle('o_footer_effect_enable', slideoutEffect);
-
-        // Add a pixel div over the footer, after in the DOM, so that the
-        // height of the footer is understood by Firefox sticky implementation
-        // (which it seems to not understand because of the combination of 3
-        // items: the footer is the last :visible element in the #wrapwrap, the
-        // #wrapwrap uses flex layout and the #wrapwrap is the element with a
-        // scrollbar).
-        // TODO check if the hack is still needed by future browsers.
-        this.__pixelEl = document.createElement('div');
-        this.__pixelEl.style.width = `1px`;
-        this.__pixelEl.style.height = `1px`;
-        this.__pixelEl.style.marginTop = `-1px`;
-        this.el.appendChild(this.__pixelEl);
-
-        return this._super(...arguments);
-    },
-    /**
-     * @override
-     */
-    destroy() {
-        this._super(...arguments);
-        this.el.classList.remove('o_footer_effect_enable');
-        this.__pixelEl.remove();
-    },
-});
-
-registry.HeaderHamburgerFull = publicWidget.Widget.extend({
-    selector: 'header:has(.o_header_hamburger_full_toggler):not(:has(.o_offcanvas_menu_toggler))',
-    events: {
-        'click .o_header_hamburger_full_toggler': '_onToggleClick',
-    },
-
-    //--------------------------------------------------------------------------
-    // Handlers
-    //--------------------------------------------------------------------------
-
-    /**
-     * @private
-     */
-    _onToggleClick() {
-        document.body.classList.add('overflow-hidden');
-        setTimeout(() => $(window).trigger('scroll'), 100);
+        $('html, body').animate({
+            scrollTop: $anchor.offset().top,
+        }, 500);
     },
 });
 

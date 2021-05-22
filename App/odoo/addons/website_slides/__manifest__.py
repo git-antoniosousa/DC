@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'eLearning',
-    'version': '2.2',
-    'sequence': 125,
+    'version': '2.0',
+    'sequence': 145,
     'summary': 'Manage and publish an eLearning platform',
     'website': 'https://www.odoo.com/page/slides',
-    'category': 'Website/eLearning',
+    'category': 'Website/Website',
     'description': """
 Create Online Courses
 =====================
@@ -20,18 +20,16 @@ Featuring
  * Statistics
 """,
     'depends': [
-        'portal_rating',
         'website',
         'website_mail',
         'website_profile',
-    ],
+        'website_rating'],
     'data': [
-        'security/website_slides_security.xml',
-        'security/ir.model.access.csv',
         'views/assets.xml',
         'views/res_config_settings_views.xml',
         'views/res_partner_views.xml',
         'views/rating_rating_views.xml',
+        'views/res_partner_views.xml',
         'views/slide_question_views.xml',
         'views/slide_slide_views.xml',
         'views/slide_channel_partner_views.xml',
@@ -48,19 +46,16 @@ Featuring
         'wizard/slide_channel_invite_views.xml',
         'data/gamification_data.xml',
         'data/mail_data.xml',
-        'data/mail_activity_data.xml',
         'data/slide_data.xml',
         'data/website_data.xml',
+        'security/ir.model.access.csv',
+        'security/website_slides_security.xml'
     ],
     'demo': [
-        'data/res_users_demo.xml',
         'data/slide_channel_tag_demo.xml',
         'data/slide_channel_demo.xml',
         'data/slide_slide_demo.xml',
         'data/slide_user_demo.xml',
-    ],
-    'qweb': [
-        'static/src/xml/activity.xml',
     ],
     'installable': True,
     'application': True,

@@ -3,8 +3,11 @@
 # 	* hr_expense
 # 
 # Translators:
+# LAO <sumonchai@gmail.com>, 2020
+# Ekasit Saichompu <ekasitb@gmail.com>, 2020
 # gsong <gsong2014@foxmail.com>, 2020
 # Martin Trigaux, 2020
+# Seksan Poltree <seksan.poltree@gmail.com>, 2020
 # Khwunchai Jaengsawang <khwunchai.j@ku.th>, 2020
 # monchai7 <montchye@gmail.com>, 2020
 # Pornvibool Tippayawat <pornvibool.t@gmail.com>, 2020
@@ -13,10 +16,10 @@
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-29 13:45+0000\n"
-"PO-Revision-Date: 2020-09-07 08:12+0000\n"
+"POT-Creation-Date: 2019-12-05 09:01+0000\n"
+"PO-Revision-Date: 2019-08-26 09:10+0000\n"
 "Last-Translator: Odoo Thaidev <odoothaidev@gmail.com>, 2020\n"
 "Language-Team: Thai (https://www.transifex.com/odoo/teams/41243/th/)\n"
 "MIME-Version: 1.0\n"
@@ -88,15 +91,6 @@ msgid ""
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid ""
-"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
-"specific.\"/>"
-msgstr ""
-"<span class=\"fa fa-lg fa-building-o\" title=\"ค่าที่กำหนดเป็นค่าเฉพาะของ "
-"บริษัท.\"/>"
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense_sheet
 msgid "<strong>Date:</strong>"
 msgstr "<strong>วันที่</strong>"
@@ -127,6 +121,14 @@ msgid "<strong>Validated By:</strong>"
 msgstr "<strong>ตรวจสอบโดย:</strong>"
 
 #. module: hr_expense
+#: code:addons/hr_expense/wizard/hr_expense_sheet_register_payment.py:0
+#, python-format
+msgid ""
+"A payment of %s %s with the reference <a href='/mail/view?%s'>%s</a> related"
+" to your expense %s has been made."
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__account_id
 msgid "Account"
 msgstr "บัญชี"
@@ -134,13 +136,7 @@ msgstr "บัญชี"
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
 msgid "Accounting"
-msgstr "บัญชี"
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__accounting_date
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__accounting_date
-msgid "Accounting Date"
-msgstr "วันที่ลงบัญชี"
+msgstr "การบัญชี"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_needaction
@@ -167,16 +163,16 @@ msgid "Activity State"
 msgstr "สถานะกิจกรรม"
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_type_icon
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__activity_type_icon
-msgid "Activity Type Icon"
-msgstr ""
-
-#. module: hr_expense
 #: model:ir.actions.act_window,name:hr_expense.mail_activity_type_action_config_hr_expense
 #: model:ir.ui.menu,name:hr_expense.hr_expense_menu_config_activity_type
 msgid "Activity Types"
 msgstr "Activity Types"
+
+#. module: hr_expense
+#: code:addons/hr_expense/models/hr_expense.py:0
+#, python-format
+msgid "Add a new expense,"
+msgstr ""
 
 #. module: hr_expense
 #: model:res.groups,name:hr_expense.group_hr_expense_manager
@@ -192,7 +188,7 @@ msgstr ""
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 msgid "Alias"
-msgstr "ชื่อเรียก"
+msgstr "นามแฝง"
 
 #. module: hr_expense
 #: model:res.groups,name:hr_expense.group_hr_expense_user
@@ -205,21 +201,9 @@ msgid "All Expense Reports"
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.hr_expense_actions_my_all
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_my_expenses_all
-msgid "All My Expenses"
+#: model:ir.actions.act_window,name:hr_expense.hr_expense_actions_all
+msgid "All Expenses"
 msgstr ""
-
-#. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_sheet_all
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all
-msgid "All Reports"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__amount_residual
-msgid "Amount Due"
-msgstr "ยอดเงินค้างชําระ"
 
 #. module: hr_expense
 #. openerp-web
@@ -251,25 +235,9 @@ msgid "Analytic Tags"
 msgstr "ป้ายกำกับการวิเคราะห์"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_all
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_unsubmitted
-msgid "Apple App Store"
-msgstr ""
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
 msgid "Approve"
 msgstr "อนุมัติ"
-
-#. module: hr_expense
-#: model:ir.actions.server,name:hr_expense.hr_expense_sheet_approve_action_server
-msgid "Approve Report"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_approve
-msgid "Approve the new expense reports submitted by the employees you manage."
-msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__state__approved
@@ -286,11 +254,11 @@ msgstr "ค่าใช้จ่ายที่อนุมัติ"
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.product_product_expense_form_view
 msgid "Archived"
-msgstr "เก็บถาวร"
+msgstr "ถูกเก็บ"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-msgid "Attach Receipt"
+msgid "Attach Document"
 msgstr ""
 
 #. module: hr_expense
@@ -304,12 +272,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_attachment_count
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_attachment_count
 msgid "Attachment Count"
-msgstr "จํานวนสิ่งที่แนบมา"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_expenses_analysis_tree
-msgid "Attachments"
-msgstr "เอกสารแนบ"
+msgstr "จำนวนไฟล์แนบ"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__bank_journal_id
@@ -334,6 +297,7 @@ msgstr "สามารถเป็นค่าใช้จ่าย"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_refuse_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_register_payment_view_form
 msgid "Cancel"
 msgstr "ยกเลิก"
 
@@ -356,6 +320,7 @@ msgstr ""
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__company_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__company_id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__company_id
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__payment_mode__company_account
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
@@ -365,7 +330,7 @@ msgstr "บริษัท"
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_res_config_settings
 msgid "Config Settings"
-msgstr "การตั้งค่า"
+msgstr "กำหนดการตั้งค่า"
 
 #. module: hr_expense
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_configuration
@@ -388,14 +353,29 @@ msgstr ""
 
 #. module: hr_expense
 #: model:ir.actions.server,name:hr_expense.hr_expense_submit_action_server
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_expenses_analysis_tree
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 msgid "Create Report"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_account
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_approve_expense_sheet
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_to_pay_expense_sheet
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_to_post_expense_sheet
+#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_all
+#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_unsubmitted
+msgid "Create a new expense"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
+msgid "Create a new expense product"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_all
+#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_pay
+#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_post
+#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_my_all
 msgid "Create a new expense report"
 msgstr ""
 
@@ -405,14 +385,10 @@ msgid "Create expenses from incoming emails"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_all
-msgid "Create new expenses to get statistics."
-msgstr ""
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__create_uid
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__create_uid
 msgid "Created by"
 msgstr "สร้างโดย"
 
@@ -420,17 +396,22 @@ msgstr "สร้างโดย"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__create_date
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__create_date
 msgid "Created on"
 msgstr "สร้างเมื่อ"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__currency_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__currency_id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__currency_id
 msgid "Currency"
 msgstr "สกุลเงิน"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__date
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__accounting_date
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense_sheet
 msgid "Date"
 msgstr "วันที่"
@@ -446,7 +427,6 @@ msgid "Default Alias Name for Expenses"
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.model,name:hr_expense.model_hr_department
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__department_id
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "Department"
@@ -458,42 +438,15 @@ msgid "Description"
 msgstr "รายละเอียด"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_all
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_unsubmitted
-msgid "Did you try the mobile app?"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid "Digitalize your receipts with OCR and Artificial Intelligence"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_account_journal__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_account_move__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_account_move_line__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_account_payment_register__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_hr_department__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee_public__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_product_template__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_res_users__display_name
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__display_name
 msgid "Display Name"
 msgstr "ชื่อที่ใช้แสดง"
 
 #. module: hr_expense
-#: model_terms:digest.tip,tip_description:hr_expense.digest_tip_hr_expense_0
-msgid ""
-"Do not keep your expense tickets in your pockets any longer. Just snap a "
-"picture of your receipt and let Odoo digitalizes it for you. The OCR and "
-"Artificial Intelligence will fill the data automatically."
-msgstr ""
-
-#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
 msgid "Documents"
 msgstr "เอกสาร"
@@ -501,7 +454,12 @@ msgstr "เอกสาร"
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense_sheet__state__draft
 msgid "Draft"
-msgstr "ฉบับร่าง"
+msgstr "ร่าง"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_register_payment_view_form
+msgid "Draft Payment"
+msgstr "ร่างการชำระเงิน"
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_hr_employee
@@ -518,8 +476,7 @@ msgid "Employee (to reimburse)"
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_account
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_account_employee_expenses
+#: model:ir.actions.act_window,name:hr_expense.action_approved_expense
 msgid "Employee Expenses"
 msgstr ""
 
@@ -527,6 +484,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__address_id
 msgid "Employee Home Address"
 msgstr ""
+
+#. module: hr_expense
+#. openerp-web
+#: code:addons/hr_expense/static/src/js/upload_mixin.js:0
+#, python-format
+msgid "Error"
+msgstr "ผิดพลาด"
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_hr_expense
@@ -545,19 +509,8 @@ msgid "Expense Approval"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.view_employee_tree_inherit_expense
-msgid "Expense Approver"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__date
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Expense Date"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid "Expense Digitalization (OCR)"
 msgstr ""
 
 #. module: hr_expense
@@ -588,8 +541,14 @@ msgid "Expense Refuse Reason Wizard"
 msgstr ""
 
 #. module: hr_expense
+#: model:ir.model,name:hr_expense.model_hr_expense_sheet_register_payment_wizard
+msgid "Expense Register Payment Wizard"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model,name:hr_expense.model_hr_expense_sheet
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__sheet_id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__expense_sheet_id
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_tree
 msgid "Expense Report"
@@ -635,11 +594,6 @@ msgid "Expense Reports to Approve"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
-msgid "Expense products can be reinvoiced to your customers."
-msgstr ""
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_refuse_wizard_view_form
 msgid "Expense refuse reason"
 msgstr ""
@@ -660,31 +614,24 @@ msgid "Expense report refused"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all
-msgid ""
-"Expense reports regroup all the expenses incurred during a specific event."
-msgstr ""
-
-#. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_account_move_line__expense_id
 msgid "Expense where the move line come from"
 msgstr ""
 
 #. module: hr_expense
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_root
-#: model:product.product,name:hr_expense.product_product_fixed_cost
-#: model:product.template,name:hr_expense.product_product_fixed_cost_product_template
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_department_view_kanban
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_activity
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_activity
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_expenses_analysis_tree
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_expenses_tree
+#: model:product.product,name:hr_expense.product_product_fixed_cost
+#: model:product.template,name:hr_expense.product_product_fixed_cost_product_template
 msgid "Expenses"
 msgstr "การใช้จ่าย"
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.hr_expense_actions_all
+#: model:ir.actions.act_window,name:hr_expense.hr_expense_action
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_all_expenses
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_graph
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_pivot
@@ -707,6 +654,11 @@ msgstr ""
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "Expenses by Date"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
+msgid "Expenses can be reimbursed in payslips."
 msgstr ""
 
 #. module: hr_expense
@@ -741,7 +693,7 @@ msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_refused
-msgid "Explicitly Refused by manager or accountant"
+msgid "Explicitely Refused by manager or acccountant"
 msgstr ""
 
 #. module: hr_expense
@@ -763,15 +715,17 @@ msgid "Followers (Partners)"
 msgstr "ผู้ติดตาม (คู่ค้า)"
 
 #. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_expense__activity_type_icon
-#: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr ""
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Former Employees"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.actions.act_window,help:hr_expense.action_approved_expense
+#: model_terms:ir.actions.act_window,help:hr_expense.action_unsubmitted_expense
+msgid ""
+"From here the accountant will be able to approve as well as refuse the "
+"expenses which are verified by the HR Manager."
 msgstr ""
 
 #. module: hr_expense
@@ -798,21 +752,25 @@ msgid "Generated Expenses"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_all
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_unsubmitted
-msgid "Google Play Store"
-msgstr ""
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Group By"
-msgstr "จัดกลุ่มตาม"
+msgstr "จัดกลุ่มโดย"
+
+#. module: hr_expense
+#: model:ir.model,name:hr_expense.model_hr_department
+msgid "HR Department"
+msgstr "แผนก HR"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__is_multiple_currency
 msgid "Handle lines with different currencies"
 msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__hide_payment_method
+msgid "Hide Payment Method"
+msgstr "ซ่อนวิธีการชําระเงิน"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__hr_expense_ids
@@ -825,19 +783,10 @@ msgid "Hr Expense Sheet"
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_account_journal__id
-#: model:ir.model.fields,field_description:hr_expense.field_account_move__id
-#: model:ir.model.fields,field_description:hr_expense.field_account_move_line__id
-#: model:ir.model.fields,field_description:hr_expense.field_account_payment_register__id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_department__id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee__id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee_public__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__id
-#: model:ir.model.fields,field_description:hr_expense.field_product_template__id
-#: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__id
-#: model:ir.model.fields,field_description:hr_expense.field_res_users__id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__id
 msgid "ID"
 msgstr "รหัส"
 
@@ -851,7 +800,7 @@ msgstr "ไอคอน"
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__activity_exception_icon
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "ไอคอนเพื่อระบุกิจกรรมการยกเว้น"
+msgstr "ไอคอนเพื่อระบุกิจกรรมข้อยกเว้น"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__message_needaction
@@ -867,7 +816,7 @@ msgstr "ถ้าเลือก ข้อความใหม่จะต้�
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__message_has_error
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
-msgstr "ถ้าเลือก ข้อความบางข้อความมีข้อผิดพลาดในการส่ง"
+msgstr "หากเลือกข้อความบางข้อความมีข้อผิดพลาดในการจัดส่ง"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
@@ -895,13 +844,12 @@ msgstr "เป็นผู้ติดตาม"
 #: model:ir.model,name:hr_expense.model_account_journal
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "Journal"
-msgstr "สมุดรายวัน"
+msgstr "สมุดบัญชี"
 
 #. module: hr_expense
-#: model:ir.model,name:hr_expense.model_account_move
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__account_move_id
 msgid "Journal Entry"
-msgstr "รายการบันทึกบัญชี"
+msgstr "บันทึกบัญชี"
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_account_move_line
@@ -909,19 +857,10 @@ msgid "Journal Item"
 msgstr "รายการสมุดบัญชีรายวัน"
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_account_journal____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_account_move____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_account_move_line____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_account_payment_register____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_hr_department____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee_public____last_update
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense____last_update
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard____last_update
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_product_template____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_res_config_settings____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_res_users____last_update
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard____last_update
 msgid "Last Modified on"
 msgstr "แก้ไขครั้งสุดท้ายเมื่อ"
 
@@ -929,6 +868,7 @@ msgstr "แก้ไขครั้งสุดท้ายเมื่อ"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__write_uid
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__write_uid
 msgid "Last Updated by"
 msgstr "อัพเดทครั้งสุดท้ายโดย"
 
@@ -936,6 +876,7 @@ msgstr "อัพเดทครั้งสุดท้ายโดย"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__write_date
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__write_date
 msgid "Last Updated on"
 msgstr "อัพเดทครั้งสุดท้ายเมื่อ"
 
@@ -943,7 +884,7 @@ msgstr "อัพเดทครั้งสุดท้ายเมื่อ"
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Late Activities"
-msgstr "กิจกรรม"
+msgstr "กิจกรรมล่าสุด"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__use_mailgateway
@@ -954,7 +895,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_main_attachment_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_main_attachment_id
 msgid "Main Attachment"
-msgstr "เอกสารหลักที่แนบมา"
+msgstr "ไฟล์แนบหลัก"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__user_id
@@ -969,10 +910,15 @@ msgid "Managers can get all reports to approve from this menu."
 msgstr ""
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__communication
+msgid "Memo"
+msgstr "บันทึก"
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_has_error
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_has_error
 msgid "Message Delivery error"
-msgstr "เกิดการผิดพลาดในการส่งข้อความ"
+msgstr "ส่งข้อความผิดพลาด"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_ids
@@ -981,20 +927,20 @@ msgid "Messages"
 msgstr "ข้อความ"
 
 #. module: hr_expense
+#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_sheet_my_all
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_my_reports
+msgid "My Expense Reports"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.actions.act_window,name:hr_expense.hr_expense_actions_my_unsubmitted
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_my_expenses
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_my_expenses_to_submit
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "My Expenses"
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.hr_expense_actions_my_unsubmitted
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_my_expenses_to_submit
-msgid "My Expenses to Report"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_sheet_my_all
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_my_reports
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "My Reports"
 msgstr ""
@@ -1020,7 +966,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_date_deadline
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__activity_date_deadline
 msgid "Next Activity Deadline"
-msgstr "กำหนดกิจกรรมสุดท้าย"
+msgstr "วันที่สิ้นสุดกิจกรรมถัดไป"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_summary
@@ -1049,17 +995,8 @@ msgid "No Home Address found for the employee %s, please configure one."
 msgstr ""
 
 #. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid ""
-"No Outstanding Payments Account found for the %s journal, please configure "
-"one."
-msgstr ""
-
-#. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid "No account found for the %s journal, please configure one."
+#: model_terms:ir.actions.act_window,help:hr_expense.action_approved_expense
+msgid "No approved employee expenses"
 msgstr ""
 
 #. module: hr_expense
@@ -1069,31 +1006,20 @@ msgid "No attachment was provided"
 msgstr "No attachment was provided"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_department_filtered
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_all
-msgid "No data yet!"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
-msgid "No expense products found. Let's create one!"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_my_all
-msgid "No expense report found. Let's create one!"
+#: code:addons/hr_expense/models/hr_expense.py:0
+#: code:addons/hr_expense/models/hr_expense.py:0
+#, python-format
+msgid "No credit account found for the %s journal, please configure one."
 msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_approve
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_pay
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_post
-msgid "No expense reports found"
+msgid "No expense reports to approve"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all
-msgid "No expense reports found. Let's create one!"
+#: model_terms:ir.actions.act_window,help:hr_expense.action_unsubmitted_expense
+msgid "No unreported employee expenses"
 msgstr ""
 
 #. module: hr_expense
@@ -1106,7 +1032,7 @@ msgstr "โน้ต..."
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_needaction_counter
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_needaction_counter
 msgid "Number of Actions"
-msgstr "จํานวนการดําเนินการ"
+msgstr "จำนวนกิจกรรม"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__attachment_number
@@ -1118,7 +1044,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_has_error_counter
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_has_error_counter
 msgid "Number of errors"
-msgstr "จํานวนข้อผิดพลาด"
+msgstr "จำนวนข้อผิดพลาด"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__message_needaction_counter
@@ -1144,9 +1070,13 @@ msgid "Odoo"
 msgstr "Odoo"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_account
 #: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_all
+#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_pay
+#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_post
 #: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_my_all
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_approve_expense_sheet
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_to_pay_expense_sheet
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_to_post_expense_sheet
 msgid ""
 "Once you have created your expense, submit it to your manager who will "
 "validate it."
@@ -1183,15 +1113,39 @@ msgstr "ข้อมูลอื่น ๆ"
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__state__done
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense_sheet__state__done
 #: model:mail.message.subtype,name:hr_expense.mt_expense_paid
-#: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
 msgid "Paid"
-msgstr "ชำระเงินแล้ว"
+msgstr "ชำระแล้ว"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__payment_mode
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__payment_mode
 msgid "Paid By"
 msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__partner_id
+msgid "Partner"
+msgstr "คู่ค้า"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__amount
+msgid "Payment Amount"
+msgstr "จำนวนชำระ"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__payment_date
+msgid "Payment Date"
+msgstr "วันที่ชำระ"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__journal_id
+msgid "Payment Method"
+msgstr "วิธีการจ่ายเงิน"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__payment_method_id
+msgid "Payment Type"
+msgstr "ประเภทการชำระเงิน"
 
 #. module: hr_expense
 #: code:addons/hr_expense/models/hr_expense.py:0
@@ -1202,26 +1156,14 @@ msgid ""
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.actions.server,name:hr_expense.hr_expense_sheet_post_action_server
-msgid "Post Entries"
-msgstr ""
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
 msgid "Post Journal Entries"
 msgstr "ลงบันทึกรายวัน"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_post
-msgid ""
-"Post the journal entries of the new expense reports approved by the "
-"employees' manager."
-msgstr ""
-
-#. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense_sheet__state__post
 msgid "Posted"
-msgstr "ลงบันทึก"
+msgstr "ลงบัญชีแล้ว"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register_no_user
@@ -1305,14 +1247,14 @@ msgid "Reason to refuse Expense"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-msgid "Receipts"
-msgstr "ใบเสร็จ"
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__partner_bank_account_id
+msgid "Recipient Bank Account"
+msgstr "บัญชีธนาคารของผู้รับ"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense_sheet
 msgid "Ref."
-msgstr "อ้างอิง."
+msgstr "อ้างอิง"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_ref_editable
@@ -1333,9 +1275,9 @@ msgstr ""
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__state__refused
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense_sheet__state__cancel
-#: model:mail.message.subtype,name:hr_expense.mt_expense_refused
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
+#: model:mail.message.subtype,name:hr_expense.mt_expense_refused
 msgid "Refused"
 msgstr "ถูกปฏิเสธ"
 
@@ -1345,11 +1287,9 @@ msgid "Refused Expenses"
 msgstr ""
 
 #. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#: model:ir.actions.server,name:hr_expense.action_expense_sheet_register_payment
-#: model:ir.model,name:hr_expense.model_account_payment_register
+#: model:ir.actions.act_window,name:hr_expense.hr_expense_sheet_register_payment_wizard_action
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_register_payment_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
-#, python-format
 msgid "Register Payment"
 msgstr "ลงทะเบียนการจ่ายเงิน"
 
@@ -1360,19 +1300,7 @@ msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid "Reimburse expenses in payslips"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 msgid "Reimburse in Payslip"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_pay
-msgid ""
-"Reimburse the employees who incurred these costs or simply register the "
-"corresponding payments."
 msgstr ""
 
 #. module: hr_expense
@@ -1391,24 +1319,29 @@ msgid "Reporting"
 msgstr "การรายงาน"
 
 #. module: hr_expense
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_approve
+#: model:ir.actions.act_window,name:hr_expense.action_request_approve_expense_sheet
 msgid "Reports to Approve"
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_pay
+#: model:ir.actions.act_window,name:hr_expense.action_request_to_pay_expense_sheet
 msgid "Reports to Pay"
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_post
+#: model:ir.actions.act_window,name:hr_expense.action_request_to_post_expense_sheet
 msgid "Reports to Post"
 msgstr ""
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__require_partner_bank_account
+msgid "Require Partner Bank Account"
+msgstr "ต้องการบัญชีธนาคารของคู่ค้า"
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
 msgid "Reset to Draft"
-msgstr "รีเซ็ตเป็นแบบร่าง"
+msgstr "ตั้งให้เป็นฉบับร่าง"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_user_id
@@ -1421,26 +1354,6 @@ msgstr "ผู้ใช้ที่รับผิดชอบ"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "ข้อผิดพลาดในการส่ง SMS"
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__sample
-msgid "Sample"
-msgstr ""
-
-#. module: hr_expense
-#. openerp-web
-#: code:addons/hr_expense/static/src/xml/expense_qr_modal_template.xml:0
-#, python-format
-msgid "Scan this QR code to get the Odoo app:"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_employee__expense_manager_id
-#: model:ir.model.fields,help:hr_expense.field_res_users__expense_manager_id
-msgid ""
-"Select the user responsible for approving \"Expenses\" of this employee.\n"
-"If empty, the approval is done by an Administrator or Approver (determined in settings/users)."
-msgstr ""
 
 #. module: hr_expense
 #: code:addons/hr_expense/models/hr_expense.py:0
@@ -1461,11 +1374,6 @@ msgid ""
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__module_hr_expense_extract
-msgid "Send bills to OCR to generate expenses"
-msgstr ""
-
-#. module: hr_expense
 #: model:ir.actions.act_window,name:hr_expense.action_hr_expense_configuration
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_global_settings
 msgid "Settings"
@@ -1477,18 +1385,15 @@ msgid "Setup your domain alias"
 msgstr "ตั้งค่าโดเมนของคุณ"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__show_partner_bank_account
+msgid "Show Partner Bank Account"
+msgstr "แสดงบัญชีธนาคารของคู่ค้า"
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Show all records which has next action date is before today"
 msgstr "Show all records which has next action date is before today"
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_all
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_unsubmitted
-msgid ""
-"Snap pictures of your receipts and let Odoo<br> automatically create "
-"expenses for you."
-msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_product_product__can_be_expensed
@@ -1513,10 +1418,10 @@ msgid ""
 "Today: Activity date is today\n"
 "Planned: Future activities."
 msgstr ""
-"Status based on activities\n"
-"Overdue: Due date is already passed\n"
-"Today: Activity date is today\n"
-"Planned: Future activities."
+"สถานะตามกิจกรรม\n"
+"เกินกำหนด: วันที่ครบกำหนดผ่านไปแล้ว\n"
+"วันนี้: วันที่ทำกิจกรรมคือวันนี้\n"
+"ที่วางแผนไว้: กิจกรรมในอนาคต"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__state
@@ -1551,17 +1456,38 @@ msgid "Team Approver"
 msgstr ""
 
 #. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet_register_payment_wizard__hide_payment_method
+msgid ""
+"Technical field used to hide the payment method if the selected journal has "
+"only one available which is 'manual'"
+msgstr ""
+"Technical field used to hide the payment method if the selected journal has "
+"only one available which is 'manual'"
+
+#. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet_register_payment_wizard__show_partner_bank_account
+msgid ""
+"Technical field used to know whether the field `partner_bank_account_id` "
+"needs to be displayed or not in the payments form views"
+msgstr ""
+"Technical field used to know whether the field `partner_bank_account_id` "
+"needs to be displayed or not in the payments form views"
+
+#. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet_register_payment_wizard__require_partner_bank_account
+msgid ""
+"Technical field used to know whether the field `partner_bank_account_id` "
+"needs to be required or not in the payments form views"
+msgstr ""
+"Technical field used to know whether the field `partner_bank_account_id` "
+"needs to be required or not in the payments form views"
+
+#. module: hr_expense
 #. openerp-web
 #: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
 #, python-format
 msgid ""
 "The accountant can register a payment to reimburse the employee directly."
-msgstr ""
-
-#. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid "The current user has no related employee. Please, create one."
 msgstr ""
 
 #. module: hr_expense
@@ -1582,27 +1508,30 @@ msgid "The journal used when the expense is done."
 msgstr ""
 
 #. module: hr_expense
+#: code:addons/hr_expense/wizard/hr_expense_sheet_register_payment.py:0
+#, python-format
+msgid "The payment amount must be strictly positive."
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__bank_journal_id
 msgid "The payment method used when the expense is paid by the company."
 msgstr ""
 
 #. module: hr_expense
-#: model:digest.tip,name:hr_expense.digest_tip_hr_expense_0
-#: model_terms:digest.tip,tip_description:hr_expense.digest_tip_hr_expense_0
-msgid "Tip: Snap pictures of your receipts with the remote app"
-msgstr ""
-
-#. module: hr_expense
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_approve
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "To Approve"
 msgstr "ให้การอนุมัติ"
 
 #. module: hr_expense
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_pay
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "To Pay"
 msgstr "ค้างจ่าย"
 
 #. module: hr_expense
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_post
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "To Post"
 msgstr ""
@@ -1635,10 +1564,10 @@ msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__total_amount
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_expenses_analysis_tree
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_expenses_tree
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_tree
 msgid "Total Amount"
-msgstr "ยอดรวม"
+msgstr "จำนวนเงินรวม"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__activity_exception_decoration
@@ -1675,11 +1604,15 @@ msgstr "ข้อความที่ยังไม่ได้อ่าน"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_unread_counter
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_unread_counter
 msgid "Unread Messages Counter"
-msgstr "ตัวนับข้อความที่ยังไม่ได้อ่าน"
+msgstr "จำนวนข้อความที่ยังไม่ได้อ่าน"
+
+#. module: hr_expense
+#: model:ir.actions.act_window,name:hr_expense.action_unsubmitted_expense
+msgid "Unreported Expenses"
+msgstr ""
 
 #. module: hr_expense
 #. openerp-web
-#: code:addons/hr_expense/static/src/xml/documents_upload_views.xml:0
 #: code:addons/hr_expense/static/src/xml/documents_upload_views.xml:0
 #, python-format
 msgid "Upload"
@@ -1692,9 +1625,25 @@ msgid "Uploaded Attachment"
 msgstr ""
 
 #. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_employee__expense_manager_id
+#: model:ir.model.fields,help:hr_expense.field_res_users__expense_manager_id
+msgid "User responsible of expense approval. Should be Expense approver."
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model,name:hr_expense.model_res_users
 msgid "Users"
 msgstr "ผู้ใช้งาน"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_register_payment_view_form
+msgid "Validate"
+msgstr "ตรวจสอบ"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_expenses_tree
+msgid "View Attached Documents"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
@@ -1723,13 +1672,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__website_message_ids
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__website_message_ids
 msgid "Website Messages"
-msgstr "ข้อความเว็บไซต์"
+msgstr "ข้อความจากเว็บไซต์"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__website_message_ids
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__website_message_ids
 msgid "Website communication history"
-msgstr "ประวัติการสื่อสารของเว็บไซต์"
+msgstr "ประวัติการสื่อสารเว็บไซต์"
 
 #. module: hr_expense
 #: code:addons/hr_expense/models/hr_expense.py:0
@@ -1755,6 +1704,12 @@ msgid "You can now submit it to the manager from the following link."
 msgstr ""
 
 #. module: hr_expense
+#: code:addons/hr_expense/wizard/hr_expense_sheet_register_payment.py:0
+#, python-format
+msgid "You can only apply this action from an expense report."
+msgstr ""
+
+#. module: hr_expense
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, python-format
 msgid "You can only approve your department expenses"
@@ -1770,12 +1725,6 @@ msgstr ""
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, python-format
 msgid "You can only refuse your department expenses"
-msgstr ""
-
-#. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid "You can't mix sample expenses and regular ones"
 msgstr ""
 
 #. module: hr_expense
@@ -1821,14 +1770,6 @@ msgid "You cannot report twice the same line!"
 msgstr ""
 
 #. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid ""
-"You need to have at least one product that can be expensed in your database "
-"to proceed!"
-msgstr ""
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_refuse_reason
 msgid "Your Expense"
 msgstr ""
@@ -1867,22 +1808,5 @@ msgstr "กม."
 #. module: hr_expense
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, python-format
-msgid "to be reimbursed"
-msgstr ""
-
-#. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid "to report"
-msgstr ""
-
-#. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid "under validation"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid "use OCR to fill data from a picture of the bill"
+msgid "or send receipts by email to %s."
 msgstr ""

@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-
-import logging
-import random
-import threading
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -12,6 +7,8 @@ from odoo import api, fields, models, tools
 from odoo.tools import exception_to_unicode
 from odoo.tools.translate import _
 
+import random
+import logging
 _logger = logging.getLogger(__name__)
 
 _INTERVALS = {
@@ -95,17 +92,19 @@ class EventMailScheduler(models.Model):
             else:
                 mail.done = len(mail.mail_registration_ids) == len(mail.event_id.registration_ids) and all(mail.mail_sent for mail in mail.mail_registration_ids)
 
-    @api.depends('event_id.date_begin', 'interval_type', 'interval_unit', 'interval_nbr')
+    @api.depends('event_id.state', 'event_id.date_begin', 'interval_type', 'interval_unit', 'interval_nbr')
     def _compute_scheduled_date(self):
         for mail in self:
-            if mail.interval_type == 'after_sub':
-                date, sign = mail.event_id.create_date, 1
-            elif mail.interval_type == 'before_event':
-                date, sign = mail.event_id.date_begin, -1
+            if mail.event_id.state not in ['confirm', 'done']:
+                mail.scheduled_date = False
             else:
-                date, sign = mail.event_id.date_end, 1
-
-            mail.scheduled_date = date + _INTERVALS[mail.interval_unit](sign * mail.interval_nbr) if date else False
+                if mail.interval_type == 'after_sub':
+                    date, sign = mail.event_id.create_date, 1
+                elif mail.interval_type == 'before_event':
+                    date, sign = mail.event_id.date_begin, -1
+                else:
+                    date, sign = mail.event_id.date_end, 1
+                mail.scheduled_date = date + _INTERVALS[mail.interval_unit](sign * mail.interval_nbr)
 
     def execute(self):
         for mail in self:
@@ -119,11 +118,10 @@ class EventMailScheduler(models.Model):
                 if lines:
                     mail.write({'mail_registration_ids': lines})
                 # execute scheduler on registrations
-                mail.mail_registration_ids.execute()
+                mail.mail_registration_ids.filtered(lambda reg: reg.scheduled_date and reg.scheduled_date <= now).execute()
             else:
                 # Do not send emails if the mailing was scheduled before the event but the event is over
-                if not mail.mail_sent and mail.scheduled_date <= now and mail.notification_type == 'mail' and \
-                        (mail.interval_type != 'before_event' or mail.event_id.date_end > now):
+                if not mail.mail_sent and (mail.interval_type != 'before_event' or mail.event_id.date_end > now) and mail.notification_type == 'mail':
                     mail.event_id.mail_attendees(mail.template_id.id)
                     mail.write({'mail_sent': True})
         return True
@@ -136,26 +134,20 @@ class EventMailScheduler(models.Model):
             try:
                 event, template = scheduler.event_id, scheduler.template_id
                 emails = list(set([event.organizer_id.email, event.user_id.email, template.write_uid.email]))
-                subject = _("WARNING: Event Scheduler Error for event: %s", event.name)
+                subject = _("WARNING: Event Scheduler Error for event: %s" % event.name)
                 body = _("""Event Scheduler for:
-  - Event: %(event_name)s (%(event_id)s)
-  - Scheduled: %(date)s
-  - Template: %(template_name)s (%(template_id)s)
+                              - Event: %s (%s)
+                              - Scheduled: %s
+                              - Template: %s (%s)
 
-Failed with error:
-  - %(error)s
+                            Failed with error:
+                              - %s
 
-You receive this email because you are:
-  - the organizer of the event,
-  - or the responsible of the event,
-  - or the last writer of the template.
-""",
-                         event_name=event.name,
-                         event_id=event.id,
-                         date=scheduler.scheduled_date,
-                         template_name=template.name,
-                         template_id=template.id,
-                         error=ex_s)
+                            You receive this email because you are:
+                              - the organizer of the event,
+                              - or the responsible of the event,
+                              - or the last writer of the template."""
+                         % (event.name, event.id, scheduler.scheduled_date, template.name, template.id, ex_s))
                 email = self.env['ir.mail_server'].build_email(
                     email_from=self.env.user.email,
                     email_to=emails,
@@ -179,7 +171,7 @@ You receive this email because you are:
                 self.invalidate_cache()
                 self._warn_template_error(scheduler, e)
             else:
-                if autocommit and not getattr(threading.currentThread(), 'testing', False):
+                if autocommit:
                     self.env.cr.commit()
         return True
 
@@ -196,16 +188,10 @@ class EventMailRegistration(models.Model):
     mail_sent = fields.Boolean('Mail Sent')
 
     def execute(self):
-        now = fields.Datetime.now()
-        todo = self.filtered(lambda reg_mail:
-            not reg_mail.mail_sent and \
-            reg_mail.registration_id.state in ['open', 'done'] and \
-            (reg_mail.scheduled_date and reg_mail.scheduled_date <= now) and \
-            reg_mail.scheduler_id.notification_type == 'mail'
-        )
-        for reg_mail in todo:
-            reg_mail.scheduler_id.template_id.send_mail(reg_mail.registration_id.id)
-        todo.write({'mail_sent': True})
+        for mail in self:
+            if mail.registration_id.state in ['open', 'done'] and not mail.mail_sent and mail.scheduler_id.notification_type == 'mail':
+                mail.scheduler_id.template_id.send_mail(mail.registration_id.id)
+                mail.write({'mail_sent': True})
 
     @api.depends('registration_id', 'scheduler_id.interval_unit', 'scheduler_id.interval_type')
     def _compute_scheduled_date(self):

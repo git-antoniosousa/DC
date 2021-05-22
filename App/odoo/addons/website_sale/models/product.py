@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models, tools, _
+from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, UserError
 from odoo.addons.http_routing.models.ir_http import slug
 from odoo.addons.website.models import ir_http
@@ -9,17 +9,12 @@ from odoo.tools.translate import html_translate
 from odoo.osv import expression
 
 
-class ProductRibbon(models.Model):
-    _name = "product.ribbon"
-    _description = 'Product ribbon'
+class ProductStyle(models.Model):
+    _name = "product.style"
+    _description = 'Product Style'
 
-    def name_get(self):
-        return [(ribbon.id, '%s (#%d)' % (tools.html2plaintext(ribbon.html), ribbon.id)) for ribbon in self]
-
-    html = fields.Char(string='Ribbon html', required=True, translate=True)
-    bg_color = fields.Char(string='Ribbon background color', required=False)
-    text_color = fields.Char(string='Ribbon text color', required=False)
-    html_class = fields.Char(string='Ribbon class', required=True, default='')
+    name = fields.Char(string='Style Name', required=True)
+    html_class = fields.Char(string='HTML Classes')
 
 
 class ProductPricelist(models.Model):
@@ -35,7 +30,7 @@ class ProductPricelist(models.Model):
         domain = [('company_id', '=', company_id)]
         return self.env['website'].search(domain, limit=1)
 
-    website_id = fields.Many2one('website', string="Website", ondelete='restrict', default=_default_website, domain="[('company_id', '=?', company_id)]")
+    website_id = fields.Many2one('website', string="Website", ondelete='restrict', default=_default_website)
     code = fields.Char(string='E-commerce Promotional Code', groups="base.group_user")
     selectable = fields.Boolean(help="Allow the end user to choose this price list")
 
@@ -129,6 +124,12 @@ class ProductPricelist(models.Model):
             company_id = website.company_id.id
         return super(ProductPricelist, self)._get_partner_pricelist_multi(partner_ids, company_id)
 
+    @api.onchange('company_id')
+    def _onchange_company_id(self):
+        ''' Show only the company's website '''
+        domain = self.company_id and [('company_id', '=', self.company_id.id)] or []
+        return {'domain': {'website_id': domain}}
+
     @api.constrains('company_id', 'website_id')
     def _check_websites_in_company(self):
         '''Prevent misconfiguration multi-website/multi-companies.
@@ -136,7 +137,8 @@ class ProductPricelist(models.Model):
         '''
         for record in self.filtered(lambda pl: pl.website_id and pl.company_id):
             if record.website_id.company_id != record.company_id:
-                raise ValidationError(_("""Only the company's websites are allowed.\nLeave the Company field empty or select a website from that company."""))
+                raise ValidationError(_("Only the company's websites are allowed. \
+                    Leave the Company field empty or select a website from that company."))
 
 
 class ProductPublicCategory(models.Model):
@@ -144,21 +146,15 @@ class ProductPublicCategory(models.Model):
     _inherit = ["website.seo.metadata", "website.multi.mixin", 'image.mixin']
     _description = "Website Product Category"
     _parent_store = True
-    _order = "sequence, name, id"
-
-    def _default_sequence(self):
-        cat = self.search([], limit=1, order="sequence DESC")
-        if cat:
-            return cat.sequence + 5
-        return 10000
+    _order = "sequence, name"
 
     name = fields.Char(required=True, translate=True)
-    parent_id = fields.Many2one('product.public.category', string='Parent Category', index=True, ondelete="cascade")
+    parent_id = fields.Many2one('product.public.category', string='Parent Category', index=True)
     parent_path = fields.Char(index=True)
     child_id = fields.One2many('product.public.category', 'parent_id', string='Children Categories')
     parents_and_self = fields.Many2many('product.public.category', compute='_compute_parents_and_self')
-    sequence = fields.Integer(help="Gives the sequence order when displaying a list of product categories.", index=True, default=_default_sequence)
-    website_description = fields.Html('Category Description', sanitize_attributes=False, translate=html_translate, sanitize_form=False)
+    sequence = fields.Integer(help="Gives the sequence order when displaying a list of product categories.", index=True)
+    website_description = fields.Html('Category Description', sanitize_attributes=False, translate=html_translate)
     product_tmpl_ids = fields.Many2many('product.template', relation='product_public_category_product_template_rel')
 
     @api.constrains('parent_id')
@@ -171,6 +167,10 @@ class ProductPublicCategory(models.Model):
         for category in self:
             res.append((category.id, " / ".join(category.parents_and_self.mapped('name'))))
         return res
+
+    def unlink(self):
+        self.child_id.parent_id = None
+        return super(ProductPublicCategory, self).unlink()
 
     def _compute_parents_and_self(self):
         for category in self:
@@ -186,7 +186,7 @@ class ProductTemplate(models.Model):
     _mail_post_access = 'read'
     _check_company_auto = True
 
-    website_description = fields.Html('Description for the website', sanitize_attributes=False, translate=html_translate, sanitize_form=False)
+    website_description = fields.Html('Description for the website', sanitize_attributes=False, translate=html_translate)
     alternative_product_ids = fields.Many2many(
         'product.template', 'product_alternative_rel', 'src_id', 'dest_id', check_company=True,
         string='Alternative Products', help='Suggest alternatives to your customer (upsell strategy). '
@@ -196,7 +196,7 @@ class ProductTemplate(models.Model):
         help='Accessories show up when the customer reviews the cart before payment (cross-sell strategy).')
     website_size_x = fields.Integer('Size X', default=1)
     website_size_y = fields.Integer('Size Y', default=1)
-    website_ribbon_id = fields.Many2one('product.ribbon', string='Ribbon')
+    website_style_ids = fields.Many2many('product.style', string='Styles')
     website_sequence = fields.Integer('Website Sequence', help="Determine the display order in the Website E-commerce",
                                       default=lambda self: self._default_website_sequence(), copy=False)
     public_categ_ids = fields.Many2many(
@@ -290,9 +290,10 @@ class ProductTemplate(models.Model):
             company_id = current_website.company_id
             product = self.env['product.product'].browse(combination_info['product_id']) or self
 
-            tax_display = self.user_has_groups('account.group_show_line_subtotals_tax_excluded') and 'total_excluded' or 'total_included'
-            fpos = self.env['account.fiscal.position'].get_fiscal_position(partner.id).sudo()
-            taxes = fpos.map_tax(product.sudo().taxes_id.filtered(lambda x: x.company_id == company_id), product, partner)
+            tax_display = self.env.user.has_group('account.group_show_line_subtotals_tax_excluded') and 'total_excluded' or 'total_included'
+            Fpos_sudo = self.env['account.fiscal.position'].sudo()
+            fpos_id = Fpos_sudo.with_context(force_company=company_id.id).get_fiscal_position(partner.id)
+            taxes = Fpos_sudo.browse(fpos_id).map_tax(product.sudo().taxes_id.filtered(lambda x: x.company_id == company_id), product, partner)
 
             # The list_price is always the price of one.
             quantity_1 = 1
@@ -360,12 +361,12 @@ class ProductTemplate(models.Model):
             return 10000
         return max_sequence + 5
 
-    def set_sequence_top(self):
-        min_sequence = self.sudo().search([], order='website_sequence ASC', limit=1)
+    def set_sequence_top(self, to_remove=[]):
+        min_sequence = self.sudo().search([('id', 'not in', to_remove)], order='website_sequence ASC', limit=1)
         self.website_sequence = min_sequence.website_sequence - 5
 
-    def set_sequence_bottom(self):
-        max_sequence = self.sudo().search([], order='website_sequence DESC', limit=1)
+    def set_sequence_bottom(self, to_remove=[]):
+        max_sequence = self.sudo().search([('id', 'not in', to_remove)], order='website_sequence DESC', limit=1)
         self.website_sequence = max_sequence.website_sequence + 5
 
     def set_sequence_up(self):
@@ -399,8 +400,7 @@ class ProductTemplate(models.Model):
     def _compute_website_url(self):
         super(ProductTemplate, self)._compute_website_url()
         for product in self:
-            if product.id:
-                product.website_url = "/shop/%s" % slug(product)
+            product.website_url = "/shop/product/%s" % slug(product)
 
     # ---------------------------------------------------------
     # Rating Mixin API
@@ -409,7 +409,7 @@ class ProductTemplate(models.Model):
     def _rating_domain(self):
         """ Only take the published rating into account to compute avg and count """
         domain = super(ProductTemplate, self)._rating_domain()
-        return expression.AND([domain, [('is_internal', '=', False)]])
+        return expression.AND([domain, [('website_published', '=', True)]])
 
     def _get_images(self):
         """Return a list of records implementing `image.mixin` to

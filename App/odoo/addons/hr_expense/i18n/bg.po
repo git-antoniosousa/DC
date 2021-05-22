@@ -3,25 +3,27 @@
 # 	* hr_expense
 # 
 # Translators:
-# Kaloyan Naumov <kaloyan@lumnus.net>, 2020
-# Igor Sheludko <igor.sheludko@gmail.com>, 2020
-# Александра Николова <alexandra1nikolova@gmail.com>, 2020
+# kalatchev, 2020
+# preslav <hackerz99999@gmail.com>, 2020
 # Martin Trigaux, 2020
 # Boris Stefanov <borkata@gmail.com>, 2020
 # Rosen Vladimirov <vladimirov.rosen@gmail.com>, 2020
+# Kaloyan Naumov <kaloyan@lumnus.net>, 2020
+# Anton Vassilev, 2020
 # aleksandar ivanov, 2020
 # Albena Mincheva <albena_vicheva@abv.bg>, 2020
 # Maria Boyadjieva <marabo2000@gmail.com>, 2020
 # Ivan Goychev <igoychev.projects@gmail.com>, 2020
-# TIhomir Nikolov <whltd.03@gmail.com>, 2020
+# Igor Sheludko <igor.sheludko@gmail.com>, 2020
+# Александра Николова <alexandra1nikolova@gmail.com>, 2020
 # Ивайло Малинов <iv.malinov@gmail.com>, 2021
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-29 13:45+0000\n"
-"PO-Revision-Date: 2020-09-07 08:12+0000\n"
+"POT-Creation-Date: 2019-12-05 09:01+0000\n"
+"PO-Revision-Date: 2019-08-26 09:10+0000\n"
 "Last-Translator: Ивайло Малинов <iv.malinov@gmail.com>, 2021\n"
 "Language-Team: Bulgarian (https://www.transifex.com/odoo/teams/41243/bg/)\n"
 "MIME-Version: 1.0\n"
@@ -96,15 +98,6 @@ msgstr ""
 "сметките са правилни.</p>"
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid ""
-"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
-"specific.\"/>"
-msgstr ""
-"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
-"specific.\"/>"
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense_sheet
 msgid "<strong>Date:</strong>"
 msgstr "<strong>Дата:</strong>"
@@ -135,6 +128,16 @@ msgid "<strong>Validated By:</strong>"
 msgstr "<strong>Валидирано от:</strong>"
 
 #. module: hr_expense
+#: code:addons/hr_expense/wizard/hr_expense_sheet_register_payment.py:0
+#, python-format
+msgid ""
+"A payment of %s %s with the reference <a href='/mail/view?%s'>%s</a> related"
+" to your expense %s has been made."
+msgstr ""
+"Плащане на %s %s с референцията, <a href='/mail/view?%s'>%s</a> свързана с "
+"Вашия разход, %s е извършено."
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__account_id
 msgid "Account"
 msgstr "Сметка"
@@ -145,16 +148,10 @@ msgid "Accounting"
 msgstr "Счетоводство"
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__accounting_date
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__accounting_date
-msgid "Accounting Date"
-msgstr "Счетоводна дата"
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_needaction
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_needaction
 msgid "Action Needed"
-msgstr "Нужно е действие"
+msgstr "Необходимо действие"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_ids
@@ -166,7 +163,7 @@ msgstr "Дейности"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_exception_decoration
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr "Декорация за специални дейности"
+msgstr "Декорация на съобщенията за грешки в дейностите"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_state
@@ -175,16 +172,16 @@ msgid "Activity State"
 msgstr "Състояние на дейността"
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_type_icon
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__activity_type_icon
-msgid "Activity Type Icon"
-msgstr "Икона за тип дейност"
-
-#. module: hr_expense
 #: model:ir.actions.act_window,name:hr_expense.mail_activity_type_action_config_hr_expense
 #: model:ir.ui.menu,name:hr_expense.hr_expense_menu_config_activity_type
 msgid "Activity Types"
-msgstr "Тип дейности"
+msgstr "Видове дейности"
+
+#. module: hr_expense
+#: code:addons/hr_expense/models/hr_expense.py:0
+#, python-format
+msgid "Add a new expense,"
+msgstr ""
 
 #. module: hr_expense
 #: model:res.groups,name:hr_expense.group_hr_expense_manager
@@ -213,21 +210,9 @@ msgid "All Expense Reports"
 msgstr "Всички разходни отчети"
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.hr_expense_actions_my_all
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_my_expenses_all
-msgid "All My Expenses"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_sheet_all
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all
-msgid "All Reports"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__amount_residual
-msgid "Amount Due"
-msgstr "Оставаща сума"
+#: model:ir.actions.act_window,name:hr_expense.hr_expense_actions_all
+msgid "All Expenses"
+msgstr "Всички разходи"
 
 #. module: hr_expense
 #. openerp-web
@@ -259,25 +244,9 @@ msgid "Analytic Tags"
 msgstr "Аналитични маркери"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_all
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_unsubmitted
-msgid "Apple App Store"
-msgstr "Хранилище за приложения на Apple"
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
 msgid "Approve"
 msgstr "Одобрете"
-
-#. module: hr_expense
-#: model:ir.actions.server,name:hr_expense.hr_expense_sheet_approve_action_server
-msgid "Approve Report"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_approve
-msgid "Approve the new expense reports submitted by the employees you manage."
-msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__state__approved
@@ -298,8 +267,8 @@ msgstr "Архивиран"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-msgid "Attach Receipt"
-msgstr ""
+msgid "Attach Document"
+msgstr "Прикачени файлове"
 
 #. module: hr_expense
 #. openerp-web
@@ -313,11 +282,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_attachment_count
 msgid "Attachment Count"
 msgstr "Брой прикачени файлове"
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_expenses_analysis_tree
-msgid "Attachments"
-msgstr "Прикачени файлове"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__bank_journal_id
@@ -342,8 +306,9 @@ msgstr "Може да бъде похарчено"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_refuse_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_register_payment_view_form
 msgid "Cancel"
-msgstr "Откажи"
+msgstr "Отменете"
 
 #. module: hr_expense
 #: model:product.product,name:hr_expense.car_travel
@@ -364,6 +329,7 @@ msgstr "Сертифициран, пачтен и подходящ<br/>(дата
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__company_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__company_id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__company_id
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__payment_mode__company_account
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
@@ -373,7 +339,7 @@ msgstr "Компания"
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_res_config_settings
 msgid "Config Settings"
-msgstr "Настройки конфигурация"
+msgstr "Конфиг Настройки"
 
 #. module: hr_expense
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_configuration
@@ -397,14 +363,29 @@ msgstr ""
 
 #. module: hr_expense
 #: model:ir.actions.server,name:hr_expense.hr_expense_submit_action_server
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_expenses_analysis_tree
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 msgid "Create Report"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_account
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_approve_expense_sheet
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_to_pay_expense_sheet
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_to_post_expense_sheet
+#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_all
+#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_unsubmitted
+msgid "Create a new expense"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
+msgid "Create a new expense product"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_all
+#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_pay
+#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_post
+#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_my_all
 msgid "Create a new expense report"
 msgstr ""
 
@@ -414,32 +395,33 @@ msgid "Create expenses from incoming emails"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_all
-msgid "Create new expenses to get statistics."
-msgstr ""
-
-#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__create_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__create_uid
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__create_uid
 msgid "Created by"
-msgstr "Създадено от"
+msgstr "Създаден от"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__create_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__create_date
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__create_date
 msgid "Created on"
-msgstr "Създадено на"
+msgstr "Създаден на"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__currency_id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__currency_id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__currency_id
 msgid "Currency"
 msgstr "Валута"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__date
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__accounting_date
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense_sheet
 msgid "Date"
 msgstr "Дата"
@@ -455,7 +437,6 @@ msgid "Default Alias Name for Expenses"
 msgstr "Име-псевдоним по подразбиране за разходите"
 
 #. module: hr_expense
-#: model:ir.model,name:hr_expense.model_hr_department
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__department_id
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "Department"
@@ -467,42 +448,15 @@ msgid "Description"
 msgstr "Описание"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_all
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_unsubmitted
-msgid "Did you try the mobile app?"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid "Digitalize your receipts with OCR and Artificial Intelligence"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_account_journal__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_account_move__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_account_move_line__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_account_payment_register__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_hr_department__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee_public__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__display_name
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_product_template__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:hr_expense.field_res_users__display_name
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__display_name
 msgid "Display Name"
-msgstr "Име за показване"
+msgstr "Покажете име"
 
 #. module: hr_expense
-#: model_terms:digest.tip,tip_description:hr_expense.digest_tip_hr_expense_0
-msgid ""
-"Do not keep your expense tickets in your pockets any longer. Just snap a "
-"picture of your receipt and let Odoo digitalizes it for you. The OCR and "
-"Artificial Intelligence will fill the data automatically."
-msgstr ""
-
-#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
 msgid "Documents"
 msgstr "Документи"
@@ -510,7 +464,12 @@ msgstr "Документи"
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense_sheet__state__draft
 msgid "Draft"
-msgstr "Чернова "
+msgstr "Чернова"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_register_payment_view_form
+msgid "Draft Payment"
+msgstr "Чернова плащане"
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_hr_employee
@@ -527,8 +486,7 @@ msgid "Employee (to reimburse)"
 msgstr "Служител (за възстановяване)"
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_account
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_account_employee_expenses
+#: model:ir.actions.act_window,name:hr_expense.action_approved_expense
 msgid "Employee Expenses"
 msgstr ""
 
@@ -536,6 +494,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__address_id
 msgid "Employee Home Address"
 msgstr "Домашен адрес на служител"
+
+#. module: hr_expense
+#. openerp-web
+#: code:addons/hr_expense/static/src/js/upload_mixin.js:0
+#, python-format
+msgid "Error"
+msgstr "Грешка"
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_hr_expense
@@ -554,19 +519,8 @@ msgid "Expense Approval"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.view_employee_tree_inherit_expense
-msgid "Expense Approver"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__date
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Expense Date"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid "Expense Digitalization (OCR)"
 msgstr ""
 
 #. module: hr_expense
@@ -597,8 +551,14 @@ msgid "Expense Refuse Reason Wizard"
 msgstr ""
 
 #. module: hr_expense
+#: model:ir.model,name:hr_expense.model_hr_expense_sheet_register_payment_wizard
+msgid "Expense Register Payment Wizard"
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model,name:hr_expense.model_hr_expense_sheet
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__sheet_id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__expense_sheet_id
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_tree
 msgid "Expense Report"
@@ -644,11 +604,6 @@ msgid "Expense Reports to Approve"
 msgstr "Разходни отчети за одобрение"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
-msgid "Expense products can be reinvoiced to your customers."
-msgstr ""
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_refuse_wizard_view_form
 msgid "Expense refuse reason"
 msgstr "Причина за отказване на разхода"
@@ -669,31 +624,24 @@ msgid "Expense report refused"
 msgstr "Отказан разходен отчет"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all
-msgid ""
-"Expense reports regroup all the expenses incurred during a specific event."
-msgstr ""
-
-#. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_account_move_line__expense_id
 msgid "Expense where the move line come from"
 msgstr ""
 
 #. module: hr_expense
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_root
-#: model:product.product,name:hr_expense.product_product_fixed_cost
-#: model:product.template,name:hr_expense.product_product_fixed_cost_product_template
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_department_view_kanban
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_activity
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_activity
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_expenses_analysis_tree
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_expenses_tree
+#: model:product.product,name:hr_expense.product_product_fixed_cost
+#: model:product.template,name:hr_expense.product_product_fixed_cost_product_template
 msgid "Expenses"
 msgstr "Разходи"
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.hr_expense_actions_all
+#: model:ir.actions.act_window,name:hr_expense.hr_expense_action
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_all_expenses
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_graph
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_pivot
@@ -716,6 +664,11 @@ msgstr "Разходни отчети за одобрение"
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "Expenses by Date"
+msgstr ""
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
+msgid "Expenses can be reimbursed in payslips."
 msgstr ""
 
 #. module: hr_expense
@@ -752,7 +705,7 @@ msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__is_refused
-msgid "Explicitly Refused by manager or accountant"
+msgid "Explicitely Refused by manager or acccountant"
 msgstr ""
 
 #. module: hr_expense
@@ -771,19 +724,23 @@ msgstr "Последователи (канали)"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_partner_ids
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_partner_ids
 msgid "Followers (Partners)"
-msgstr "Последователи (партньори)"
-
-#. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_expense__activity_type_icon
-#: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Икона, примерно fa-tasks"
+msgstr "Последователи (контрагенти)"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Former Employees"
 msgstr "Бивши служители"
+
+#. module: hr_expense
+#: model_terms:ir.actions.act_window,help:hr_expense.action_approved_expense
+#: model_terms:ir.actions.act_window,help:hr_expense.action_unsubmitted_expense
+msgid ""
+"From here the accountant will be able to approve as well as refuse the "
+"expenses which are verified by the HR Manager."
+msgstr ""
+"От тук счетоводителят ще може да одобрява, както и да отхвърля разходите,  "
+"потвърдени от мениджъра ЧР."
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
@@ -809,21 +766,25 @@ msgid "Generated Expenses"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_all
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_unsubmitted
-msgid "Google Play Store"
-msgstr "Хранилище Google Play"
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Group By"
-msgstr "Групиране по"
+msgstr "Групирайте по"
+
+#. module: hr_expense
+#: model:ir.model,name:hr_expense.model_hr_department
+msgid "HR Department"
+msgstr "Отдел ЧР"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__is_multiple_currency
 msgid "Handle lines with different currencies"
 msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__hide_payment_method
+msgid "Hide Payment Method"
+msgstr "Hide Payment Method"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__hr_expense_ids
@@ -836,21 +797,12 @@ msgid "Hr Expense Sheet"
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_account_journal__id
-#: model:ir.model.fields,field_description:hr_expense.field_account_move__id
-#: model:ir.model.fields,field_description:hr_expense.field_account_move_line__id
-#: model:ir.model.fields,field_description:hr_expense.field_account_payment_register__id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_department__id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee__id
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee_public__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__id
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__id
-#: model:ir.model.fields,field_description:hr_expense.field_product_template__id
-#: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__id
-#: model:ir.model.fields,field_description:hr_expense.field_res_users__id
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__id
 msgid "ID"
-msgstr "ID"
+msgstr "ИН"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__activity_exception_icon
@@ -862,7 +814,7 @@ msgstr "Икона"
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__activity_exception_icon
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "Икона за индикация на специална дейност"
+msgstr "Икон за индикация на грешка в дейност"
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__message_needaction
@@ -870,7 +822,7 @@ msgstr "Икона за индикация на специална дейнос�
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__message_needaction
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__message_unread
 msgid "If checked, new messages require your attention."
-msgstr "Ако е отбелязано, новите съобщения ще изискват внимание."
+msgstr "Ако е отметнато, новите съобщения ще изискват вниманието Ви."
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__message_has_error
@@ -900,7 +852,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_is_follower
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_is_follower
 msgid "Is Follower"
-msgstr "е последовател"
+msgstr "Е последовател"
 
 #. module: hr_expense
 #: model:ir.model,name:hr_expense.model_account_journal
@@ -909,7 +861,6 @@ msgid "Journal"
 msgstr "Журнал"
 
 #. module: hr_expense
-#: model:ir.model,name:hr_expense.model_account_move
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__account_move_id
 msgid "Journal Entry"
 msgstr "Запис в журнал"
@@ -920,35 +871,28 @@ msgid "Journal Item"
 msgstr "Счетоводна операция"
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_account_journal____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_account_move____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_account_move_line____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_account_payment_register____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_hr_department____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_hr_employee_public____last_update
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense____last_update
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard____last_update
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_product_template____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_res_config_settings____last_update
-#: model:ir.model.fields,field_description:hr_expense.field_res_users____last_update
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard____last_update
 msgid "Last Modified on"
-msgstr "Последно променено на"
+msgstr "Последно коригирано на"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__write_uid
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__write_uid
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__write_uid
 msgid "Last Updated by"
-msgstr "Последно обновено от"
+msgstr "Последно актуализирано от"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_refuse_wizard__write_date
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__write_date
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__write_date
 msgid "Last Updated on"
-msgstr "Последно обновено на"
+msgstr "Последно актуализирано на"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
@@ -981,6 +925,11 @@ msgstr ""
 "Мениджърите могат да получат всички доклади, които да одобрят от това меню."
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__communication
+msgid "Memo"
+msgstr "Напомняне"
+
+#. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_has_error
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_has_error
 msgid "Message Delivery error"
@@ -993,20 +942,20 @@ msgid "Messages"
 msgstr "Съобщения"
 
 #. module: hr_expense
+#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_sheet_my_all
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_my_reports
+msgid "My Expense Reports"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.actions.act_window,name:hr_expense.hr_expense_actions_my_unsubmitted
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_my_expenses
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_my_expenses_to_submit
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "My Expenses"
 msgstr "Моите разходи"
 
 #. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.hr_expense_actions_my_unsubmitted
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_my_expenses_to_submit
-msgid "My Expenses to Report"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.actions.act_window,name:hr_expense.action_hr_expense_sheet_my_all
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_my_reports
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "My Reports"
 msgstr "Моите отчети"
@@ -1061,17 +1010,8 @@ msgid "No Home Address found for the employee %s, please configure one."
 msgstr "Не е открит домашен адрес за служителя %s, моля конфигурирайте един."
 
 #. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid ""
-"No Outstanding Payments Account found for the %s journal, please configure "
-"one."
-msgstr ""
-
-#. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid "No account found for the %s journal, please configure one."
+#: model_terms:ir.actions.act_window,help:hr_expense.action_approved_expense
+msgid "No approved employee expenses"
 msgstr ""
 
 #. module: hr_expense
@@ -1081,31 +1021,20 @@ msgid "No attachment was provided"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_department_filtered
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_all
-msgid "No data yet!"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_product
-msgid "No expense products found. Let's create one!"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_my_all
-msgid "No expense report found. Let's create one!"
-msgstr ""
+#: code:addons/hr_expense/models/hr_expense.py:0
+#: code:addons/hr_expense/models/hr_expense.py:0
+#, python-format
+msgid "No credit account found for the %s journal, please configure one."
+msgstr "Не е открита кредитна сметка за %s журнала, моля конфигурирайте една."
 
 #. module: hr_expense
 #: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_approve
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_pay
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_post
-msgid "No expense reports found"
+msgid "No expense reports to approve"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all
-msgid "No expense reports found. Let's create one!"
+#: model_terms:ir.actions.act_window,help:hr_expense.action_unsubmitted_expense
+msgid "No unreported employee expenses"
 msgstr ""
 
 #. module: hr_expense
@@ -1156,9 +1085,13 @@ msgid "Odoo"
 msgstr "Odoo"
 
 #. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_account
 #: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_all
+#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_pay
+#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_post
 #: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_my_all
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_approve_expense_sheet
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_to_pay_expense_sheet
+#: model_terms:ir.actions.act_window,help:hr_expense.action_request_to_post_expense_sheet
 msgid ""
 "Once you have created your expense, submit it to your manager who will "
 "validate it."
@@ -1197,7 +1130,6 @@ msgstr "Друга информация"
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__state__done
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense_sheet__state__done
 #: model:mail.message.subtype,name:hr_expense.mt_expense_paid
-#: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
 msgid "Paid"
 msgstr "Платен"
 
@@ -1206,6 +1138,31 @@ msgstr "Платен"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__payment_mode
 msgid "Paid By"
 msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__partner_id
+msgid "Partner"
+msgstr "Контрагент"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__amount
+msgid "Payment Amount"
+msgstr "Сума за плащане"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__payment_date
+msgid "Payment Date"
+msgstr "Дата на плащане"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__journal_id
+msgid "Payment Method"
+msgstr "Метод за плащане"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__payment_method_id
+msgid "Payment Type"
+msgstr "Вид плащане"
 
 #. module: hr_expense
 #: code:addons/hr_expense/models/hr_expense.py:0
@@ -1218,21 +1175,9 @@ msgstr ""
 "`property_account_expense_categ_id`."
 
 #. module: hr_expense
-#: model:ir.actions.server,name:hr_expense.hr_expense_sheet_post_action_server
-msgid "Post Entries"
-msgstr ""
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
 msgid "Post Journal Entries"
 msgstr "Публикуване на Записи в дневника"
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_post
-msgid ""
-"Post the journal entries of the new expense reports approved by the "
-"employees' manager."
-msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense_sheet__state__post
@@ -1321,9 +1266,9 @@ msgid "Reason to refuse Expense"
 msgstr ""
 
 #. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_form
-msgid "Receipts"
-msgstr "Касови бележки"
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__partner_bank_account_id
+msgid "Recipient Bank Account"
+msgstr "Банкова сметка на получателя"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.report_expense_sheet
@@ -1349,9 +1294,9 @@ msgstr "Откажете разход"
 #. module: hr_expense
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense__state__refused
 #: model:ir.model.fields.selection,name:hr_expense.selection__hr_expense_sheet__state__cancel
-#: model:mail.message.subtype,name:hr_expense.mt_expense_refused
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
+#: model:mail.message.subtype,name:hr_expense.mt_expense_refused
 msgid "Refused"
 msgstr "Отказан"
 
@@ -1361,11 +1306,9 @@ msgid "Refused Expenses"
 msgstr "Отказани разходи"
 
 #. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#: model:ir.actions.server,name:hr_expense.action_expense_sheet_register_payment
-#: model:ir.model,name:hr_expense.model_account_payment_register
+#: model:ir.actions.act_window,name:hr_expense.hr_expense_sheet_register_payment_wizard_action
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_register_payment_view_form
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
-#, python-format
 msgid "Register Payment"
 msgstr "Регистрирай плащания"
 
@@ -1376,19 +1319,7 @@ msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid "Reimburse expenses in payslips"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
 msgid "Reimburse in Payslip"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.action_hr_expense_sheet_all_to_pay
-msgid ""
-"Reimburse the employees who incurred these costs or simply register the "
-"corresponding payments."
 msgstr ""
 
 #. module: hr_expense
@@ -1407,19 +1338,24 @@ msgid "Reporting"
 msgstr "Отчитане"
 
 #. module: hr_expense
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_approve
+#: model:ir.actions.act_window,name:hr_expense.action_request_approve_expense_sheet
 msgid "Reports to Approve"
 msgstr "Отчети за одобрение"
 
 #. module: hr_expense
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_pay
+#: model:ir.actions.act_window,name:hr_expense.action_request_to_pay_expense_sheet
 msgid "Reports to Pay"
 msgstr "Отчети за плащане"
 
 #. module: hr_expense
-#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_post
+#: model:ir.actions.act_window,name:hr_expense.action_request_to_post_expense_sheet
 msgid "Reports to Post"
 msgstr "Отчети за публикуване"
+
+#. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__require_partner_bank_account
+msgid "Require Partner Bank Account"
+msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
@@ -1437,26 +1373,6 @@ msgstr "Отговорник"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "SMS при грешка на доставка"
-
-#. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_hr_expense__sample
-msgid "Sample"
-msgstr "Мостра"
-
-#. module: hr_expense
-#. openerp-web
-#: code:addons/hr_expense/static/src/xml/expense_qr_modal_template.xml:0
-#, python-format
-msgid "Scan this QR code to get the Odoo app:"
-msgstr ""
-
-#. module: hr_expense
-#: model:ir.model.fields,help:hr_expense.field_hr_employee__expense_manager_id
-#: model:ir.model.fields,help:hr_expense.field_res_users__expense_manager_id
-msgid ""
-"Select the user responsible for approving \"Expenses\" of this employee.\n"
-"If empty, the approval is done by an Administrator or Approver (determined in settings/users)."
-msgstr ""
 
 #. module: hr_expense
 #: code:addons/hr_expense/models/hr_expense.py:0
@@ -1477,11 +1393,6 @@ msgid ""
 msgstr ""
 
 #. module: hr_expense
-#: model:ir.model.fields,field_description:hr_expense.field_res_config_settings__module_hr_expense_extract
-msgid "Send bills to OCR to generate expenses"
-msgstr ""
-
-#. module: hr_expense
 #: model:ir.actions.act_window,name:hr_expense.action_hr_expense_configuration
 #: model:ir.ui.menu,name:hr_expense.menu_hr_expense_global_settings
 msgid "Settings"
@@ -1493,20 +1404,17 @@ msgid "Setup your domain alias"
 msgstr "Настройте Вашия домейн-псевдоним"
 
 #. module: hr_expense
+#: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet_register_payment_wizard__show_partner_bank_account
+msgid "Show Partner Bank Account"
+msgstr ""
+
+#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_search
 msgid "Show all records which has next action date is before today"
 msgstr ""
 "Показване на всички записи, на които следващата дата на действие е преди "
 "днес"
-
-#. module: hr_expense
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_all
-#: model_terms:ir.actions.act_window,help:hr_expense.hr_expense_actions_my_unsubmitted
-msgid ""
-"Snap pictures of your receipts and let Odoo<br> automatically create "
-"expenses for you."
-msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_product_product__can_be_expensed
@@ -1569,6 +1477,29 @@ msgid "Team Approver"
 msgstr ""
 
 #. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet_register_payment_wizard__hide_payment_method
+msgid ""
+"Technical field used to hide the payment method if the selected journal has "
+"only one available which is 'manual'"
+msgstr ""
+"Техническо поле, използвано за скриване на начина на плащане, ако избраното "
+"списание разполага само с едно, което е \"ръчно\""
+
+#. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet_register_payment_wizard__show_partner_bank_account
+msgid ""
+"Technical field used to know whether the field `partner_bank_account_id` "
+"needs to be displayed or not in the payments form views"
+msgstr ""
+
+#. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet_register_payment_wizard__require_partner_bank_account
+msgid ""
+"Technical field used to know whether the field `partner_bank_account_id` "
+"needs to be required or not in the payments form views"
+msgstr ""
+
+#. module: hr_expense
 #. openerp-web
 #: code:addons/hr_expense/static/src/js/tours/hr_expense.js:0
 #, python-format
@@ -1577,12 +1508,6 @@ msgid ""
 msgstr ""
 "Счетоводителят може да регистрира плащане по възстановяване диркетно към "
 "служителя."
-
-#. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid "The current user has no related employee. Please, create one."
-msgstr ""
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_register
@@ -1602,27 +1527,30 @@ msgid "The journal used when the expense is done."
 msgstr "Журналът, използван при направени разходи. "
 
 #. module: hr_expense
+#: code:addons/hr_expense/wizard/hr_expense_sheet_register_payment.py:0
+#, python-format
+msgid "The payment amount must be strictly positive."
+msgstr "Сумата за плащане трябва да е строго положителна."
+
+#. module: hr_expense
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__bank_journal_id
 msgid "The payment method used when the expense is paid by the company."
 msgstr "Методът на плащане, използван когато ръзходът се плаща от компанията."
 
 #. module: hr_expense
-#: model:digest.tip,name:hr_expense.digest_tip_hr_expense_0
-#: model_terms:digest.tip,tip_description:hr_expense.digest_tip_hr_expense_0
-msgid "Tip: Snap pictures of your receipts with the remote app"
-msgstr ""
-
-#. module: hr_expense
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_approve
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "To Approve"
 msgstr "За одобрение"
 
 #. module: hr_expense
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_pay
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "To Pay"
 msgstr "За плащане"
 
 #. module: hr_expense
+#: model:ir.ui.menu,name:hr_expense.menu_hr_expense_sheet_all_to_post
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_view_search
 msgid "To Post"
 msgstr "За публикуване"
@@ -1655,7 +1583,7 @@ msgstr ""
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__total_amount
-#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_view_expenses_analysis_tree
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_expenses_tree
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_tree
 msgid "Total Amount"
 msgstr "Обща сума"
@@ -1664,7 +1592,7 @@ msgstr "Обща сума"
 #: model:ir.model.fields,help:hr_expense.field_hr_expense__activity_exception_decoration
 #: model:ir.model.fields,help:hr_expense.field_hr_expense_sheet__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr "Тип на специалната дейност в базата."
+msgstr "Тип на поддръжка по изкл"
 
 #. module: hr_expense
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__unit_amount
@@ -1695,11 +1623,15 @@ msgstr "Непрочетени съобщения"
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense__message_unread_counter
 #: model:ir.model.fields,field_description:hr_expense.field_hr_expense_sheet__message_unread_counter
 msgid "Unread Messages Counter"
-msgstr "Брой непрочетени съобщения"
+msgstr "Брояч на непрочетени съобщения"
+
+#. module: hr_expense
+#: model:ir.actions.act_window,name:hr_expense.action_unsubmitted_expense
+msgid "Unreported Expenses"
+msgstr "Неотчетени разходи"
 
 #. module: hr_expense
 #. openerp-web
-#: code:addons/hr_expense/static/src/xml/documents_upload_views.xml:0
 #: code:addons/hr_expense/static/src/xml/documents_upload_views.xml:0
 #, python-format
 msgid "Upload"
@@ -1712,9 +1644,25 @@ msgid "Uploaded Attachment"
 msgstr ""
 
 #. module: hr_expense
+#: model:ir.model.fields,help:hr_expense.field_hr_employee__expense_manager_id
+#: model:ir.model.fields,help:hr_expense.field_res_users__expense_manager_id
+msgid "User responsible of expense approval. Should be Expense approver."
+msgstr ""
+
+#. module: hr_expense
 #: model:ir.model,name:hr_expense.model_res_users
 msgid "Users"
 msgstr "Потребители"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_sheet_register_payment_view_form
+msgid "Validate"
+msgstr "Валидирай"
+
+#. module: hr_expense
+#: model_terms:ir.ui.view,arch_db:hr_expense.view_expenses_tree
+msgid "View Attached Documents"
+msgstr "Прегледайте прикачените документи"
 
 #. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.view_hr_expense_sheet_form
@@ -1775,6 +1723,12 @@ msgid "You can now submit it to the manager from the following link."
 msgstr ""
 
 #. module: hr_expense
+#: code:addons/hr_expense/wizard/hr_expense_sheet_register_payment.py:0
+#, python-format
+msgid "You can only apply this action from an expense report."
+msgstr ""
+
+#. module: hr_expense
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, python-format
 msgid "You can only approve your department expenses"
@@ -1791,12 +1745,6 @@ msgstr ""
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, python-format
 msgid "You can only refuse your department expenses"
-msgstr ""
-
-#. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid "You can't mix sample expenses and regular ones"
 msgstr ""
 
 #. module: hr_expense
@@ -1842,14 +1790,6 @@ msgid "You cannot report twice the same line!"
 msgstr "Не можете да отчитатате един и същ ред два пъти! "
 
 #. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid ""
-"You need to have at least one product that can be expensed in your database "
-"to proceed!"
-msgstr ""
-
-#. module: hr_expense
 #: model_terms:ir.ui.view,arch_db:hr_expense.hr_expense_template_refuse_reason
 msgid "Your Expense"
 msgstr ""
@@ -1888,22 +1828,5 @@ msgstr "км"
 #. module: hr_expense
 #: code:addons/hr_expense/models/hr_expense.py:0
 #, python-format
-msgid "to be reimbursed"
-msgstr ""
-
-#. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid "to report"
-msgstr ""
-
-#. module: hr_expense
-#: code:addons/hr_expense/models/hr_expense.py:0
-#, python-format
-msgid "under validation"
-msgstr ""
-
-#. module: hr_expense
-#: model_terms:ir.ui.view,arch_db:hr_expense.res_config_settings_view_form
-msgid "use OCR to fill data from a picture of the bill"
-msgstr ""
+msgid "or send receipts by email to %s."
+msgstr "или изпратете касови бележки по имейл до %s."

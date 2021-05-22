@@ -3,7 +3,7 @@
 
 {
     'name': 'IoT Box Homepage',
-    'category': 'Sales/Point of Sale',
+    'category': 'Sales/Point Of Sale',
     'sequence': 6,
     'website': 'https://www.odoo.com/page/point-of-sale-hardware',
     'summary': 'A homepage for the IoT Box',
@@ -19,5 +19,6 @@ If you activate this module, you won't be able to access the
 regular Odoo interface anymore.
 
 """,
+    'depends': ['hw_proxy'],
     'installable': False,
 }

@@ -6,7 +6,7 @@
 {
     'name': 'Australian - Accounting',
     'version': '1.1',
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     'description': """
 Australian Accounting Module
 ============================
@@ -30,9 +30,5 @@ Also:
              'data/account_fiscal_position_tax_template_data.xml',
              'data/account_chart_template_configure_data.xml',
              'data/res_currency_data.xml',
-             'views/menuitems.xml',
-     ],
-    'demo': [
-        'demo/demo_company.xml',
-    ],
+             ],
 }

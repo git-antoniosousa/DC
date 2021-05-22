@@ -17,9 +17,7 @@ _logger = logging.getLogger(__name__)
 class PaymentAcquirerPayumoney(models.Model):
     _inherit = 'payment.acquirer'
 
-    provider = fields.Selection(selection_add=[
-        ('payumoney', 'PayUmoney')
-    ], ondelete={'payumoney': 'set default'})
+    provider = fields.Selection(selection_add=[('payumoney', 'PayUmoney')])
     payumoney_merchant_key = fields.Char(string='Merchant Key', required_if_provider='payumoney', groups='base.group_user')
     payumoney_merchant_salt = fields.Char(string='Merchant Salt', required_if_provider='payumoney', groups='base.group_user')
 
@@ -92,7 +90,7 @@ class PaymentTransactionPayumoney(models.Model):
         pay_id = data.get('mihpayid')
         shasign = data.get('hash')
         if not reference or not pay_id or not shasign:
-            raise ValidationError(_('PayUmoney: received data with missing reference (%s) or pay_id (%s) or shasign (%s)') % (reference, pay_id, shasign))
+            raise ValidationError(_('PayUmoney: received data with missing reference (%s) or pay_id (%s) or shashign (%s)') % (reference, pay_id, shasign))
 
         transaction = self.search([('reference', '=', reference)])
 

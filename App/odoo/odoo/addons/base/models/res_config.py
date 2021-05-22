@@ -14,8 +14,6 @@ _logger = logging.getLogger(__name__)
 
 
 class ResConfigModuleInstallationMixin(object):
-    __slots__ = ()
-
     @api.model
     def _install_modules(self, modules):
         """ Install the requested modules.
@@ -377,13 +375,6 @@ class ResConfigSettings(models.TransientModel, ResConfigModuleInstallationMixin)
     _name = 'res.config.settings'
     _description = 'Config Settings'
 
-    def _valid_field_parameter(self, field, name):
-        return (
-            name in ('default_model', 'config_parameter')
-            or field.type in ('boolean', 'selection') and name in ('group', 'implied_group')
-            or super()._valid_field_parameter(field, name)
-        )
-
     def copy(self, values):
         raise UserError(_("Cannot duplicate configuration!"), "")
 
@@ -425,7 +416,7 @@ class ResConfigSettings(models.TransientModel, ResConfigModuleInstallationMixin)
             return {
                 'warning': {
                     'title': _('Warning!'),
-                    'message': _('Disabling this option will also uninstall the following modules \n%s', message),
+                    'message': _('Disabling this option will also uninstall the following modules \n%s') % message,
                 }
             }
         return {}
@@ -545,6 +536,11 @@ class ResConfigSettings(models.TransientModel, ResConfigModuleInstallationMixin)
                     value = bool(value)
             res[name] = value
 
+        # other fields: call the method 'get_values'
+        # The other methods that start with `get_default_` are deprecated
+        for method in dir(self):
+            if method.startswith('get_default_'):
+                _logger.warning(_('Methods that start with `get_default_` are deprecated. Override `get_values` instead(Method %s)') % method)
         res.update(self.get_values())
 
         return res
@@ -580,7 +576,7 @@ class ResConfigSettings(models.TransientModel, ResConfigModuleInstallationMixin)
                     groups.write({'implied_ids': [(4, implied_group.id)]})
                 else:
                     groups.write({'implied_ids': [(3, implied_group.id)]})
-                    implied_group.write({'users': [(3, user.id) for user in groups.users]})
+                    implied_group.sudo().write({'users': [(5,)]})
 
         # config fields: store ir.config_parameters
         IrConfigParameter = self.env['ir.config_parameter'].sudo()
@@ -598,21 +594,13 @@ class ResConfigSettings(models.TransientModel, ResConfigModuleInstallationMixin)
                 value = value.id
             IrConfigParameter.set_param(icp, value)
 
+        # other fields: execute method 'set_values'
+        # Methods that start with `set_` are now deprecated
+        for method in dir(self):
+            if method.startswith('set_') and method != 'set_values':
+                _logger.warning(_('Methods that start with `set_` are deprecated. Override `set_values` instead (Method %s)') % method)
+
     def execute(self):
-        """
-        Called when settings are saved.
-
-        This method will call `set_values` and will install/uninstall any modules defined by
-        `module_` Boolean fields and then trigger a web client reload.
-
-        .. warning::
-
-            This method **SHOULD NOT** be overridden, in most cases what you want to override is
-            `~set_values()` since `~execute()` does little more than simply call `~set_values()`.
-
-            The part that installs/uninstalls modules **MUST ALWAYS** be at the end of the
-            transaction, otherwise there's a big risk of registry <-> database desynchronisation.
-        """
         self.ensure_one()
         if not self.env.is_admin():
             raise AccessError(_("Only administrators can change the settings"))
@@ -639,9 +627,9 @@ class ResConfigSettings(models.TransientModel, ResConfigModuleInstallationMixin)
         if to_uninstall_modules:
             to_uninstall_modules.button_immediate_uninstall()
 
-        installation_status = self._install_modules(to_install)
+        result = self._install_modules(to_install)
 
-        if installation_status or to_uninstall_modules:
+        if result or to_uninstall_modules:
             # After the uninstall/install calls, the registry and environments
             # are no longer valid. So we reset the environment.
             self.env.reset()
@@ -749,35 +737,3 @@ class ResConfigSettings(models.TransientModel, ResConfigModuleInstallationMixin)
         if (action_id):
             return RedirectWarning(msg % values, action_id, _('Go to the configuration panel'))
         return UserError(msg % values)
-
-    @api.model
-    def create(self, values):
-        # Optimisation: saving a res.config.settings even without changing any
-        # values will trigger the write of all related values. This in turn may
-        # trigger chain of further recomputation. To avoid it, delete values
-        # that were not changed.
-        for field in self._fields.values():
-            if not (field.name in values and field.related and not field.readonly):
-                continue
-            # we write on a related field like
-            # qr_code = fields.Boolean(related='company_id.qr_code', readonly=False)
-            fname0 = field.related[0]
-            if fname0 not in values:
-                continue
-
-            # determine the current value
-            field0 = self._fields[fname0]
-            old_value = field0.convert_to_record(
-                field0.convert_to_cache(values[fname0], self), self)
-            for fname in field.related[1:]:
-                old_value = next(iter(old_value), old_value)[fname]
-
-            # determine the new value
-            new_value = field.convert_to_record(
-                field.convert_to_cache(values[field.name], self), self)
-
-            # drop if the value is the same
-            if old_value == new_value:
-                values.pop(field.name)
-
-        return super(ResConfigSettings, self).create(values)

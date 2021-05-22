@@ -2,7 +2,6 @@
 odoo.define('pos_epson_printer.Printer', function (require) {
 "use strict";
 
-const { Gui } = require('point_of_sale.Gui');
 var core = require('web.core');
 var PrinterMixin = require('point_of_sale.Printer').PrinterMixin;
 
@@ -18,21 +17,25 @@ var EpsonPrinter = core.Class.extend(PrinterMixin, {
     },
 
     callback_connect: function (resultConnect) {
+        var self = this;
         var deviceId = 'local_printer';
         var options = {'crypto' : false, 'buffer' : false};
         if ((resultConnect == 'OK') || (resultConnect == 'SSL_CONNECT_OK')) {
             this.ePOSDevice.createDevice(deviceId, this.ePOSDevice.DEVICE_TYPE_PRINTER, options, this.callback_createDevice.bind(this));
         } else {
-            Gui.showPopup('ErrorPopup', {
-                'title': _t('Connection to the printer failed'),
-                'body':  _t('Please check if the printer is still connected, if the configured IP address is correct and if your printer supports the ePOS protocol.'),
+            this.pos.chrome.ready.then(function () {
+                self.pos.gui.show_popup('error', {
+                    'title': _t('Connection to the printer failed'),
+                    'body':  _t('Please check if the printer is still connected, if the configured IP address is correct and if your printer supports the ePOS protocol.'),
+                });
             });
         }
     },
 
     callback_createDevice: function (deviceObj, errorCode) {
+        var self = this;
         if (deviceObj === null) {
-            Gui.showPopup('ErrorPopup', {
+            this.pos.gui.show_popup('error', {
                 'title': _t('Connection to the printer failed'),
                 'body':  _t('Please check if the printer is still connected. Error code: ') + errorCode,
             });
@@ -41,7 +44,7 @@ var EpsonPrinter = core.Class.extend(PrinterMixin, {
         this.printer = deviceObj;
         this.printer.onreceive = function(response){
             if (!response.success) {
-                Gui.showPopup('ErrorPopup', {
+                self.pos.gui.show_popup('error', {
                     'title': _t('Epson ePOS Error'),
                     'body':  _t('An error happened while sending data to the printer. Error code: ') + response.code,
                 });
@@ -78,9 +81,6 @@ var EpsonPrinter = core.Class.extend(PrinterMixin, {
     send_printing_job: function () {
         if (this.printer) {
             this.printer.send();
-            return {
-                result: true
-            };
         }
     },
 

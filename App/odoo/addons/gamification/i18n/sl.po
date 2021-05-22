@@ -3,33 +3,28 @@
 # 	* gamification
 # 
 # Translators:
-# Vida Potočnik <vida.potocnik@mentis.si>, 2021
-# laznikd <laznik@mentis.si>, 2021
-# Tadej Lupšina <tadej@hbs.si>, 2021
-# Martin Trigaux, 2021
-# Matjaz Mozetic <m.mozetic@matmoz.si>, 2021
-# matjaz k <matjaz@mentis.si>, 2021
-# Boris Kodelja <boris@hbs.si>, 2021
-# Jasmina Macur <jasmina@hbs.si>, 2021
+# Vida Potočnik <vida.potocnik@mentis.si>, 2020
+# laznikd <laznik@mentis.si>, 2020
+# Tadej Lupšina <tadej@hbs.si>, 2020
+# Martin Trigaux, 2020
+# Matjaz Mozetic <m.mozetic@matmoz.si>, 2020
+# matjaz k <matjaz@mentis.si>, 2020
+# Boris Kodelja <boris@hbs.si>, 2020
+# Jasmina Macur <jasmina@hbs.si>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-29 15:48+0000\n"
-"PO-Revision-Date: 2020-09-07 08:12+0000\n"
-"Last-Translator: Jasmina Macur <jasmina@hbs.si>, 2021\n"
+"POT-Creation-Date: 2019-12-05 12:34+0000\n"
+"PO-Revision-Date: 2019-08-26 09:10+0000\n"
+"Last-Translator: Jasmina Macur <jasmina@hbs.si>, 2020\n"
 "Language-Team: Slovenian (https://www.transifex.com/odoo/teams/41243/sl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Language: sl\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);\n"
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__rank_users_count
-msgid "# Users"
-msgstr ""
 
 #. module: gamification
 #: code:addons/gamification/models/challenge.py:0
@@ -98,8 +93,8 @@ msgid ""
 "                        % endif\n"
 "                        <br/><br/>\n"
 "                        Thank you,\n"
-"                        % if object.sender_id.signature:\n"
-"                            <br/>\n"
+"                        <br/>\n"
+"                        % if object.sender_id and object.sender_id.signature:\n"
 "                            ${object.sender_id.signature | safe}\n"
 "                        % endif\n"
 "                    </div>\n"
@@ -164,10 +159,9 @@ msgstr ""
 #. module: gamification
 #: code:addons/gamification/models/challenge.py:0
 #, python-format
-msgid ""
-"<br/>Reward (badge %(badge_name)s) for every succeeding user was sent to "
-"%(users)s."
+msgid "<br/>Reward (badge %s) for every succeeding user was sent to %s."
 msgstr ""
+"<br/>Nagradna (badge %s) za vse uspešne uporabnike je bila poslana %s."
 
 #. module: gamification
 #: code:addons/gamification/models/challenge.py:0
@@ -194,9 +188,7 @@ msgid ""
 "                <p>\n"
 "                    You just reached a new rank : <strong>${object.rank_id.name}</strong>\n"
 "                </p>\n"
-"                % if object.next_rank_id.name\n"
-"                    <p>Continue your work to become a <strong>${object.next_rank_id.name}</strong> !</p>\n"
-"                % endif\n"
+"                <p>Continue your work to become a <strong>${object.next_rank_id.name}</strong> !</p>\n"
 "                <div style=\"margin: 16px 0px 16px 0px;\">\n"
 "                    % set gamification_redirection_data = object.get_gamification_redirection_data()\n"
 "                    % for data in gamification_redirection_data\n"
@@ -212,13 +204,6 @@ msgid ""
 "                </p>\n"
 "            </td>\n"
 "        </tr>\n"
-"        % if user.signature\n"
-"        <tr>\n"
-"            <td style=\"padding:15px 20px 10px 20px;\">\n"
-"                ${user.signature | safe}\n"
-"            </td>\n"
-"        </tr>\n"
-"        % endif\n"
 "    </tbody>\n"
 " </table>\n"
 "</div>"
@@ -229,12 +214,12 @@ msgstr ""
 msgid ""
 "<div>\n"
 "    <strong>Reminder ${object.name}</strong><br/>\n"
-"    You have not updated your progress for the goal ${object.definition_id.name} (currently reached at ${object.completeness}%) for at least ${object.remind_update_delay} days. Do not forget to do it.\n"
-"    <br/><br/>\n"
-"    Thank you,\n"
-"    % if object.challenge_id.manager_id.signature:\n"
-"        <br/>\n"
-"        ${object.challenge_id.manager_id.signature | safe}\n"
+"You have not updated your progress for the goal ${object.definition_id.name} (currently reached at ${object.completeness}%) for at least ${object.remind_update_delay} days. Do not forget to do it.\n"
+"<br/><br/>\n"
+"Thank you,\n"
+"    <br/>\n"
+"    % if object.challenge_id.manager_id and object.challenge_id.manager_id.signature:\n"
+"    ${object.challenge_id.manager_id.signature | safe}\n"
 "    % endif\n"
 "</div>"
 msgstr ""
@@ -274,11 +259,6 @@ msgid ""
 msgstr ""
 "<span class=\"o_stat_text\">Sorodne</span>\n"
 "                                <span class=\"o_stat_text\">Cilji</span>"
-
-#. module: gamification
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_rank_view_form
-msgid "<span class=\"o_stat_text\">Users</span>"
-msgstr ""
 
 #. module: gamification
 #: model:mail.template,body_html:gamification.simple_report_template
@@ -492,7 +472,7 @@ msgstr ""
 #. module: gamification
 #: model_terms:ir.actions.act_window,help:gamification.goal_definition_list_action
 msgid ""
-"A goal definition is a technical specification of a condition to reach.\n"
+"A goal definition is a technical model of goal defining a condition to reach.\n"
 "                The dates, values to reach or users are defined in goal instance."
 msgstr ""
 
@@ -558,7 +538,7 @@ msgid "Alternative to a list of users"
 msgstr "Alternativa seznamu uporabnikov"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_challenge__challenge_category
+#: model:ir.model.fields,field_description:gamification.field_gamification_challenge__category
 msgid "Appears in"
 msgstr "Pojavlja se v"
 
@@ -789,17 +769,6 @@ msgid "Computation Mode"
 msgstr "Način izračuna"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_challenge_line__condition
-msgid "Condition"
-msgstr "Pogoj"
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__consolidated
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_search
-msgid "Consolidated"
-msgstr ""
-
-#. module: gamification
 #: model:ir.actions.act_window,name:gamification.action_new_simplified_res_users
 msgid "Create User"
 msgstr "Ustvari uporabnika"
@@ -852,7 +821,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__create_uid
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__create_uid
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__create_uid
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__create_uid
 msgid "Created by"
 msgstr "Ustvaril"
 
@@ -866,7 +834,6 @@ msgstr "Ustvaril"
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__create_date
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__create_date
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__create_date
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__create_date
 msgid "Created on"
 msgstr "Ustvarjeno"
 
@@ -897,22 +864,18 @@ msgid "Date Field"
 msgstr "Datumsko polje"
 
 #. module: gamification
-#: model:ir.model.fields,help:gamification.field_gamification_goal__computation_mode
-#: model:ir.model.fields,help:gamification.field_gamification_goal_definition__computation_mode
-msgid ""
-"Define how the goals will be computed. The result of the operation will be "
-"stored in the field 'Current'."
-msgstr ""
-
-#. module: gamification
-#: model:ir.model.fields,help:gamification.field_gamification_challenge__challenge_category
+#: model:ir.model.fields,help:gamification.field_gamification_challenge__category
 msgid "Define the visibility of the challenge through menus"
 msgstr "Določi vidljivost izziva preko menijev"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_goal__definition_condition
-msgid "Definition Condition"
+#: model:ir.model.fields,help:gamification.field_gamification_goal__computation_mode
+#: model:ir.model.fields,help:gamification.field_gamification_goal_definition__computation_mode
+msgid ""
+"Defined how will be computed the goals. The result of the operation will be "
+"stored in the field 'Current'."
 msgstr ""
+"Določbe o obdelavi ciljev. Rezultat operacije bo shranjen v polju 'Tekoče'."
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal__definition_description
@@ -939,13 +902,11 @@ msgstr "Opišite, kaj so naredili in zakaj je to pomembno (javna objava)"
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__description
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__description
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__description
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_rank_view_form
 msgid "Description"
 msgstr "Opis"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__visibility_mode
-#: model:ir.model.fields,field_description:gamification.field_gamification_goal__definition_display
 msgid "Display Mode"
 msgstr "Način prikaza"
 
@@ -959,12 +920,11 @@ msgstr "Način prikaza"
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__display_name
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__display_name
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__display_name
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__display_name
-#: model:ir.model.fields,field_description:gamification.field_res_users__display_name
 msgid "Display Name"
-msgstr "Prikazani naziv"
+msgstr "Naziv prikaza"
 
 #. module: gamification
+#: model:ir.model.fields,field_description:gamification.field_gamification_goal__definition_display
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__display_mode
 msgid "Displayed as"
 msgstr "Prikazano kot"
@@ -977,7 +937,7 @@ msgstr "Razločevalno polje za serijskega uporabnika"
 #. module: gamification
 #: model:gamification.karma.rank,name:gamification.rank_doctor
 msgid "Doctor"
-msgstr "Doktor"
+msgstr "Doctor"
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_goal_definition__domain
@@ -1091,8 +1051,8 @@ msgstr "Za vsakega naslednjega uporabnika"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_form_view
-msgid "Formatting Options"
-msgstr ""
+msgid "Formating Options"
+msgstr "Opcije formatiranja"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__level
@@ -1162,13 +1122,6 @@ msgid "Gamification: Goal Challenge Check"
 msgstr ""
 
 #. module: gamification
-#: model:ir.actions.server,name:gamification.ir_cron_consolidate_last_month_ir_actions_server
-#: model:ir.cron,cron_name:gamification.ir_cron_consolidate_last_month
-#: model:ir.cron,name:gamification.ir_cron_consolidate_last_month
-msgid "Gamification: Karma tracking consolidation"
-msgstr ""
-
-#. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__goal_id
 #: model_terms:ir.ui.view,arch_db:gamification.goal_form_view
 #: model_terms:ir.ui.view,arch_db:gamification.view_challenge_kanban
@@ -1206,6 +1159,8 @@ msgid "Goal List"
 msgstr "Seznam ciljev"
 
 #. module: gamification
+#: model:ir.model.fields,field_description:gamification.field_gamification_challenge_line__condition
+#: model:ir.model.fields,field_description:gamification.field_gamification_goal__definition_condition
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__condition
 msgid "Goal Performance"
 msgstr "Ciljna učinkovitost"
@@ -1279,7 +1234,6 @@ msgstr "Dodeljevanje"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.challenge_search_view
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_search
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_search_view
 #: model_terms:ir.ui.view,arch_db:gamification.goal_search_view
 msgid "Group By"
@@ -1302,11 +1256,11 @@ msgstr "Skrito"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_form_view
-msgid "How is the goal computed?"
-msgstr ""
+msgid "How to compute the goal?"
+msgstr "Kako izračunati cilj?"
 
 #. module: gamification
-#: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__challenge_category__hr
+#: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__category__hr
 msgid "Human Resources / Engagement"
 msgstr ""
 
@@ -1320,8 +1274,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__id
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__id
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__id
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__id
-#: model:ir.model.fields,field_description:gamification.field_res_users__id
 msgid "ID"
 msgstr "ID"
 
@@ -1401,9 +1353,11 @@ msgstr ""
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_goal_definition__batch_distinctive_field
 msgid ""
-"In batch mode, this indicates which field distinguishes one user from the "
-"other, e.g. user_id, partner_id..."
+"In batch mode, this indicates which field distinct one user form the other, "
+"e.g. user_id, partner_id..."
 msgstr ""
+"V serijskem načinu določa, katero polje razločuje med uporabniki, npr. "
+"user_id, partner_id"
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_goal__last_update
@@ -1426,11 +1380,6 @@ msgid "Individual Goals"
 msgstr "Individualni cilji"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__model_inherited_ids
-msgid "Inherited models"
-msgstr "Podedovani modeli"
-
-#. module: gamification
 #: model:gamification.challenge.line,name:gamification.line_base_admin3
 #: model:gamification.goal.definition,name:gamification.definition_base_invite
 msgid "Invite new Users"
@@ -1448,11 +1397,6 @@ msgid "Karma"
 msgstr "Karma"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_res_users__karma_tracking_ids
-msgid "Karma Changes"
-msgstr ""
-
-#. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge____last_update
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge_user____last_update
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge_user_wizard____last_update
@@ -1462,8 +1406,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition____last_update
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard____last_update
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank____last_update
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking____last_update
-#: model:ir.model.fields,field_description:gamification.field_res_users____last_update
 msgid "Last Modified on"
 msgstr "Zadnjič spremenjeno"
 
@@ -1487,9 +1429,8 @@ msgstr "Zadnja posodobitev"
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__write_uid
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__write_uid
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__write_uid
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__write_uid
 msgid "Last Updated by"
-msgstr "Zadnji posodobil"
+msgstr "Zadnjič posodobil"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__write_date
@@ -1501,7 +1442,6 @@ msgstr "Zadnji posodobil"
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_definition__write_date
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal_wizard__write_date
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__write_date
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__write_date
 msgid "Last Updated on"
 msgstr "Zadnjič posodobljeno"
 
@@ -1534,6 +1474,11 @@ msgstr "Seznam določenih ciljev"
 #: model:ir.model.fields,help:gamification.field_gamification_challenge__user_ids
 msgid "List of users participating to the challenge"
 msgstr "Seznam uporabnikov, ki sodelujejo v izzivu"
+
+#. module: gamification
+#: model:gamification.goal.definition,name:gamification.definition_nbr_following
+msgid "Mail Group Following"
+msgstr "Sledenje e-poštne skupine"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__message_main_attachment_id
@@ -1602,7 +1547,6 @@ msgstr "Mesečni seštevek"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__description_motivational
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_rank_view_form
 msgid "Motivational"
 msgstr ""
 
@@ -1645,11 +1589,6 @@ msgstr "Nikoli"
 #: model:ir.model.fields,help:gamification.field_gamification_challenge__remind_update_delay
 msgid "Never reminded if no value or zero is specified."
 msgstr "Brez opomnika če ni vrednosti ali če je določena ničla."
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__new_value
-msgid "New Karma Value"
-msgstr ""
 
 #. module: gamification
 #: model:mail.template,subject:gamification.email_template_badge_received
@@ -1749,14 +1688,9 @@ msgid "Number of unread messages"
 msgstr "Število neprebranih sporočil"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_badge__granted_users_count
+#: model:ir.model.fields,field_description:gamification.field_gamification_badge__stat_count_distinct
 msgid "Number of users"
 msgstr "Število uporabnikov"
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__old_value
-msgid "Old Karma Value"
-msgstr ""
 
 #. module: gamification
 #: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__report_message_frequency__onchange
@@ -1902,7 +1836,7 @@ msgstr "Ročno zapisano"
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_form_view
 msgid "Reference"
-msgstr "Referenca"
+msgstr "Sklic"
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.challenge_form_view
@@ -2041,11 +1975,6 @@ msgid "Search Ranks"
 msgstr ""
 
 #. module: gamification
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_search
-msgid "Search Trackings"
-msgstr ""
-
-#. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.badge_form_view
 msgid ""
 "Security rules to define who is allowed to manually grant badges. Not "
@@ -2103,7 +2032,7 @@ msgid "Set your Timezone"
 msgstr "Določanje časovnega pasu"
 
 #. module: gamification
-#: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__challenge_category__other
+#: model:ir.model.fields.selection,name:gamification.selection__gamification_challenge__category__other
 msgid "Settings / Gamification Tools"
 msgstr ""
 
@@ -2172,12 +2101,6 @@ msgstr "Pripona"
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__invited_user_ids
 msgid "Suggest to users"
 msgstr "Predlagaj uporabnikom"
-
-#. module: gamification
-#: model_terms:ir.ui.view,arch_db:gamification.challenge_form_view
-#: model_terms:ir.ui.view,arch_db:gamification.challenge_line_list_view
-msgid "Target"
-msgstr "Cilj"
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge_line__target_goal
@@ -2267,11 +2190,6 @@ msgid "The list of instances of this badge granted to users"
 msgstr "Seznam instanc te priponke podeljenih uporabnikom"
 
 #. module: gamification
-#: model:ir.model.fields,help:gamification.field_gamification_goal_definition__model_inherited_ids
-msgid "The list of models that extends the current model."
-msgstr "Seznam modelov, ki razširjajo trenutni model."
-
-#. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_badge__unique_owner_ids
 msgid "The list of unique users having received this badge."
 msgstr "Seznam posameznikov, ki so prejeli to priponko."
@@ -2291,19 +2209,25 @@ msgstr "Maksimalno mesečno število pošiljanj te priponke po osebi."
 #: code:addons/gamification/models/goal.py:0
 #, python-format
 msgid ""
-"The model configuration for the definition %(name)s seems incorrect, please check it.\n"
+"The model configuration for the definition %s seems incorrect, please check it.\n"
 "\n"
-"%(error)s not found"
+"%s not found"
 msgstr ""
+"Nastavitev modela za definicijo %s je kot kaže napačna. Preverite jo.\n"
+"\n"
+"%s ni najden"
 
 #. module: gamification
 #: code:addons/gamification/models/goal.py:0
 #, python-format
 msgid ""
-"The model configuration for the definition %(name)s seems incorrect, please check it.\n"
+"The model configuration for the definition %s seems incorrect, please check it.\n"
 "\n"
-"%(field_name)s not stored"
+"%s not stored"
 msgstr ""
+"Nastavitev modela za definicijo %s je kot kaže napačna. Preverite jo.\n"
+"\n"
+"%s ni shranjen"
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_goal_definition__model_id
@@ -2336,7 +2260,7 @@ msgid "The number of time the current user has sent this badge this month."
 msgstr "Število pošiljanj priponke tega uporabnika v tem mesecu."
 
 #. module: gamification
-#: model:ir.model.fields,help:gamification.field_gamification_badge__granted_users_count
+#: model:ir.model.fields,help:gamification.field_gamification_badge__stat_count_distinct
 msgid "The number of time this badge has been received by unique users."
 msgstr "Število prejemov te priponke po posameznikih."
 
@@ -2346,14 +2270,9 @@ msgid "The number of time this badge has been received this month."
 msgstr "Število prejemov te priponke v tem mesecu."
 
 #. module: gamification
-#: model:ir.model.fields,help:gamification.field_gamification_badge__granted_count
+#: model:ir.model.fields,help:gamification.field_gamification_badge__stat_count
 msgid "The number of time this badge has been received."
 msgstr "Število prejemov te priponke."
-
-#. module: gamification
-#: model:ir.model.constraint,message:gamification.constraint_gamification_karma_rank_karma_min_check
-msgid "The required karma has to be above 0."
-msgstr ""
 
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_challenge_line__definition_monetary
@@ -2430,31 +2349,9 @@ msgid "To update"
 msgstr "Za posodobitev"
 
 #. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_badge__granted_count
+#: model:ir.model.fields,field_description:gamification.field_gamification_badge__stat_count
 msgid "Total"
 msgstr "Skupaj"
-
-#. module: gamification
-#: model:ir.model,name:gamification.model_gamification_karma_tracking
-msgid "Track Karma Changes"
-msgstr ""
-
-#. module: gamification
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_form
-msgid "Tracking"
-msgstr "Sledenje"
-
-#. module: gamification
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__tracking_date
-msgid "Tracking Date"
-msgstr ""
-
-#. module: gamification
-#: model:ir.actions.act_window,name:gamification.gamification_karma_tracking_action
-#: model:ir.ui.menu,name:gamification.gamification_karma_tracking_menu
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_tree
-msgid "Trackings"
-msgstr ""
 
 #. module: gamification
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge__unique_owner_ids
@@ -2493,8 +2390,6 @@ msgstr "Posodobitev %s"
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge_user__user_id
 #: model:ir.model.fields,field_description:gamification.field_gamification_badge_user_wizard__user_id
 #: model:ir.model.fields,field_description:gamification.field_gamification_goal__user_id
-#: model:ir.model.fields,field_description:gamification.field_gamification_karma_tracking__user_id
-#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_tracking_view_search
 #: model_terms:ir.ui.view,arch_db:gamification.goal_search_view
 msgid "User"
 msgstr "Uporabnik"
@@ -2505,7 +2400,6 @@ msgid "User domain"
 msgstr "Uporabniška domena"
 
 #. module: gamification
-#: model:ir.actions.act_window,name:gamification.action_current_rank_users
 #: model:ir.model,name:gamification.model_res_users
 #: model:ir.model.fields,field_description:gamification.field_gamification_challenge__user_ids
 #: model:ir.model.fields,field_description:gamification.field_gamification_karma_rank__user_ids
@@ -2515,6 +2409,11 @@ msgstr "Uporabniki"
 #. module: gamification
 #: model:ir.model.fields,help:gamification.field_gamification_karma_rank__user_ids
 msgid "Users having this rank"
+msgstr ""
+
+#. module: gamification
+#: model_terms:ir.ui.view,arch_db:gamification.gamification_karma_rank_view_form
+msgid "Users to that rank"
 msgstr ""
 
 #. module: gamification
@@ -2660,6 +2559,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_form_view
 msgid "e.g. days"
 msgstr "npr. dni"
+
+#. module: gamification
+#: model_terms:ir.ui.view,arch_db:gamification.goal_definition_form_view
+msgid ""
+"e.g. result = env['mail.followers'].search_count([('res_model', '=', "
+"'mail.channel'), ('partner_id', '=', object.user_id.partner_id.id)])"
+msgstr ""
 
 #. module: gamification
 #: model_terms:ir.ui.view,arch_db:gamification.goal_definition_form_view

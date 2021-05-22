@@ -31,10 +31,9 @@ class PhoneBlackList(models.Model):
         done = set()
         for value in values:
             number = value['number']
-            sanitized_values = phone_validation.phone_sanitize_numbers_w_record([number], self.env.user)[number]
-            sanitized = sanitized_values['sanitized']
+            sanitized = phone_validation.phone_sanitize_numbers_w_record([number], self.env.user)[number]['sanitized']
             if not sanitized:
-                raise UserError(sanitized_values['msg'] + _(" Please correct the number and try again."))
+                raise UserError(_('Invalid number %s') % number)
             if sanitized in done:
                 continue
             done.add(sanitized)
@@ -53,10 +52,9 @@ class PhoneBlackList(models.Model):
     def write(self, values):
         if 'number' in values:
             number = values['number']
-            sanitized_values = phone_validation.phone_sanitize_numbers_w_record([number], self.env.user)[number]
-            sanitized = sanitized_values['sanitized']
+            sanitized = phone_validation.phone_sanitize_numbers_w_record([number], self.env.user)[number]['sanitized']
             if not sanitized:
-                raise UserError(sanitized_values['msg'] + _(" Please correct the number and try again."))
+                raise UserError(_('Invalid number %s') % number)
             values['number'] = sanitized
         return super(PhoneBlackList, self).write(values)
 
@@ -89,16 +87,9 @@ class PhoneBlackList(models.Model):
         records = self.env["phone.blacklist"].with_context(active_test=False).search([('number', 'in', numbers)])
         todo = [n for n in numbers if n not in records.mapped('number')]
         if records:
-            records.action_unarchive()
+            records.write({'active': True})
         if todo:
             records += self.create([{'number': n} for n in todo])
-        return records
-
-    def action_remove_with_reason(self, number, reason=None):
-        records = self.remove(number)
-        if reason:
-            for record in records:
-                record.message_post(body=_("Unblacklisting Reason: %s", reason))
         return records
 
     def remove(self, number):
@@ -112,19 +103,7 @@ class PhoneBlackList(models.Model):
         records = self.env["phone.blacklist"].with_context(active_test=False).search([('number', 'in', numbers)])
         todo = [n for n in numbers if n not in records.mapped('number')]
         if records:
-            records.action_archive()
+            records.write({'active': False})
         if todo:
             records += self.create([{'number': n, 'active': False} for n in todo])
         return records
-
-    def phone_action_blacklist_remove(self):
-        return {
-            'name': 'Are you sure you want to unblacklist this Phone Number?',
-            'type': 'ir.actions.act_window',
-            'view_mode': 'form',
-            'res_model': 'phone.blacklist.remove',
-            'target': 'new',
-        }
-
-    def action_add(self):
-        self.add(self.number)

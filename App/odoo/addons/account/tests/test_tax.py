@@ -1,99 +1,92 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.account.tests.account_test_users import AccountTestUsers
 from odoo.tests import tagged
 
 
 @tagged('post_install', '-at_install')
-class TestTaxCommon(AccountTestInvoicingCommon):
+class TestTax(AccountTestUsers):
 
-    @classmethod
-    def setUpClass(cls, chart_template_ref=None):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def setUp(self):
+        super(TestTax, self).setUp()
 
-        # Setup another company having a rounding of 1.0.
-        cls.currency_data['currency'].rounding = 1.0
-        cls.currency_no_decimal = cls.currency_data['currency']
-        cls.company_data_2 = cls.setup_company_data('company_2', currency_id=cls.currency_no_decimal.id)
-        cls.env.user.company_id = cls.company_data['company']
-
-        cls.fixed_tax = cls.env['account.tax'].create({
+        self.fixed_tax = self.tax_model.create({
             'name': "Fixed tax",
             'amount_type': 'fixed',
             'amount': 10,
             'sequence': 1,
         })
-        cls.fixed_tax_bis = cls.env['account.tax'].create({
+        self.fixed_tax_bis = self.tax_model.create({
             'name': "Fixed tax bis",
             'amount_type': 'fixed',
             'amount': 15,
             'sequence': 2,
         })
-        cls.percent_tax = cls.env['account.tax'].create({
+        self.percent_tax = self.tax_model.create({
             'name': "Percent tax",
             'amount_type': 'percent',
             'amount': 10,
             'sequence': 3,
         })
-        cls.percent_tax_bis = cls.env['account.tax'].create({
+        self.percent_tax_bis = self.tax_model.create({
             'name': "Percent tax bis",
             'amount_type': 'percent',
             'amount': 10,
             'sequence': 4,
         })
-        cls.division_tax = cls.env['account.tax'].create({
+        self.division_tax = self.tax_model.create({
             'name': "Division tax",
             'amount_type': 'division',
             'amount': 10,
             'sequence': 4,
         })
-        cls.group_tax = cls.env['account.tax'].create({
+        self.group_tax = self.tax_model.create({
             'name': "Group tax",
             'amount_type': 'group',
             'amount': 0,
             'sequence': 5,
             'children_tax_ids': [
-                (4, cls.fixed_tax.id, 0),
-                (4, cls.percent_tax.id, 0)
+                (4, self.fixed_tax.id, 0),
+                (4, self.percent_tax.id, 0)
             ]
         })
-        cls.group_tax_bis = cls.env['account.tax'].create({
+        self.group_tax_bis = self.tax_model.create({
             'name': "Group tax bis",
             'amount_type': 'group',
             'amount': 0,
             'sequence': 6,
             'children_tax_ids': [
-                (4, cls.fixed_tax.id, 0),
-                (4, cls.percent_tax.id, 0)
+                (4, self.fixed_tax.id, 0),
+                (4, self.percent_tax.id, 0)
             ]
         })
-        cls.group_tax_percent = cls.env['account.tax'].create({
+        self.group_tax_percent = self.tax_model.create({
             'name': "Group tax percent",
             'amount_type': 'group',
             'amount': 0,
             'sequence': 6,
             'children_tax_ids': [
-                (4, cls.percent_tax.id, 0),
-                (4, cls.percent_tax_bis.id, 0)
+                (4, self.percent_tax.id, 0),
+                (4, self.percent_tax_bis.id, 0)
             ]
         })
-        cls.group_of_group_tax = cls.env['account.tax'].create({
+        self.group_of_group_tax = self.tax_model.create({
             'name': "Group of group tax",
             'amount_type': 'group',
             'amount': 0,
             'sequence': 7,
             'children_tax_ids': [
-                (4, cls.group_tax.id, 0),
-                (4, cls.group_tax_bis.id, 0)
+                (4, self.group_tax.id, 0),
+                (4, self.group_tax_bis.id, 0)
             ]
         })
-        cls.tax_with_no_account = cls.env['account.tax'].create({
+        self.tax_with_no_account = self.tax_model.create({
             'name': "Tax with no account",
             'amount_type': 'fixed',
             'amount': 0,
             'sequence': 8,
         })
-        some_account = cls.env['account.account'].search([], limit=1)
-        cls.tax_with_account = cls.env['account.tax'].create({
+        some_account = self.env['account.account'].search([], limit=1)
+        self.tax_with_account = self.tax_model.create({
             'name': "Tax with account",
             'amount_type': 'fixed',
             'amount': 0,
@@ -124,50 +117,49 @@ class TestTaxCommon(AccountTestInvoicingCommon):
             ],
         })
 
-        cls.tax_0_percent = cls.env['account.tax'].with_company(cls.company_data['company']).create({
+        self.tax_0_percent = self.tax_model.create({
             'name': "test_0_percent",
             'amount_type': 'percent',
             'amount': 0,
         })
 
-        cls.tax_5_percent = cls.env['account.tax'].with_company(cls.company_data['company']).create({
+        self.tax_5_percent = self.tax_model.create({
             'name': "test_5_percent",
             'amount_type': 'percent',
             'amount': 5,
         })
 
-        cls.tax_8_percent = cls.env['account.tax'].with_company(cls.company_data['company']).create({
+        self.tax_8_percent = self.tax_model.create({
             'name': "test_8_percent",
             'amount_type': 'percent',
             'amount': 8,
         })
-        cls.tax_12_percent = cls.env['account.tax'].with_company(cls.company_data['company']).create({
+
+        self.tax_12_percent = self.tax_model.create({
             'name': "test_12_percent",
             'amount_type': 'percent',
             'amount': 12,
         })
 
-        cls.tax_19_percent = cls.env['account.tax'].with_company(cls.company_data_2['company']).create({
+        self.tax_19_percent = self.tax_model.create({
             'name': "test_19_percent",
             'amount_type': 'percent',
             'amount': 19,
         })
 
-        cls.tax_21_percent = cls.env['account.tax'].with_company(cls.company_data['company']).create({
+        self.tax_21_percent = self.tax_model.create({
             'name': "test_21_percent",
-            'amount_type': 'percent',
-            'amount': 19,
-        })
-
-        cls.tax_21_percent = cls.env['account.tax'].with_company(cls.company_data['company']).create({
-            'name': "test_rounding_methods_2",
             'amount_type': 'percent',
             'amount': 21,
         })
 
-        cls.bank_journal = cls.company_data['default_journal_bank']
-        cls.bank_account = cls.bank_journal.default_account_id
-        cls.expense_account = cls.company_data['default_account_expense']
+        self.bank_journal = self.env['account.journal'].search([('type', '=', 'bank'), ('company_id', '=', self.account_manager.company_id.id)])[0]
+        self.bank_account = self.bank_journal.default_debit_account_id
+        self.expense_account = self.env['account.account'].search([('user_type_id.type', '=', 'payable')], limit=1) #Should be done by onchange later
+
+        # Ensure the rounding method is 'round_per_line' to avoid issue when launching the tests on
+        # an existing DB.
+        self.env.user.company_id.tax_calculation_rounding_method = 'round_per_line'
 
     def _check_compute_all_results(self, total_included, total_excluded, taxes, res):
         self.assertAlmostEqual(res['total_included'], total_included)
@@ -175,14 +167,6 @@ class TestTaxCommon(AccountTestInvoicingCommon):
         for i in range(0, len(taxes)):
             self.assertAlmostEqual(res['taxes'][i]['base'], taxes[i][0])
             self.assertAlmostEqual(res['taxes'][i]['amount'], taxes[i][1])
-
-
-@tagged('post_install', '-at_install')
-class TestTax(TestTaxCommon):
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestTax, cls).setUpClass()
 
     def test_tax_group_of_group_tax(self):
         self.fixed_tax.include_base_amount = True
@@ -757,11 +741,12 @@ class TestTax(TestTaxCommon):
             res2
         )
 
-    def test_rounding_tax_excluded_round_globally(self):
+    def test_rounding_tax_excluded_round_globally_01(self):
         ''' Test the rounding of a 19% price excluded tax in an invoice having 22689 and 9176 as lines.
         The decimal precision is set to zero.
         The computation must be similar to round((22689 + 9176) * 0.19).
         '''
+        self.tax_19_percent.company_id.currency_id.rounding = 1.0
         self.tax_19_percent.company_id.tax_calculation_rounding_method = 'round_globally'
 
         res1 = self.tax_19_percent.compute_all(22689)
@@ -894,8 +879,8 @@ class TestTax(TestTaxCommon):
 
         res1 = self.tax_5_percent.compute_all(5)
         self._check_compute_all_results(
-            5,      # 'total_included'
-            4.75,      # 'total_excluded'
+            5,          # 'total_included'
+            4.75,       # 'total_excluded'
             [
                 # base , amount
                 # ---------------
@@ -907,8 +892,8 @@ class TestTax(TestTaxCommon):
 
         res2 = self.tax_5_percent.compute_all(10)
         self._check_compute_all_results(
-            10,      # 'total_included'
-            9.5,      # 'total_excluded'
+            10,         # 'total_included'
+            9.5,        # 'total_excluded'
             [
                 # base , amount
                 # ---------------
@@ -920,8 +905,8 @@ class TestTax(TestTaxCommon):
 
         res3 = self.tax_5_percent.compute_all(50)
         self._check_compute_all_results(
-            50,      # 'total_included'
-            47.6,      # 'total_excluded'
+            50,         # 'total_included'
+            47.6,       # 'total_excluded'
             [
                 # base , amount
                 # ---------------
@@ -937,6 +922,7 @@ class TestTax(TestTaxCommon):
         The computation must be similar to round((27000 + 10920) / 1.19).
         '''
         self.tax_19_percent.price_include = True
+        self.tax_19_percent.company_id.currency_id.rounding = 1.0
         self.tax_19_percent.company_id.tax_calculation_rounding_method = 'round_globally'
 
         res1 = self.tax_19_percent.compute_all(27000)
@@ -1009,8 +995,8 @@ class TestTax(TestTaxCommon):
 
         res1 = self.tax_5_percent.compute_all(5)
         self._check_compute_all_results(
-            5,      # 'total_included'
-            4.75,      # 'total_excluded'
+            5,          # 'total_included'
+            4.75,       # 'total_excluded'
             [
                 # base , amount
                 # ---------------
@@ -1022,8 +1008,8 @@ class TestTax(TestTaxCommon):
 
         res2 = self.tax_5_percent.compute_all(10)
         self._check_compute_all_results(
-            10,      # 'total_included'
-            9.5,      # 'total_excluded'
+            10,         # 'total_included'
+            9.5,        # 'total_excluded'
             [
                 # base , amount
                 # ---------------
@@ -1035,8 +1021,8 @@ class TestTax(TestTaxCommon):
 
         res3 = self.tax_5_percent.compute_all(50)
         self._check_compute_all_results(
-            50,      # 'total_included'
-            47.6,      # 'total_excluded'
+            50,         # 'total_included'
+            47.6,       # 'total_excluded'
             [
                 # base , amount
                 # ---------------

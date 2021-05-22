@@ -57,8 +57,8 @@ class SaleOrder(models.Model):
         else:
             name = _('Add a shipping method')
             carrier = (
-                self.with_company(self.company_id).partner_shipping_id.property_delivery_carrier_id
-                or self.with_company(self.company_id).partner_shipping_id.commercial_partner_id.property_delivery_carrier_id
+                self.partner_shipping_id.property_delivery_carrier_id
+                or self.partner_shipping_id.commercial_partner_id.property_delivery_carrier_id
             )
         return {
             'name': name,
@@ -104,7 +104,7 @@ class SaleOrder(models.Model):
         }
         if carrier.invoice_policy == 'real':
             values['price_unit'] = 0
-            values['name'] += _(' (Estimated Cost: %s )', self._format_currency_amount(price_unit))
+            values['name'] += _(' (Estimated Cost: %s )') % self._format_currency_amount(price_unit)
         else:
             values['price_unit'] = price_unit
         if carrier.free_over and self.currency_id.is_zero(price_unit) :
@@ -131,13 +131,6 @@ class SaleOrder(models.Model):
             order_lines = order.order_line.filtered(lambda x: not x.is_delivery and not x.is_downpayment and not x.display_type)
             if all(line.product_id.invoice_policy == 'delivery' and line.invoice_status == 'no' for line in order_lines):
                 order.invoice_status = 'no'
-
-    def _get_estimated_weight(self):
-        self.ensure_one()
-        weight = 0.0
-        for order_line in self.order_line.filtered(lambda l: l.product_id.type in ['product', 'consu'] and not l.is_delivery and not l.display_type):
-            weight += order_line.product_qty * order_line.product_id.weight
-        return weight
 
 
 class SaleOrderLine(models.Model):

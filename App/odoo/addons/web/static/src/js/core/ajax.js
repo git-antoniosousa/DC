@@ -164,8 +164,6 @@ var loadCSS = (function () {
             urlDefs[url] = new Promise(function (resolve, reject) {
                 $link.on('load', function () {
                     resolve();
-                }).on('error', function () {
-                    reject(new Error("Couldn't load css dependency: " + $link[0].href));
                 });
             });
             $('head').append($link);
@@ -458,7 +456,7 @@ var loadAsset = (function () {
         if (tplRoute === '/web/dataset/call_kw/') {
             Object.assign(params, {
                 model: 'ir.ui.view',
-                method: 'render_public_asset',
+                method: 'render_template',
             });
         }
         cache[xmlId] = rpc(tplRoute, params).then(function (xml) {

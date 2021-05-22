@@ -3,19 +3,18 @@
 # 	* base_automation
 # 
 # Translators:
-# Martin Trigaux, 2020
+# Martin Trigaux, 2019
+# Sergey Vilizhanin, 2019
+# Vasiliy Korobatov <korobatov@gmail.com>, 2019
 # Ivan Yelizariev <yelizariev@it-projects.info>, 2020
-# Sergey Vilizhanin, 2020
-# ILMIR <karamov@it-projects.info>, 2020
-# Irina Fedulova <istartlin@gmail.com>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.3\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-21 10:46+0000\n"
-"PO-Revision-Date: 2020-09-07 08:10+0000\n"
-"Last-Translator: Irina Fedulova <istartlin@gmail.com>, 2020\n"
+"POT-Creation-Date: 2020-04-27 09:21+0000\n"
+"PO-Revision-Date: 2019-08-26 09:09+0000\n"
+"Last-Translator: Ivan Yelizariev <yelizariev@it-projects.info>, 2020\n"
 "Language-Team: Russian (https://www.transifex.com/odoo/teams/41243/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -31,6 +30,11 @@ msgid ""
 "\"\n"
 "                    (ID:"
 msgstr ""
+
+#. module: base_automation
+#: model:mail.template,body_html:base_automation.test_mail_template_automation
+msgid "<div>Email automation</div>"
+msgstr "<div> Автоматизация электронной почты </div>"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__help
@@ -54,6 +58,7 @@ msgstr "Тип действия"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__active
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__active
 msgid "Active"
 msgstr "Активно"
 
@@ -85,7 +90,12 @@ msgstr "Применить для"
 #. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_search
 msgid "Archived"
-msgstr "Заархивировано"
+msgstr "Архивировано"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__is_assigned_to_admin
+msgid "Assigned to admin user"
+msgstr "Назначен пользователю с правами администратора"
 
 #. module: base_automation
 #: model:ir.model,name:base_automation.model_base_automation
@@ -100,6 +110,16 @@ msgid "Automated Actions"
 msgstr "Автоматические действия"
 
 #. module: base_automation
+#: model:ir.model,name:base_automation.model_base_automation_line_test
+msgid "Automated Rule Line Test"
+msgstr "Автоматический тест строки правила"
+
+#. module: base_automation
+#: model:ir.model,name:base_automation.model_base_automation_lead_test
+msgid "Automated Rule Test"
+msgstr "Автоматический тест правила"
+
+#. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_tree
 msgid "Automation"
 msgstr "Автоматизация"
@@ -110,6 +130,54 @@ msgstr "Автоматизация"
 #: model:ir.cron,name:base_automation.ir_cron_data_base_automation_check
 msgid "Base Action Rule: check and execute"
 msgstr "Базовое правило действия: проверить и выполнить"
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_recursive
+#: model:ir.actions.server,name:base_automation.test_rule_recursive_ir_actions_server
+msgid "Base Automation: test recursive rule"
+msgstr "Базовая автоматизация: тестовое рекурсивное правило"
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_create
+#: model:ir.actions.server,name:base_automation.test_rule_on_create_ir_actions_server
+msgid "Base Automation: test rule on create"
+msgstr "Базовая автоматизация: правило тестирования на создание"
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_recompute
+#: model:ir.actions.server,name:base_automation.test_rule_on_recompute_ir_actions_server
+msgid "Base Automation: test rule on recompute"
+msgstr "Базовая автоматизация: тестовое правило переопределения"
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_line
+#: model:ir.actions.server,name:base_automation.test_rule_on_line_ir_actions_server
+msgid "Base Automation: test rule on secondary model"
+msgstr "Базовая автоматизация: правило испытаний на вторичную модель"
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_write
+#: model:ir.actions.server,name:base_automation.test_rule_on_write_ir_actions_server
+msgid "Base Automation: test rule on write"
+msgstr "Базовая автоматизация: тестовое правило на написание"
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_write_check_context
+#: model:ir.actions.server,name:base_automation.test_rule_on_write_check_context_ir_actions_server
+msgid "Base Automation: test rule on write check context"
+msgstr "Базовая автоматизация: тестовое правило написания проверки контекста"
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_with_trigger
+#: model:ir.actions.server,name:base_automation.test_rule_with_trigger_ir_actions_server
+msgid "Base Automation: test rule with trigger"
+msgstr ""
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_write_recompute_send_email
+#: model:ir.actions.server,name:base_automation.test_rule_on_write_recompute_send_email_ir_actions_server
+msgid "Base Automation: test send an email"
+msgstr "Автоматизация базы: тестовое отправки электронного письма"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trigger__on_change
@@ -142,6 +210,11 @@ msgid "Binding View Types"
 msgstr ""
 
 #. module: base_automation
+#: model:ir.model.fields.selection,name:base_automation.selection__base_automation_lead_test__state__cancel
+msgid "Cancelled"
+msgstr "Отменено"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__child_ids
 msgid "Child Actions"
 msgstr "Подчиненные действия"
@@ -157,12 +230,32 @@ msgstr ""
 "качестве глобального возвращаемого значения."
 
 #. module: base_automation
+#: model:ir.model.fields.selection,name:base_automation.selection__base_automation_lead_test__state__done
+msgid "Closed"
+msgstr "Закрыт"
+
+#. module: base_automation
+#: model:ir.model.fields,help:base_automation.field_base_automation__on_change_fields
+msgid "Comma-separated list of field names that triggers the onchange."
+msgstr ""
+"Список полей имен, разделенный запятыми, который реагирует на изменения."
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__crud_model_id
+msgid "Create/Write Target Model"
+msgstr "Создать/Написать целевую модель"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__create_uid
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__create_uid
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__create_uid
 msgid "Created by"
-msgstr "Создал"
+msgstr "Создано"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__create_date
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__create_date
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__create_date
 msgid "Created on"
 msgstr "Создан"
 
@@ -170,6 +263,11 @@ msgstr "Создан"
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_type__day
 msgid "Days"
 msgstr "Дней"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__deadline
+msgid "Deadline"
+msgstr "Срок"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__trg_date_range
@@ -180,7 +278,7 @@ msgid ""
 msgstr ""
 "Задержка после даты триггера.\n"
 "                                    Вы можете поместить отрицательное число, если вам нужна задержка перед датой\n"
-"                                    триггера, например, отправление напоминания за 15 минут до начала совещания."
+"                                    триггера, как отправление напоминания 15 минут до начала совещания."
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__trg_date_range
@@ -191,6 +289,11 @@ msgstr "Задержка после даты активации"
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__trg_date_range_type
 msgid "Delay type"
 msgstr "Тип задержки"
+
+#. module: base_automation
+#: model:ir.model,name:base_automation.model_ir_demo
+msgid "Demo"
+msgstr "Демо"
 
 #. module: base_automation
 #. openerp-web
@@ -212,8 +315,10 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__display_name
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__display_name
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__display_name
 msgid "Display Name"
-msgstr "Отображаемое имя"
+msgstr "Отображаемое Имя"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_date_deadline_range
@@ -238,14 +343,14 @@ msgid "Email Template"
 msgstr "Шаблон письма"
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__employee
+msgid "Employee"
+msgstr "Сотрудник"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__xml_id
 msgid "External ID"
 msgstr "Внешний ID"
-
-#. module: base_automation
-#: model:ir.model.fields,help:base_automation.field_base_automation__on_change_field_ids
-msgid "Fields that trigger the onchange."
-msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__groups_id
@@ -259,8 +364,10 @@ msgstr "Часы"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__id
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__id
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__id
 msgid "ID"
-msgstr "Идентификатор"
+msgstr "Номер"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__xml_id
@@ -286,7 +393,19 @@ msgstr ""
 "записи."
 
 #. module: base_automation
+#: model:ir.model.fields.selection,name:base_automation.selection__base_automation_lead_test__state__open
+msgid "In Progress"
+msgstr "Выполняется"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__date_action_last
+msgid "Last Action"
+msgstr "Последнее действие"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation____last_update
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test____last_update
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test____last_update
 msgid "Last Modified on"
 msgstr "Последнее изменение"
 
@@ -297,23 +416,32 @@ msgstr "Последнее выполнение"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__write_uid
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__write_uid
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__write_uid
 msgid "Last Updated by"
 msgstr "Последний раз обновил"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__write_date
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__write_date
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__write_date
 msgid "Last Updated on"
 msgstr "Последнее обновление"
 
 #. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__least_delay_msg
-msgid "Least Delay Msg"
-msgstr ""
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__lead_id
+msgid "Lead"
+msgstr "Инициатива"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__line_ids
+msgid "Line"
+msgstr "Строка"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__link_field_id
-msgid "Link Field"
-msgstr ""
+msgid "Link using field"
+msgstr "Поле для используемой ссылки"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_type__minutes
@@ -337,7 +465,7 @@ msgid ""
 "different model than the base model."
 msgstr ""
 "Модель для создания / обновления записей. Установите это поле только для "
-"указания другой модели, не базовой."
+"указания другой модели, чем базовая модель."
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__model_id
@@ -350,21 +478,24 @@ msgid "Months"
 msgstr "Месяцы"
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__name
+msgid "Name"
+msgstr "Название"
+
+#. module: base_automation
+#: model:ir.model.fields.selection,name:base_automation.selection__base_automation_lead_test__state__draft
+msgid "New"
+msgstr "Новый"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_note
 msgid "Note"
 msgstr "Заметка"
 
 #. module: base_automation
-#: code:addons/base_automation/models/base_automation.py:0
-#, python-format
-msgid ""
-"Note that this action can be trigged up to %d minutes after its schedule."
-msgstr ""
-
-#. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__on_change_field_ids
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__on_change_fields
 msgid "On Change Fields Trigger"
-msgstr "Триггер, срабатывающий при изменении поля"
+msgstr "Триггер, срабатывающий прри измененнии поля"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trigger__on_create
@@ -393,14 +524,31 @@ msgid ""
 " as its usage and purpose."
 msgstr ""
 "Дополнительный текст помощи для пользователей с описанием целевого "
-"представления, например, его использования или предназначения."
+"представления, например его использования или предназначения."
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__partner_id
+msgid "Partner"
+msgstr "Партнёр"
+
+#. module: base_automation
+#: model:ir.model.fields.selection,name:base_automation.selection__base_automation_lead_test__state__pending
+msgid "Pending"
+msgstr "В ожидании"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__priority
+msgid "Priority"
+msgstr "Приоритет"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__link_field_id
 msgid ""
-"Provide the field used to link the newly created record on the record used "
-"by the server action."
+"Provide the field used to link the newly created record on the record on "
+"used by the server action."
 msgstr ""
+"Добавить поле, которое используется для связывания вновь записи с записями, "
+"используемых сервером."
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__code
@@ -409,6 +557,7 @@ msgstr "Код на Python"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_user_id
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__user_id
 msgid "Responsible"
 msgstr "Ответственный"
 
@@ -442,19 +591,24 @@ msgid "Setup a new automated automation"
 msgstr "Настройте новую автоматизацию"
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__state
+msgid "Status"
+msgstr "Статус"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__name
+msgid "Subject"
+msgstr "Тема"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_summary
 msgid "Summary"
 msgstr "Описание"
 
 #. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__crud_model_id
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__crud_model_name
 msgid "Target Model"
 msgstr "Целевая модель"
-
-#. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__crud_model_name
-msgid "Target Model Name"
-msgstr "Название целевой модели"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__activity_user_field_name
@@ -489,19 +643,13 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__trigger
-msgid "Trigger"
-msgstr "Триггер"
+msgid "Trigger Condition"
+msgstr "Условие триггера"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__trg_date_id
 msgid "Trigger Date"
 msgstr "Дата активации"
-
-#. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__trigger_field_ids
-#: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
-msgid "Trigger Fields"
-msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__state
@@ -562,6 +710,11 @@ msgstr ""
 "почте."
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__user_id
+msgid "User"
+msgstr "Пользователь"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_user_field_name
 msgid "User field name"
 msgstr "Название поля пользователя"
@@ -578,12 +731,17 @@ msgid "Warning"
 msgstr "Предупреждение"
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__trigger_field_ids
+msgid "Watched fields"
+msgstr ""
+
+#. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__trg_date_calendar_id
 msgid ""
 "When calculating a day-based timed condition, it is possible to use a "
 "calendar to compute the date based on working days."
 msgstr ""
-"При расчете временного условия, основанного на днях, можно использовать "
+"При расчете временного условия основанного на днях, можно использовать "
 "календарь, чтобы вычислить дату на основе рабочих дней."
 
 #. module: base_automation
@@ -602,12 +760,12 @@ msgid ""
 "                                  If present, will be checked by the scheduler. If empty, will be checked at creation and update."
 msgstr ""
 "Когда срабатывает условие.\n"
-"                                  Если оно присутствует, будет проверяться планировщиком. Если параметр пуст, будет проверяться на создание и обновление."
+"                                  Если он присутствует, будет проверяться планировщика. Если параметр пуст, будет проверяться на создание и обновление."
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__active
 msgid "When unchecked, the rule is hidden and will not be executed."
-msgstr "При отсутствии проверки правило скрывается и не будет выполняться."
+msgstr "При отсутствии проверки, правило скрыто и не будет выполняться."
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__code

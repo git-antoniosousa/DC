@@ -5,9 +5,7 @@ import os
 import re
 import traceback
 import unicodedata
-import werkzeug.exceptions
-import werkzeug.routing
-import werkzeug.urls
+import werkzeug
 
 # optional python-slugify import (https://github.com/un33k/python-slugify)
 try:
@@ -16,7 +14,7 @@ except ImportError:
     slugify_lib = None
 
 import odoo
-from odoo import api, models, registry, exceptions, tools
+from odoo import api, models, registry, exceptions
 from odoo.addons.base.models.ir_http import RequestUID, ModelConverter
 from odoo.addons.base.models.qweb import QWebException
 from odoo.http import request
@@ -30,6 +28,7 @@ _logger = logging.getLogger(__name__)
 # global resolver (GeoIP API is thread-safe, for multithreaded workers)
 # This avoids blowing up open files limit
 odoo._geoip_resolver = None
+
 
 # ------------------------------------------------------------
 # Slug API
@@ -91,7 +90,7 @@ def slug(value):
         if not value.id:
             raise ValueError("Cannot slug non-existent record %s" % value)
         # [(id, name)] = value.name_get()
-        identifier, name = value.id, getattr(value, 'seo_name', False) or value.display_name
+        identifier, name = value.id, value.display_name
     else:
         # assume name_search result tuple
         identifier, name = value
@@ -147,7 +146,7 @@ def url_lang(path_or_uri, lang_code=None):
     # relative URL with either a path or a force_lang
     if not url.netloc and not url.scheme and (url.path or force_lang):
         location = werkzeug.urls.url_join(request.httprequest.path, location)
-        lang_url_codes = [url_code for _, url_code, *_ in Lang.get_available()]
+        lang_url_codes = [url_code for _, url_code, _ in Lang.get_available()]
         lang_code = pycompat.to_text(lang_code or request.context['lang'])
         lang_url_code = Lang._lang_code_to_urlcode(lang_code)
         lang_url_code = lang_url_code if lang_url_code in lang_url_codes else lang_code
@@ -182,19 +181,27 @@ def url_for(url_from, lang_code=None, no_rewrite=False):
 
     # don't try to match route if we know that no rewrite has been loaded.
     routing = getattr(request, 'website_routing', None)  # not modular, but not overridable
-    if not getattr(request.env['ir.http'], '_rewrite_len', {}).get(routing):
+    if not request.env['ir.http']._rewrite_len.get(routing):
         no_rewrite = True
 
-    path, _, qs = (url_from or '').partition('?')
-
-    if (not no_rewrite and path and (
-            len(path) > 1
-            and path.startswith('/')
-            and '/static/' not in path
-            and not path.startswith('/web/')
-    )):
-        new_url = request.env['ir.http'].url_rewrite(path)
-        new_url = new_url if not qs else new_url + '?%s' % qs
+    # avoid useless check for 1 char URL '/', '#', ... and absolute URL
+    if not no_rewrite and url_from and (len(url_from) > 1 or not url_from.startswith('http')):
+        path, _, qs = url_from.partition('?')
+        req = request.httprequest
+        router = req.app.get_db_router(request.db).bind('')
+        try:
+            _ = router.match(path, method='POST')
+        except werkzeug.exceptions.MethodNotAllowed as e:
+            _ = router.match(path, method='GET')
+        except werkzeug.routing.RequestRedirect as e:
+            # remove query string from current env
+            new_url = e.new_url.split('?')[0]
+            # remove scheme and add query_string from url_from
+            new_url = new_url[7:] + (qs and '?%s' % qs or '')
+        except werkzeug.exceptions.NotFound as e:
+            new_url = url_from
+        except Exception as e:
+            raise e
 
     return url_lang(new_url or url_from, lang_code=lang_code)
 
@@ -204,10 +211,10 @@ def is_multilang_url(local_url, lang_url_codes=None):
         To be considered as translatable, the URL should either:
         1. Match a POST (non-GET actually) controller that is `website=True` and
            either `multilang` specified to True or if not specified, with `type='http'`.
-        2. If not matching 1., everything not under /static/ or /web/ will be translatable
+        2. If not matching 1., everything not under /static/ will be translatable
     '''
     if not lang_url_codes:
-        lang_url_codes = [url_code for _, url_code, *_ in request.env['res.lang'].get_available()]
+        lang_url_codes = [url_code for _, url_code, _ in request.env['res.lang'].get_available()]
     spath = local_url.split('/')
     # if a language is already in the path, remove it
     if spath[1] in lang_url_codes:
@@ -216,23 +223,26 @@ def is_multilang_url(local_url, lang_url_codes=None):
 
     url = local_url.partition('#')[0].split('?')
     path = url[0]
-
-    # Consider /static/ and /web/ files as non-multilang
-    if '/static/' in path or path.startswith('/web/'):
-        return False
-
     query_string = url[1] if len(url) > 1 else None
+    router = request.httprequest.app.get_db_router(request.db).bind('')
 
+    def is_multilang_func(func):
+        return (func and func.routing.get('website', False) and
+                func.routing.get('multilang', func.routing['type'] == 'http'))
     # Try to match an endpoint in werkzeug's routing table
     try:
-        func = request.env['ir.http']._get_endpoint_qargs(path, query_args=query_string)
-        # /page/xxx has no endpoint/func but is multilang
-        return (not func or (
-            func.routing.get('website', False)
-            and func.routing.get('multilang', func.routing['type'] == 'http')
-        ))
-    except Exception as exception:
-        _logger.warning(exception)
+        func = router.match(path, method='POST', query_args=query_string)[0]
+        return is_multilang_func(func)
+    except werkzeug.exceptions.MethodNotAllowed:
+        func = router.match(path, method='GET', query_args=query_string)[0]
+        return is_multilang_func(func)
+    except werkzeug.exceptions.NotFound:
+        # Consider /static/ files as non-multilang
+        static_index = path.find('/static/', 1)
+        if static_index != -1 and static_index == path.find('/', 1):
+            return False
+        return True
+    except Exception:
         return False
 
 
@@ -255,7 +265,7 @@ class ModelConverter(ModelConverter):
             # limited support for negative IDs due to our slug pattern, assume abs() if not found
             if not env[self.model].browse(record_id).exists():
                 record_id = abs(record_id)
-        return env[self.model].with_context(_converter_value=value).browse(record_id)
+        return env[self.model].browse(record_id)
 
 
 class IrHttp(models.AbstractModel):
@@ -384,7 +394,8 @@ class IrHttp(models.AbstractModel):
             path = request.httprequest.path.split('/')
             is_a_bot = cls.is_a_bot()
 
-            lang_codes = [code for code, *_ in Lang.get_available()]
+            available_langs = Lang.get_available()
+            lang_codes = [code for code, _, _ in available_langs]
             nearest_lang = not func and cls.get_nearest_lang(Lang._lang_get_code(path[1]))
             cook_lang = request.httprequest.cookies.get('frontend_lang')
             cook_lang = cook_lang in lang_codes and cook_lang
@@ -398,7 +409,7 @@ class IrHttp(models.AbstractModel):
                 lang = preferred_lang or cls._get_default_lang()
 
             request.lang = lang
-            context['lang'] = lang._get_cached('code')
+            context['lang'] = lang.code
 
             # bind modified context
             request.context = context
@@ -443,7 +454,7 @@ class IrHttp(models.AbstractModel):
         # check authentication level
         try:
             if func:
-                cls._authenticate(func)
+                cls._authenticate(func.routing['auth'])
             elif request.uid is None and request.is_frontend:
                 cls._auth_method_public()
         except Exception as e:
@@ -542,8 +553,8 @@ class IrHttp(models.AbstractModel):
             return cls._handle_exception(e)
 
         if getattr(request, 'is_frontend_multilang', False) and request.httprequest.method in ('GET', 'HEAD'):
-            generated_path = werkzeug.urls.url_unquote_plus(path)
-            current_path = werkzeug.urls.url_unquote_plus(request.httprequest.path)
+            generated_path = werkzeug.url_unquote_plus(path)
+            current_path = werkzeug.url_unquote_plus(request.httprequest.path)
             if generated_path != current_path:
                 if request.lang != cls._get_default_lang():
                     path = '/' + request.lang.url_code + path
@@ -559,8 +570,9 @@ class IrHttp(models.AbstractModel):
             exception=exception,
             traceback=traceback.format_exc(),
         )
-        if isinstance(exception, exceptions.UserError):
-            values['error_message'] = exception.args[0]
+        # only except_orm exceptions contain a message
+        if isinstance(exception, exceptions.except_orm):
+            values['error_message'] = exception.name
             code = 400
             if isinstance(exception, exceptions.AccessError):
                 code = 403
@@ -575,7 +587,7 @@ class IrHttp(models.AbstractModel):
             code = exception.code
 
         values.update(
-            status_message=werkzeug.http.HTTP_STATUS_CODES.get(code, ''),
+            status_message=werkzeug.http.HTTP_STATUS_CODES.get(code,''),
             status_code=code,
         )
 
@@ -588,7 +600,7 @@ class IrHttp(models.AbstractModel):
 
     @classmethod
     def _get_error_html(cls, env, code, values):
-        return code, env['ir.ui.view']._render_template('http_routing.%s' % code, values)
+        return env['ir.ui.view'].render_template('http_routing.%s' % code, values)
 
     @classmethod
     def _handle_exception(cls, exception):
@@ -639,50 +651,12 @@ class IrHttp(models.AbstractModel):
                 _logger.error("500 Internal Server Error:\n\n%s", values['traceback'])
                 values = cls._get_values_500_error(env, values, exception)
             elif code == 403:
-                _logger.warning("403 Forbidden:\n\n%s", values['traceback'])
+                _logger.warn("403 Forbidden:\n\n%s", values['traceback'])
             elif code == 400:
-                _logger.warning("400 Bad Request:\n\n%s", values['traceback'])
+                _logger.warn("400 Bad Request:\n\n%s", values['traceback'])
             try:
-                code, html = cls._get_error_html(env, code, values)
+                html = cls._get_error_html(env, code, values)
             except Exception:
-                code, html = 418, env['ir.ui.view']._render_template('http_routing.http_error', values)
+                html = env['ir.ui.view'].render_template('http_routing.http_error', values)
 
         return werkzeug.wrappers.Response(html, status=code, content_type='text/html;charset=utf-8')
-
-    @api.model
-    @tools.ormcache('path')
-    def url_rewrite(self, path):
-        new_url = False
-        req = request.httprequest
-        router = req.app.get_db_router(request.db).bind('')
-        try:
-            _ = router.match(path, method='POST')
-        except werkzeug.exceptions.MethodNotAllowed:
-            _ = router.match(path, method='GET')
-        except werkzeug.routing.RequestRedirect as e:
-            new_url = e.new_url[7:]  # remove scheme
-        except werkzeug.exceptions.NotFound:
-            new_url = path
-        except Exception as e:
-            raise e
-
-        return new_url or path
-
-    # merge with def url_rewrite in master/14.1
-    @api.model
-    @tools.cache('path', 'query_args')
-    def _get_endpoint_qargs(self, path, query_args=None):
-        router = request.httprequest.app.get_db_router(request.db).bind('')
-        endpoint = False
-        try:
-            endpoint = router.match(path, method='POST', query_args=query_args)
-        except werkzeug.exceptions.MethodNotAllowed:
-            endpoint = router.match(path, method='GET', query_args=query_args)
-        except werkzeug.routing.RequestRedirect as e:
-            new_url = e.new_url[7:]  # remove scheme
-            assert new_url != path
-            endpoint = self._get_endpoint_qargs(new_url, query_args)
-            endpoint = endpoint and [endpoint]
-        except werkzeug.exceptions.NotFound:
-            pass # endpoint = False
-        return endpoint and endpoint[0]

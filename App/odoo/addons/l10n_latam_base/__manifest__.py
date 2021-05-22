@@ -2,7 +2,7 @@
 {
     'name': 'LATAM Localization Base',
     'version': '1.0',
-    'category': 'Accounting/Localizations',
+    'category': 'Localization',
     'sequence': 14,
     'author': 'Odoo, ADHOC SA',
     'summary': 'LATAM Identification Types',

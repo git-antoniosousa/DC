@@ -5,9 +5,9 @@ from odoo import api, models, _
 from odoo.exceptions import ValidationError
 
 
-class CouponProgram(models.Model):
-    _name = 'coupon.program'
-    _inherit = ['coupon.program', 'website.multi.mixin']
+class SaleCouponProgram(models.Model):
+    _name = 'sale.coupon.program'
+    _inherit = ['sale.coupon.program', 'website.multi.mixin']
 
     @api.constrains('promo_code', 'website_id')
     def _check_promo_code_constraint(self):
@@ -28,7 +28,7 @@ class CouponProgram(models.Model):
     @api.model
     def _filter_programs_from_common_rules(self, order, next_order=False):
         programs = self._filter_programs_on_website(order)
-        return super(CouponProgram, programs)._filter_programs_from_common_rules(order, next_order)
+        return super(SaleCouponProgram, programs)._filter_programs_from_common_rules(order, next_order)
 
     def _check_promo_code(self, order, coupon_code):
         if self.website_id and self.website_id != order.website_id:

@@ -4,7 +4,7 @@ odoo.define('crm.leads.tree', function (require) {
     var ListView = require('web.ListView');
 
     var KanbanController = require('web.KanbanController');
-    var KanbanView = require('crm.crm_kanban').CrmKanbanView;
+    var KanbanView = require('web.KanbanView');
 
     var viewRegistry = require('web.view_registry');
 

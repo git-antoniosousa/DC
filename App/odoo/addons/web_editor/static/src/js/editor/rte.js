@@ -432,10 +432,6 @@ var RTEWidget = Widget.extend({
      * @param {boolean} internal_history
      */
     historyRecordUndo: function ($target, event, internal_history) {
-        const initialActiveElement = document.activeElement;
-        const initialSelectionStart = initialActiveElement && initialActiveElement.selectionStart;
-        const initialSelectionEnd = initialActiveElement && initialActiveElement.selectionEnd;
-
         $target = $($target);
         var rng = range.create();
         var $editable = $(rng && rng.sc).closest('.o_editable');
@@ -455,22 +451,6 @@ var RTEWidget = Widget.extend({
             console.log('error', e);
         }
         history.recordUndo($editable, event, internal_history);
-
-        if (initialActiveElement && initialActiveElement !== document.activeElement) {
-            initialActiveElement.focus();
-            // Range inputs don't support selection
-            if (initialActiveElement.matches('input[type=range]')) {
-                return;
-            }
-            try {
-                initialActiveElement.selectionStart = initialSelectionStart;
-                initialActiveElement.selectionEnd = initialSelectionEnd;
-            } catch (e) {
-                // The active element might be of a type that
-                // does not support selection.
-                console.log('error', e);
-            }
-        }
     },
     /**
      * Searches all the dirty element on the page and saves them one by one. If
@@ -514,11 +494,18 @@ var RTEWidget = Widget.extend({
                     // new rejection with all relevant info
                     var id = _.uniqueId('carlos_danger_');
                     $el.addClass('o_dirty oe_carlos_danger ' + id);
+                    var html = (response.message.data.exception_type === 'except_osv');
+                    if (html) {
+                        var msg = $('<div/>', {text: response.message.data.message}).html();
+                        var data = msg.substring(3, msg.length  -2).split(/', u'/);
+                        response.message.data.message = '<b>' + data[0] + '</b>' + data[1];
+                    }
                     $('.o_editable.' + id)
                         .removeClass(id)
                         .popover({
+                            html: html,
                             trigger: 'hover',
-                            content: response.message.data.message || '',
+                            content: response.message.data.message,
                             placement: 'auto top',
                         })
                         .popover('show');
@@ -564,10 +551,6 @@ var RTEWidget = Widget.extend({
         }
         if ($editable.is('[data-oe-model]') && !$editable.is('[data-oe-model="ir.ui.view"]') && !$editable.is('[data-oe-type="html"]')) {
             $editable.data('layoutInfo').popover().find('.btn-group:not(.note-history)').remove();
-        }
-        if ($editable.data('oe-type') === "image") {
-            $editable.attr('contenteditable', false);
-            $editable.find('img').attr('contenteditable', true);
         }
     },
     /**
@@ -697,7 +680,6 @@ var RTEWidget = Widget.extend({
              * Remove content editable everywhere and add it on the link only so that characters can be added
              * and removed at the start and at the end of it.
              */
-            let hasContentEditable = $target.attr('contenteditable');
             $target.attr('contenteditable', true);
             _.defer(function () {
                 $editable.not($target).attr('contenteditable', false);
@@ -707,9 +689,7 @@ var RTEWidget = Widget.extend({
             // Once clicked outside, remove contenteditable on link and reactive all
             $(document).on('mousedown.reactivate_contenteditable', function (e) {
                 if ($target.is(e.target)) return;
-                if (!hasContentEditable) {
-                    $target.removeAttr('contenteditable');
-                }
+                $target.removeAttr('contenteditable');
                 $editable.attr('contenteditable', true);
                 $(document).off('mousedown.reactivate_contenteditable');
             });
@@ -802,7 +782,6 @@ return {
 odoo.define('web_editor.rte.summernote_custom_colors', function (require) {
 'use strict';
 
-// These colors are already normalized as per normalizeCSSColor in web.Colorpicker
 return [
     ['#000000', '#424242', '#636363', '#9C9C94', '#CEC6CE', '#EFEFEF', '#F7F7F7', '#FFFFFF'],
     ['#FF0000', '#FF9C00', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#9C00FF', '#FF00FF'],

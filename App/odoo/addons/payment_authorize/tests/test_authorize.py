@@ -14,14 +14,13 @@ from odoo.tools import mute_logger
 @odoo.tests.tagged('post_install', '-at_install')
 class AuthorizeCommon(PaymentAcquirerCommon):
 
-    @classmethod
-    def setUpClass(cls, chart_template_ref=None):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def setUp(self):
+        super(AuthorizeCommon, self).setUp()
         # authorize only support USD in test environment
-        cls.currency_usd = cls.env['res.currency'].search([('name', '=', 'USD')], limit=1)[0]
+        self.currency_usd = self.env['res.currency'].search([('name', '=', 'USD')], limit=1)[0]
         # get the authorize account
-        cls.authorize = cls.env.ref('payment.payment_acquirer_authorize')
-        cls.authorize.write({
+        self.authorize = self.env.ref('payment.payment_acquirer_authorize')
+        self.authorize.write({
             'authorize_login': 'dummy',
             'authorize_transaction_key': 'dummy',
             'authorize_signature_key': '00000000',

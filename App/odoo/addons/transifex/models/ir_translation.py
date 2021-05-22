@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from configparser import ConfigParser
+try:
+    from configparser import ConfigParser
+except ImportError:
+    # python2 import
+    from ConfigParser import ConfigParser
 from os.path import join as opj
 import os
-import werkzeug.urls
+import werkzeug
 
 import odoo
 from odoo import models, fields
@@ -14,7 +18,7 @@ class IrTranslation(models.Model):
 
     _inherit = 'ir.translation'
 
-    transifex_url = fields.Char("Transifex URL", compute='_get_transifex_url', help="Propose a modification in the official version of Odoo")
+    transifex_url = fields.Char("Transifex URL", compute='_get_transifex_url')
 
     def _get_transifex_url(self):
         """ Construct transifex URL based on the module on configuration """
@@ -74,13 +78,13 @@ class IrTranslation(models.Model):
                     translation.transifex_url = False
                     continue
 
-                # e.g. https://www.transifex.com/odoo/odoo-10/translate/#fr/sale/42?q=text:'Sale+Order'
-                src = werkzeug.urls.url_quote_plus(translation.src[:50].replace("\n", "").replace("'", ""))
-                src = f"'{src}'" if "+" in src else src
+                # e.g. https://www.transifex.com/odoo/odoo-10/translate/#fr/sale/42?q=text'Sale+Order'
                 translation.transifex_url = "%(url)s/%(project)s/translate/#%(lang)s/%(module)s/42?q=%(src)s" % {
                     'url': base_url,
                     'project': project,
                     'lang': lang_code,
                     'module': translation.module,
-                    'src': f"text%3A{src}",
+                    'src': "text:'" + werkzeug.url_quote_plus(
+                               translation.src[:50].replace("\n", "").replace("'", "")
+                           ) + "'",
                 }

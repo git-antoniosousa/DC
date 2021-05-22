@@ -3,17 +3,18 @@
 # 	* pos_mercury
 # 
 # Translators:
-# ExcaliberX <excaliberx@gmail.com>, 2020
-# Yihya Hugirat <hugirat@gmail.com>, 2020
-# דודי מלכה <Dudimalka6@gmail.com>, 2020
+# ExcaliberX <excaliberx@gmail.com>, 2019
+# Yihya Hugirat <hugirat@gmail.com>, 2019
+# hed shefetr <hed@laylinetech.com>, 2019
+# דודי מלכה <Dudimalka6@gmail.com>, 2019
 # ZVI BLONDER <ZVIBLONDER@gmail.com>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.5\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 07:28+0000\n"
-"PO-Revision-Date: 2020-09-07 08:16+0000\n"
+"POT-Creation-Date: 2019-12-05 12:32+0000\n"
+"PO-Revision-Date: 2019-08-26 09:13+0000\n"
 "Last-Translator: ZVI BLONDER <ZVIBLONDER@gmail.com>, 2020\n"
 "Language-Team: Hebrew (https://www.transifex.com/odoo/teams/41243/he/)\n"
 "MIME-Version: 1.0\n"
@@ -44,17 +45,22 @@ msgstr ""
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/OrderReceipt.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "ABOVE AMOUNT PURSUANT"
 msgstr "סכום גבוה יותר מהמקור"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/OrderReceipt.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "APPROVAL CODE:"
 msgstr "קוד אישור:"
+
+#. module: pos_mercury
+#: model:ir.model,name:pos_mercury.model_ir_autovacuum
+msgid "Automatic Vacuum"
+msgstr "שואב אבק אוטומטי"
 
 #. module: pos_mercury
 #: model:ir.model,name:pos_mercury.model_barcode_rule
@@ -62,8 +68,13 @@ msgid "Barcode Rule"
 msgstr "כלל ברקוד"
 
 #. module: pos_mercury
+#: model_terms:ir.ui.view,arch_db:pos_mercury.pos_config_view_form_inherit_pos_mercury
+msgid "Barcode Scanner/Card Reader"
+msgstr "סורק ברקודים או קורא כרטיסים"
+
+#. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/OrderReceipt.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "CARDHOLDER WILL PAY CARD ISSUER"
 msgstr "בעל הכרטיס ישלם למנפיק הכרטיס"
@@ -102,7 +113,7 @@ msgstr "קבע את התצורה של קורא הכרטיסים שלך"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Could not read card"
 msgstr "לא ניתן היה לקרוא את הכרטיס"
@@ -111,7 +122,7 @@ msgstr "לא ניתן היה לקרוא את הכרטיס"
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_configuration__create_uid
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_mercury_transaction__create_uid
 msgid "Created by"
-msgstr "נוצר ע\"י"
+msgstr "נוצר על-ידי"
 
 #. module: pos_mercury
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_configuration__create_date
@@ -126,7 +137,7 @@ msgstr "כרטיס אשראי"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid ""
 "Credit card refunds are not supported. Instead select your credit card "
@@ -137,14 +148,17 @@ msgstr ""
 "שלך, לחץ על 'אמת' והחזר את החיוב המקורי באופן ידני דרך ה- Vantiv backend."
 
 #. module: pos_mercury
-#: model:ir.model.fields,field_description:pos_mercury.field_barcode_rule__display_name
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_configuration__display_name
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_mercury_transaction__display_name
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_order__display_name
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment__display_name
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment_method__display_name
 msgid "Display Name"
-msgstr "שם תצוגה"
+msgstr "הצג שם"
+
+#. module: pos_mercury
+#. openerp-web
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
+#, python-format
+msgid "Error"
+msgstr "שגיאה"
 
 #. module: pos_mercury
 #: model_terms:ir.ui.view,arch_db:pos_mercury.view_pos_mercury_configuration_form
@@ -159,25 +173,21 @@ msgstr ""
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/ProductScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Go to payment screen to use cards"
 msgstr "עבור למסך התשלום כדי להשתמש בכרטיסים"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Handling transaction..."
 msgstr "מטפל בעסקה..."
 
 #. module: pos_mercury
-#: model:ir.model.fields,field_description:pos_mercury.field_barcode_rule__id
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_configuration__id
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_mercury_transaction__id
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_order__id
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment__id
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment_method__id
 msgid "ID"
 msgstr "מזהה"
 
@@ -202,20 +212,16 @@ msgid "Invoice number from Vantiv Pay"
 msgstr "מספר חשבונית מתשלום Vantiv"
 
 #. module: pos_mercury
-#: model:ir.model.fields,field_description:pos_mercury.field_barcode_rule____last_update
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_configuration____last_update
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_mercury_transaction____last_update
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_order____last_update
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment____last_update
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment_method____last_update
 msgid "Last Modified on"
-msgstr "שונה לאחרונה ב - "
+msgstr "שינוי אחרון ב"
 
 #. module: pos_mercury
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_configuration__write_uid
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_mercury_transaction__write_uid
 msgid "Last Updated by"
-msgstr "עודכן לאחרונה ע\"י"
+msgstr "עודכן לאחרונה על-ידי"
 
 #. module: pos_mercury
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_configuration__write_date
@@ -257,29 +263,43 @@ msgstr "לא נמצאה משמרת קופה פתוחה עבור המשתמש%s."
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "No response from Vantiv (Vantiv down?)"
 msgstr "אין תגובה מ Vantiv) Vantiv למטה?)"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "No response from server (connected to network?)"
 msgstr "אין תגובה מהשרת (מחובר לרשת?)"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Odoo error while processing transaction."
 msgstr "שגיאת Odoo במהלך עיבוד העסקה."
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
+#, python-format
+msgid "One credit card swipe already pending."
+msgstr "העברת כרטיס אשראי אחד כבר ממתינה."
+
+#. module: pos_mercury
+#. openerp-web
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
+#, python-format
+msgid "Online Payment"
+msgstr "תשלום מקוון"
+
+#. module: pos_mercury
+#. openerp-web
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Partially approved"
 msgstr "מאושר חלקית"
@@ -292,7 +312,7 @@ msgstr "סיסמת הסוחר לאימותו בשרת ספק התשלומים"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Pay with: "
 msgstr "שלם עם:"
@@ -309,7 +329,7 @@ msgstr "מספר מזהה תשלום מ- Vantiv Pay"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Please setup your Vantiv merchant account."
 msgstr "אנא הגדר את חשבון הסוחר Vantiv שלך."
@@ -341,35 +361,35 @@ msgstr "קופה עסקת Vantiv"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Refunds not supported"
 msgstr "החזרים אינם נתמכים"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Reversal failed, sending VoidSale..."
 msgstr "הביטול נכשל, שלח עסקה מבוטלת ..."
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Reversal succeeded"
 msgstr "ביטול הצליח"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Sending reversal..."
 msgstr "שולח ביטול..."
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/OrderReceipt.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "TO CARDHOLDER AGREEMENT"
 msgstr "להסכם מחזיק הכרטיס"
@@ -401,7 +421,7 @@ msgstr "שמו של בעל הכרטיס"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid ""
 "This can be caused by a badly executed swipe or by not having your keyboard "
@@ -412,7 +432,7 @@ msgstr ""
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Transaction approved"
 msgstr "עסקה אושרה"
@@ -468,14 +488,14 @@ msgstr "מספר מזהה Vantiv"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "VoidSale succeeded"
 msgstr "עסקה מבוטלת הצליחה"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/PaymentScreenPaymentLines.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "WAITING FOR SWIPE"
 msgstr "ממתין להעברת כרטיס"
@@ -491,7 +511,7 @@ msgstr ""
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/OrderReceipt.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "X______________________________"
 msgstr "X______________________________"

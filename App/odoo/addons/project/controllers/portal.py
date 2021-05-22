@@ -15,12 +15,10 @@ from odoo.osv.expression import OR
 
 class CustomerPortal(CustomerPortal):
 
-    def _prepare_home_portal_values(self, counters):
-        values = super()._prepare_home_portal_values(counters)
-        if 'project_count' in counters:
-            values['project_count'] = request.env['project.project'].search_count([])
-        if 'task_count' in counters:
-            values['task_count'] = request.env['project.task'].search_count([])
+    def _prepare_home_portal_values(self):
+        values = super(CustomerPortal, self)._prepare_home_portal_values()
+        values['project_count'] = request.env['project.project'].search_count([])
+        values['task_count'] = request.env['project.task'].search_count([])
         return values
 
     # ------------------------------------------------------------
@@ -47,9 +45,10 @@ class CustomerPortal(CustomerPortal):
             sortby = 'date'
         order = searchbar_sortings[sortby]['order']
 
+        # archive groups - Default Group By 'create_date'
+        archive_groups = self._get_archive_groups('project.project', domain) if values.get('my_details') else []
         if date_begin and date_end:
             domain += [('create_date', '>', date_begin), ('create_date', '<=', date_end)]
-
         # projects count
         project_count = Project.search_count(domain)
         # pager
@@ -70,6 +69,7 @@ class CustomerPortal(CustomerPortal):
             'date_end': date_end,
             'projects': projects,
             'page_name': 'project',
+            'archive_groups': archive_groups,
             'default_url': '/my/projects',
             'pager': pager,
             'searchbar_sortings': searchbar_sortings,
@@ -99,13 +99,12 @@ class CustomerPortal(CustomerPortal):
         return self._get_page_view_values(task, access_token, values, 'my_tasks_history', False, **kwargs)
 
     @http.route(['/my/tasks', '/my/tasks/page/<int:page>'], type='http', auth="user", website=True)
-    def portal_my_tasks(self, page=1, date_begin=None, date_end=None, sortby=None, filterby=None, search=None, search_in='content', groupby=None, **kw):
+    def portal_my_tasks(self, page=1, date_begin=None, date_end=None, sortby=None, filterby=None, search=None, search_in='content', groupby='project', **kw):
         values = self._prepare_portal_layout_values()
         searchbar_sortings = {
             'date': {'label': _('Newest'), 'order': 'create_date desc'},
             'name': {'label': _('Title'), 'order': 'name'},
-            'stage': {'label': _('Stage'), 'order': 'stage_id, project_id'},
-            'project': {'label': _('Project'), 'order': 'project_id, stage_id'},
+            'stage': {'label': _('Stage'), 'order': 'stage_id'},
             'update': {'label': _('Last Stage Update'), 'order': 'date_last_stage_update desc'},
         }
         searchbar_filters = {
@@ -116,13 +115,11 @@ class CustomerPortal(CustomerPortal):
             'message': {'input': 'message', 'label': _('Search in Messages')},
             'customer': {'input': 'customer', 'label': _('Search in Customer')},
             'stage': {'input': 'stage', 'label': _('Search in Stages')},
-            'project': {'input': 'project', 'label': _('Search in Project')},
             'all': {'input': 'all', 'label': _('Search in All')},
         }
         searchbar_groupby = {
             'none': {'input': 'none', 'label': _('None')},
             'project': {'input': 'project', 'label': _('Project')},
-            'stage': {'input': 'stage', 'label': _('Stage')},
         }
 
         # extends filterby criteria with project the customer has access to
@@ -147,16 +144,13 @@ class CustomerPortal(CustomerPortal):
         if not sortby:
             sortby = 'date'
         order = searchbar_sortings[sortby]['order']
-
         # default filter by value
         if not filterby:
             filterby = 'all'
         domain = searchbar_filters.get(filterby, searchbar_filters.get('all'))['domain']
 
-        # default group by value
-        if not groupby:
-            groupby = 'project'
-
+        # archive groups - Default Group By 'create_date'
+        archive_groups = self._get_archive_groups('project.task', domain) if values.get('my_details') else []
         if date_begin and date_end:
             domain += [('create_date', '>', date_begin), ('create_date', '<=', date_end)]
 
@@ -171,8 +165,6 @@ class CustomerPortal(CustomerPortal):
                 search_domain = OR([search_domain, [('message_ids.body', 'ilike', search)]])
             if search_in in ('stage', 'all'):
                 search_domain = OR([search_domain, [('stage_id', 'ilike', search)]])
-            if search_in in ('project', 'all'):
-                search_domain = OR([search_domain, [('project_id', 'ilike', search)]])
             domain += search_domain
 
         # task count
@@ -180,7 +172,7 @@ class CustomerPortal(CustomerPortal):
         # pager
         pager = portal_pager(
             url="/my/tasks",
-            url_args={'date_begin': date_begin, 'date_end': date_end, 'sortby': sortby, 'filterby': filterby, 'groupby': groupby, 'search_in': search_in, 'search': search},
+            url_args={'date_begin': date_begin, 'date_end': date_end, 'sortby': sortby, 'filterby': filterby, 'search_in': search_in, 'search': search},
             total=task_count,
             page=page,
             step=self._items_per_page
@@ -188,16 +180,10 @@ class CustomerPortal(CustomerPortal):
         # content according to pager and archive selected
         if groupby == 'project':
             order = "project_id, %s" % order  # force sort on project first to group by project in view
-        elif groupby == 'stage':
-            order = "stage_id, %s" % order  # force sort on stage first to group by stage in view
-
-        tasks = request.env['project.task'].search(domain, order=order, limit=self._items_per_page, offset=pager['offset'])
+        tasks = request.env['project.task'].search(domain, order=order, limit=self._items_per_page, offset=(page - 1) * self._items_per_page)
         request.session['my_tasks_history'] = tasks.ids[:100]
-
         if groupby == 'project':
             grouped_tasks = [request.env['project.task'].concat(*g) for k, g in groupbyelem(tasks, itemgetter('project_id'))]
-        elif groupby == 'stage':
-            grouped_tasks = [request.env['project.task'].concat(*g) for k, g in groupbyelem(tasks, itemgetter('stage_id'))]
         else:
             grouped_tasks = [tasks]
 
@@ -206,13 +192,13 @@ class CustomerPortal(CustomerPortal):
             'date_end': date_end,
             'grouped_tasks': grouped_tasks,
             'page_name': 'task',
+            'archive_groups': archive_groups,
             'default_url': '/my/tasks',
             'pager': pager,
             'searchbar_sortings': searchbar_sortings,
             'searchbar_groupby': searchbar_groupby,
             'searchbar_inputs': searchbar_inputs,
             'search_in': search_in,
-            'search': search,
             'sortby': sortby,
             'groupby': groupby,
             'searchbar_filters': OrderedDict(sorted(searchbar_filters.items())),

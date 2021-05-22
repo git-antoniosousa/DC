@@ -77,6 +77,10 @@
                                             <td>Shipping Date</td>
                                             <td><span t-field="o.date_done"/></td>
                                         </tr>
+                                        <tr t-if="o.volume > 0.0">
+                                            <td>Volume</td>
+                                            <td><span t-field="o.volume"/></td>
+                                        </tr>
                                         <tr>
                                             <td>Gross Weight (kg)</td>
                                             <td><span t-field="o.shipping_weight"/></td>
@@ -166,12 +170,13 @@
             </t>
         </t>
     </template>
-    <record id="action_report_ddt" model="ir.actions.report">
-        <field name="name">DDT report</field>
-        <field name="model">stock.picking</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">l10n_it_stock_ddt.report_ddt_view</field>
-        <field name="report_file">report_ddt</field>
-        <field name="print_report_name">'DDT - %s - %s' % (object.partner_id.name or '', object.l10n_it_ddt_number)</field>
-    </record>
+    <report
+        string="DDT report"
+        id="action_report_ddt"
+        model="stock.picking"
+        report_type="qweb-pdf"
+        name="l10n_it_stock_ddt.report_ddt_view"
+        file="report_ddt"
+        print_report_name="'DDT - %s - %s' % (object.partner_id.name or '', object.l10n_it_ddt_number)"
+    />
 </odoo>

@@ -1,6 +1,5 @@
 .o_list_view {
     position: relative;
-    height: 100%;
 
     .o_list_table {
         position: relative;
@@ -28,11 +27,8 @@
             }
         }
         tbody > tr > td:not(.o_list_record_selector) {
-            &:not(.o_handle_cell):not(.o_list_button) {
+            &:not(.o_handle_cell) {
                 @include o-text-overflow(table-cell);
-                &.o_list_text {
-                    white-space: pre-wrap;
-                }
             }
 
             &.o_list_number {
@@ -40,19 +36,11 @@
             }
             &.o_list_text {
                 word-break: break-word;
+                white-space: pre-wrap;
             }
             &.o_list_char.o_color_cell .o_field_color {
                 width: 17px;
                 height: 17px;
-            }
-            &.o_list_button {
-                white-space: nowrap;
-                > button {
-                    padding: 0 5px;
-                    &:not(:last-child) {
-                        margin-right: 3px;
-                    }
-                }
             }
         }
         &.o_list_computing_widths {
@@ -118,9 +106,6 @@
         .o_list_record_selector {
             width: 40px;
             padding-left: $o-horizontal-padding;
-            .custom-control-label {
-                cursor: pointer;
-            }
         }
         .o_list_record_remove, .o_handle_cell {
             width: 1px;  // to prevent the column to expand
@@ -144,8 +129,8 @@
         tbody > tr.o_group_header {
             > th, > td {
                 vertical-align: middle;
-                padding-top: 5px;
-                padding-bottom: 5px;
+                padding-top: ($table-cell-padding-sm*2);
+                padding-bottom: ($table-cell-padding-sm*2);
             }
             .o_group_name {
                 @include o-text-overflow(table-cell);
@@ -253,7 +238,7 @@
             .o_list_char,
             .o_list_number {
                 white-space: nowrap;
-                .o_field_widget:not(.o_row_handle):not(.o_field_badge) {
+                .o_field_widget:not(.o_row_handle) {
                     display: inline;
                 }
             }
@@ -309,9 +294,6 @@
             }
             > .o_row_handle {
                 visibility: hidden; // hide sequence when editing
-            }
-            > .o_field_badge {
-                width: auto; // override width: 100% to keep the optimal badge width
             }
         }
 
@@ -372,19 +354,5 @@
         .o_list_button_save, .o_list_button_discard {
             display: inline-block
         }
-    }
-}
-
-// Selection box (next to the buttons, in ControlPanel)
-$selected-box-color: #e7f2f6;
-.o_list_selection_box {
-    display: inline-block;
-    padding: $btn-padding-y $btn-padding-x;
-    vertical-align: middle; // align with the buttons
-    border: 1px solid $selected-box-color;
-    background-color: $selected-box-color;
-    .o_list_select_domain {
-        font-weight: bold;
-        margin-left: 4px;
     }
 }

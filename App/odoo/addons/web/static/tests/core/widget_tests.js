@@ -402,7 +402,7 @@ QUnit.module('core', {}, function () {
 
         var def;
         var parent = new Widget();
-        await testUtils.mock.addMockEnvironment(parent, {
+        testUtils.mock.addMockEnvironment(parent, {
             session: {
                 rpc: function () {
                     def = testUtils.makeTestPromise();
@@ -473,24 +473,21 @@ QUnit.module('core', {}, function () {
 
     QUnit.test('start is not called when widget is destroyed', function (assert) {
         assert.expect(0);
-        const $fix = $("#qunit-fixture");
+        var slowWillStartPromise = testUtils.makeTestPromise();
+        var $fix = $( "#qunit-fixture");
 
-        // Note: willStart is always async
-        const MyWidget = Widget.extend({
-            start: function () {
-                assert.ok(false, 'Should not call start method');
+        var widget = new (Widget.extend({
+            willStart: function () {
+                return slowWillStartPromise;
             },
-        });
+            start: function () {
+                throw new Error('Should not call start method');
+            },
+        }))();
 
-        const widget = new MyWidget();
         widget.appendTo($fix);
         widget.destroy();
-
-        const divEl = document.createElement('div');
-        $fix[0].appendChild(divEl);
-        const widget2 = new MyWidget();
-        widget2.attachTo(divEl);
-        widget2.destroy();
+        slowWillStartPromise.resolve();
     });
 
     QUnit.test("don't destroy twice widget's children", function (assert) {

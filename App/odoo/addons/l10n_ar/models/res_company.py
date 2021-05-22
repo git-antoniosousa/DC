@@ -6,6 +6,7 @@ class ResCompany(models.Model):
 
     _inherit = "res.company"
 
+    l10n_ar_country_code = fields.Char(related='country_id.code', string='Country Code')
     l10n_ar_gross_income_number = fields.Char(
         related='partner_id.l10n_ar_gross_income_number', string='Gross Income Number', readonly=False,
         help="This field is required in order to print the invoice report properly")
@@ -20,7 +21,7 @@ class ResCompany(models.Model):
     @api.onchange('country_id')
     def onchange_country(self):
         """ Argentinian companies use round_globally as tax_calculation_rounding_method """
-        for rec in self.filtered(lambda x: x.country_id.code == "AR"):
+        for rec in self.filtered(lambda x: x.country_id == self.env.ref('base.ar')):
             rec.tax_calculation_rounding_method = 'round_globally'
 
     @api.depends('l10n_ar_afip_responsibility_type_id')
@@ -33,7 +34,7 @@ class ResCompany(models.Model):
     def _localization_use_documents(self):
         """ Argentinian localization use documents """
         self.ensure_one()
-        return True if self.country_id.code == "AR" else super()._localization_use_documents()
+        return True if self.country_id == self.env.ref('base.ar') else super()._localization_use_documents()
 
     @api.constrains('l10n_ar_afip_responsibility_type_id')
     def _check_accounting_info(self):

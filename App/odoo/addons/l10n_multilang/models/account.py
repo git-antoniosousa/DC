@@ -22,15 +22,6 @@ class AccountAccount(models.Model):
 
     name = fields.Char(translate=True)
 
-class AccountGroupTemplate(models.Model):
-    _inherit = 'account.group.template'
-
-    name = fields.Char(translate=True)
-
-class AccountGroup(models.Model):
-    _inherit = 'account.group'
-
-    name = fields.Char(translate=True)
 
 class AccountTax(models.Model):
     _inherit = 'account.tax'

@@ -189,11 +189,12 @@ QUnit.test('activity view: simple activity rendering', async function (assert) {
 QUnit.test('activity view: no content rendering', async function (assert) {
     assert.expect(2);
 
-    // reset incompatible setup
-    this.data['mail.activity'].records = [];
+    // remove activities from tasks
     this.data.task.records.forEach(function (task) {
         task.activity_ids = false;
     });
+
+    // remove activity types
     this.data['mail.activity.type'].records = [];
 
     var activity = await createView({
@@ -262,8 +263,7 @@ QUnit.test('activity view: batch send mail on activity', async function (assert)
 
 QUnit.test('activity view: activity widget', async function (assert) {
     assert.expect(16);
-
-    const params = {
+    var activity = await createView({
         View: ActivityView,
         model: 'task',
         data: this.data,
@@ -313,9 +313,7 @@ QUnit.test('activity view: activity widget', async function (assert) {
                 }
             },
         },
-    };
-
-    var activity = await createView(params);
+    });
     var today = activity.$('table tbody tr:first td:nth-child(2).today');
     var dropdown = today.find('.dropdown-menu.o_activity');
 
@@ -351,7 +349,7 @@ QUnit.test('activity view: activity widget', async function (assert) {
 
     activity.destroy();
 });
-QUnit.test('activity view: no group_by_menu and no comparison_menu', async function (assert) {
+QUnit.test('activity view: no group_by_menu and no time_range_menu', async function (assert) {
     assert.expect(4);
 
     var actionManager = await createActionManager({
@@ -389,9 +387,9 @@ QUnit.test('activity view: no group_by_menu and no comparison_menu', async funct
 
     assert.containsN(actionManager, '.o_search_options .o_dropdown button:visible', 2,
         "only two elements should be available in view search");
-    assert.isVisible(actionManager.$('.o_search_options .o_dropdown.o_filter_menu > button'),
+    assert.isVisible(actionManager.$('.o_search_options .o_dropdown button.o_filters_menu_button'),
         "filter should be available in view search");
-    assert.isVisible(actionManager.$('.o_search_options .o_dropdown.o_favorite_menu > button'),
+    assert.isVisible(actionManager.$('.o_search_options .o_dropdown button.o_favorites_menu_button'),
         "favorites should be available in view search");
     actionManager.destroy();
 });

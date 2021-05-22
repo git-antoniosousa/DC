@@ -69,7 +69,6 @@
                         <group>
                             <group>
                                 <field name="active" invisible="1"/>
-                                <field name="picking_type_code_domain" invisible="1"/>
                                 <field name="action"/>
                                 <field name="picking_type_id"/>
                                 <field name="location_src_id" options="{'no_create': True}" attrs="{'required': [('action', 'in', ['pull', 'push', 'pull_push'])]}"/>
@@ -90,7 +89,6 @@
                             <group name="apply_on" string="Applicability">
                                 <field name="route_id"/>
                                 <field name="warehouse_id" attrs="{'invisible': [('action', '=', 'push')]}" groups="base.group_no_one"/>
-                                <field name="route_company_id" invisible="1"/>
                                 <field name="company_id" options="{'no_create': True}" attrs="{'required': [('action', '=', 'push')]}" groups="base.group_multi_company"/>
                                 <field name="sequence" string="Sequence" groups="base.group_no_one"/>
                             </group>
@@ -102,8 +100,15 @@
                             </group>
                             <group string="Options" attrs="{'invisible': [('action', 'not in', ['pull', 'push', 'pull_push'])]}">
                                 <field name="partner_address_id" attrs="{'invisible': [('action', '=', 'push')]}"/>
-                                <label for="delay"/>
-                                <div><field name="delay" class="oe_inline"/> days</div>
+                                <field name="delay"/>
+                            </group>
+                            <group name="scheduling_group" string="Scheduling" attrs="{'invisible': [('action', '=', 'push')]}">
+                                <field name="delay_alert"/>
+                                <field name="propagate_date"/>
+                                <label for="propagate_date_minimum_delta" attrs="{'invisible': [('propagate_date', '=', False)]}"/>
+                                <div attrs="{'invisible': [('propagate_date', '=', False)]}">
+                                    <field name="propagate_date_minimum_delta" class="oe_inline"/> days
+                                </div>
                             </group>
                         </group>
                     </sheet>

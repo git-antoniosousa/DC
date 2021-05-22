@@ -56,7 +56,6 @@ class PosMakePayment(models.TransientModel):
 
         if order._is_pos_order_paid():
             order.action_pos_order_paid()
-            order._create_order_picking()
             return {'type': 'ir.actions.act_window_close'}
 
         return self.launch_payment()

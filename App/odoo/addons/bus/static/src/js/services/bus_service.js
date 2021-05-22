@@ -4,7 +4,6 @@ odoo.define('bus.BusService', function (require) {
 var CrossTab = require('bus.CrossTab');
 var core = require('web.core');
 var ServicesMixin = require('web.ServicesMixin');
-const session = require('web.session');
 
 var BusService =  CrossTab.extend(ServicesMixin, {
     dependencies : ['local_storage'],
@@ -12,38 +11,6 @@ var BusService =  CrossTab.extend(ServicesMixin, {
     // properties
     _audio: null,
 
-    /**
-     * As the BusService doesn't extend AbstractService, we have to replicate
-     * here what is done in AbstractService
-     *
-     * @param {Object} env
-     */
-    init: function (env) {
-        this.env = env;
-        this._super();
-    },
-
-    /**
-     * Replicate the behavior of AbstractService:
-     *
-     * Directly calls the requested service, instead of triggering a
-     * 'call_service' event up, which wouldn't work as services have no parent.
-     *
-     * @param {OdooEvent} ev
-     */
-    _trigger_up: function (ev) {
-        if (ev.name === 'call_service') {
-            const payload = ev.data;
-            let args = payload.args || [];
-            if (payload.service === 'ajax' && payload.method === 'rpc') {
-                // ajax service uses an extra 'target' argument for rpc
-                args = args.concat(ev.target);
-            }
-            const service = this.env.services[payload.service];
-            const result = service[payload.method].apply(service, args);
-            payload.callback(result);
-        }
-    },
     /**
      * This method is necessary in order for this Class to be used to instantiate services
      *
@@ -110,6 +77,7 @@ var BusService =  CrossTab.extend(ServicesMixin, {
             if (!this._audio) {
                 this._audio = new Audio();
                 var ext = this._audio.canPlayType("audio/ogg; codecs=vorbis") ? ".ogg" : ".mp3";
+                var session = this.getSession();
                 this._audio.src = session.url("/mail/static/src/audio/ting" + ext);
             }
             Promise.resolve(this._audio.play()).catch(_.noop);
@@ -124,14 +92,7 @@ var BusService =  CrossTab.extend(ServicesMixin, {
      * @param {function} [callback] if given callback will be called when user clicks on notification
      */
     _sendNativeNotification: function (title, content, callback) {
-        var notification = new Notification(
-            // The native Notification API works with plain text and not HTML
-            // unescaping is safe because done only at the **last** step
-            _.unescape(title),
-            {
-                body: _.unescape(content),
-                icon: "/mail/static/src/img/odoobot_transparent.png"
-            });
+        var notification = new Notification(title, {body: content, icon: "/mail/static/src/img/odoobot_transparent.png"});
         notification.onclick = function () {
             window.focus();
             if (this.cancel) {

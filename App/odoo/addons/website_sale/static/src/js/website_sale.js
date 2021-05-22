@@ -147,12 +147,13 @@ odoo.define('website_sale.website_sale', function (require) {
 
 var core = require('web.core');
 var config = require('web.config');
+var concurrency = require('web.concurrency');
 var publicWidget = require('web.public.widget');
 var VariantMixin = require('sale.VariantMixin');
 var wSaleUtils = require('website_sale.utils');
-const wUtils = require('website.utils');
 require("web.zoomodoo");
 
+var qweb = core.qweb;
 
 publicWidget.registry.WebsiteSale = publicWidget.Widget.extend(VariantMixin, {
     selector: '.oe_website_sale',
@@ -195,10 +196,11 @@ publicWidget.registry.WebsiteSale = publicWidget.Widget.extend(VariantMixin, {
     /**
      * @override
      */
-    start() {
-        const def = this._super(...arguments);
+    start: function () {
+        var self = this;
+        var def = this._super.apply(this, arguments);
 
-        this._applyHashFromSearch();
+        this._applyHash();
 
         _.each(this.$('div.js_product'), function (product) {
             $('input.js_product_change', product).first().trigger('change');
@@ -217,9 +219,9 @@ publicWidget.registry.WebsiteSale = publicWidget.Widget.extend(VariantMixin, {
 
         this._startZoom();
 
-        window.addEventListener('hashchange', () => {
-            this._applyHash();
-            this.triggerVariantChange(this.$el);
+        window.addEventListener('hashchange', function (e) {
+            self._applyHash();
+            self.triggerVariantChange($(self.el));
         });
 
         return def;
@@ -342,17 +344,17 @@ publicWidget.registry.WebsiteSale = publicWidget.Widget.extend(VariantMixin, {
         this._rpc({
             route: "/shop/country_infos/" + $("#country_id").val(),
             params: {
-                mode: $("#country_id").attr('mode'),
+                mode: 'shipping',
             },
         }).then(function (data) {
             // placeholder phone_code
-            $("input[name='phone']").attr('placeholder', data.phone_code !== 0 ? '+'+ data.phone_code : '');
+            //$("input[name='phone']").attr('placeholder', data.phone_code !== 0 ? '+'+ data.phone_code : '');
 
             // populate states and display
             var selectStates = $("select[name='state_id']");
             // dont reload state at first loading (done in qweb)
             if (selectStates.data('init')===0 || selectStates.find('option').length===1) {
-                if (data.states.length || data.state_required) {
+                if (data.states.length) {
                     selectStates.html('');
                     _.each(data.states, function (x) {
                         var opt = $('<option>').text(x[1])
@@ -380,15 +382,6 @@ publicWidget.registry.WebsiteSale = publicWidget.Widget.extend(VariantMixin, {
                 _.each(all_fields, function (field) {
                     $(".checkout_autoformat .div_" + field.split('_')[0]).toggle($.inArray(field, data.fields)>=0);
                 });
-            }
-
-            if ($("label[for='zip']").length) {
-                $("label[for='zip']").toggleClass('label-optional', !data.zip_required);
-                $("label[for='zip']").get(0).toggleAttribute('required', !!data.zip_required);
-            }
-            if ($("label[for='zip']").length) {
-                $("label[for='state_id']").toggleClass('label-optional', !data.state_required);
-                $("label[for='state_id']").get(0).toggleAttribute('required', !!data.state_required);
             }
         });
     },
@@ -525,18 +518,29 @@ publicWidget.registry.WebsiteSale = publicWidget.Widget.extend(VariantMixin, {
      * @returns {Promise} never resolved
      */
     _submitForm: function () {
-        let params = this.rootProduct;
-        params.add_qty = params.quantity;
+        var $productCustomVariantValues = $('<input>', {
+            name: 'product_custom_attribute_values',
+            type: "hidden",
+            value: JSON.stringify(this.rootProduct.product_custom_attribute_values)
+        });
+        this.$form.append($productCustomVariantValues);
 
-        params.product_custom_attribute_values = JSON.stringify(params.product_custom_attribute_values);
-        params.no_variant_attribute_values = JSON.stringify(params.no_variant_attribute_values);
-        
+        var $productNoVariantAttributeValues = $('<input>', {
+            name: 'no_variant_attribute_values',
+            type: "hidden",
+            value: JSON.stringify(this.rootProduct.no_variant_attribute_values)
+        });
+        this.$form.append($productNoVariantAttributeValues);
+
         if (this.isBuyNow) {
-            params.express = true;
+            this.$form.append($('<input>', {name: 'express', type: "hidden", value: true}));
         }
 
-        return wUtils.sendRequest('/shop/cart/update', params);
+        this.$form.trigger('submit', [true]);
+
+        return new Promise(function () {});
     },
+
     /**
      * @private
      * @param {MouseEvent} ev
@@ -717,27 +721,6 @@ publicWidget.registry.WebsiteSale = publicWidget.Widget.extend(VariantMixin, {
         $('.toggle_summary_div').toggleClass('d-none');
         $('.toggle_summary_div').removeClass('d-xl-block');
     },
-    /**
-     * @private
-     */
-    _applyHashFromSearch() {
-        const params = $.deparam(window.location.search.slice(1));
-        if (params.attrib) {
-            const dataValueIds = [];
-            for (const attrib of [].concat(params.attrib)) {
-                const attribSplit = attrib.split('-');
-                const attribValueSelector = `.js_variant_change[name="ptal-${attribSplit[0]}"][value="${attribSplit[1]}"]`;
-                const attribValue = this.el.querySelector(attribValueSelector);
-                if (attribValue !== null) {
-                    dataValueIds.push(attribValue.dataset.value_id);
-                }
-            }
-            if (dataValueIds.length) {
-                history.replaceState(undefined, undefined, `#attr=${dataValueIds.join(',')}`);
-            }
-        }
-        this._applyHash();
-    },
 });
 
 publicWidget.registry.WebsiteSaleLayout = publicWidget.Widget.extend({
@@ -822,6 +805,134 @@ publicWidget.registry.websiteSaleCart = publicWidget.Widget.extend({
     _onClickDeleteProduct: function (ev) {
         ev.preventDefault();
         $(ev.currentTarget).closest('tr').find('.js_quantity').val(0).trigger('change');
+    },
+});
+
+/**
+ * @todo maybe the custom autocomplete logic could be extract to be reusable
+ */
+publicWidget.registry.productsSearchBar = publicWidget.Widget.extend({
+    selector: '.o_wsale_products_searchbar_form',
+    xmlDependencies: ['/website_sale/static/src/xml/website_sale_utils.xml'],
+    events: {
+        'input .search-query': '_onInput',
+        'focusout': '_onFocusOut',
+        'keydown .search-query': '_onKeydown',
+    },
+    autocompleteMinWidth: 300,
+
+    /**
+     * @constructor
+     */
+    init: function () {
+        this._super.apply(this, arguments);
+
+        this._dp = new concurrency.DropPrevious();
+
+        this._onInput = _.debounce(this._onInput, 400);
+        this._onFocusOut = _.debounce(this._onFocusOut, 100);
+    },
+    /**
+     * @override
+     */
+    start: function () {
+        this.$input = this.$('.search-query');
+
+        this.order = this.$('.o_wsale_search_order_by').val();
+        this.limit = parseInt(this.$input.data('limit'));
+        this.displayDescription = !!this.$input.data('displayDescription');
+        this.displayPrice = !!this.$input.data('displayPrice');
+        this.displayImage = !!this.$input.data('displayImage');
+
+        if (this.limit) {
+            this.$input.attr('autocomplete', 'off');
+        }
+
+        return this._super.apply(this, arguments);
+    },
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * @private
+     */
+    _fetch: function () {
+        return this._rpc({
+            route: '/shop/products/autocomplete',
+            params: {
+                'term': this.$input.val(),
+                'options': {
+                    'order': this.order,
+                    'limit': this.limit,
+                    'display_description': this.displayDescription,
+                    'display_price': this.displayPrice,
+                    'max_nb_chars': Math.round(Math.max(this.autocompleteMinWidth, parseInt(this.$el.width())) * 0.22),
+                },
+            },
+        });
+    },
+    /**
+     * @private
+     */
+    _render: function (res) {
+        var $prevMenu = this.$menu;
+        this.$el.toggleClass('dropdown show', !!res);
+        if (res) {
+            var products = res['products'];
+            this.$menu = $(qweb.render('website_sale.productsSearchBar.autocomplete', {
+                products: products,
+                hasMoreProducts: products.length < res['products_count'],
+                currency: res['currency'],
+                widget: this,
+            }));
+            this.$menu.css('min-width', this.autocompleteMinWidth);
+            this.$el.append(this.$menu);
+        }
+        if ($prevMenu) {
+            $prevMenu.remove();
+        }
+    },
+
+    //--------------------------------------------------------------------------
+    // Handlers
+    //--------------------------------------------------------------------------
+
+    /**
+     * @private
+     */
+    _onInput: function () {
+        if (!this.limit) {
+            return;
+        }
+        this._dp.add(this._fetch()).then(this._render.bind(this));
+    },
+    /**
+     * @private
+     */
+    _onFocusOut: function () {
+        if (!this.$el.has(document.activeElement).length) {
+            this._render();
+        }
+    },
+    /**
+     * @private
+     */
+    _onKeydown: function (ev) {
+        switch (ev.which) {
+            case $.ui.keyCode.ESCAPE:
+                this._render();
+                break;
+            case $.ui.keyCode.UP:
+            case $.ui.keyCode.DOWN:
+                ev.preventDefault();
+                if (this.$menu) {
+                    let $element = ev.which === $.ui.keyCode.UP ? this.$menu.children().last() : this.$menu.children().first();
+                    $element.focus();
+                }
+                break;
+        }
     },
 });
 });

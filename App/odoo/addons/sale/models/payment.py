@@ -83,7 +83,7 @@ class PaymentTransaction(models.Model):
                     order.amount_total, self.amount,
                 )
                 order.message_post(
-                    subject=_("Amount Mismatch (%s)", self.acquirer_id.provider),
+                    subject=_("Amount Mismatch (%s)") % self.acquirer_id.provider,
                     body=_("The order was not confirmed despite response from the acquirer (%s): order total is %r but acquirer replied with %r.") % (
                         self.acquirer_id.provider,
                         order.amount_total,
@@ -117,10 +117,11 @@ class PaymentTransaction(models.Model):
             default_template = self.env['ir.config_parameter'].sudo().get_param('sale.default_email_template')
             if default_template:
                 for trans in self.filtered(lambda t: t.sale_order_ids):
-                    trans = trans.with_company(trans.acquirer_id.company_id).with_context(
-                        mark_invoice_as_sent=True,
-                        company_id=trans.acquirer_id.company_id.id,
-                    )
+                    ctx_company = {'company_id': trans.acquirer_id.company_id.id,
+                                   'force_company': trans.acquirer_id.company_id.id,
+                                   'mark_invoice_as_sent': True,
+                                   }
+                    trans = trans.with_context(ctx_company)
                     for invoice in trans.invoice_ids.with_user(SUPERUSER_ID):
                         invoice.message_post_with_template(int(default_template), email_layout_xmlid="mail.mail_notification_paynow")
         return res
@@ -128,8 +129,9 @@ class PaymentTransaction(models.Model):
     def _invoice_sale_orders(self):
         if self.env['ir.config_parameter'].sudo().get_param('sale.automatic_invoice'):
             for trans in self.filtered(lambda t: t.sale_order_ids):
-                trans = trans.with_company(trans.acquirer_id.company_id)\
-                    .with_context(company_id=trans.acquirer_id.company_id.id)
+                ctx_company = {'company_id': trans.acquirer_id.company_id.id,
+                               'force_company': trans.acquirer_id.company_id.id}
+                trans = trans.with_context(**ctx_company)
                 trans.sale_order_ids._force_lines_to_invoice_policy_order()
                 invoices = trans.sale_order_ids._create_invoices()
                 trans.invoice_ids = [(6, 0, invoices.ids)]
@@ -138,8 +140,8 @@ class PaymentTransaction(models.Model):
     def _compute_reference_prefix(self, values):
         prefix = super(PaymentTransaction, self)._compute_reference_prefix(values)
         if not prefix and values and values.get('sale_order_ids'):
-            sale_orders = self.new({'sale_order_ids': values['sale_order_ids']}).sale_order_ids
-            return ','.join(sale_orders.mapped('name'))
+            many_list = self.resolve_2many_commands('sale_order_ids', values['sale_order_ids'], fields=['name'])
+            return ','.join(dic['name'] for dic in many_list)
         return prefix
 
     def action_view_sales_orders(self):

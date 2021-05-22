@@ -3,19 +3,19 @@
 # 	* digest
 # 
 # Translators:
-# Martin Trigaux, 2020
+# Martin Trigaux, 2019
+# Link Up링크업 <linkup.way@gmail.com>, 2019
+# Linkup <link-up@naver.com>, 2019
+# Seongseok Shin <shinss61@hotmail.com>, 2019
 # JH CHOI <hwangtog@gmail.com>, 2020
-# Link Up링크업 <linkup.way@gmail.com>, 2020
-# Seongseok Shin <shinss61@hotmail.com>, 2020
-# Linkup <link-up@naver.com>, 2021
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-29 13:45+0000\n"
-"PO-Revision-Date: 2020-09-07 08:11+0000\n"
-"Last-Translator: Linkup <link-up@naver.com>, 2021\n"
+"POT-Creation-Date: 2019-08-26 08:16+0000\n"
+"PO-Revision-Date: 2019-08-26 09:09+0000\n"
+"Last-Translator: JH CHOI <hwangtog@gmail.com>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/odoo/teams/41243/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,19 +24,340 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #. module: digest
-#: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
-msgid "<span class=\"button\" id=\"button_open_report\">Open Report</span>"
-msgstr ""
+#: model:mail.template,subject:digest.digest_mail_template
+msgid "${'%s: %s' % (ctx.get('user', user).company_id.name, object.name)}"
+msgstr "${'%s: %s' % (ctx.get('user', user).company_id.name, object.name)}"
 
 #. module: digest
-#: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
-msgid "<span class=\"odoo_link_text\">Odoo</span>"
-msgstr ""
+#: model_terms:digest.tip,tip_description:digest.digest_tip_mail_0
+msgid "${', '.join(users.mapped('name'))} signed up. Say hello in the"
+msgstr "${', '.join(users.mapped('name'))} 등록되었습니다. 안녕하세요."
 
 #. module: digest
-#: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
-msgid "<span style=\"color: #8f8f8f;\">Unsubscribe</span>"
+#: model_terms:digest.tip,tip_description:digest.digest_tip_mail_0
+msgid ""
+"% set users = object.env['res.users'].search([('share', '=' , False)], limit=10, order='id desc')\n"
+"    % set channel_id = object.env.ref('mail.channel_all_employees').id\n"
+"    <strong style=\"font-size: 16px;\">Did you know...?</strong>"
 msgstr ""
+"% set users = object.env['res.users'].search([('share', '=' , False)], limit=10, order='id desc')\n"
+"    % set channel_id = object.env.ref('mail.channel_all_employees').id\n"
+"    <strong style=\"font-size: 16px;\">알고 계신가요...?</strong>"
+
+#. module: digest
+#: model_terms:digest.tip,tip_description:digest.digest_tip_mail_1
+msgid ""
+"<strong style=\"font-size: 16px;\">Get things done with activities</strong>"
+msgstr "<strong style=\"font-size: 16px;\">활동을 통해 작업을 수행</strong>"
+
+#. module: digest
+#: model:mail.template,body_html:digest.digest_mail_template
+msgid ""
+"<table style=\"width: 100%; border-spacing: 0; font-family: Helvetica,Arial,Verdana,sans-serif;\">\n"
+"    <tr>\n"
+"        <td align=\"center\" valign=\"top\" style=\"border-collapse: collapse; padding: 0\">\n"
+"            % set user = ctx.get('user', user)\n"
+"            % set company = user.company_id\n"
+"            % set data = object.compute_kpis(company, user)\n"
+"            % set tips = object.compute_tips(company, user)\n"
+"            % set kpi_actions = object.compute_kpis_actions(company, user)\n"
+"            % set kpis = data.yesterday.keys()\n"
+"            <table style=\"width: 100%; max-width: 600px; border-spacing: 0; border: 1px solid #e7e7e7; border-bottom: none; color: #6e7172; line-height: 23px; text-align: left;\">\n"
+"                <tr>\n"
+"                    <td style=\"border-collapse: collapse; padding: 10px 20px; text-align: left;\">\n"
+"                        <strong style=\"color: #000000; font-size: 22px; line-height: 32px;\">${object.name}</strong>\n"
+"                        <div style=\"color: #000000; font-size: 15px;\">${datetime.date.today().strftime('%B %d, %Y')}</div>\n"
+"                    </td>\n"
+"                    <td style=\"text-align: right; padding: 10px 20px\">\n"
+"                        <img style=\"padding: 0px; margin: 0px; height: auto; width: 80px;\" src=\"/logo.png?company=${company.id}\"/>\n"
+"                        <div style=\"padding-top: 5px;\">\n"
+"                            <a href=\"/web/login\" style=\"background-color: #875A7B; margin-left: 5px; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">Connect</a>\n"
+"                        </div>\n"
+"                    </td>\n"
+"                </tr>\n"
+"                <tr><td colspan=\"2\" style=\"text-align: center;\">\n"
+"                    <hr width=\"95%\" style=\"background-color: rgb(204,204,204); border: medium none; clear: both; display: block; font-size: 0px; min-height: 1px; line-height: 0; margin: 16px 0px 16px 14px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"            % for kpi in kpis:\n"
+"                <table style=\"border-spacing: 0; width: 100%; max-width: 600px;\">\n"
+"                    <tr>\n"
+"                        <td style=\"border-collapse: collapse; background-color: #ffffff; border-left: 1px solid #e7e7e7; border-right: 1px solid #e7e7e7; line-height: 21px; padding: 0 20px 10px 20px; text-align: left;\"><br/>\n"
+"                            <span style=\"color: #3d466e; font-size: 18px; font-weight: 500; line-height: 23px;\">${object.fields_get()[kpi]['string']}</span>\n"
+"                            %if kpi in kpi_actions:\n"
+"                                <span style=\"float: right;\">\n"
+"                                    <a href=\"/web#action=${kpi_actions[kpi]}\">View more</a>\n"
+"                                </span>\n"
+"                            %endif\n"
+"                        </td>\n"
+"                    </tr>\n"
+"                    <tr>\n"
+"                        <td style=\"border-collapse: collapse; margin: 0; padding:0;\">\n"
+"                            <table style=\"width: 100%; border-spacing: 0; background-color: #f9f9f9; border: 1px solid #e7e7e7; border-top: none;\">\n"
+"                                <tr>\n"
+"                                    <td style=\"border-collapse: collapse; margin: 0; padding: 0; display: block; border-top: 2px solid #56b3b5;\">\n"
+"                                        <table style=\"width: 100%; max-width: 199px; border-spacing: 0;\">\n"
+"                                            <tr>\n"
+"                                                <td style=\"border-collapse: collapse; padding: 20px; text-align: center;\">\n"
+"                                                    <span style=\"color: #56b3b5; font-size: 35px; font-weight: bold; text-decoration: none; line-height: 36px;\">${data['yesterday'][kpi][kpi]}</span><br/>\n"
+"                                                    <span style=\"color: #888888; display: inline-block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">Yesterday</span>\n"
+"                                                    % if data['yesterday'][kpi]['margin'] != 0.0:\n"
+"                                                        <span style=\"color: #888888; display: block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">\n"
+"                                                            % if data['yesterday'][kpi]['margin'] is greaterthan(0.0):\n"
+"                                                                <span style=\"color: #0bbc22;\">▲</span>${\"%.2f\" % data['yesterday'][kpi]['margin']} %\n"
+"                                                            % endif\n"
+"                                                            % if data['yesterday'][kpi]['margin'] is lessthan(0.0):\n"
+"                                                                <span style=\"color: #ff0000;\">▼</span>${\"%.2f\" % data['yesterday'][kpi]['margin']} %\n"
+"                                                            % endif\n"
+"                                                        </span>\n"
+"                                                    % endif\n"
+"                                                </td>\n"
+"                                            </tr>\n"
+"                                        </table>\n"
+"                                    </td>\n"
+"                                    <td style=\"border-collapse: collapse; margin: 0; padding: 0; border-top: 2px solid #9a5b82;\">\n"
+"                                        <table style=\"width: 100%; max-width: 199px; border-spacing: 0; margin: 0; padding: 0;\">\n"
+"                                            <tr>\n"
+"                                                <td style=\"border-collapse: collapse; padding: 20px; text-align: center;\">\n"
+"                                                    <span style=\"color: #9a5b82; font-size: 35px; font-weight: bold; text-decoration: none; line-height: 36px;\">${data['lastweek'][kpi][kpi]}</span><br/>\n"
+"                                                    <span style=\"color: #888888; display: inline-block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">Last 7 Days</span>\n"
+"                                                    % if data['lastweek'][kpi]['margin'] != 0.0:\n"
+"                                                        <span style=\"color: #888888; display: block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">\n"
+"                                                            % if data['lastweek'][kpi]['margin'] is greaterthan(0.0):\n"
+"                                                                <span style=\"color: #0bbc22;\">▲</span>${\"%.2f\" % data['lastweek'][kpi]['margin']} %\n"
+"                                                            % endif\n"
+"                                                            % if data['lastweek'][kpi]['margin'] is lessthan(0.0):\n"
+"                                                                <span style=\"color: #ff0000;\">▼</span>${\"%.2f\" % data['lastweek'][kpi]['margin']} %\n"
+"                                                            %endif\n"
+"                                                        </span>\n"
+"                                                    %endif\n"
+"                                                </td>\n"
+"                                            </tr>\n"
+"                                        </table>\n"
+"                                    </td>\n"
+"                                    <td style=\"border-collapse: collapse; margin: 0; padding: 15px; border-top: 2px solid #56b3b5;\">\n"
+"                                        <table style=\"width: 100%; max-width: 199px; border-spacing: 0; margin: 0; padding: 0;\">\n"
+"                                            <tr>\n"
+"                                                <td style=\"border-collapse: collapse; margin: 0; text-align: center;\">\n"
+"                                                    <span style=\"color: #56b3b5; font-size: 35px; font-weight: bold; text-decoration: none; line-height: 36px\">${data['lastmonth'][kpi][kpi]}</span><br/>\n"
+"                                                    <span style=\"color: #888888; display: inline-block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">Last 30 Days</span>\n"
+"                                                    % if data['lastmonth'][kpi]['margin'] != 0.0:\n"
+"                                                        <span style=\"color: #888888; display: block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">\n"
+"                                                             % if data['lastmonth'][kpi]['margin'] is greaterthan(0.0):\n"
+"                                                                <span style=\"color: #0bbc22;\">▲</span>${\"%.2f\" % data['lastmonth'][kpi]['margin']} %\n"
+"                                                            % endif\n"
+"                                                            % if data['lastmonth'][kpi]['margin'] is lessthan(0.0):\n"
+"                                                                <span style=\"color: #ff0000;\">▼</span>${\"%.2f\" % data['lastmonth'][kpi]['margin']} %\n"
+"                                                            %endif\n"
+"                                                        </span>\n"
+"                                                    %endif\n"
+"                                                </td>\n"
+"                                            </tr>\n"
+"                                        </table>\n"
+"                                    </td>\n"
+"                                </tr>\n"
+"                            </table>\n"
+"                        </td>\n"
+"                    </tr>\n"
+"                </table>\n"
+"            % endfor\n"
+"            % if tips:\n"
+"                <table style=\"width: 100%; max-width: 600px; margin-top: 5px; border: 1px solid #e7e7e7;\">\n"
+"                    <tr>\n"
+"                        <td style=\"border-collapse: collapse; background-color: #ffffff; line-height: 21px; padding: 0px 20px 20px;\"><br/>\n"
+"                            <div style=\"color: #3d466e; line-height: 23px;\">${tips | safe}</div>\n"
+"                        </td>\n"
+"                    </tr>\n"
+"                </table>\n"
+"            % endif\n"
+"            <table style=\"width: 100%; max-width: 600px; margin-top: 5px; border: 1px solid #e7e7e7;\">\n"
+"                <tr>\n"
+"                    <td style=\"border-collapse: collapse; background-color: #ffffff; line-height: 21px; padding: 0 20px 10px 20px; text-align: center;\"><br/>\n"
+"                        <div style=\"color: #3d466e; font-size: 16px; font-weight: 600; line-height: 23px;\">Run your business from anywhere with Odoo Mobile.</div>\n"
+"                    </td>\n"
+"                </tr>\n"
+"                <tr>\n"
+"                    <td style=\"padding-bottom:20px;\">\n"
+"                        <div style=\"text-align: center;\"><a href=\"https://play.google.com/store/apps/details?id=com.odoo.mobile\" target=\"_blank\"><img src=\"/digest/static/src/img/google_play.png\" style=\"display: inline-block; height: 30px; margin-left: auto; margin-right: 12px;\"/></a><a href=\"https://itunes.apple.com/us/app/odoo/id1272543640\" target=\"_blank\"><img src=\"/digest/static/src/img/app_store.png\" style=\"display: inline-block; height: 30px; margin-left: 12px; margin-right: auto;\"/></a>\n"
+"                        </div>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </table>\n"
+"            <table style=\"margin-top: 5px; border: 1px solid #e7e7e7; font-size: 15px; width: 100%; max-width: 600px;\">\n"
+"                <tr>\n"
+"                    <td style=\"border-collapse: collapse; margin: 0; padding: 10px 20px;\">\n"
+"                        % if user.has_group('base.group_system'):\n"
+"                            <div style=\"margin-top: 20px;\"> \n"
+"                                Want to customize this email?\n"
+"                                <a href=\"/web#view_type=form&amp;model=digest.digest&amp;id=${object.id}\" target=\"_blank\" style=\"color: #875A7B;\">Choose the metrics you care about</a>\n"
+"                            </div>\n"
+"                            <br/>\n"
+"                        % endif\n"
+"                        <p style=\"font-size: 11px; margin-top: 10px;\">\n"
+"                            <strong>\n"
+"                                Sent by\n"
+"                                <a href=\"https://www.odoo.com\" style=\"text-decoration: none; color: #875A7B;\">Odoo</a> - <a href=\"/web#view_type=form&amp;model=digest.digest&amp;id=${object.id}\" target=\"_blank\" style=\"color: #888888;\">Unsubscribe</a>\n"
+"                            </strong>\n"
+"                        </p>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"</table>"
+msgstr ""
+"<table style=\"width: 100%; border-spacing: 0; font-family: Helvetica,Arial,Verdana,sans-serif;\">\n"
+"    <tr>\n"
+"        <td align=\"center\" valign=\"top\" style=\"border-collapse: collapse; padding: 0\">\n"
+"            % set user = ctx.get('user', user)\n"
+"            % set company = user.company_id\n"
+"            % set data = object.compute_kpis(company, user)\n"
+"            % set tips = object.compute_tips(company, user)\n"
+"            % set kpi_actions = object.compute_kpis_actions(company, user)\n"
+"            % set kpis = data.yesterday.keys()\n"
+"            <table style=\"width: 100%; max-width: 600px; border-spacing: 0; border: 1px solid #e7e7e7; border-bottom: none; color: #6e7172; line-height: 23px; text-align: left;\">\n"
+"                <tr>\n"
+"                    <td style=\"border-collapse: collapse; padding: 10px 20px; text-align: left;\">\n"
+"                        <strong style=\"color: #000000; font-size: 22px; line-height: 32px;\">${object.name}</strong>\n"
+"                        <div style=\"color: #000000; font-size: 15px;\">${datetime.date.today().strftime('%B %d, %Y')}</div>\n"
+"                    </td>\n"
+"                    <td style=\"text-align: right; padding: 10px 20px\">\n"
+"                        <img style=\"padding: 0px; margin: 0px; height: auto; width: 80px;\" src=\"/logo.png?company=${company.id}\"/>\n"
+"                        <div style=\"padding-top: 5px;\">\n"
+"                            <a href=\"/web/login\" style=\"background-color: #875A7B; margin-left: 5px; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">연결</a>\n"
+"                        </div>\n"
+"                    </td>\n"
+"                </tr>\n"
+"                <tr><td colspan=\"2\" style=\"text-align: center;\">\n"
+"                    <hr width=\"95%\" style=\"background-color: rgb(204,204,204); border: medium none; clear: both; display: block; font-size: 0px; min-height: 1px; line-height: 0; margin: 16px 0px 16px 14px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"            % for kpi in kpis:\n"
+"                <table style=\"border-spacing: 0; width: 100%; max-width: 600px;\">\n"
+"                    <tr>\n"
+"                        <td style=\"border-collapse: collapse; background-color: #ffffff; border-left: 1px solid #e7e7e7; border-right: 1px solid #e7e7e7; line-height: 21px; padding: 0 20px 10px 20px; text-align: left;\"><br/>\n"
+"                            <span style=\"color: #3d466e; font-size: 18px; font-weight: 500; line-height: 23px;\">${object.fields_get()[kpi]['string']}</span>\n"
+"                            %if kpi in kpi_actions:\n"
+"                                <span style=\"float: right;\">\n"
+"                                    <a href=\"/web#action=${kpi_actions[kpi]}\">더 보기</a>\n"
+"                                </span>\n"
+"                            %endif\n"
+"                        </td>\n"
+"                    </tr>\n"
+"                    <tr>\n"
+"                        <td style=\"border-collapse: collapse; margin: 0; padding:0;\">\n"
+"                            <table style=\"width: 100%; border-spacing: 0; background-color: #f9f9f9; border: 1px solid #e7e7e7; border-top: none;\">\n"
+"                                <tr>\n"
+"                                    <td style=\"border-collapse: collapse; margin: 0; padding: 0; display: block; border-top: 2px solid #56b3b5;\">\n"
+"                                        <table style=\"width: 100%; max-width: 199px; border-spacing: 0;\">\n"
+"                                            <tr>\n"
+"                                                <td style=\"border-collapse: collapse; padding: 20px; text-align: center;\">\n"
+"                                                    <span style=\"color: #56b3b5; font-size: 35px; font-weight: bold; text-decoration: none; line-height: 36px;\">${data['yesterday'][kpi][kpi]}</span><br/>\n"
+"                                                    <span style=\"color: #888888; display: inline-block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">어제</span>\n"
+"                                                    % if data['yesterday'][kpi]['margin'] != 0.0:\n"
+"                                                        <span style=\"color: #888888; display: block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">\n"
+"                                                            % if data['yesterday'][kpi]['margin'] is greaterthan(0.0):\n"
+"                                                                <span style=\"color: #0bbc22;\">▲</span>${\"%.2f\" % data['yesterday'][kpi]['margin']} %\n"
+"                                                            % endif\n"
+"                                                            % if data['yesterday'][kpi]['margin'] is lessthan(0.0):\n"
+"                                                                <span style=\"color: #ff0000;\">▼</span>${\"%.2f\" % data['yesterday'][kpi]['margin']} %\n"
+"                                                            % endif\n"
+"                                                        </span>\n"
+"                                                    % endif\n"
+"                                                </td>\n"
+"                                            </tr>\n"
+"                                        </table>\n"
+"                                    </td>\n"
+"                                    <td style=\"border-collapse: collapse; margin: 0; padding: 0; border-top: 2px solid #9a5b82;\">\n"
+"                                        <table style=\"width: 100%; max-width: 199px; border-spacing: 0; margin: 0; padding: 0;\">\n"
+"                                            <tr>\n"
+"                                                <td style=\"border-collapse: collapse; padding: 20px; text-align: center;\">\n"
+"                                                    <span style=\"color: #9a5b82; font-size: 35px; font-weight: bold; text-decoration: none; line-height: 36px;\">${data['lastweek'][kpi][kpi]}</span><br/>\n"
+"                                                    <span style=\"color: #888888; display: inline-block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">최근 7일</span>\n"
+"                                                    % if data['lastweek'][kpi]['margin'] != 0.0:\n"
+"                                                        <span style=\"color: #888888; display: block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">\n"
+"                                                            % if data['lastweek'][kpi]['margin'] is greaterthan(0.0):\n"
+"                                                                <span style=\"color: #0bbc22;\">▲</span>${\"%.2f\" % data['lastweek'][kpi]['margin']} %\n"
+"                                                            % endif\n"
+"                                                            % if data['lastweek'][kpi]['margin'] is lessthan(0.0):\n"
+"                                                                <span style=\"color: #ff0000;\">▼</span>${\"%.2f\" % data['lastweek'][kpi]['margin']} %\n"
+"                                                            %endif\n"
+"                                                        </span>\n"
+"                                                    %endif\n"
+"                                                </td>\n"
+"                                            </tr>\n"
+"                                        </table>\n"
+"                                    </td>\n"
+"                                    <td style=\"border-collapse: collapse; margin: 0; padding: 15px; border-top: 2px solid #56b3b5;\">\n"
+"                                        <table style=\"width: 100%; max-width: 199px; border-spacing: 0; margin: 0; padding: 0;\">\n"
+"                                            <tr>\n"
+"                                                <td style=\"border-collapse: collapse; margin: 0; text-align: center;\">\n"
+"                                                    <span style=\"color: #56b3b5; font-size: 35px; font-weight: bold; text-decoration: none; line-height: 36px\">${data['lastmonth'][kpi][kpi]}</span><br/>\n"
+"                                                    <span style=\"color: #888888; display: inline-block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">최근 30일</span>\n"
+"                                                    % if data['lastmonth'][kpi]['margin'] != 0.0:\n"
+"                                                        <span style=\"color: #888888; display: block; font-size: 12px; line-height: 18px; text-transform: uppercase;\">\n"
+"                                                             % if data['lastmonth'][kpi]['margin'] is greaterthan(0.0):\n"
+"                                                                <span style=\"color: #0bbc22;\">▲</span>${\"%.2f\" % data['lastmonth'][kpi]['margin']} %\n"
+"                                                            % endif\n"
+"                                                            % if data['lastmonth'][kpi]['margin'] is lessthan(0.0):\n"
+"                                                                <span style=\"color: #ff0000;\">▼</span>${\"%.2f\" % data['lastmonth'][kpi]['margin']} %\n"
+"                                                            %endif\n"
+"                                                        </span>\n"
+"                                                    %endif\n"
+"                                                </td>\n"
+"                                            </tr>\n"
+"                                        </table>\n"
+"                                    </td>\n"
+"                                </tr>\n"
+"                            </table>\n"
+"                        </td>\n"
+"                    </tr>\n"
+"                </table>\n"
+"            % endfor\n"
+"            % if tips:\n"
+"                <table style=\"width: 100%; max-width: 600px; margin-top: 5px; border: 1px solid #e7e7e7;\">\n"
+"                    <tr>\n"
+"                        <td style=\"border-collapse: collapse; background-color: #ffffff; line-height: 21px; padding: 0px 20px 20px;\"><br/>\n"
+"                            <div style=\"color: #3d466e; line-height: 23px;\">${tips | safe}</div>\n"
+"                        </td>\n"
+"                    </tr>\n"
+"                </table>\n"
+"            % endif\n"
+"            <table style=\"width: 100%; max-width: 600px; margin-top: 5px; border: 1px solid #e7e7e7;\">\n"
+"                <tr>\n"
+"                    <td style=\"border-collapse: collapse; background-color: #ffffff; line-height: 21px; padding: 0 20px 10px 20px; text-align: center;\"><br/>\n"
+"                        <div style=\"color: #3d466e; font-size: 16px; font-weight: 600; line-height: 23px;\">Odoo 모바일과 함께 어디서나 사업을 진행하십시오.</div>\n"
+"                    </td>\n"
+"                </tr>\n"
+"                <tr>\n"
+"                    <td style=\"padding-bottom:20px;\">\n"
+"                        <div style=\"text-align: center;\"><a href=\"https://play.google.com/store/apps/details?id=com.odoo.mobile\" target=\"_blank\"><img src=\"/digest/static/src/img/google_play.png\" style=\"display: inline-block; height: 30px; margin-left: auto; margin-right: 12px;\"/></a><a href=\"https://itunes.apple.com/us/app/odoo/id1272543640\" target=\"_blank\"><img src=\"/digest/static/src/img/app_store.png\" style=\"display: inline-block; height: 30px; margin-left: 12px; margin-right: auto;\"/></a>\n"
+"                        </div>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </table>\n"
+"            <table style=\"margin-top: 5px; border: 1px solid #e7e7e7; font-size: 15px; width: 100%; max-width: 600px;\">\n"
+"                <tr>\n"
+"                    <td style=\"border-collapse: collapse; margin: 0; padding: 10px 20px;\">\n"
+"                        % if user.has_group('base.group_system'):\n"
+"                            <div style=\"margin-top: 20px;\"> \n"
+"                                이 이메일을 맞춤 설정하시고 싶으신가요?\n"
+"                                <a href=\"/web#view_type=form&amp;model=digest.digest&amp;id=${object.id}\" target=\"_blank\" style=\"color: #875A7B;\">관심 매트릭을 선택하십시오.</a>\n"
+"                            </div>\n"
+"                            <br/>\n"
+"                        % endif\n"
+"                        <p style=\"font-size: 11px; margin-top: 10px;\">\n"
+"                            <strong>\n"
+"                                발송\n"
+"                                <a href=\"https://www.odoo.com\" style=\"text-decoration: none; color: #875A7B;\">Odoo</a> - <a href=\"/web#view_type=form&amp;model=digest.digest&amp;id=${object.id}\" target=\"_blank\" style=\"color: #888888;\">미구독</a>\n"
+"                            </strong>\n"
+"                        </p>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"</table>"
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
@@ -64,12 +385,6 @@ msgid "Available Fields"
 msgstr "사용 가능한 필드"
 
 #. module: digest
-#: code:addons/digest/models/digest.py:0
-#, python-format
-msgid "Choose the metrics you care about"
-msgstr ""
-
-#. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__company_id
 msgid "Company"
 msgstr "회사"
@@ -83,12 +398,6 @@ msgstr "설정 구성"
 #: model_terms:ir.ui.view,arch_db:digest.res_config_settings_view_form
 msgid "Configure Digest Emails"
 msgstr "요약 이메일 구성"
-
-#. module: digest
-#: code:addons/digest/models/digest.py:0
-#, python-format
-msgid "Connect"
-msgstr "ㄹ"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__kpi_res_users_connected
@@ -106,7 +415,7 @@ msgstr "메일 서식 작성 또는 편집 : 다음 필드를 사용하여 계�
 #: model:ir.model.fields,field_description:digest.field_digest_digest__create_uid
 #: model:ir.model.fields,field_description:digest.field_digest_tip__create_uid
 msgid "Created by"
-msgstr "작성자"
+msgstr "작성인"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__create_date
@@ -117,12 +426,7 @@ msgstr "작성일"
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__currency_id
 msgid "Currency"
-msgstr "환율"
-
-#. module: digest
-#: model:ir.model.fields.selection,name:digest.selection__digest_digest__periodicity__daily
-msgid "Daily"
-msgstr "일별"
+msgstr "통화"
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
@@ -161,19 +465,20 @@ msgid "Digest Subscriptions"
 msgstr "구독 요약"
 
 #. module: digest
-#: model:ir.actions.act_window,name:digest.digest_tip_action
 #: model:ir.model,name:digest.model_digest_tip
-#: model:ir.ui.menu,name:digest.digest_tip_menu
 msgid "Digest Tips"
 msgstr "요약 팁"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__display_name
 #: model:ir.model.fields,field_description:digest.field_digest_tip__display_name
-#: model:ir.model.fields,field_description:digest.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:digest.field_res_users__display_name
 msgid "Display Name"
-msgstr "이름 표시"
+msgstr "표시 이름"
+
+#. module: digest
+#: model:ir.model.fields,field_description:digest.field_digest_digest__template_id
+msgid "Email Template"
+msgstr "이메일 서식"
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
@@ -186,13 +491,6 @@ msgid "Group by"
 msgstr "그룹별"
 
 #. module: digest
-#: model_terms:digest.tip,tip_description:digest.digest_tip_digest_1
-msgid ""
-"Have a question about a document? Click on the responsible user's picture to"
-" start a conversation. If his avatar has a green dot, he is online."
-msgstr ""
-
-#. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
 msgid "How to customize your digest?"
 msgstr "요약을 사용자 정의하는 방법은?"
@@ -200,8 +498,6 @@ msgstr "요약을 사용자 정의하는 방법은?"
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__id
 #: model:ir.model.fields,field_description:digest.field_digest_tip__id
-#: model:ir.model.fields,field_description:digest.field_res_config_settings__id
-#: model:ir.model.fields,field_description:digest.field_res_users__id
 msgid "ID"
 msgstr "ID"
 
@@ -209,12 +505,6 @@ msgstr "ID"
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
 msgid "In order to build your customized digest, follow these steps:"
 msgstr "사용자 정의된 요약을 작성하려면 다음 단계를 따르십시오."
-
-#. module: digest
-#: code:addons/digest/controllers/portal.py:0
-#, python-format
-msgid "Invalid periodicity set on digest"
-msgstr ""
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__is_subscribed
@@ -226,16 +516,6 @@ msgstr "구독자 여부"
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_tree
 msgid "KPI Digest"
 msgstr "KPI 요약"
-
-#. module: digest
-#: model_terms:ir.ui.view,arch_db:digest.digest_tip_view_form
-msgid "KPI Digest Tip"
-msgstr ""
-
-#. module: digest
-#: model_terms:ir.ui.view,arch_db:digest.digest_tip_view_tree
-msgid "KPI Digest Tips"
-msgstr ""
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
@@ -253,24 +533,10 @@ msgid "Kpi Res Users Connected Value"
 msgstr "Kpi 등록 사용자 연결된 값"
 
 #. module: digest
-#: code:addons/digest/models/digest.py:0
-#, python-format
-msgid "Last 30 Days"
-msgstr "최근 30일"
-
-#. module: digest
-#: code:addons/digest/models/digest.py:0
-#, python-format
-msgid "Last 7 Days"
-msgstr "최근 7일"
-
-#. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest____last_update
 #: model:ir.model.fields,field_description:digest.field_digest_tip____last_update
-#: model:ir.model.fields,field_description:digest.field_res_config_settings____last_update
-#: model:ir.model.fields,field_description:digest.field_res_users____last_update
 msgid "Last Modified on"
-msgstr "최근 수정"
+msgstr "최근 수정일"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__write_uid
@@ -282,7 +548,7 @@ msgstr "최근 갱신한 사람"
 #: model:ir.model.fields,field_description:digest.field_digest_digest__write_date
 #: model:ir.model.fields,field_description:digest.field_digest_tip__write_date
 msgid "Last Updated on"
-msgstr "최근 갱신 날짜"
+msgstr "최근 갱신일"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__kpi_mail_message_total
@@ -296,7 +562,6 @@ msgstr "월간"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__name
-#: model:ir.model.fields,field_description:digest.field_digest_tip__name
 msgid "Name"
 msgstr "이름"
 
@@ -313,33 +578,10 @@ msgid "Next Send Date"
 msgstr "다음 전송 날짜"
 
 #. module: digest
-#: model_terms:ir.ui.view,arch_db:digest.digest_section_mobile
-msgid "Odoo Mobile"
-msgstr ""
-
-#. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__periodicity
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_search
 msgid "Periodicity"
 msgstr "주기"
-
-#. module: digest
-#: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
-msgid "Powered by"
-msgstr "저작권자"
-
-#. module: digest
-#: code:addons/digest/models/digest.py:0
-#, python-format
-msgid "Prefer a broader overview ?"
-msgstr ""
-
-#. module: digest
-#: model_terms:digest.tip,tip_description:digest.digest_tip_digest_0
-msgid ""
-"Press ALT in any screen to highlight shortcuts for every button in the "
-"screen. It is useful to process multiple documents in batch."
-msgstr ""
 
 #. module: digest
 #: model:ir.model.fields.selection,name:digest.selection__digest_digest__periodicity__quarterly
@@ -354,11 +596,6 @@ msgid "Recipients"
 msgstr "수신인"
 
 #. module: digest
-#: model_terms:ir.ui.view,arch_db:digest.digest_section_mobile
-msgid "Run your business from anywhere with <b>Odoo Mobile</b>."
-msgstr ""
-
-#. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
 msgid "Select your KPIs in the KPI's tab."
 msgstr "KPI 탭에서 KPI를 선택합니다."
@@ -369,24 +606,14 @@ msgid "Send Now"
 msgstr "지금 보내기"
 
 #. module: digest
-#: model_terms:ir.ui.view,arch_db:digest.digest_mail_main
-msgid "Sent by"
-msgstr "발신인"
-
-#. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_tip__sequence
 msgid "Sequence"
-msgstr "순차적"
-
-#. module: digest
-#: model_terms:ir.ui.view,arch_db:digest.res_config_settings_view_form
-msgid "Statistics"
-msgstr "통계"
+msgstr "순서"
 
 #. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_digest__state
 msgid "Status"
-msgstr "상태"
+msgstr "단계"
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
@@ -394,72 +621,14 @@ msgid "Subscribe"
 msgstr "구독"
 
 #. module: digest
-#: code:addons/digest/models/digest.py:0
-#, python-format
-msgid "Switch to weekly Digests"
-msgstr ""
-
-#. module: digest
 #: model:ir.model.fields,field_description:digest.field_digest_tip__tip_description
 msgid "Tip description"
 msgstr "팁 설명"
 
 #. module: digest
-#: model_terms:digest.tip,tip_description:digest.digest_tip_digest_2
-msgid "Tip: A calculator in Odoo"
-msgstr ""
-
-#. module: digest
-#: model_terms:digest.tip,tip_description:digest.digest_tip_digest_1
-msgid "Tip: Click on an avatar to chat with a user"
-msgstr ""
-
-#. module: digest
-#: model_terms:digest.tip,tip_description:digest.digest_tip_digest_3
-msgid "Tip: How to ping users in internal notes?"
-msgstr ""
-
-#. module: digest
-#: model_terms:digest.tip,tip_description:digest.digest_tip_digest_4
-msgid "Tip: Knowledge is power"
-msgstr ""
-
-#. module: digest
-#: model_terms:digest.tip,tip_description:digest.digest_tip_digest_0
-msgid "Tip: Speed up your workflow with shortcuts"
-msgstr ""
-
-#. module: digest
-#: model:digest.tip,name:digest.digest_tip_digest_2
-msgid "Tip: A calculator in Odoo"
-msgstr ""
-
-#. module: digest
-#: model:digest.tip,name:digest.digest_tip_digest_1
-msgid "Tip: Click on an avatar to chat with a user"
-msgstr ""
-
-#. module: digest
-#: model:digest.tip,name:digest.digest_tip_digest_3
-msgid "Tip: How to ping users in internal notes?"
-msgstr ""
-
-#. module: digest
-#: model:digest.tip,name:digest.digest_tip_digest_4
-msgid "Tip: Knowledge is power"
-msgstr ""
-
-#. module: digest
-#: model:digest.tip,name:digest.digest_tip_digest_0
-msgid "Tip: Speed up your workflow with shortcuts"
-msgstr ""
-
-#. module: digest
-#: model_terms:digest.tip,tip_description:digest.digest_tip_digest_3
-msgid ""
-"Type \"@\" to notify someone in a message, or \"#\" to link to a channel. "
-"Try to notify @OdooBot to test the feature."
-msgstr ""
+#: model_terms:digest.tip,tip_description:digest.digest_tip_mail_2
+msgid "To reach your full potential with Odoo, have a look at our"
+msgstr "Odoo로 잠재력을 최대한 발휘하려면 저희를 보십시오"
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form
@@ -482,44 +651,28 @@ msgid "Users having already received this tip"
 msgstr "이 팁을 이미 받은 사용자입니다."
 
 #. module: digest
-#: code:addons/digest/models/digest.py:0
-#, python-format
-msgid "Want to customize this email?"
-msgstr ""
-
-#. module: digest
-#: code:addons/digest/models/digest.py:0
-#, python-format
-msgid ""
-"We have noticed you did not connect these last few days so we've "
-"automatically switched your preference to weekly Digests."
-msgstr ""
-
-#. module: digest
 #: model:ir.model.fields.selection,name:digest.selection__digest_digest__periodicity__weekly
 msgid "Weekly"
 msgstr "매주"
 
 #. module: digest
-#: model_terms:digest.tip,tip_description:digest.digest_tip_digest_2
-msgid ""
-"When editing a number, you can use formulae by typing the `=` character. "
-"This is useful when computing a margin or a discount on a quotation, sale "
-"order or invoice."
-msgstr ""
+#: model:digest.digest,name:digest.digest_digest_default
+msgid "Weekly Stats in Odoo"
+msgstr "Odoo의 주간 통계"
 
 #. module: digest
-#: model_terms:digest.tip,tip_description:digest.digest_tip_digest_4
+#: model_terms:digest.tip,tip_description:digest.digest_tip_mail_0
 msgid ""
-"When following documents, use the pencil icon to fine-tune the information you want to receive.\n"
-"Follow a project / sales team to keep track of this project's tasks / this team's opportunities."
-msgstr ""
+"You can ping colleagues by tagging them in your messages using \"@\". They "
+"will be instantly notified.<br>"
+msgstr "동료들에게 \"@\"를 사용하여 메시지에 태그를 달아서 전달할 수 있습니다. 즉시 통보됩니다.<br>"
 
 #. module: digest
-#: code:addons/digest/models/digest.py:0
-#, python-format
-msgid "Yesterday"
-msgstr "어제"
+#: model_terms:digest.tip,tip_description:digest.digest_tip_mail_1
+msgid ""
+"You don't have any activity scheduled. Use activities on any business "
+"document to schedule meetings, calls and todos."
+msgstr "예약된 활동이 없습니다. 모든 업무 문서에 대한 활동을 사용하여 회의, 통화 및 일정을 예약합니다."
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.portal_digest_unsubscribed
@@ -532,9 +685,19 @@ msgid "You may want to add new computed fields with Odoo Studio:"
 msgstr "Odoo Studio에서 새로운 계산된 필드를 추가할 수 있습니다."
 
 #. module: digest
-#: model:digest.digest,name:digest.digest_digest_default
-msgid "Your Odoo Periodic Digest"
-msgstr ""
+#: model_terms:digest.tip,tip_description:digest.digest_tip_mail_2
+msgid "and discover new tools to work better and faster."
+msgstr "그리고 더 나은 작업을 위한 새로운 도구를 발견하십시오."
+
+#. module: digest
+#: model_terms:digest.tip,tip_description:digest.digest_tip_mail_2
+msgid "apps videos"
+msgstr "앱 동영상"
+
+#. module: digest
+#: model_terms:digest.tip,tip_description:digest.digest_tip_mail_0
+msgid "company's discussion channel."
+msgstr "회사의 메일 및 채팅 채널."
 
 #. module: digest
 #: model_terms:ir.ui.view,arch_db:digest.digest_digest_view_form

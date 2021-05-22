@@ -92,7 +92,7 @@
                                     <span t-field="partner.display_name"/>
                                 </a>
                                 <div t-field="partner.website_short_description"/>
-                                <t t-if="any(p.website_published for p in partner.implemented_partner_ids)">
+                                <t t-if="any([p.website_published for p in partner.implemented_partner_ids])">
                                     <small><a t-attf-href="/partners/#{slug(partner)}#right_column">
                                         <t t-esc="partner.implemented_count"/> reference(s)
                                     </a></small>
@@ -103,7 +103,7 @@
                 </div>
                 <div class='navbar'>
                     <t t-call="website.pager">
-                       <t t-set="classname" t-valuef="float-left"/>
+                       <t t-set="classname">float-left</t>
                     </t>
                 </div>
             </div>
@@ -163,7 +163,7 @@
 </template>
 
 <template id="references_block" name="Partner References Block">
-    <t t-if="any(p.website_published for p in partner.implemented_partner_ids)">
+    <t t-if="any([p.website_published for p in partner.implemented_partner_ids])">
         <h3 id="references">References</h3>
         <div t-foreach="partner.implemented_partner_ids" t-if="reference.website_published" t-as="reference" class="media mt-3">
             <span t-field="reference.image_128" class="d-block mr-3 text-center o_width_128" t-options='{"widget": "image", "qweb_img_responsive": False, "class": "o_image_128_max"}'/>
@@ -208,17 +208,17 @@
         </xpath>
     </template>
 
-    <template id="portal_my_home_lead" name="Show Leads / Opps" customize_show="True" inherit_id="portal.portal_my_home" priority="15">
+    <template id="portal_my_home_lead" name="Portal My Home : lead entries" inherit_id="portal.portal_my_home" priority="15">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
-            <t t-call="portal.portal_docs_entry">
+            <t t-if="lead_count" t-call="portal.portal_docs_entry">
                 <t t-set="title">Leads</t>
                 <t t-set="url" t-value="'/my/leads'"/>
-                <t t-set="placeholder_count" t-value="'lead_count'"/>
+                <t t-set="count" t-value="lead_count"/>
             </t>
             <t t-call="portal.portal_docs_entry">
                 <t t-set="title">Opportunities</t>
                 <t t-set="url" t-value="'/my/opportunities'"/>
-                <t t-set="placeholder_count" t-value="'opp_count'"/>
+                <t t-set="count" t-value="opp_count"/>
             </t>
         </xpath>
     </template>
@@ -274,7 +274,7 @@
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <header class="modal-header">
                             <h4 class="modal-title">New Opportunity</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">&amp;times;</button>
                         </header>
                         <main class="modal-body" id="new-opp-dialog">
                             <div class="form-group">
@@ -320,8 +320,8 @@
                         </td>
                         <td><span t-field="opp.contact_name" /></td>
                         <td>
-                            <span t-if="opp.company_currency" class="text-nowrap" t-esc="opp.expected_revenue" t-options="{'widget': 'monetary', 'display_currency': opp.company_currency}"/>
-                            <span t-else="" class="text-nowrap" t-esc="opp.expected_revenue"/>
+                            <span t-if="opp.company_currency" class="text-nowrap" t-esc="opp.planned_revenue" t-options="{'widget': 'monetary', 'display_currency': opp.company_currency}"/>
+                            <span t-else="" class="text-nowrap" t-esc="opp.planned_revenue"/>
                             <span> at </span>
                             <span t-field="opp.probability" />%
                         </td>
@@ -433,7 +433,7 @@
                             <input type="hidden" name="lead_id" class="assign_lead_id" t-att-value="lead.id"/>
                             <header class="modal-header">
                                 <h4 class="modal-title">Lead Feedback</h4>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">&amp;times;</button>
                             </header>
                             <main class="modal-body" id="sign-dialog">
                                 <div class="form-group">
@@ -441,7 +441,7 @@
                                     <input type="text" name="comment" id="comment" class="form-control comment_interested"/>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-form-label" for="customer_contacted">I have contacted the customer</label>
+                                    <label class="col-form-label" for="customer_contacted">Do you have contacted the customer?</label>
                                     <input type="checkbox" name="customer_contacted" id="customer_contacted" class="contacted_interested"/>
                                 </div>
                                 <div>
@@ -462,15 +462,15 @@
                             <input type="hidden" name="lead_id" class="assign_lead_id" t-att-value="lead.id"/>
                             <header class="modal-header">
                                 <h4 class="modal-title">Lead Feedback</h4>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">&amp;times;</button>
                             </header>
                             <main class="modal-body" id="sign-dialog">
                                 <div class="form-group">
-                                    <label class="col-form-label" for="comment">Why aren't you interested in this lead?</label>
+                                    <label class="col-form-label" for="comment">Why aren't you interested by this lead?</label>
                                     <input type="text" name="comment" id="comment" class="form-control comment_desinterested"/>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-form-label" for="contacted_desinterested">I have contacted the customer</label>
+                                    <label class="col-form-label" for="contacted_desinterested">Do you have contacted the customer?</label>
                                     <input type="checkbox" name="contacted_desinterested" id="contacted_desinterested" class="contacted_desinterested"/>
                                 </div>
                                 <div class="form-group">
@@ -532,8 +532,8 @@
                         <div class="col-lg-5 mb-4 mb-lg-0">
                             <div class="border-bottom d-flex justify-content-between py-2 mb-3 align-items-center">
                                 <h5 class="mb-0">
-                                    <span t-if="opportunity.company_currency" class="text-nowrap" t-esc="opportunity.expected_revenue" t-options="{'widget': 'monetary', 'display_currency': opportunity.company_currency}"/>
-                                    <span t-else="" class="text-nowrap" t-esc="opportunity.expected_revenue"/>
+                                    <span t-if="opportunity.company_currency" class="text-nowrap" t-esc="opportunity.planned_revenue" t-options="{'widget': 'monetary', 'display_currency': opportunity.company_currency}"/>
+                                    <span t-else="" class="text-nowrap" t-esc="opportunity.planned_revenue"/>
                                     <span> at </span>
                                     <span class="badge badge-info badge-pill"><span t-field="opportunity.probability"/>%</span>
                                 </h5>
@@ -628,7 +628,7 @@
                                         <input type="hidden" name="opportunity_id" class="opportunity_id" t-att-value="opportunity.id"/>
                                         <header class="modal-header">
                                             <h4 class="modal-title">Edit Opportunity</h4>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">&amp;times;</button>
                                         </header>
                                         <main class="modal-body" id="sign-dialog">
                                             <div class="form-group">
@@ -638,7 +638,7 @@
                                                             <div class="input-group-prepend">
                                                                 <div class="input-group-text"><span class="text-nowrap" t-esc="opportunity.company_currency.symbol"/></div>
                                                             </div>
-                                                            <input type="text" name="expected_revenue" class="form-control expected_revenue" t-att-value="opportunity.expected_revenue" placeholder="Planned Revenue"/>
+                                                            <input type="text" name="planned_revenue" class="form-control planned_revenue" t-att-value="opportunity.planned_revenue" placeholder="Planned Revenue"/>
                                                         </div>
                                                     </div>
                                                     <div class="col-auto">at</div>
@@ -732,7 +732,7 @@
                                         <input type="hidden" name="opportunity_id" class="opportunity_id" t-att-value="opportunity.id"/>
                                         <header class="modal-header">
                                             <h4 class="modal-title">Edit Contact</h4>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">&amp;times;</button>
                                         </header>
                                         <main class="modal-body" id="sign-dialog">
                                             <t t-if="opportunity.partner_name">

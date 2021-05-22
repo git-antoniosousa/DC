@@ -11,12 +11,17 @@ class AccountMove(models.Model):
 
     def _stock_account_get_last_step_stock_moves(self):
         stock_moves = super(AccountMove, self)._stock_account_get_last_step_stock_moves()
-        for invoice in self.filtered(lambda x: x.move_type == 'out_invoice'):
-            stock_moves += invoice.sudo().mapped('pos_order_ids.picking_ids.move_lines').filtered(lambda x: x.state == 'done' and x.location_dest_id.usage == 'customer')
-        for invoice in self.filtered(lambda x: x.move_type == 'out_refund'):
-            stock_moves += invoice.sudo().mapped('pos_order_ids.picking_ids.move_lines').filtered(lambda x: x.state == 'done' and x.location_id.usage == 'customer')
+        for invoice in self.filtered(lambda x: x.type == 'out_invoice'):
+            stock_moves += invoice.sudo().mapped('pos_order_ids.picking_id.move_lines').filtered(lambda x: x.state == 'done' and x.location_dest_id.usage == 'customer')
+        for invoice in self.filtered(lambda x: x.type == 'out_refund'):
+            stock_moves += invoice.sudo().mapped('pos_order_ids.picking_id.move_lines').filtered(lambda x: x.state == 'done' and x.location_id.usage == 'customer')
         return stock_moves
 
+    def _compute_amount(self):
+        super(AccountMove, self)._compute_amount()
+        for inv in self:
+            if inv.type in ['out_invoice', 'out_refund'] and inv.pos_order_ids and any(s != 'closed' for s in inv.pos_order_ids.mapped('session_id.state')):
+                inv.invoice_payment_state = 'paid'
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
@@ -28,7 +33,7 @@ class AccountMoveLine(models.Model):
         price_unit = super(AccountMoveLine, self)._stock_account_get_anglo_saxon_price_unit()
         order = self.move_id.pos_order_ids
         if order:
-            price_unit = order._get_pos_anglo_saxon_price_unit(self.product_id, self.move_id.partner_id.id, self.quantity)
+            price_unit = - order._get_pos_anglo_saxon_price_unit(self.product_id, self.move_id.partner_id.id, self.quantity)
         return price_unit
 
     def _get_refund_tax_audit_condition(self, aml):

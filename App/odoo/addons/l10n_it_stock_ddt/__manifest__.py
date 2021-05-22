@@ -2,7 +2,7 @@
 {
     'name': "l10n_it_stock_ddt",
     'website': 'https://www.odoo.com',
-    'category': 'Accounting/Localizations/EDI',
+    'category': 'Localization',
     'version': '0.1',
     'description': """
 Documento di Trasporto (DDT)

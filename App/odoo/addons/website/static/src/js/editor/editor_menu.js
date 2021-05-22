@@ -2,7 +2,6 @@ odoo.define('website.editor.menu', function (require) {
 'use strict';
 
 var Dialog = require('web.Dialog');
-var dom = require('web.dom');
 var Widget = require('web.Widget');
 var core = require('web.core');
 var Wysiwyg = require('web_editor.wysiwyg.root');
@@ -20,8 +19,6 @@ var EditorMenu = Widget.extend({
     template: 'website.editorbar',
     xmlDependencies: ['/website/static/src/xml/website.editor.xml'],
     events: {
-        'click button[data-action=undo]': '_onUndoClick',
-        'click button[data-action=redo]': '_onRedoClick',
         'click button[data-action=save]': '_onSaveClick',
         'click button[data-action=cancel]': '_onCancelClick',
     },
@@ -82,7 +79,7 @@ var EditorMenu = Widget.extend({
             if (!self.wysiwyg.isDirty()) {
                 resolve();
             } else {
-                var confirm = Dialog.confirm(self, _t("If you discard the current edits, all unsaved changes will be lost. You can cancel to return to edit mode."), {
+                var confirm = Dialog.confirm(self, _t("If you discard the current edition, all unsaved changes will be lost. You can cancel to return to the edition mode."), {
                     confirm_callback: resolve,
                 });
                 confirm.on('closed', self, reject);
@@ -111,14 +108,10 @@ var EditorMenu = Widget.extend({
      *
      * @param {boolean} [reload=true]
      *        true if the page has to be reloaded after the save
-     * @returns {Promise}
+     * @returns {Deferred}
      */
-    save: async function (reload) {
-        if (this._saving) {
-            return false;
-        }
+    save: function (reload) {
         var self = this;
-        this._saving = true;
         this.trigger_up('edition_will_stopped');
         return this.wysiwyg.save(false).then(function (result) {
             var $wrapwrap = $('#wrapwrap');
@@ -132,9 +125,6 @@ var EditorMenu = Widget.extend({
                 self.trigger_up('edition_was_stopped');
                 self.destroy();
             }
-            return true;
-        }).guardedCatch(() => {
-            this._saving = false;
         });
     },
     /**
@@ -234,21 +224,8 @@ var EditorMenu = Widget.extend({
      *
      * @private
      */
-    _onSaveClick: function (ev) {
-        const restore = dom.addButtonLoadingEffect(ev.currentTarget);
-        this.save().then(restore).guardedCatch(restore);
-    },
-    /**
-     * @private
-     */
-    _onUndoClick() {
-        $('.note-history [data-event=undo]').first().click();
-    },
-    /**
-     * @private
-     */
-    _onRedoClick() {
-        $('.note-history [data-event=redo]').first().click();
+    _onSaveClick: function () {
+        this.save();
     },
 });
 

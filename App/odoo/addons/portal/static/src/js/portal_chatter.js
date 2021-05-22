@@ -2,7 +2,6 @@ odoo.define('portal.chatter', function (require) {
 'use strict';
 
 var core = require('web.core');
-const dom = require('web.dom');
 var publicWidget = require('web.public.widget');
 var time = require('web.time');
 var portalComposer = require('portal.composer');
@@ -21,8 +20,7 @@ var PortalChatter = publicWidget.Widget.extend({
     template: 'portal.Chatter',
     xmlDependencies: ['/portal/static/src/xml/portal_chatter.xml'],
     events: {
-        'click .o_portal_chatter_pager_btn': '_onClickPager',
-        'click .o_portal_chatter_js_is_internal': 'async _onClickUpdateIsInternal',
+        "click .o_portal_chatter_pager_btn": '_onClickPager',
     },
 
     /**
@@ -47,7 +45,6 @@ var PortalChatter = publicWidget.Widget.extend({
             'pager_scope': 5,
             'pager_start': 1,
             'is_user_public': true,
-            'is_user_employee': false,
             'is_user_publisher': false,
             'hash': false,
             'pid': false,
@@ -257,34 +254,6 @@ var PortalChatter = publicWidget.Widget.extend({
         var page = $(ev.currentTarget).data('page');
         this._changeCurrentPage(page);
     },
-
-    /**
-     * Toggle is_internal state of message. Update both node data and
-     * classes to ensure DOM is updated accordingly to RPC call result.
-     * @private
-     * @returns {Promise}
-     */
-    _onClickUpdateIsInternal: function (ev) {
-        ev.preventDefault();
-
-        var $elem = $(ev.currentTarget);
-        return this._rpc({
-            route: '/mail/update_is_internal',
-            params: {
-                message_id: $elem.data('message-id'),
-                is_internal: ! $elem.data('is-internal'),
-            },
-        }).then(function (result) {
-            $elem.data('is-internal', result);
-            if (result === true) {
-                $elem.addClass('o_portal_message_internal_on');
-                $elem.removeClass('o_portal_message_internal_off');
-            } else {
-                $elem.addClass('o_portal_message_internal_off');
-                $elem.removeClass('o_portal_message_internal_on');
-            }
-        });
-    },
 });
 
 publicWidget.registry.portalChatter = publicWidget.Widget.extend({
@@ -293,15 +262,17 @@ publicWidget.registry.portalChatter = publicWidget.Widget.extend({
     /**
      * @override
      */
-    async start() {
-        const proms = [this._super.apply(this, arguments)];
-        const chatter = new PortalChatter(this, this.$el.data());
-        proms.push(chatter.appendTo(this.$el));
-        await Promise.all(proms);
-        // scroll to the right place after chatter loaded
-        if (window.location.hash === `#${this.el.id}`) {
-            dom.scrollTo(this.el, {duration: 0});
-        }
+    start: function () {
+        var self = this;
+        var defs = [this._super.apply(this, arguments)];
+        var chatter = new PortalChatter(this, this.$el.data());
+        defs.push(chatter.appendTo(this.$el));
+        return Promise.all(defs).then(function () {
+            // scroll to the right place after chatter loaded
+            if (window.location.hash === '#' + self.$el.attr('id')) {
+                $('html, body').scrollTop(self.$el.offset().top);
+            }
+        });
     },
 });
 

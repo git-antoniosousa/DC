@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.account.tests.account_test_savepoint import AccountTestInvoicingCommon
 from odoo.tests import tagged
 from odoo.exceptions import UserError
 
@@ -28,7 +28,7 @@ class TestAccountAnalyticAccount(AccountTestInvoicingCommon):
         ''' Ensure you can't change the company of an account.analytic.account if there are some journal entries '''
 
         self.env['account.move'].create({
-            'move_type': 'entry',
+            'type': 'entry',
             'date': '2019-01-01',
             'line_ids': [
                 (0, 0, {

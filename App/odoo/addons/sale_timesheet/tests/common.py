@@ -1,37 +1,14 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.addons.mail.tests.common import mail_new_test_user
-from odoo.addons.sale.tests.common import TestSaleCommon
+from odoo.addons.sale.tests.test_sale_common import TestCommonSaleNoChart, TestCommonSaleMultiCompanyNoChart
 
 
-class TestCommonSaleTimesheet(TestSaleCommon):
+class TestCommonSaleTimesheetNoChart(TestCommonSaleNoChart):
 
     @classmethod
-    def setUpClass(cls, chart_template_ref=None):
-        super().setUpClass(chart_template_ref=chart_template_ref)
-
-        cls.user_employee_company_B = mail_new_test_user(
-            cls.env,
-            name='Gregor Clegane Employee',
-            login='gregor',
-            email='gregor@example.com',
-            notification_type='email',
-            groups='base.group_user',
-            company_id=cls.company_data_2['company'].id,
-            company_ids=[cls.company_data_2['company'].id],
-        )
-        cls.user_manager_company_B = mail_new_test_user(
-            cls.env,
-            name='Cersei Lannister Manager',
-            login='cersei',
-            email='cersei@example.com',
-            notification_type='email',
-            groups='base.group_user',
-            company_id=cls.company_data_2['company'].id,
-            company_ids=[cls.company_data_2['company'].id, cls.env.company.id],
-        )
-
+    def setUpEmployees(cls):
+        # Create employees
         cls.employee_user = cls.env['hr.employee'].create({
             'name': 'Employee User',
             'timesheet_cost': 15,
@@ -41,29 +18,19 @@ class TestCommonSaleTimesheet(TestSaleCommon):
             'timesheet_cost': 45,
         })
 
-        cls.employee_company_B = cls.env['hr.employee'].create({
-            'name': 'Gregor Clegane',
-            'user_id': cls.user_employee_company_B.id,
-            'timesheet_cost': 15,
-        })
-
-        cls.manager_company_B = cls.env['hr.employee'].create({
-            'name': 'Cersei Lannister',
-            'user_id': cls.user_manager_company_B.id,
-            'timesheet_cost': 45,
-        })
-
+    @classmethod
+    def setUpServiceProducts(cls):
+        """ Create Service product for all kind, with each tracking policy. """
         # Account and project
-        cls.account_sale = cls.company_data['default_account_revenue']
+        cls.account_sale = cls.env['account.account'].create({
+            'code': 'SERV-2020',
+            'name': 'Product Sales - (test)',
+            'reconcile': True,
+            'user_type_id': cls.env.ref('account.data_account_type_revenue').id,
+        })
         cls.analytic_account_sale = cls.env['account.analytic.account'].create({
             'name': 'Project for selling timesheet - AA',
-            'code': 'AA-2030',
-            'company_id': cls.company_data['company'].id,
-        })
-        cls.analytic_account_sale_company_B = cls.env['account.analytic.account'].create({
-            'name': 'Project for selling timesheet Company B - AA',
-            'code': 'AA-2030',
-            'company_id': cls.company_data_2['company'].id,
+            'code': 'AA-2030'
         })
 
         # Create projects
@@ -71,7 +38,6 @@ class TestCommonSaleTimesheet(TestSaleCommon):
             'name': 'Project for selling timesheets',
             'allow_timesheets': True,
             'analytic_account_id': cls.analytic_account_sale.id,
-            'allow_billable': True,
         })
         cls.project_template = cls.env['project.project'].create({
             'name': 'Project TEMPLATE for services',
@@ -233,7 +199,7 @@ class TestCommonSaleTimesheet(TestSaleCommon):
             'invoice_policy': 'delivery',
             'uom_id': cls.env.ref('uom.product_uom_hour').id,
             'uom_po_id': cls.env.ref('uom.product_uom_hour').id,
-            'default_code': 'SERV-DELI5',
+            'default_code': 'SERV-DELI4',
             'service_type': 'timesheet',
             'service_tracking': 'project_only',
             'project_template_id': cls.project_template.id,
@@ -318,4 +284,36 @@ class TestCommonSaleTimesheet(TestSaleCommon):
             'project_template_id': cls.project_template.id,
             'taxes_id': False,
             'property_account_income_id': cls.account_sale.id,
+        })
+
+
+class TestCommonSaleTimesheetMultiCompanyNoChart(TestCommonSaleMultiCompanyNoChart, TestCommonSaleTimesheetNoChart):
+
+    @classmethod
+    def setUpEmployees(cls):
+        # Create employees
+        cls.setUpUsers()
+        super(TestCommonSaleTimesheetMultiCompanyNoChart, cls).setUpEmployees()
+
+        cls.employee_company_B = cls.env['hr.employee'].create({
+            'name': 'Gregor Clegane',
+            'user_id': cls.user_employee_company_B.id,
+            'timesheet_cost': 15,
+        })
+
+        cls.manager_company_B = cls.env['hr.employee'].create({
+            'name': 'Cersei Lannister',
+            'user_id': cls.user_manager_company_B.id,
+            'timesheet_cost': 45,
+        })
+
+    @classmethod
+    def setUpServiceProducts(cls):
+        """ Create Service product for all kind, with each tracking policy. """
+        super(TestCommonSaleTimesheetMultiCompanyNoChart, cls).setUpServiceProducts()
+        # Account and project
+        cls.analytic_account_sale_company_B = cls.env['account.analytic.account'].create({
+            'name': 'Project for selling timesheet Company B - AA',
+            'code': 'AA-2030',
+            'company_id': cls.company_B.id,
         })

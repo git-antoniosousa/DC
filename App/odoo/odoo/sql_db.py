@@ -14,9 +14,7 @@ import itertools
 import logging
 import time
 import uuid
-import warnings
 
-from decorator import decorator
 import psycopg2
 import psycopg2.extras
 import psycopg2.extensions
@@ -92,66 +90,7 @@ re_into = re.compile('.* into "?([a-zA-Z_0-9]+)"? .*$')
 
 sql_counter = 0
 
-
-@decorator
-def check(f, self, *args, **kwargs):
-    """ Wrap a cursor method that cannot be called when the cursor is closed. """
-    if self._closed:
-        raise psycopg2.OperationalError('Unable to use a closed cursor.')
-    return f(self, *args, **kwargs)
-
-
-class BaseCursor:
-    """ Base class for cursors that manage pre/post commit hooks. """
-
-    def __init__(self):
-        self.precommit = tools.Callbacks()
-        self.postcommit = tools.Callbacks()
-        self.prerollback = tools.Callbacks()
-        self.postrollback = tools.Callbacks()
-
-    @contextmanager
-    @check
-    def savepoint(self, flush=True):
-        """context manager entering in a new savepoint"""
-        name = uuid.uuid1().hex
-        if flush:
-            flush_env(self, clear=False)
-            self.precommit.run()
-        self.execute('SAVEPOINT "%s"' % name)
-        try:
-            yield
-            if flush:
-                flush_env(self, clear=False)
-                self.precommit.run()
-        except Exception:
-            if flush:
-                clear_env(self)
-                self.precommit.clear()
-            self.execute('ROLLBACK TO SAVEPOINT "%s"' % name)
-            raise
-        else:
-            self.execute('RELEASE SAVEPOINT "%s"' % name)
-
-    def __enter__(self):
-        """ Using the cursor as a contextmanager automatically commits and
-            closes it::
-
-                with cr:
-                    cr.execute(...)
-
-                # cr is committed if no failure occurred
-                # cr is closed in any case
-        """
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type is None:
-            self.commit()
-        self.close()
-
-
-class Cursor(BaseCursor):
+class Cursor(object):
     """Represents an open transaction to the PostgreSQL DB backend,
        acting as a lightweight wrapper around psycopg2's
        ``cursor`` objects.
@@ -223,9 +162,18 @@ class Cursor(BaseCursor):
     """
     IN_MAX = 1000   # decent limit on size of IN queries - guideline = Oracle limit
 
-    def __init__(self, pool, dbname, dsn, serialized=True):
-        super().__init__()
+    def check(f):
+        @wraps(f)
+        def wrapper(self, *args, **kwargs):
+            if self._closed:
+                msg = 'Unable to use a closed cursor.'
+                if self.__closer:
+                    msg += ' It was closed at %s, line %s' % self.__closer
+                raise psycopg2.OperationalError(msg)
+            return f(self, *args, **kwargs)
+        return wrapper
 
+    def __init__(self, pool, dbname, dsn, serialized=True):
         self.sql_from_log = {}
         self.sql_into_log = {}
 
@@ -253,10 +201,14 @@ class Cursor(BaseCursor):
             self.__caller = False
         self._closed = False   # real initialisation value
         self.autocommit(False)
+        self.__closer = False
 
         self._default_log_exceptions = True
 
         self.cache = {}
+
+        # event handlers, see method after() below
+        self._event_handlers = {'commit': [], 'rollback': []}
 
     def __build_dict(self, row):
         return {d.name: row[i] for i, d in enumerate(self._obj.description)}
@@ -366,6 +318,9 @@ class Cursor(BaseCursor):
 
         del self.cache
 
+        if self.sql_log:
+            self.__closer = frame_codeinfo(currentframe(), 3)
+
         # simple query count is always computed
         sql_counter += self.sql_log_count
 
@@ -380,11 +335,15 @@ class Cursor(BaseCursor):
         # collected as fast as they should). The problem is probably due in
         # part because browse records keep a reference to the cursor.
         del self._obj
-
-        # Clean the underlying connection, and run rollback hooks.
-        self.rollback()
-
         self._closed = True
+
+        # Clean the underlying connection.
+        self._cnx.rollback()
+
+        # Call rollback hooks. This list is empty if commit()
+        # has been called just before closing the cursor.
+        for func in self._pop_event_handlers()['rollback']:
+            func()
 
         if leak:
             self._cnx.leaked = True
@@ -429,36 +388,70 @@ class Cursor(BaseCursor):
             back or committed independently. You may consider the use of a
             dedicated temporary cursor to do some database operation.
         """
-        warnings.warn(
-            "Cursor.after() is deprecated, use Cursor.postcommit.add() instead.",
-            DeprecationWarning,
-        )
-        if event == 'commit':
-            self.postcommit.add(func)
-        elif event == 'rollback':
-            self.postrollback.add(func)
+        self._event_handlers[event].append(func)
+
+    def _pop_event_handlers(self):
+        # return the current handlers, and reset them on self
+        result = self._event_handlers
+        self._event_handlers = {'commit': [], 'rollback': []}
+        return result
 
     @check
     def commit(self):
-        """ Perform an SQL `COMMIT` """
+        """ Perform an SQL `COMMIT`
+        """
         flush_env(self)
-        self.precommit.run()
         result = self._cnx.commit()
-        self.prerollback.clear()
-        self.postrollback.clear()
-        self.postcommit.run()
+        for func in self._pop_event_handlers()['commit']:
+            func()
         return result
 
     @check
     def rollback(self):
-        """ Perform an SQL `ROLLBACK` """
+        """ Perform an SQL `ROLLBACK`
+        """
         clear_env(self)
-        self.precommit.clear()
-        self.postcommit.clear()
-        self.prerollback.run()
         result = self._cnx.rollback()
-        self.postrollback.run()
+        for func in self._pop_event_handlers()['rollback']:
+            func()
         return result
+
+    def __enter__(self):
+        """ Using the cursor as a contextmanager automatically commits and
+            closes it::
+
+                with cr:
+                    cr.execute(...)
+
+                # cr is committed if no failure occurred
+                # cr is closed in any case
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            self.commit()
+        self.close()
+
+    @contextmanager
+    @check
+    def savepoint(self, flush=True):
+        """context manager entering in a new savepoint"""
+        name = uuid.uuid1().hex
+        if flush:
+            flush_env(self, clear=False)
+        self.execute('SAVEPOINT "%s"' % name)
+        try:
+            yield
+            if flush:
+                flush_env(self, clear=False)
+        except Exception:
+            if flush:
+                clear_env(self)
+            self.execute('ROLLBACK TO SAVEPOINT "%s"' % name)
+            raise
+        else:
+            self.execute('RELEASE SAVEPOINT "%s"' % name)
 
     @check
     def __getattr__(self, name):
@@ -469,7 +462,7 @@ class Cursor(BaseCursor):
         return self._closed
 
 
-class TestCursor(BaseCursor):
+class TestCursor(object):
     """ A pseudo-cursor to be used for tests, on top of a real cursor. It keeps
         the transaction open across requests, and simulates committing, rolling
         back, and closing:
@@ -503,32 +496,28 @@ class TestCursor(BaseCursor):
 
     def close(self):
         if not self._closed:
-            self.rollback()
             self._closed = True
+            self._cursor.execute('ROLLBACK TO SAVEPOINT "%s"' % self._savepoint)
             self._lock.release()
 
     def autocommit(self, on):
         _logger.debug("TestCursor.autocommit(%r) does nothing", on)
 
-    @check
     def commit(self):
-        """ Perform an SQL `COMMIT` """
         flush_env(self)
-        self.precommit.run()
         self._cursor.execute('SAVEPOINT "%s"' % self._savepoint)
-        self.prerollback.clear()
-        self.postrollback.clear()
-        self.postcommit.clear()         # TestCursor ignores post-commit hooks
 
-    @check
     def rollback(self):
-        """ Perform an SQL `ROLLBACK` """
         clear_env(self)
-        self.precommit.clear()
-        self.postcommit.clear()
-        self.prerollback.run()
         self._cursor.execute('ROLLBACK TO SAVEPOINT "%s"' % self._savepoint)
-        self.postrollback.run()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            self.commit()
+        self.close()
 
     def __getattr__(self, name):
         value = getattr(self._cursor, name)

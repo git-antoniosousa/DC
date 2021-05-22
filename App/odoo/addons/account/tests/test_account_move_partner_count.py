@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo.addons.account.tests.account_test_savepoint import AccountTestInvoicingCommon
 
 from odoo.tests import tagged
 
@@ -10,20 +12,20 @@ class TestAccountMovePartnerCount(AccountTestInvoicingCommon):
     def test_account_move_count(self):
         self.env['account.move'].create([
             {
-                'move_type': 'out_invoice',
+                'type': 'out_invoice',
                 'date': '2017-01-01',
                 'invoice_date': '2017-01-01',
                 'partner_id': self.partner_a.id,
                 'invoice_line_ids': [(0, 0, {'name': 'aaaa', 'price_unit': 100.0})],
             },
             {
-                'move_type': 'in_invoice',
+                'type': 'in_invoice',
                 'date': '2017-01-01',
                 'invoice_date': '2017-01-01',
                 'partner_id': self.partner_a.id,
                 'invoice_line_ids': [(0, 0, {'name': 'aaaa', 'price_unit': 100.0})],
             },
-        ]).action_post()
+        ]).post()
 
         self.assertEqual(self.partner_a.supplier_rank, 1)
         self.assertEqual(self.partner_a.customer_rank, 1)

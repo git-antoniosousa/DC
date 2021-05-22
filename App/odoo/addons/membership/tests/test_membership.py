@@ -63,7 +63,8 @@ class TestMembership(TestMembershipCommon):
 
         # payment process
         payment = self.env['account.payment'].create({
-            'destination_account_id': invoice.line_ids.account_id.filtered(lambda account: account.internal_type == 'receivable').id,
+            'payment_date': time.strftime('%Y-%m-%d'),
+            'journal_id': self.env['account.journal'].search([], limit=1).id,
             'payment_method_id': self.env['account.payment.method'].search([], limit=1).id,
             'payment_type': 'inbound',
             'partner_type': 'customer',
@@ -72,9 +73,9 @@ class TestMembership(TestMembershipCommon):
             'company_id': self.env.company.id,
             'currency_id': self.env.company.currency_id.id,
         })
-        payment.action_post()
+        payment.post()
         inv1_receivable = invoice.line_ids.filtered(lambda l: l.account_id.internal_type == 'receivable')
-        pay_receivable = payment.move_id.line_ids.filtered(lambda l: l.account_id.internal_type == 'receivable')
+        pay_receivable = payment.move_line_ids.filtered(lambda l: l.account_id.internal_type == 'receivable')
 
         (inv1_receivable + pay_receivable).reconcile()
 
@@ -115,18 +116,21 @@ class TestMembership(TestMembershipCommon):
             'membership: new membership should be in waiting state')
 
         # the invoice is open -> customer goes to invoiced status
-        invoice.action_post()
+        invoice.post()
         self.assertEqual(
             self.partner_1.membership_state, 'invoiced',
             'membership: after opening the invoice, customer should be in invoiced status')
 
         # the invoice is paid -> customer goes to paid status
-        payment = self.env['account.payment.register']\
-            .with_context(active_model='account.move', active_ids=invoice.ids)\
-            .create({
-                'amount': 86.25
-            })\
-            ._create_payments()
+        bank_journal = self.env['account.journal'].create({'name': 'Bank', 'type': 'bank', 'code': 'BNK67'})
+        self.env['account.payment'].create({
+            'payment_method_id': self.env.ref("account.account_payment_method_manual_in").id,
+            'payment_type': 'inbound',
+            'invoice_ids': [(6, False, invoice.ids)],
+            'amount': 86.25,
+            'journal_id': bank_journal.id,
+            'partner_type': 'customer',
+        }).post()
 
         self.assertEqual(
             self.partner_1.membership_state, 'paid',

@@ -3,7 +3,7 @@
     "name": "LATAM Document",
     "version": "1.0",
     "author": "ADHOC SA",
-    'category': 'Accounting/Localizations',
+    "category": "Localization",
     "summary": "LATAM Document Types",
     'description': """
 Functional
@@ -26,13 +26,13 @@ If your localization needs this logic will then need to add this module as depen
 """,
     "depends": [
         "account",
-        "account_debit_note",
     ],
     "data": [
         'views/account_journal_view.xml',
         'views/account_move_line_view.xml',
         'views/account_move_view.xml',
         'views/l10n_latam_document_type_view.xml',
+        'views/report_invoice.xml',
         'views/ir_sequence_view.xml',
         'views/report_templates.xml',
         'report/invoice_report_view.xml',

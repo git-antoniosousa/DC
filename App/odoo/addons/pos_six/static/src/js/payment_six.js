@@ -1,19 +1,11 @@
 odoo.define('pos_six.payment', function (require) {
 "use strict";
 
-const { Gui } = require('point_of_sale.Gui');
 var core = require('web.core');
+var chrome = require('point_of_sale.chrome');
 var PaymentInterface = require('point_of_sale.PaymentInterface');
 
 var _t = core._t;
-
-onTimApiReady = function () {};
-onTimApiPublishLogRecord = function (record) {
-    // Log only warning or errors
-    if (record.matchesLevel(timapi.LogRecord.LogLevel.warning)) {
-        timapi.log(String(record));
-    }
-};
 
 var PaymentSix = PaymentInterface.extend({
 
@@ -36,8 +28,8 @@ var PaymentSix = PaymentInterface.extend({
         settings.dcc = false;
 
         this.terminal = new timapi.Terminal(settings);
-        this.terminal.setPosId(this.pos.pos_session.name);
-        this.terminal.setUserId(this.pos.pos_session.user_id[0]);
+        this.terminal.posId = this.pos.pos_session.name;
+        this.terminal.userId = this.pos.pos_session.user_id[0];
 
         this.terminalListener = new timapi.DefaultTerminalListener();
         this.terminalListener.transactionCompleted = this._onTransactionComplete.bind(this);
@@ -55,7 +47,7 @@ var PaymentSix = PaymentInterface.extend({
             );
             options.push(option);
         });
-        this.terminal.setPrintOptions(options);
+        this.terminal.printOptions = options;
     },
 
     /**
@@ -97,10 +89,11 @@ var PaymentSix = PaymentInterface.extend({
         timapi.DefaultTerminalListener.prototype.transactionCompleted(event, data);
 
         if (event.exception) {
-            if (event.exception.resultCode !== timapi.constants.ResultCode.apiCancelEcr) {
-                Gui.showPopup('ErrorPopup', {
-                    title: _t('Transaction was not processed correctly'),
-                    body: event.exception.errorText,
+            var line = this.pos.get_order().selected_paymentline;
+            if (line && line.get_payment_status() !== 'retry') {
+                this.pos.gui.show_popup('error', {
+                    title: _t('Terminal Error'),
+                    body: _t('Transaction was not processed correctly'),
                 });
             }
 
@@ -113,7 +106,7 @@ var PaymentSix = PaymentInterface.extend({
             // Store Transaction Data
             var transactionData = new timapi.TransactionData();
             transactionData.transSeq = data.transactionInformation.transSeq;
-            this.terminal.setTransactionData(transactionData);
+            this.terminal.transactionData = transactionData;
 
             this.transactionResolve(true);
         }
@@ -121,7 +114,7 @@ var PaymentSix = PaymentInterface.extend({
 
     _onBalanceComplete: function (event, data) {
         if (event.exception) {
-            Gui.showPopup('ErrorPopup',{
+            this.pos.gui.show_popup('error',{
                 'title': _t('Balance Failed'),
                 'body':  _t('The balance operation failed.'),
             });
@@ -157,6 +150,26 @@ var PaymentSix = PaymentInterface.extend({
             this.terminal.transactionAsync(transactionType, amount);
         });
     },
+});
+
+chrome.Chrome.include({
+    // Insert "Send Balance" before Close button
+    widgets: chrome.Chrome.prototype.widgets.splice(_.findIndex(chrome.Chrome.prototype.widgets, i => i.name == 'close_button'), 0, {
+        name:  'balance',
+        widget: chrome.HeaderButtonWidget,
+        append: '.pos-rightheader',
+        condition: function() { return this.pos.payment_methods.some(pm => pm.use_payment_terminal === 'six_tim'); },
+        args: {
+            label: _t('Send Balance'),
+            action: function () {
+                this.pos.payment_methods.map(pm => {
+                    if (pm.use_payment_terminal === 'six_tim') {
+                        pm.payment_terminal.send_balance();
+                    }
+                });
+            }
+        },
+    }) && chrome.Chrome.prototype.widgets,
 });
 
 return PaymentSix;

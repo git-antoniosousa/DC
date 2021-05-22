@@ -11,10 +11,10 @@
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-27 14:12+0000\n"
-"PO-Revision-Date: 2020-09-07 08:11+0000\n"
+"POT-Creation-Date: 2019-09-13 11:27+0000\n"
+"PO-Revision-Date: 2019-08-26 09:09+0000\n"
 "Last-Translator: Odoo Thaidev <odoothaidev@gmail.com>, 2020\n"
 "Language-Team: Thai (https://www.transifex.com/odoo/teams/41243/th/)\n"
 "MIME-Version: 1.0\n"
@@ -37,14 +37,9 @@ msgid ""
 "specific.\" aria-label=\"Values set here are company-specific.\" "
 "groups=\"base.group_multi_company\" role=\"img\"/>"
 msgstr ""
-"<span class=\"fa fa-lg fa-building-o\" title=\"Values set here are company-"
-"specific.\" aria-label=\"Values set here are company-specific.\" "
+"<span class=\"fa fa-lg fa-building-o\" title=\"ค่าที่กำหนดเป็นค่าเฉพาะของ "
+"บริษัท.\" aria-label=\"ค่าที่กำหนดเป็นค่าเฉพาะของ บริษัท.\" "
 "groups=\"base.group_multi_company\" role=\"img\"/>"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "<span class=\"fa fa-lg fa-users\" aria-label=\"Number of active users\"/>"
-msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -54,31 +49,42 @@ msgid ""
 "                                        </span>\n"
 "                                        <span class=\"o_form_label\" attrs=\"{'invisible':[('active_user_count', '&lt;=', '1')]}\">\n"
 "                                            Active Users\n"
-"                                        </span>"
+"                                        </span>\n"
+"\n"
+"                                        <br/>"
 msgstr ""
+"<span class=\"o_form_label\" attrs=\"{'invisible':[('active_user_count', '&gt;', '1')]}\">\n"
+"                                            ผู้ใช้ที่ใช้งานอยู่\n"
+"                                        </span>\n"
+"                                        <span class=\"o_form_label\" attrs=\"{'invisible':[('active_user_count', '&lt;=', '1')]}\">\n"
+"                                            ผู้ใช้ที่ใช้งานอยู่\n"
+"                                        </span>\n"
+"\n"
+"                                        <br/>"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid ""
-"<span class=\"o_form_label\" attrs=\"{'invisible':[('company_count', '&gt;', '1')]}\">\n"
-"                                            Company\n"
-"                                        </span>\n"
-"                                        <span class=\"o_form_label\" attrs=\"{'invisible':[('company_count', '&lt;=', '1')]}\">\n"
+"<span class=\"o_form_label\">\n"
+"                                                Languages\n"
+"                                            </span>"
+msgstr ""
+"<span class=\"o_form_label\">\n"
+"                                                ภาษา\n"
+"                                            </span>"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid ""
+"<span class=\"o_form_label\">\n"
 "                                            Companies\n"
 "                                        </span>\n"
 "                                        <br/>"
 msgstr ""
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"<span class=\"o_form_label\" attrs=\"{'invisible':[('language_count', '&gt;', '1')]}\">\n"
-"                                                Language\n"
-"                                            </span>\n"
-"                                            <span class=\"o_form_label\" attrs=\"{'invisible':[('language_count', '&lt;=', '1')]}\">\n"
-"                                                Languages\n"
-"                                            </span>"
-msgstr ""
+"<span class=\"o_form_label\">\n"
+"                                            บริษัท\n"
+"                                        </span>\n"
+"                                        <br/>"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -106,12 +112,6 @@ msgid ""
 msgstr ""
 "<strong> บันทึก </strong> หน้านี้และกลับมาที่นี่เพื่อเลือก Geo Provider "
 "ของคุณ"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid ""
-"<strong>Save</strong> this page and come back here to set up reCaptcha."
-msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -153,11 +153,6 @@ msgstr "เปิดใช้งานโหมดนักพัฒนา (พ�
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Add Language"
-msgstr ""
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Add fun feedback and motivate your employees"
 msgstr "เพิ่มข้อเสนอแนะที่สนุกสนานและกระตุ้นพนักงานของคุณ"
 
@@ -165,11 +160,6 @@ msgstr "เพิ่มข้อเสนอแนะที่สนุกสน
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
 msgid "Allow the users to synchronize their calendar  with Google Calendar"
 msgstr "อนุญาตให้ผู้ใช้เชื่อมโยงปฏิทินด้วย Google Calendar"
-
-#. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_microsoft_calendar
-msgid "Allow the users to synchronize their calendar with Outlook Calendar"
-msgstr ""
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_base_import
@@ -250,7 +240,7 @@ msgstr "ชื่อบริษัท"
 #. module: base_setup
 #: model:ir.model,name:base_setup.model_res_config_settings
 msgid "Config Settings"
-msgstr "การตั้งค่า"
+msgstr "กำหนดการตั้งค่า"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -302,12 +292,6 @@ msgid "Default Access Rights"
 msgstr "สิทธิ์การเข้าถึงเริ่มต้น"
 
 #. module: base_setup
-#: code:addons/base_setup/models/res_config_settings.py:0
-#, python-format
-msgid "Default User Template not found."
-msgstr ""
-
-#. module: base_setup
 #. openerp-web
 #: code:addons/base_setup/static/src/xml/res_config_dev_tool.xml:0
 #, python-format
@@ -315,33 +299,14 @@ msgid "Developer Tools"
 msgstr "เครื่องมือของนักพัฒนา"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_ir_http__display_name
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:base_setup.field_res_users__display_name
-msgid "Display Name"
-msgstr "ชื่อที่ใช้แสดง"
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__external_report_layout_id
 msgid "Document Template"
-msgstr "เอกสาร"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Documentation"
-msgstr "เอกสารกำกับ"
+msgstr "เทมเพลตเอกสาร"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Edit Layout"
 msgstr "แก้ไขเค้าโครง"
-
-#. module: base_setup
-#. openerp-web
-#: code:addons/base_setup/static/src/js/res_config_invite_users.js:0
-#, python-format
-msgid "Email addresses already existing: %s."
-msgstr ""
 
 #. module: base_setup
 #. openerp-web
@@ -390,6 +355,11 @@ msgstr "การตั้งค่าทั่วไป"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Gengo Translations"
+msgstr "การแปล Gengo"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Geo Localization"
 msgstr "การแปลทางภูมิศาสตร์"
 
@@ -421,14 +391,7 @@ msgstr "Google Spreadsheet"
 #. module: base_setup
 #: model:ir.model,name:base_setup.model_ir_http
 msgid "HTTP Routing"
-msgstr "See http://openerp.com"
-
-#. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_ir_http__id
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__id
-#: model:ir.model.fields,field_description:base_setup.field_res_users__id
-msgid "ID"
-msgstr "รหัส"
+msgstr "HTTP Routing"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -444,13 +407,6 @@ msgstr "Integrations"
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Inter-Company Transactions"
 msgstr "ธุรกรรมระหว่าง บริษัท"
-
-#. module: base_setup
-#. openerp-web
-#: code:addons/base_setup/static/src/js/res_config_invite_users.js:0
-#, python-format
-msgid "Invalid email addresses: %s."
-msgstr ""
 
 #. module: base_setup
 #. openerp-web
@@ -478,13 +434,6 @@ msgid "Languages"
 msgstr "ภาษา"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_ir_http____last_update
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings____last_update
-#: model:ir.model.fields,field_description:base_setup.field_res_users____last_update
-msgid "Last Modified on"
-msgstr "แก้ไขครั้งสุดท้ายเมื่อ"
-
-#. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Layout"
 msgstr "ใบกำกับสินค้า/ใบแจ้งหนี้"
@@ -494,12 +443,7 @@ msgstr "ใบกำกับสินค้า/ใบแจ้งหนี้"
 #: code:addons/base_setup/static/src/xml/res_config_dev_tool.xml:0
 #, python-format
 msgid "Load demo data"
-msgstr "ตัวอย่าง ข้อมูล"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Manage API Keys"
-msgstr ""
+msgstr "โหลดข้อมูลตัวอย่าง"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -507,7 +451,7 @@ msgid "Manage Companies"
 msgstr "จัดการบริษัท"
 
 #. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_account_inter_company_rules
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_inter_company_rules
 msgid "Manage Inter Company"
 msgstr "จัดการบริษัทที่มีสาขา"
 
@@ -576,11 +520,6 @@ msgid "On Google Play"
 msgstr "บน Google Play"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Outlook Calendar"
-msgstr ""
-
-#. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__paperformat_id
 msgid "Paper format"
 msgstr "รูปแบบกระดาษ"
@@ -599,18 +538,8 @@ msgstr "คำเชิญที่รอดำเนินการ:"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Permissions"
-msgstr ""
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Preview Document"
 msgstr "ดูตัวอย่างเอกสาร"
-
-#. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Protect your forms from spam and abuse."
-msgstr ""
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
@@ -644,18 +573,37 @@ msgstr "แสดงผลเอฟเฟค"
 
 #. module: base_setup
 #: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Statistics"
+msgstr "สถิติ"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
 msgid "Synchronize your calendar with Google Calendar"
 msgstr "ซิงโครไนซ์ปฏิทินของคุณกับ Google ปฏิทิน"
 
 #. module: base_setup
-#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
-msgid "Synchronize your calendar with Outlook"
-msgstr ""
+#. openerp-web
+#: code:addons/base_setup/static/src/js/res_config_invite_users.js:0
+#, python-format
+msgid "The following email addresses already exist: %s."
+msgstr "มีที่อยู่อีเมลต่อไปนี้แล้ว: %s."
+
+#. module: base_setup
+#. openerp-web
+#: code:addons/base_setup/static/src/js/res_config_invite_users.js:0
+#, python-format
+msgid "The following email addresses are invalid: %s."
+msgstr "ที่อยู่อีเมลต่อไปนี้ไม่ถูกต้อง: : %s."
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_base_gengo
 msgid "Translate Your Website with Gengo"
 msgstr "Translate Your Website with Gengo"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Translate your website with Gengo"
+msgstr "Translate your website with Gengo"
 
 #. module: base_setup
 #: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_web_unsplash
@@ -712,8 +660,3 @@ msgstr ""
 #, python-format
 msgid "more"
 msgstr "เพิ่มเติม"
-
-#. module: base_setup
-#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_recaptcha
-msgid "reCAPTCHA: Easy on Humans, Hard on Bots"
-msgstr ""

@@ -1,17 +1,16 @@
 odoo.define('mail.ActivityView', function (require) {
 "use strict";
 
-const ActivityController = require('mail.ActivityController');
-const ActivityModel = require('mail.ActivityModel');
-const ActivityRenderer = require('mail.ActivityRenderer');
-const BasicView = require('web.BasicView');
-const core = require('web.core');
-const RendererWrapper = require('web.RendererWrapper');
-const view_registry = require('web.view_registry');
+var ActivityController = require('mail.ActivityController');
+var ActivityModel = require('mail.ActivityModel');
+var ActivityRenderer = require('mail.ActivityRenderer');
+var BasicView = require('web.BasicView');
+var core = require('web.core');
+var view_registry = require('web.view_registry');
 
-const _lt = core._lt;
+var _lt = core._lt;
 
-const ActivityView = BasicView.extend({
+var ActivityView = BasicView.extend({
     accesskey: "a",
     display_name: _lt('Activity'),
     icon: 'fa-clock-o',
@@ -34,15 +33,6 @@ const ActivityView = BasicView.extend({
         this.loadParams.limit = false;
 
         this.rendererParams.templates = _.findWhere(this.arch.children, { 'tag': 'templates' });
-        this.controllerParams.title = this.arch.attrs.string;
-    },
-    /**
-     *
-     * @override
-     */
-    getRenderer(parent, state) {
-        state = Object.assign({}, state, this.rendererParams);
-        return new RendererWrapper(null, this.config.Renderer, state);
     },
 });
 

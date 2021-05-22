@@ -121,7 +121,7 @@ class test_inherits(common.TransactionCase):
 
     def test_display_name(self):
         """ Check the 'display_name' of an inherited translated 'name'. """
-        self.env['res.lang']._activate_lang('fr_FR')
+        self.env['res.lang'].load_lang('fr_FR')
 
         # concrete check
         pallet_en = self.env['test.pallet'].create({'name': 'Bread'})
@@ -147,4 +147,4 @@ class test_inherits(common.TransactionCase):
         unit_bar = self.env['test.unit'].create({'name': 'bar'})
         boxes.unit_id = unit_bar
 
-        self.assertEqual(boxes.mapped('unit_id.name'), ['bar'])
+        self.assertEquals(boxes.mapped('unit_id.name'), ['bar'])

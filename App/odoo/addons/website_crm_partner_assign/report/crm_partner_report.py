@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models
+from odoo import api, fields, models
+from odoo import tools
 
 
 class CrmPartnerReportAssign(models.Model):
@@ -23,19 +24,20 @@ class CrmPartnerReportAssign(models.Model):
     date = fields.Date('Invoice Account Date', readonly=True)
 
     _depends = {
-        'account.invoice.report': ['invoice_date', 'partner_id', 'price_subtotal', 'state', 'move_type'],
+        'account.invoice.report': ['invoice_date', 'partner_id', 'price_subtotal', 'state', 'type'],
         'crm.lead': ['partner_assigned_id'],
         'res.partner': ['activation', 'country_id', 'date_partnership', 'date_review',
                         'grade_id', 'parent_id', 'team_id', 'user_id'],
     }
 
-    @property
-    def _table_query(self):
+    def init(self):
         """
             CRM Lead Report
             @param cr: the current row, from the database cursor
         """
-        return """
+        tools.drop_view_if_exists(self._cr, 'crm_partner_report_assign')
+        self._cr.execute("""
+            CREATE OR REPLACE VIEW crm_partner_report_assign AS (
                 SELECT
                     coalesce(i.id, p.id - 1000000000) as id,
                     p.id as partner_id,
@@ -51,8 +53,6 @@ class CrmPartnerReportAssign(models.Model):
                     i.invoice_date as date
                 FROM
                     res_partner p
-                    left join ({account_invoice_report}) i
-                        on (i.partner_id=p.id and i.move_type in ('out_invoice','out_refund') and i.state='open')
-            """.format(
-                account_invoice_report=self.env['account.invoice.report']._table_query
-            )
+                    left join account_invoice_report i
+                        on (i.partner_id=p.id and i.type in ('out_invoice','out_refund') and i.state='open')
+            )""")

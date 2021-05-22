@@ -6,7 +6,7 @@
 {
     'name': 'UK - Accounting',
     'version': '1.0',
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     'description': """
 This is the latest UK Odoo localisation necessary to run Odoo accounting for UK SME's with:
 =================================================================================================
@@ -30,8 +30,5 @@ This is the latest UK Odoo localisation necessary to run Odoo accounting for UK 
         'data/account_tax_data.xml',
         'data/account_chart_template_data.xml',
     ],
-    'demo': [
-        'demo/l10n_uk_demo.xml',
-        'demo/demo_company.xml',
-    ],
+    'demo' : ['demo/l10n_uk_demo.xml'],
 }

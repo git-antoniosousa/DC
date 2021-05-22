@@ -15,16 +15,22 @@ class L10nLatamDocumentType(models.Model):
             ('credit_note', 'Credit Notes'),
             ('receipt_invoice', 'Receipt Invoice')])
 
-    def _format_document_number(self, document_number):
-        """ Make validation of Import Dispatch Number
-          * making validations on the document_number. If it is wrong it should raise an exception
-          * format the document_number against a pattern and return it
-        """
+    def _get_document_sequence_vals(self, journal):
+        values = super(L10nLatamDocumentType, self)._get_document_sequence_vals(journal)
+        if self.country_id != self.env.ref('base.cl'):
+            return values
+        values.update({
+            'padding': 6,
+            'implementation': 'no_gap',
+            'l10n_latam_document_type_id': self.id,
+            'prefix': None
+        })
+        return values
+
+    def _filter_taxes_included(self, taxes):
+        """ In Chile we include taxes in line amounts depending on type of document.
+        This serves just for document printing purposes """
         self.ensure_one()
-        if self.country_id.code != "CL":
-            return super()._format_document_number(document_number)
-
-        if not document_number:
-            return False
-
-        return document_number.zfill(6)
+        if self.country_id == self.env.ref('base.cl') and self.code in ['39', '41', '110', '111', '112', '34']:
+            return taxes.filtered(lambda x: x.tax_group_id == self.env.ref('l10n_cl.tax_group_iva_19'))
+        return super()._filter_taxes_included(taxes)

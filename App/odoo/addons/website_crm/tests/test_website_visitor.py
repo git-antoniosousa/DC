@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.addons.crm.tests.common import TestCrmCommon
+from odoo.addons.crm.tests.common import TestCrmCases
 from odoo.tests.common import users
 
 
-class TestWebsiteVisitor(TestCrmCommon):
+class TestWebsiteVisitor(TestCrmCases):
 
     def setUp(self):
         super(TestWebsiteVisitor, self).setUp()
@@ -16,7 +16,7 @@ class TestWebsiteVisitor(TestCrmCommon):
             'mobile': '+32456001122'
         })
 
-    @users('user_sales_manager')
+    @users('csm')
     def test_compute_email_phone(self):
         visitor_sudo = self.env['website.visitor'].sudo().create({
             'name': 'Mega Visitor',

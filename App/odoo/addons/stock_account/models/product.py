@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models, _
+from odoo import api, fields, models, tools, _
 from odoo.exceptions import UserError
 from odoo.tools import float_is_zero, float_repr
 from odoo.exceptions import ValidationError
@@ -26,7 +26,6 @@ class ProductTemplate(models.Model):
             new_product_category = self.env['product.category'].browse(vals.get('categ_id'))
 
             for product_template in self:
-                product_template = product_template.with_company(product_template.company_id)
                 valuation_impacted = False
                 if product_template.cost_method != new_product_category.property_cost_method:
                     valuation_impacted = True
@@ -38,7 +37,7 @@ class ProductTemplate(models.Model):
                 # Empty out the stock with the current cost method.
                 description = _("Due to a change of product category (from %s to %s), the costing method\
                                 has changed for product template %s: from %s to %s.") %\
-                    (product_template.categ_id.display_name, new_product_category.display_name,
+                    (product_template.categ_id.display_name, new_product_category.display_name, \
                      product_template.display_name, product_template.cost_method, new_product_category.property_cost_method)
                 out_svl_vals_list, products_orig_quantity_svl, products = Product\
                     ._svl_empty_stock(description, product_template=product_template)
@@ -56,18 +55,18 @@ class ProductTemplate(models.Model):
             if product_template.valuation == 'real_time':
                 move_vals_list += Product._svl_replenish_stock_am(in_stock_valuation_layers)
 
-        # Check access right
-        if move_vals_list and not self.env['stock.valuation.layer'].check_access_rights('read', raise_exception=False):
-            raise UserError(_("The action leads to the creation of a journal entry, for which you don't have the access rights."))
         # Create the account moves.
         if move_vals_list:
-            account_moves = self.env['account.move'].sudo().create(move_vals_list)
-            account_moves._post()
+            account_moves = self.env['account.move'].create(move_vals_list)
+            account_moves.post()
         return res
 
     # -------------------------------------------------------------------------
     # Misc.
     # -------------------------------------------------------------------------
+    def _is_cost_method_standard(self):
+        return self.categ_id.property_cost_method == 'standard'
+
     def _get_product_accounts(self):
         """ Add the stock accounts related to product to the result of super()
         @return: dictionary which contains information regarding stock accounts and super (income+expense accounts)
@@ -96,19 +95,12 @@ class ProductProduct(models.Model):
     value_svl = fields.Float(compute='_compute_value_svl', compute_sudo=True)
     quantity_svl = fields.Float(compute='_compute_value_svl', compute_sudo=True)
     stock_valuation_layer_ids = fields.One2many('stock.valuation.layer', 'product_id')
-    valuation = fields.Selection(related="categ_id.property_valuation", readonly=True)
-    cost_method = fields.Selection(related="categ_id.property_cost_method", readonly=True)
-
-    def write(self, vals):
-        if 'standard_price' in vals and not self.env.context.get('disable_auto_svl'):
-            self.filtered(lambda p: p.cost_method != 'fifo')._change_standard_price(vals['standard_price'])
-        return super(ProductProduct, self).write(vals)
 
     @api.depends('stock_valuation_layer_ids')
-    @api.depends_context('to_date', 'company')
+    @api.depends_context('to_date', 'force_company')
     def _compute_value_svl(self):
         """Compute `value_svl` and `quantity_svl`."""
-        company_id = self.env.company.id
+        company_id = self.env.context.get('force_company', self.env.company.id)
         domain = [
             ('product_id', 'in', self.ids),
             ('company_id', '=', company_id),
@@ -126,22 +118,6 @@ class ProductProduct(models.Model):
         remaining = (self - products)
         remaining.value_svl = 0
         remaining.quantity_svl = 0
-
-    # -------------------------------------------------------------------------
-    # Actions
-    # -------------------------------------------------------------------------
-    def action_revaluation(self):
-        self.ensure_one()
-        ctx = dict(self._context, default_product_id=self.id, default_company_id=self.env.company.id)
-        return {
-            'name': _("Product Revaluation"),
-            'view_mode': 'form',
-            'res_model': 'stock.valuation.layer.revaluation',
-            'view_id': self.env.ref('stock_account.stock_valuation_layer_revaluation_form_view').id,
-            'type': 'ir.actions.act_window',
-            'context': ctx,
-            'target': 'new'
-        }
 
     # -------------------------------------------------------------------------
     # SVL creation helpers
@@ -177,7 +153,7 @@ class ProductProduct(models.Model):
         # Quantity is negative for out valuation layers.
         quantity = -1 * quantity
         vals = {
-            'product_id': self.id,
+            'product_id' : self.id,
             'value': quantity * self.standard_price,
             'unit_cost': self.standard_price,
             'quantity': quantity,
@@ -203,17 +179,22 @@ class ProductProduct(models.Model):
                 vals.update(fifo_vals)
         return vals
 
-    def _change_standard_price(self, new_price):
+    def write(self, vals):
+        if self.env.context.get('import_file') and not self.env.context.get('import_standard_price'):
+            if 'standard_price' in vals:
+                for product in self:
+                    counterpart_account_id = product.property_account_expense_id.id or product.categ_id.property_account_expense_categ_id.id
+                    product.with_context(import_standard_price=True)._change_standard_price(vals['standard_price'], counterpart_account_id)
+        res = super(ProductProduct, self).write(vals)
+        return res
+
+    def _change_standard_price(self, new_price, counterpart_account_id=False):
         """Helper to create the stock valuation layers and the account moves
         after an update of standard price.
 
         :param new_price: new standard price
         """
         # Handle stock valuation layers.
-
-        if self.filtered(lambda p: p.valuation == 'real_time') and not self.env['stock.valuation.layer'].check_access_rights('read', raise_exception=False):
-            raise UserError(_("You cannot update the cost of a product in automated valuation as it leads to the creation of a journal entry, for which you don't have the access rights."))
-
         svl_vals_list = []
         company_id = self.env.company
         for product in self:
@@ -248,44 +229,31 @@ class ProductProduct(models.Model):
                 continue
 
             # Sanity check.
-            if not product_accounts[product.id].get('expense'):
-                raise UserError(_('You must set a counterpart account on your product category.'))
+            if counterpart_account_id is False:
+                raise UserError(_('You must set a counterpart account.'))
             if not product_accounts[product.id].get('stock_valuation'):
                 raise UserError(_('You don\'t have any stock valuation account defined on your product category. You must define one before processing this operation.'))
 
             if value < 0:
-                debit_account_id = product_accounts[product.id]['expense'].id
+                debit_account_id = counterpart_account_id
                 credit_account_id = product_accounts[product.id]['stock_valuation'].id
             else:
                 debit_account_id = product_accounts[product.id]['stock_valuation'].id
-                credit_account_id = product_accounts[product.id]['expense'].id
+                credit_account_id = counterpart_account_id
 
             move_vals = {
                 'journal_id': product_accounts[product.id]['stock_journal'].id,
                 'company_id': company_id.id,
                 'ref': product.default_code,
                 'stock_valuation_layer_ids': [(6, None, [stock_valuation_layer.id])],
-                'move_type': 'entry',
                 'line_ids': [(0, 0, {
-                    'name': _(
-                        '%(user)s changed cost from %(previous)s to %(new_price)s - %(product)s',
-                        user=self.env.user.name,
-                        previous=product.standard_price,
-                        new_price=new_price,
-                        product=product.display_name
-                    ),
+                    'name': _('%s changed cost from %s to %s - %s') % (self.env.user.name, product.standard_price, new_price, product.display_name),
                     'account_id': debit_account_id,
                     'debit': abs(value),
                     'credit': 0,
                     'product_id': product.id,
                 }), (0, 0, {
-                    'name': _(
-                        '%(user)s changed cost from %(previous)s to %(new_price)s - %(product)s',
-                        user=self.env.user.name,
-                        previous=product.standard_price,
-                        new_price=new_price,
-                        product=product.display_name
-                    ),
+                    'name': _('%s changed cost from %s to %s - %s') % (self.env.user.name, product.standard_price, new_price, product.display_name),
                     'account_id': credit_account_id,
                     'debit': 0,
                     'credit': abs(value),
@@ -293,17 +261,19 @@ class ProductProduct(models.Model):
                 })],
             }
             am_vals_list.append(move_vals)
-
-        account_moves = self.env['account.move'].sudo().create(am_vals_list)
+        account_moves = self.env['account.move'].create(am_vals_list)
         if account_moves:
-            account_moves._post()
+            account_moves.post()
+
+        # Actually update the standard price.
+        self.with_context(force_company=company_id.id).sudo().write({'standard_price': new_price})
 
     def _run_fifo(self, quantity, company):
         self.ensure_one()
 
         # Find back incoming stock valuation layers (called candidates here) to value `quantity`.
         qty_to_take_on_candidates = quantity
-        candidates = self.env['stock.valuation.layer'].sudo().search([
+        candidates = self.env['stock.valuation.layer'].sudo().with_context(active_test=False).search([
             ('product_id', '=', self.id),
             ('remaining_qty', '>', 0),
             ('company_id', '=', company.id),
@@ -328,16 +298,12 @@ class ProductProduct(models.Model):
 
             qty_to_take_on_candidates -= qty_taken_on_candidate
             tmp_value += value_taken_on_candidate
-
             if float_is_zero(qty_to_take_on_candidates, precision_rounding=self.uom_id.rounding):
-                if float_is_zero(candidate.remaining_qty, precision_rounding=self.uom_id.rounding):
-                    next_candidates = candidates.filtered(lambda svl: svl.remaining_qty > 0)
-                    new_standard_price = next_candidates and next_candidates[0].unit_cost or new_standard_price
                 break
 
         # Update the standard price with the price of the last used candidate, if any.
         if new_standard_price and self.cost_method == 'fifo':
-            self.sudo().with_company(company.id).with_context(disable_auto_svl=True).standard_price = new_standard_price
+            self.sudo().with_context(force_company=company.id).standard_price = new_standard_price
 
         # If there's still quantity to value but we're out of candidates, we fall in the
         # negative stock use case. We chose to value the out move at the price of the
@@ -441,9 +407,9 @@ class ProductProduct(models.Model):
             vacuum_svl = self.env['stock.valuation.layer'].sudo().create(vals)
 
             # If some negative stock were fixed, we need to recompute the standard price.
-            product = self.with_company(company.id)
+            product = self.with_context(force_company=company.id)
             if product.cost_method == 'average' and not float_is_zero(product.quantity_svl, precision_rounding=self.uom_id.rounding):
-                product.sudo().with_context(disable_auto_svl=True).write({'standard_price': product.value_svl / product.quantity_svl})
+                product.sudo().write({'standard_price': product.value_svl / product.quantity_svl})
 
             # Create the account move.
             if self.valuation != 'real_time':
@@ -451,62 +417,6 @@ class ProductProduct(models.Model):
             vacuum_svl.stock_move_id._account_entry_move(
                 vacuum_svl.quantity, vacuum_svl.description, vacuum_svl.id, vacuum_svl.value
             )
-            # Create the related expense entry
-            self._create_fifo_vacuum_anglo_saxon_expense_entry(vacuum_svl, svl_to_vacuum)
-
-    def _create_fifo_vacuum_anglo_saxon_expense_entry(self, vacuum_svl, svl_to_vacuum):
-        """ When product is delivered and invoiced while you don't have units in stock anymore, there are chances of that
-            product getting undervalued/overvalued. So, we should nevertheless take into account the fact that the product has
-            already been delivered and invoiced to the customer by posting the value difference in the expense account also.
-            Consider the below case where product is getting undervalued:
-
-            You bought 8 units @ 10$ -> You have a stock valuation of 8 units, unit cost 10.
-            Then you deliver 10 units of the product.
-            You assumed the missing 2 should go out at a value of 10$ but you are not sure yet as it hasn't been bought in Odoo yet.
-            Afterwards, you buy missing 2 units of the same product at 12$ instead of expected 10$.
-            In case the product has been undervalued when delivered without stock, the vacuum entry is the following one (this entry already takes place):
-
-            Account                         | Debit   | Credit
-            ===================================================
-            Stock Valuation                 | 0.00     | 4.00
-            Stock Interim (Delivered)       | 4.00     | 0.00
-
-            So, on delivering product with different price, We should create additional journal items like:
-            Account                         | Debit    | Credit
-            ===================================================
-            Stock Interim (Delivered)       | 0.00     | 4.00
-            Expenses Revaluation            | 4.00     | 0.00
-        """
-        if not vacuum_svl.company_id.anglo_saxon_accounting or not svl_to_vacuum.stock_move_id._is_out():
-            return False
-        AccountMove = self.env['account.move'].sudo()
-        account_move_lines = svl_to_vacuum.account_move_id.line_ids
-        # Find related customer invoice where product is delivered while you don't have units in stock anymore
-        reconciled_line_ids = list(set(account_move_lines._reconciled_lines()) - set(account_move_lines.ids))
-        account_move = AccountMove.search([('line_ids','in', reconciled_line_ids)], limit=1)
-        # If delivered quantity is not invoiced then no need to create this entry
-        if not account_move:
-            return False
-        accounts = svl_to_vacuum.product_id.product_tmpl_id.get_product_accounts(fiscal_pos=account_move.fiscal_position_id)
-        if not accounts.get('stock_output') or not accounts.get('expense'):
-            return False
-        description = "Expenses %s" % (vacuum_svl.description)
-        move_lines = vacuum_svl.stock_move_id._prepare_account_move_line(
-            vacuum_svl.quantity, vacuum_svl.value * -1,
-            accounts['stock_output'].id, accounts['expense'].id,
-            description)
-        new_account_move = AccountMove.sudo().create({
-            'journal_id': accounts['stock_journal'].id,
-            'line_ids': move_lines,
-            'date': self._context.get('force_period_date', fields.Date.context_today(self)),
-            'ref': description,
-            'stock_move_id': vacuum_svl.stock_move_id.id,
-            'move_type': 'entry',
-        })
-        new_account_move._post()
-        to_reconcile_account_move_lines = vacuum_svl.account_move_id.line_ids.filtered(lambda l: not l.reconciled and l.account_id == accounts['stock_output'] and l.account_id.reconcile)
-        to_reconcile_account_move_lines += new_account_move.line_ids.filtered(lambda l: not l.reconciled and l.account_id == accounts['stock_output'] and l.account_id.reconcile)
-        return to_reconcile_account_move_lines.reconcile()
 
     @api.model
     def _svl_empty_stock(self, description, product_category=None, product_template=None):
@@ -558,7 +468,7 @@ class ProductProduct(models.Model):
         product_accounts = {product.id: product.product_tmpl_id.get_product_accounts() for product in stock_valuation_layers.mapped('product_id')}
         for out_stock_valuation_layer in stock_valuation_layers:
             product = out_stock_valuation_layer.product_id
-            expense_account = product._get_product_accounts()['expense']
+            expense_account = product.property_account_expense_id or product.categ_id.property_account_expense_categ_id
             if not expense_account:
                 raise UserError(_('Please define an expense account for this product: "%s" (id:%d) - or for its category: "%s".') % (product.name, product.id, self.name))
             if not product_accounts[product.id].get('stock_valuation'):
@@ -585,7 +495,7 @@ class ProductProduct(models.Model):
                     'credit': abs(value),
                     'product_id': product.id,
                 })],
-                'move_type': 'entry',
+                'type': 'entry',
             }
             move_vals_list.append(move_vals)
         return move_vals_list
@@ -621,7 +531,7 @@ class ProductProduct(models.Model):
                     'credit': abs(value),
                     'product_id': product.id,
                 })],
-                'move_type': 'entry',
+                'type': 'entry',
             }
             move_vals_list.append(move_vals)
         return move_vals_list
@@ -629,6 +539,61 @@ class ProductProduct(models.Model):
     # -------------------------------------------------------------------------
     # Anglo saxon helpers
     # -------------------------------------------------------------------------
+    @api.model
+    def _anglo_saxon_sale_move_lines(self, name, product, uom, qty, price_unit, currency=False, amount_currency=False, fiscal_position=False, account_analytic=False, analytic_tags=False):
+        """Prepare dicts describing new journal COGS journal items for a product sale.
+
+        Returns a dict that should be passed to `_convert_prepared_anglosaxon_line()` to
+        obtain the creation value for the new journal items.
+
+        :param Model product: a product.product record of the product being sold
+        :param Model uom: a product.uom record of the UoM of the sale line
+        :param Integer qty: quantity of the product being sold
+        :param Integer price_unit: unit price of the product being sold
+        :param Model currency: a res.currency record from the order of the product being sold
+        :param Interger amount_currency: unit price in the currency from the order of the product being sold
+        :param Model fiscal_position: a account.fiscal.position record from the order of the product being sold
+        :param Model account_analytic: a account.account.analytic record from the line of the product being sold
+        """
+
+        if product.type == 'product' and product.valuation == 'real_time':
+            accounts = product.product_tmpl_id.get_product_accounts(fiscal_pos=fiscal_position)
+            # debit account dacc will be the output account
+            dacc = accounts['stock_output'].id
+            # credit account cacc will be the expense account
+            cacc = accounts['expense'].id
+            if dacc and cacc:
+                return [
+                    {
+                        'type': 'src',
+                        'name': name[:64],
+                        'price_unit': price_unit,
+                        'quantity': qty,
+                        'price': price_unit * qty,
+                        'currency_id': currency and currency.id,
+                        'amount_currency': amount_currency,
+                        'account_id': dacc,
+                        'product_id': product.id,
+                        'uom_id': uom.id,
+                    },
+
+                    {
+                        'type': 'src',
+                        'name': name[:64],
+                        'price_unit': price_unit,
+                        'quantity': qty,
+                        'price': -1 * price_unit * qty,
+                        'currency_id': currency and currency.id,
+                        'amount_currency': -1 * amount_currency,
+                        'account_id': cacc,
+                        'product_id': product.id,
+                        'uom_id': uom.id,
+                        'account_analytic_id': account_analytic and account_analytic.id,
+                        'analytic_tag_ids': analytic_tags and analytic_tags.ids and [(6, 0, analytic_tags.ids)] or False,
+                    },
+                ]
+        return []
+
     def _stock_account_get_anglo_saxon_price_unit(self, uom=False):
         price = self.standard_price
         if not self or not uom or self.uom_id.id == uom.id:
@@ -649,9 +614,6 @@ class ProductProduct(models.Model):
         self.ensure_one()
         if not qty_to_invoice:
             return 0.0
-
-        if not qty_to_invoice:
-            return 0
 
         candidates = stock_moves\
             .sudo()\
@@ -712,8 +674,9 @@ class ProductCategory(models.Model):
     property_stock_account_input_categ_id = fields.Many2one(
         'account.account', 'Stock Input Account', company_dependent=True,
         domain="[('company_id', '=', allowed_company_ids[0]), ('deprecated', '=', False)]", check_company=True,
-        help="""Counterpart journal items for all incoming stock moves will be posted in this account, unless there is a specific valuation account
-                set on the source location. This is the default value for all products in this category. It can also directly be set on each product.""")
+        help="""When doing automated inventory valuation, counterpart journal items for all incoming stock moves will be posted in this account,
+                unless there is a specific valuation account set on the source location. This is the default value for all products in this category.
+                It can also directly be set on each product.""")
     property_stock_account_output_categ_id = fields.Many2one(
         'account.account', 'Stock Output Account', company_dependent=True,
         domain="[('company_id', '=', allowed_company_ids[0]), ('deprecated', '=', False)]", check_company=True,
@@ -732,7 +695,7 @@ class ProductCategory(models.Model):
             valuation_account = category.property_stock_valuation_account_id
             input_and_output_accounts = category.property_stock_account_input_categ_id | category.property_stock_account_output_categ_id
             if valuation_account and valuation_account in input_and_output_accounts:
-                raise ValidationError(_('The Stock Input and/or Output accounts cannot be the same as the Stock Valuation account.'))
+                raise ValidationError(_('The Stock Input and/or Output accounts cannot be the same than the Stock Valuation account.'))
 
     @api.onchange('property_cost_method')
     def onchange_property_valuation(self):
@@ -791,11 +754,9 @@ class ProductCategory(models.Model):
             if product_category.property_valuation == 'real_time':
                 move_vals_list += Product._svl_replenish_stock_am(in_stock_valuation_layers)
 
-        # Check access right
-        if move_vals_list and not self.env['stock.valuation.layer'].check_access_rights('read', raise_exception=False):
-            raise UserError(_("The action leads to the creation of a journal entry, for which you don't have the access rights."))
         # Create the account moves.
         if move_vals_list:
-            account_moves = self.env['account.move'].sudo().create(move_vals_list)
-            account_moves._post()
+            account_moves = self.env['account.move'].create(move_vals_list)
+            account_moves.post()
         return res
+

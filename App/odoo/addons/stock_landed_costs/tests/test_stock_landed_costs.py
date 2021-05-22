@@ -13,23 +13,30 @@ class TestStockLandedCosts(TestStockLandedCostsCommon):
         # In order to test the landed costs feature of stock,
         # I create a landed cost, confirm it and check its account move created
 
+        self._load('account', 'test', 'account_minimal_test.xml')
+        self._load('stock_account', 'test', 'stock_valuation_account.xml')
+
         # I create 2 products with different volume and gross weight and configure
         # them for real_time valuation and fifo costing method
         product_landed_cost_1 = self.env['product.product'].create({
             'name': "LC product 1",
             'weight': 10,
             'volume': 1,
-            'categ_id': self.stock_account_product_categ.id,
             'type': 'product',
         })
+        product_landed_cost_1.product_tmpl_id.categ_id.property_cost_method = 'fifo'
+        product_landed_cost_1.product_tmpl_id.categ_id.property_stock_account_input_categ_id = self.ref('stock_landed_costs.o_expense')
+        product_landed_cost_1.product_tmpl_id.categ_id.property_stock_account_output_categ_id = self.ref('stock_landed_costs.o_income')
 
         product_landed_cost_2 = self.env['product.product'].create({
             'name': "LC product 2",
             'weight': 20,
             'volume': 1.5,
-            'categ_id': self.stock_account_product_categ.id,
             'type': 'product',
         })
+        product_landed_cost_2.product_tmpl_id.categ_id.property_cost_method = 'fifo'
+        product_landed_cost_2.product_tmpl_id.categ_id.property_stock_account_input_categ_id = self.ref('stock_landed_costs.o_expense')
+        product_landed_cost_2.product_tmpl_id.categ_id.property_stock_account_output_categ_id = self.ref('stock_landed_costs.o_income')
 
         self.assertEqual(product_landed_cost_1.value_svl, 0)
         self.assertEqual(product_landed_cost_1.quantity_svl, 0)
@@ -41,12 +48,12 @@ class TestStockLandedCosts(TestStockLandedCostsCommon):
         # I create 2 picking moving those products
         vals = dict(picking_default_vals, **{
             'name': 'LC_pick_1',
-            'picking_type_id': self.warehouse.out_type_id.id,
+            'picking_type_id': self.ref('stock.picking_type_out'),
             'move_lines': [(0, 0, {
                 'product_id': product_landed_cost_1.id,
                 'product_uom_qty': 5,
                 'product_uom': self.ref('uom.product_uom_unit'),
-                'location_id': self.warehouse.lot_stock_id.id,
+                'location_id': self.ref('stock.stock_location_stock'),
                 'location_dest_id': self.ref('stock.stock_location_customers'),
             })],
         })
@@ -66,12 +73,12 @@ class TestStockLandedCosts(TestStockLandedCostsCommon):
 
         vals = dict(picking_default_vals, **{
             'name': 'LC_pick_2',
-            'picking_type_id': self.warehouse.out_type_id.id,
+            'picking_type_id': self.ref('stock.picking_type_out'),
             'move_lines': [(0, 0, {
                 'product_id': product_landed_cost_2.id,
                 'product_uom_qty': 10,
                 'product_uom': self.ref('uom.product_uom_unit'),
-                'location_id': self.warehouse.lot_stock_id.id,
+                'location_id': self.ref('stock.stock_location_stock'),
                 'location_dest_id': self.ref('stock.stock_location_customers'),
             })],
         })
@@ -95,18 +102,14 @@ class TestStockLandedCosts(TestStockLandedCostsCommon):
 
         # I create a landed cost for those 2 pickings
         default_vals = self.env['stock.landed.cost'].default_get(list(self.env['stock.landed.cost'].fields_get()))
-        virtual_home_staging = self.env['product.product'].create({
-            'name': 'Virtual Home Staging',
-            'categ_id': self.stock_account_product_categ.id,
-        })
         default_vals.update({
             'picking_ids': [picking_landed_cost_1.id, picking_landed_cost_2.id],
-            'account_journal_id': self.expenses_journal,
+            'account_journal_id': self.ref('stock_landed_costs.expenses_journal'),
             'cost_lines': [
-                (0, 0, {'product_id': virtual_home_staging.id}),
-                (0, 0, {'product_id': virtual_home_staging.id}),
-                (0, 0, {'product_id': virtual_home_staging.id}),
-                (0, 0, {'product_id': virtual_home_staging.id})],
+                (0, 0, {'product_id': self.ref('product.product_product_2')}),
+                (0, 0, {'product_id': self.ref('product.product_product_2')}),
+                (0, 0, {'product_id': self.ref('product.product_product_2')}),
+                (0, 0, {'product_id': self.ref('product.product_product_2')})],
             'valuation_adjustment_lines': [],
         })
         cost_lines_values = {

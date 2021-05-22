@@ -6,7 +6,7 @@ var tour = require('web_tour.tour');
 tour.register('sale_product_configurator_edition_tour', {
     url: "/web",
     test: true,
-}, [tour.stepUtils.showAppsMenuItem(), {
+}, [tour.STEPS.SHOW_APPS_MENU_ITEM, {
     trigger: '.o_app[data-menu-xmlid="sale.sale_menu_root"]',
     edition: 'community'
 }, {
@@ -28,7 +28,7 @@ tour.register('sale_product_configurator_edition_tour', {
         $input.trigger(keyDownEvent);
     }
 }, {
-    trigger: 'ul.ui-autocomplete a:contains("Customizable Desk (TEST)")',
+    trigger: 'ul.ui-autocomplete a:contains("Customizable Desk")',
     run: 'click'
 }, {
     trigger: '.configurator_container span:contains("Steel")',
@@ -49,7 +49,7 @@ tour.register('sale_product_configurator_edition_tour', {
     extra_trigger: '.oe_optional_products_modal',
     run: 'click'
 }, {
-    trigger: 'td.o_data_cell:contains("Customizable Desk (TEST) (Aluminium, White)")',
+    trigger: 'td.o_data_cell:contains("Customizable Desk (CONFIG) (Aluminium, White)")',
     extra_trigger: 'div[name="order_line"]',
     run: function (){} // check added product
 }, {
@@ -94,7 +94,7 @@ tour.register('sale_product_configurator_edition_tour', {
 }, {
     trigger: '.o_sale_product_configurator_edit',
 }, {
-    trigger: 'td.o_data_cell:contains("Customizable Desk (TEST) (Custom, Black)")',
+    trigger: 'td.o_data_cell:contains("Customizable Desk (CONFIG) (Custom, Black)")',
     extra_trigger: 'div[name="order_line"]',
     run: function (){} // check updated product
 }, {
@@ -141,14 +141,14 @@ tour.register('sale_product_configurator_edition_tour', {
 }, {
     trigger: '.o_sale_product_configurator_edit',
 }, {
-    trigger: 'td.o_data_cell:contains("2.00")',
+    trigger: 'td.o_data_cell:contains("2.000")',
     run: function (){} // check quantity
 }, {
     trigger: 'td.o_product_configurator_cell',
     run: function () {
         // used to check that the description does not contain a custom value anymore
         if ($('td.o_data_cell:contains("Custom: another nice custom value")').length === 0){
-            $('td.o_data_cell:contains("Customizable Desk (TEST) (Steel, Black)")').html('tour success');
+            $('td.o_data_cell:contains("Customizable Desk (CONFIG) (Steel, Black)")').html('tour success');
         }
     }
 }, {

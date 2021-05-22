@@ -4,7 +4,7 @@
 {
     'name': 'OdooBot for livechat',
     'version': '1.0',
-    'category': 'Productivity/Discuss',
+    'category': 'Discuss',
     'summary': 'Add livechat support for OdooBot',
     'description': "",
     'website': 'https://www.odoo.com/page/discuss',

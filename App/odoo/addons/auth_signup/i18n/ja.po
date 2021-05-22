@@ -3,20 +3,19 @@
 # 	* auth_signup
 # 
 # Translators:
-# Shunho Kin <s-kin@shonan-innovation.co.jp>, 2020
-# Martin Trigaux, 2020
-# Yoshi Tashiro <tashiro@roomsfor.hk>, 2020
-# Norimichi Sugimoto <norimichi.sugimoto@tls-ltd.co.jp>, 2020
+# Martin Trigaux, 2019
+# Norimichi Sugimoto <norimichi.sugimoto@tls-ltd.co.jp>, 2019
 # Tim Siu Lai <tl@roomsfor.hk>, 2020
 # Hau Dao <hau@quartile.co>, 2020
+# Yoshi Tashiro <tashiro@roomsfor.hk>, 2020
 # Noma Yuki, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.5\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 07:28+0000\n"
-"PO-Revision-Date: 2020-09-07 08:10+0000\n"
+"POT-Creation-Date: 2019-08-26 08:16+0000\n"
+"PO-Revision-Date: 2019-08-26 09:09+0000\n"
 "Last-Translator: Noma Yuki, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/odoo/teams/41243/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -346,11 +345,8 @@ msgid ""
 "                            </a>\n"
 "                        </div>\n"
 "                        If you do not expect this, you can safely ignore this email.<br/><br/>\n"
-"                        Thanks,\n"
-"                        % if user.signature:\n"
-"                            <br/>\n"
-"                            ${user.signature | safe}\n"
-"                        % endif\n"
+"                        Thanks,<br/>\n"
+"                        ${user.signature | safe}<br/>\n"
 "                    </div>\n"
 "                </td></tr>\n"
 "                <tr><td style=\"text-align:center;\">\n"
@@ -394,6 +390,86 @@ msgid ""
 "</table>\n"
 "            "
 msgstr ""
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;\"><tr><td align=\"center\">\n"
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"padding: 16px; background-color: white; color: #454748; border-collapse:separate;\">\n"
+"<tbody>\n"
+"    <!-- HEADER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\">\n"
+"                    <span style=\"font-size: 10px;\">アカウント</span><br/>\n"
+"                    <span style=\"font-size: 20px; font-weight: bold;\">\n"
+"                        ${object.name}\n"
+"                    </span>\n"
+"                </td><td valign=\"middle\" align=\"right\">\n"
+"                    <img src=\"/logo.png?company=${object.company_id.id}\" style=\"padding: 0px; margin: 0px; height: auto; width: 80px;\" alt=\"${object.company_id.name}\"/>\n"
+"                </td></tr>\n"
+"                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- CONTENT -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"top\" style=\"font-size: 13px;\">\n"
+"                    <div>\n"
+"                       ${object.name} 様<br/><br/>\n"
+"                        このメールにリンクされているOdooアカウントのパスワードのリセットが要求されました。\n"
+"                        下記のリンクを24時間内にクリックしてパスワードを変更することができます。<br/>\n"
+"                        <div style=\"margin: 16px 0px 16px 0px;\">\n"
+"                            <a href=\"${object.signup_url}\" style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
+"                                パスワードリセット\n"
+"                            </a>\n"
+"                        </div>\n"
+"                        お心当たりのない場合は、こちらのメールは無視してください。<br/><br/>\n"
+"                       ありがとうございます。<br/>\n"
+"                        ${user.signature | safe}<br/>\n"
+"                    </div>\n"
+"                </td></tr>\n"
+"                <tr><td style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- FOOTER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\" align=\"left\">\n"
+"                    ${object.company_id.name}\n"
+"                </td></tr>\n"
+"                <tr><td valign=\"middle\" align=\"left\" style=\"opacity: 0.7;\">\n"
+"                    ${object.company_id.phone}\n"
+"                    % if object.company_id.email\n"
+"                        | <a href=\"'mailto:%s' % ${object.company_id.email}\" style=\"text-decoration:none; color: #454748;\">${object.company_id.email}</a>\n"
+"                    % endif\n"
+"                    % if object.company_id.website\n"
+"                        | <a href=\"'%s' % ${object.company_id.website}\" style=\"text-decoration:none; color: #454748;\">\n"
+"                        ${object.company_id.website}\n"
+"                    </a>\n"
+"                    % endif\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"</tbody>\n"
+"</table>\n"
+"</td></tr>\n"
+"<!-- POWERED BY -->\n"
+"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
+"    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;\">\n"
+"      <tr><td style=\"text-align: center; font-size: 13px;\">\n"
+"        Powered by <a target=\"_blank\" href=\"https://www.odoo.com?utm_source=db&amp;utm_medium=auth\" style=\"color: #875A7B;\">Odoo</a>\n"
+"      </td></tr>\n"
+"    </table>\n"
+"</td></tr>\n"
+"</table>\n"
+"            "
 
 #. module: auth_signup
 #: model:mail.template,body_html:auth_signup.mail_template_user_signup_account_created
@@ -430,15 +506,12 @@ msgid ""
 "                        Your login is <strong>${object.email}</strong><br/>\n"
 "                        To gain access to your account, you can use the following link:\n"
 "                        <div style=\"margin: 16px 0px 16px 0px;\">\n"
-"                            <a href=\"/web/login?auth_login=${object.email}\" style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
+"                            <a href=\"/web/login?${ctx['auth_login']}\" style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
 "                                Go to My Account\n"
 "                            </a>\n"
 "                        </div>\n"
-"                        Thanks,<br/>\n"
-"                        % if user.signature:\n"
-"                            <br/>\n"
-"                            ${user.signature | safe}\n"
-"                        % endif\n"
+"                        Thanks,<br/><br/>\n"
+"                        ${user.signature | safe}<br/>\n"
 "                    </div>\n"
 "                </td></tr>\n"
 "                <tr><td style=\"text-align:center;\">\n"
@@ -481,6 +554,85 @@ msgid ""
 "</td></tr>\n"
 "</table>"
 msgstr ""
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;\"><tr><td align=\"center\">\n"
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"padding: 16px; background-color: white; color: #454748; border-collapse:separate;\">\n"
+"<tbody>\n"
+"    <!-- HEADER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\">\n"
+"                    <span style=\"font-size: 10px;\">あなたのアカウント</span><br/>\n"
+"                    <span style=\"font-size: 20px; font-weight: bold;\">\n"
+"                        ${object.name}\n"
+"                    </span>\n"
+"                </td><td valign=\"middle\" align=\"right\">\n"
+"                    <img src=\"/logo.png?company=${object.company_id.id}\" style=\"padding: 0px; margin: 0px; height: auto; width: 80px;\" alt=\"${object.company_id.name}\"/>\n"
+"                </td></tr>\n"
+"                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- CONTENT -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"top\" style=\"font-size: 13px;\">\n"
+"                    <div>\n"
+"                        ${object.name},<br/><br/>\n"
+"                        あなたのアカウントが成功に作成されました！<br/>\n"
+"                        ログイン名は <strong>${object.email}</strong><br/>\n"
+"                        下記のリンクをクリックしてアカウントにアクセスすることができます。\n"
+"                        <div style=\"margin: 16px 0px 16px 0px;\">\n"
+"                            <a href=\"/web/login?${ctx['auth_login']}\" style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
+"                                あなたのアカウントへ\n"
+"                            </a>\n"
+"                        </div>\n"
+"                       ありがとうございます。<br/><br/>\n"
+"                        ${user.signature | safe}<br/>\n"
+"                    </div>\n"
+"                </td></tr>\n"
+"                <tr><td style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- FOOTER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\" align=\"left\">\n"
+"                    ${object.company_id.name}\n"
+"                </td></tr>\n"
+"                <tr><td valign=\"middle\" align=\"left\" style=\"opacity: 0.7;\">\n"
+"                    ${object.company_id.phone}\n"
+"                    % if object.company_id.email\n"
+"                        | <a href=\"'mailto:%s' % ${object.company_id.email}\" style=\"text-decoration:none; color: #454748;\">${object.company_id.email}</a>\n"
+"                    % endif\n"
+"                    % if object.company_id.website\n"
+"                        | <a href=\"'%s' % ${object.company_id.website}\" style=\"text-decoration:none; color: #454748;\">\n"
+"                        ${object.company_id.website}\n"
+"                    </a>\n"
+"                    % endif\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"</tbody>\n"
+"</table>\n"
+"</td></tr>\n"
+"<!-- POWERED BY -->\n"
+"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
+"    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;\">\n"
+"      <tr><td style=\"text-align: center; font-size: 13px;\">\n"
+"        Powered by <a target=\"_blank\" href=\"https://www.odoo.com?utm_source=db&amp;utm_medium=auth\" style=\"color: #875A7B;\">Odoo</a>\n"
+"      </td></tr>\n"
+"    </table>\n"
+"</td></tr>\n"
+"</table>"
 
 #. module: auth_signup
 #: model_terms:ir.ui.view,arch_db:auth_signup.signup
@@ -519,7 +671,7 @@ msgstr "メール送信できません：ユーザ %s には、電子メール�
 #. module: auth_signup
 #: model_terms:ir.ui.view,arch_db:auth_signup.res_users_view_form
 msgid "Close"
-msgstr "クローズ"
+msgstr "閉じる"
 
 #. module: auth_signup
 #: model:ir.model,name:auth_signup.model_res_config_settings
@@ -569,14 +721,6 @@ msgid "Default Access Rights"
 msgstr "デフォルトアクセス権"
 
 #. module: auth_signup
-#: model:ir.model.fields,field_description:auth_signup.field_ir_http__display_name
-#: model:ir.model.fields,field_description:auth_signup.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:auth_signup.field_res_partner__display_name
-#: model:ir.model.fields,field_description:auth_signup.field_res_users__display_name
-msgid "Display Name"
-msgstr "表示名"
-
-#. module: auth_signup
 #: model_terms:ir.ui.view,arch_db:auth_signup.login
 msgid "Don't have an account?"
 msgstr "アカウントがありませんか？"
@@ -590,7 +734,7 @@ msgstr "ログインページでのパスワード再設定を有効化"
 #. module: auth_signup
 #: model:ir.model.fields.selection,name:auth_signup.selection__res_config_settings__auth_signup_uninvited__b2c
 msgid "Free sign up"
-msgstr "自由にサインアップ"
+msgstr "自由にアインアップ"
 
 #. module: auth_signup
 #: model:ir.model,name:auth_signup.model_ir_http
@@ -598,26 +742,10 @@ msgid "HTTP Routing"
 msgstr "HTTPルーティング"
 
 #. module: auth_signup
-#: model:ir.model.fields,field_description:auth_signup.field_ir_http__id
-#: model:ir.model.fields,field_description:auth_signup.field_res_config_settings__id
-#: model:ir.model.fields,field_description:auth_signup.field_res_partner__id
-#: model:ir.model.fields,field_description:auth_signup.field_res_users__id
-msgid "ID"
-msgstr "ID"
-
-#. module: auth_signup
 #: code:addons/auth_signup/controllers/main.py:0
 #, python-format
 msgid "Invalid signup token"
 msgstr "サインアップトークンは無効です。"
-
-#. module: auth_signup
-#: model:ir.model.fields,field_description:auth_signup.field_ir_http____last_update
-#: model:ir.model.fields,field_description:auth_signup.field_res_config_settings____last_update
-#: model:ir.model.fields,field_description:auth_signup.field_res_partner____last_update
-#: model:ir.model.fields,field_description:auth_signup.field_res_users____last_update
-msgid "Last Modified on"
-msgstr "最終更新日"
 
 #. module: auth_signup
 #: model_terms:ir.ui.view,arch_db:auth_signup.res_config_settings_view_form
@@ -678,10 +806,9 @@ msgid "Reset password: invalid username or email"
 msgstr "パスワード再設定: ユーザ名またはEメールが無効です"
 
 #. module: auth_signup
-#: model:ir.actions.server,name:auth_signup.action_send_password_reset_instructions
 #: model_terms:ir.ui.view,arch_db:auth_signup.res_users_view_form
-msgid "Send Password Reset Instructions"
-msgstr ""
+msgid "Send Reset Password Instructions"
+msgstr "パスワード再設定のEメール送信"
 
 #. module: auth_signup
 #: model_terms:ir.ui.view,arch_db:auth_signup.res_users_view_form
@@ -806,12 +933,6 @@ msgstr ""
 #: model:mail.template,subject:auth_signup.mail_template_user_signup_account_created
 msgid "Welcome to ${object.company_id.name}!"
 msgstr "${object.company_id.name} へようこそ!"
-
-#. module: auth_signup
-#: code:addons/auth_signup/models/res_users.py:0
-#, python-format
-msgid "You cannot perform this action on an archived user."
-msgstr ""
 
 #. module: auth_signup
 #: model_terms:ir.ui.view,arch_db:auth_signup.fields

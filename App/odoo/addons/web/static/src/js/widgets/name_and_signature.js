@@ -48,8 +48,6 @@ var NameAndSignature = Widget.extend({
      *  the signer.
      * @param {string} [options.defaultFont=''] - The unique and default
      *  font for auto mode. If empty, all fonts are visible.
-     * * @param {string} [options.fontColor='DarkBlue'] - Color of signature
-     * (must be a string color)
      * @param {string} [options.noInputName=false] - If set to true,
      *  the user can not enter his name. If there aren't defaultName,
      *  auto mode is hidden.
@@ -69,7 +67,6 @@ var NameAndSignature = Widget.extend({
         this.htmlId = _.uniqueId();
         this.defaultName = options.defaultName || '';
         this.defaultFont = options.defaultFont || '';
-        this.fontColor = options.fontColor || 'DarkBlue';
         this.displaySignatureRatio = options.displaySignatureRatio || 3.0;
         this.signatureType = options.signatureType || 'signature';
         this.signMode = options.mode || 'draw';
@@ -250,13 +247,13 @@ var NameAndSignature = Widget.extend({
             .empty()
             .jSignature({
                 'decor-color': '#D1D0CE',
-                'background-color': 'rgba(255,255,255,0)',
-                'show-stroke': false,
-                'color': this.fontColor,
+                'background-color': '#FFF',
+                'color': '#000',
                 'lineWidth': 2,
                 'width': width,
                 'height': height,
             });
+
         this.emptySignature = this.$signatureField.jSignature('getData');
 
         this.setMode(this.signMode, true);
@@ -349,7 +346,8 @@ var NameAndSignature = Widget.extend({
      * @returns {string} cleaned name
      */
     _getCleanedName: function () {
-        var text = this.getName();
+        var regexRemoveSpecialCharacters = /[^\w\u00E0-\u00FC-'" ]/g;
+        var text = this.getName().replace(regexRemoveSpecialCharacters, '');
         if (this.signatureType === 'initial') {
             return (text.split(' ').map(function (w) {
                 return w[0];
@@ -375,7 +373,6 @@ var NameAndSignature = Widget.extend({
             font: font,
             text: text,
             type: this.signatureType,
-            color: this.fontColor,
         }));
         $svg.attr({
             'xmlns': "http://www.w3.org/2000/svg",

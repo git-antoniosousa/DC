@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.addons.crm.tests.common import TestCrmCommon
-from odoo.addons.crm_iap_lead_enrich.tests.common import MockIAPEnrich
+from odoo.addons.crm_iap_lead_enrich.tests import common as crm_iap_lead_enrich_common
 from odoo.tests.common import users
 
 
-class TestLeadEnrich(TestCrmCommon, MockIAPEnrich):
+class TestLeadEnrich(crm_iap_lead_enrich_common.CrmCase, crm_iap_lead_enrich_common.MockIAPEnrich):
 
     @classmethod
     def setUpClass(cls):
@@ -24,8 +23,8 @@ class TestLeadEnrich(TestCrmCommon, MockIAPEnrich):
     def tearDownClass(cls):
         cls.registry.leave_test_mode()
         super().tearDownClass()
-
-    @users('user_sales_manager')
+    
+    @users('sales_manager')
     def test_enrich_internals(self):
         leads = self.env['crm.lead'].browse(self.leads.ids)
         leads[0].write({'partner_name': 'Already set', 'email_from': 'test@test1'})
@@ -48,7 +47,7 @@ class TestLeadEnrich(TestCrmCommon, MockIAPEnrich):
     #     with self.mockIAPEnrichGateway(sim_error='credit'):
     #         leads.iap_enrich()
 
-    @users('user_sales_manager')
+    @users('sales_manager')
     def test_enrich_error_jsonrpc_exception(self):
         leads = self.env['crm.lead'].browse(self.leads.ids)
         with self.mockIAPEnrichGateway(sim_error='jsonrpc_exception'):

@@ -4,7 +4,7 @@
 {
     'name': 'Forum',
     'category': 'Website/Website',
-    'sequence': 265,
+    'sequence': 150,
     'summary': 'Manage a forum with FAQ and Q&A',
     'version': '1.0',
     'description': """
@@ -17,7 +17,6 @@ Ask questions, get answers, no distractions
         'website_profile',
     ],
     'data': [
-        'data/forum_default_faq.xml',
         'data/forum_data.xml',
         'views/forum.xml',
         'views/res_users_views.xml',
@@ -25,7 +24,6 @@ Ask questions, get answers, no distractions
         'views/website_forum_profile.xml',
         'views/ir_qweb.xml',
         'security/ir.model.access.csv',
-        'security/website_forum_security.xml',
         'data/badges_question.xml',
         'data/badges_answer.xml',
         'data/badges_participation.xml',

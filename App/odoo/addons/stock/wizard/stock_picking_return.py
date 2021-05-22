@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.tools.float_utils import float_round
 
@@ -100,7 +100,7 @@ class ReturnPicking(models.TransientModel):
             'product_uom': return_line.product_id.uom_id.id,
             'picking_id': new_picking.id,
             'state': 'draft',
-            'date': fields.Datetime.now(),
+            'date_expected': fields.Datetime.now(),
             'location_id': return_line.move_id.location_dest_id.id,
             'location_dest_id': self.location_id.id or return_line.move_id.location_id.id,
             'picking_type_id': new_picking.picking_type_id.id,
@@ -121,7 +121,7 @@ class ReturnPicking(models.TransientModel):
             'move_lines': [],
             'picking_type_id': picking_type_id,
             'state': 'draft',
-            'origin': _("Return of %s", self.picking_id.name),
+            'origin': _("Return of %s") % self.picking_id.name,
             'location_id': self.picking_id.location_dest_id.id,
             'location_dest_id': self.location_id.id})
         new_picking.message_post_with_view('mail.message_origin_link',
@@ -182,7 +182,7 @@ class ReturnPicking(models.TransientModel):
             'search_default_assigned': False,
             'search_default_confirmed': False,
             'search_default_ready': False,
-            'search_default_planning_issues': False,
+            'search_default_late': False,
             'search_default_available': False,
         })
         return {

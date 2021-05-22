@@ -16,7 +16,6 @@ The wizard used is similar as the one for the credit note.
     'data': [
         'wizard/account_debit_note_view.xml',
         'views/account_move_view.xml',
-        'security/ir.model.access.csv',
     ],
     'installable': True,
     'auto_install': False,

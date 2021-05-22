@@ -30,7 +30,7 @@ var DateWidget = Widget.extend({
         this.options = _.extend({
             locale: moment.locale(),
             format : this.type_of_date === 'datetime' ? time.getLangDatetimeFormat() : time.getLangDateFormat(),
-            minDate: moment({ y: 1000 }),
+            minDate: moment({ y: 1900 }),
             maxDate: moment({ y: 9999, M: 11, d: 31 }),
             useCurrent: false,
             icons: {
@@ -201,7 +201,7 @@ var DateWidget = Widget.extend({
             this.$warning = $('<span>', {
                 class: 'fa fa-exclamation-triangle o_tz_warning o_datepicker_warning',
             });
-            var title = _t("This date is in the future. Make sure this is what you expect.");
+            var title = _t("This date is on the future. Make sure it is what you expected.");
             this.$warning.attr('title', title);
             this.$input.after(this.$warning);
         }

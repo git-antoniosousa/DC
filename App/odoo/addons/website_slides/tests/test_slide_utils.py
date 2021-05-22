@@ -7,7 +7,7 @@ from odoo.tests.common import users
 
 class TestSlidesManagement(slides_common.SlidesCase):
 
-    @users('user_officer')
+    @users('user_publisher')
     def test_get_categorized_slides(self):
         new_category = self.env['slide.slide'].create({
             'name': 'Cooking Tips for Cooking Humans',
@@ -17,45 +17,16 @@ class TestSlidesManagement(slides_common.SlidesCase):
         })
         order = self.env['slide.slide']._order_by_strategy['sequence']
         categorized_slides = self.channel._get_categorized_slides([], order)
-        self.assertEqual(categorized_slides[0]['category'], False)
-        self.assertEqual(categorized_slides[1]['category'], self.category)
-        self.assertEqual(categorized_slides[1]['total_slides'], 2)
-        self.assertEqual(categorized_slides[2]['total_slides'], 0)
-        self.assertEqual(categorized_slides[2]['category'], new_category)
+        self.assertEquals(categorized_slides[0]['category'], False)
+        self.assertEquals(categorized_slides[1]['category'], self.category)
+        self.assertEquals(categorized_slides[1]['total_slides'], 2)
+        self.assertEquals(categorized_slides[2]['total_slides'], 0)
+        self.assertEquals(categorized_slides[2]['category'], new_category)
 
-    @users('user_manager')
-    def test_archive(self):
-        self.env['slide.slide.partner'].create({
-            'slide_id': self.slide.id,
-            'channel_id': self.channel.id,
-            'partner_id': self.user_manager.partner_id.id,
-            'completed': True
-        })
-        channel_partner = self.channel._action_add_members(self.user_manager.partner_id)
-
-        self.assertTrue(self.channel.active)
-        self.assertTrue(self.channel.is_published)
-        self.assertFalse(channel_partner.completed)
-        for slide in self.channel.slide_ids:
-            self.assertTrue(slide.active, "All slide should be archived when a channel is archived")
-            self.assertTrue(slide.is_published, "All slide should be unpublished when a channel is archived")
-
-        self.channel.toggle_active()
-        self.assertFalse(self.channel.active)
-        self.assertFalse(self.channel.is_published)
-        # channel_partner should still NOT be marked as completed
-        self.assertFalse(channel_partner.completed)
-
-        for slide in self.channel.slide_ids:
-            self.assertFalse(slide.active, "All slides should be archived when a channel is archived")
-            if not slide.is_category:
-                self.assertFalse(slide.is_published, "All slides should be unpublished when a channel is archived, except categories")
-            else:
-                self.assertTrue(slide.is_published, "All slides should be unpublished when a channel is archived, except categories")
 
 class TestSequencing(slides_common.SlidesCase):
 
-    @users('user_officer')
+    @users('user_publisher')
     def test_category_update(self):
         self.assertEqual(self.channel.slide_category_ids, self.category)
         self.assertEqual(self.channel.slide_content_ids, self.slide | self.slide_2 | self.slide_3)
@@ -101,7 +72,7 @@ class TestSequencing(slides_common.SlidesCase):
         self.assertEqual(new_slide.category_id, self.env['slide.slide'])
         self.assertEqual(self.slide_3.category_id, self.env['slide.slide'])
 
-    @users('user_officer')
+    @users('user_publisher')
     def test_resequence(self):
         self.assertEqual(self.slide.sequence, 1)
         self.category.write({'sequence': 4})

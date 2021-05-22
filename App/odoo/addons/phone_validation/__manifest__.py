@@ -26,7 +26,6 @@ It adds two mixins :
     'data': [
         'security/ir.model.access.csv',
         'views/phone_blacklist_views.xml',
-        'wizard/phone_blacklist_remove_view.xml',
     ],
     'depends': [
         'base',

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.account.tests.account_test_savepoint import AccountTestInvoicingCommon
 from odoo.tests.common import Form
 from odoo.tests import tagged
+from odoo.exceptions import UserError
 from odoo import fields
 
 
@@ -12,7 +13,7 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
     def setUpClass(cls, chart_template_ref=None):
         super().setUpClass(chart_template_ref=chart_template_ref)
 
-        cls.invoice = cls.init_invoice('out_refund', products=cls.product_a+cls.product_b)
+        cls.invoice = cls.init_invoice('out_refund')
 
         cls.product_line_vals_1 = {
             'name': cls.product_a.name,
@@ -27,8 +28,8 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             'price_total': 1150.0,
             'tax_ids': cls.product_a.taxes_id.ids,
             'tax_line_id': False,
-            'currency_id': cls.company_data['currency'].id,
-            'amount_currency': 1000.0,
+            'currency_id': False,
+            'amount_currency': 0.0,
             'debit': 1000.0,
             'credit': 0.0,
             'date_maturity': False,
@@ -47,8 +48,8 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             'price_total': 260.0,
             'tax_ids': cls.product_b.taxes_id.ids,
             'tax_line_id': False,
-            'currency_id': cls.company_data['currency'].id,
-            'amount_currency': 200.0,
+            'currency_id': False,
+            'amount_currency': 0.0,
             'debit': 200.0,
             'credit': 0.0,
             'date_maturity': False,
@@ -67,8 +68,8 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             'price_total': 180.0,
             'tax_ids': [],
             'tax_line_id': cls.tax_sale_a.id,
-            'currency_id': cls.company_data['currency'].id,
-            'amount_currency': 180.0,
+            'currency_id': False,
+            'amount_currency': 0.0,
             'debit': 180.0,
             'credit': 0.0,
             'date_maturity': False,
@@ -87,8 +88,8 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             'price_total': 30.0,
             'tax_ids': [],
             'tax_line_id': cls.tax_sale_b.id,
-            'currency_id': cls.company_data['currency'].id,
-            'amount_currency': 30.0,
+            'currency_id': False,
+            'amount_currency': 0.0,
             'debit': 30.0,
             'credit': 0.0,
             'date_maturity': False,
@@ -107,8 +108,8 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             'price_total': -1410.0,
             'tax_ids': [],
             'tax_line_id': False,
-            'currency_id': cls.company_data['currency'].id,
-            'amount_currency': -1410.0,
+            'currency_id': False,
+            'amount_currency': 0.0,
             'debit': 0.0,
             'credit': 1410.0,
             'date_maturity': fields.Date.from_string('2019-01-01'),
@@ -120,7 +121,7 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             'journal_id': cls.company_data['default_journal_sale'].id,
             'date': fields.Date.from_string('2019-01-01'),
             'fiscal_position_id': False,
-            'payment_reference': '',
+            'invoice_payment_ref': '',
             'invoice_payment_term_id': cls.pay_terms_a.id,
             'amount_untaxed': 1200.0,
             'amount_tax': 210.0,
@@ -154,7 +155,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_subtotal': 200.0,
                 'price_total': 260.0,
                 'tax_ids': self.product_b.taxes_id.ids,
-                'amount_currency': 200.0,
                 'debit': 200.0,
             },
             self.product_line_vals_2,
@@ -163,7 +163,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 60.0,
                 'price_subtotal': 60.0,
                 'price_total': 60.0,
-                'amount_currency': 60.0,
                 'debit': 60.0,
             },
             {
@@ -171,7 +170,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 60.0,
                 'price_subtotal': 60.0,
                 'price_total': 60.0,
-                'amount_currency': 60.0,
                 'debit': 60.0,
             },
             {
@@ -179,7 +177,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -520.0,
                 'price_subtotal': -520.0,
                 'price_total': -520.0,
-                'amount_currency': -520.0,
                 'credit': 520.0,
             },
         ], {
@@ -227,7 +224,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'discount': 100.0,
                 'price_subtotal': 0.0,
                 'price_total': 0.0,
-                'amount_currency': 0.0,
                 'debit': 0.0,
             },
             self.product_line_vals_2,
@@ -236,7 +232,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 30.0,
                 'price_subtotal': 30.0,
                 'price_total': 30.0,
-                'amount_currency': 30.0,
                 'debit': 30.0,
             },
             self.tax_line_vals_2,
@@ -245,7 +240,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -260.0,
                 'price_subtotal': -260.0,
                 'price_total': -260.0,
-                'amount_currency': -260.0,
                 'credit': 260.0,
             },
         ], {
@@ -278,7 +272,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 3000.0,
                 'price_subtotal': 3000.0,
                 'price_total': 3450.0,
-                'amount_currency': 3000.0,
                 'debit': 3000.0,
             },
             {
@@ -286,7 +279,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -500.0,
                 'price_subtotal': -500.0,
                 'price_total': -650.0,
-                'amount_currency': -500.0,
                 'debit': 0.0,
                 'credit': 500.0,
             },
@@ -295,7 +287,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 800.0,
                 'price_subtotal': 800.0,
                 'price_total': 800.0,
-                'amount_currency': 800.0,
                 'debit': 800.0,
             },
             {
@@ -303,7 +294,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 250.0,
                 'price_subtotal': 250.0,
                 'price_total': 250.0,
-                'amount_currency': 250.0,
                 'debit': 250.0,
             },
             {
@@ -311,7 +301,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -3550.0,
                 'price_subtotal': -3550.0,
                 'price_total': -3550.0,
-                'amount_currency': -3550.0,
                 'credit': 3550.0,
             },
         ], {
@@ -324,7 +313,7 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
     def test_out_refund_line_onchange_partner_1(self):
         move_form = Form(self.invoice)
         move_form.partner_id = self.partner_b
-        move_form.payment_reference = 'turlututu'
+        move_form.invoice_payment_ref = 'turlututu'
         move_form.save()
 
         self.assertInvoiceValues(self.invoice, [
@@ -352,7 +341,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -987.0,
                 'price_subtotal': -987.0,
                 'price_total': -987.0,
-                'amount_currency': -987.0,
                 'credit': 987.0,
                 'date_maturity': fields.Date.from_string('2019-02-28'),
             },
@@ -364,13 +352,12 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -423.0,
                 'price_subtotal': -423.0,
                 'price_total': -423.0,
-                'amount_currency': -423.0,
                 'credit': 423.0,
             },
         ], {
             **self.move_vals,
             'partner_id': self.partner_b.id,
-            'payment_reference': 'turlututu',
+            'invoice_payment_ref': 'turlututu',
             'fiscal_position_id': self.fiscal_pos_a.id,
             'invoice_payment_term_id': self.pay_terms_b.id,
             'amount_untaxed': 1200.0,
@@ -415,7 +402,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -966.0,
                 'price_subtotal': -966.0,
                 'price_total': -966.0,
-                'amount_currency': -966.0,
                 'credit': 966.0,
                 'date_maturity': fields.Date.from_string('2019-02-28'),
             },
@@ -427,13 +413,12 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -414.0,
                 'price_subtotal': -414.0,
                 'price_total': -414.0,
-                'amount_currency': -414.0,
                 'credit': 414.0,
             },
         ], {
             **self.move_vals,
             'partner_id': self.partner_b.id,
-            'payment_reference': 'turlututu',
+            'invoice_payment_ref': 'turlututu',
             'fiscal_position_id': self.fiscal_pos_a.id,
             'invoice_payment_term_id': self.pay_terms_b.id,
             'amount_untaxed': 1200.0,
@@ -476,8 +461,8 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_total': 88.0,
                 'tax_ids': child_tax_2.ids,
                 'tax_line_id': child_tax_1.id,
-                'currency_id': self.company_data['currency'].id,
-                'amount_currency': 80.0,
+                'currency_id': False,
+                'amount_currency': 0.0,
                 'debit': 80.0,
                 'credit': 0.0,
                 'date_maturity': False,
@@ -496,8 +481,8 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_total': 132.0,
                 'tax_ids': child_tax_2.ids,
                 'tax_line_id': child_tax_1.id,
-                'currency_id': self.company_data['currency'].id,
-                'amount_currency': 120.0,
+                'currency_id': False,
+                'amount_currency': 0.0,
                 'debit': 120.0,
                 'credit': 0.0,
                 'date_maturity': False,
@@ -516,8 +501,8 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_total': 120.0,
                 'tax_ids': [],
                 'tax_line_id': child_tax_2.id,
-                'currency_id': self.company_data['currency'].id,
-                'amount_currency': 120.0,
+                'currency_id': False,
+                'amount_currency': 0.0,
                 'debit': 120.0,
                 'credit': 0.0,
                 'date_maturity': False,
@@ -528,7 +513,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -1730.0,
                 'price_subtotal': -1730.0,
                 'price_total': -1730.0,
-                'amount_currency': -1730.0,
                 'credit': 1730.0,
             },
         ], {
@@ -562,7 +546,7 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             {
                 'name': 'add_invoice_line',
                 'product_id': False,
-                'account_id': self.cash_rounding_a.loss_account_id.id,
+                'account_id': self.cash_rounding_a.account_id.id,
                 'partner_id': self.partner_a.id,
                 'product_uom_id': False,
                 'quantity': 1.0,
@@ -572,8 +556,8 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_total': 0.01,
                 'tax_ids': [],
                 'tax_line_id': False,
-                'currency_id': self.company_data['currency'].id,
-                'amount_currency': 0.01,
+                'currency_id': False,
+                'amount_currency': 0.0,
                 'debit': 0.01,
                 'credit': 0.0,
                 'date_maturity': False,
@@ -584,7 +568,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 999.99,
                 'price_subtotal': 999.99,
                 'price_total': 1149.99,
-                'amount_currency': 999.99,
                 'debit': 999.99,
             },
             self.product_line_vals_2,
@@ -604,7 +587,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 999.99,
                 'price_subtotal': 999.99,
                 'price_total': 1149.99,
-                'amount_currency': 999.99,
                 'debit': 999.99,
             },
             self.product_line_vals_2,
@@ -623,8 +605,8 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_total': -0.04,
                 'tax_ids': [],
                 'tax_line_id': self.tax_sale_a.id,
-                'currency_id': self.company_data['currency'].id,
-                'amount_currency': -0.04,
+                'currency_id': False,
+                'amount_currency': 0.0,
                 'debit': 0.0,
                 'credit': 0.04,
                 'date_maturity': False,
@@ -635,7 +617,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -1409.95,
                 'price_subtotal': -1409.95,
                 'price_total': -1409.95,
-                'amount_currency': -1409.95,
                 'credit': 1409.95,
             },
         ], {
@@ -646,44 +627,49 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
         })
 
     def test_out_refund_line_onchange_currency_1(self):
+        # New journal having a foreign currency set.
+        journal = self.company_data['default_journal_sale'].copy()
+        journal.currency_id = self.currency_data['currency']
+
         move_form = Form(self.invoice)
-        move_form.currency_id = self.currency_data['currency']
+        move_form.journal_id = journal
         move_form.save()
 
         self.assertInvoiceValues(self.invoice, [
             {
                 **self.product_line_vals_1,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 1000.0,
                 'debit': 500.0,
             },
             {
                 **self.product_line_vals_2,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 200.0,
                 'debit': 100.0,
             },
             {
                 **self.tax_line_vals_1,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 180.0,
                 'debit': 90.0,
             },
             {
                 **self.tax_line_vals_2,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 30.0,
                 'debit': 15.0,
             },
             {
                 **self.term_line_vals_1,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': -1410.0,
                 'credit': 705.0,
             },
         ], {
             **self.move_vals,
-            'currency_id': self.currency_data['currency'].id,
+            'currency_id': journal.currency_id.id,
+            'journal_id': journal.id,
         })
 
         move_form = Form(self.invoice)
@@ -694,37 +680,38 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
         self.assertInvoiceValues(self.invoice, [
             {
                 **self.product_line_vals_1,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 1000.0,
                 'debit': 333.33,
             },
             {
                 **self.product_line_vals_2,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 200.0,
                 'debit': 66.67,
             },
             {
                 **self.tax_line_vals_1,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 180.0,
                 'debit': 60.0,
             },
             {
                 **self.tax_line_vals_2,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 30.0,
                 'debit': 10.0,
             },
             {
                 **self.term_line_vals_1,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': -1410.0,
                 'credit': 470.0,
             },
         ], {
             **self.move_vals,
-            'currency_id': self.currency_data['currency'].id,
+            'currency_id': journal.currency_id.id,
+            'journal_id': journal.id,
             'date': fields.Date.from_string('2016-01-01'),
         })
 
@@ -743,13 +730,13 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 0.05,
                 'price_subtotal': 0.005,
                 'price_total': 0.006,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 0.005,
                 'debit': 0.0,
             },
             {
                 **self.product_line_vals_2,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 200.0,
                 'debit': 66.67,
             },
@@ -758,19 +745,19 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 30.0,
                 'price_subtotal': 30.001,
                 'price_total': 30.001,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 30.001,
                 'debit': 10.0,
             },
             {
                 **self.tax_line_vals_2,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'amount_currency': 30.0,
                 'debit': 10.0,
             },
             {
                 **self.term_line_vals_1,
-                'currency_id': self.currency_data['currency'].id,
+                'currency_id': journal.currency_id.id,
                 'price_unit': -260.01,
                 'price_subtotal': -260.006,
                 'price_total': -260.006,
@@ -779,14 +766,22 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
             },
         ], {
             **self.move_vals,
-            'currency_id': self.currency_data['currency'].id,
+            'currency_id': journal.currency_id.id,
+            'journal_id': journal.id,
             'date': fields.Date.from_string('2016-01-01'),
             'amount_untaxed': 200.005,
             'amount_tax': 60.001,
             'amount_total': 260.006,
         })
 
+        # The journal forces you to provide a secondary currency.
+        with self.assertRaises(UserError), self.cr.savepoint():
+            move_form = Form(self.invoice)
+            move_form.currency_id = self.company_data['currency']
+            move_form.save()
+
         # Exit the multi-currencies.
+        journal.currency_id = False
         move_form = Form(self.invoice)
         move_form.currency_id = self.company_data['currency']
         move_form.save()
@@ -798,7 +793,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 0.05,
                 'price_subtotal': 0.01,
                 'price_total': 0.01,
-                'amount_currency': 0.01,
                 'debit': 0.01,
             },
             self.product_line_vals_2,
@@ -807,7 +801,6 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': 30.0,
                 'price_subtotal': 30.0,
                 'price_total': 30.0,
-                'amount_currency': 30.0,
                 'debit': 30.0,
             },
             self.tax_line_vals_2,
@@ -816,22 +809,49 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
                 'price_unit': -260.01,
                 'price_subtotal': -260.01,
                 'price_total': -260.01,
-                'amount_currency': -260.01,
                 'credit': 260.01,
             },
         ], {
             **self.move_vals,
             'currency_id': self.company_data['currency'].id,
+            'journal_id': journal.id,
             'date': fields.Date.from_string('2016-01-01'),
             'amount_untaxed': 200.01,
             'amount_tax': 60.0,
             'amount_total': 260.01,
         })
 
+    def test_out_refund_line_onchange_sequence_number_1(self):
+        self.assertRecordValues(self.invoice, [{
+            'invoice_sequence_number_next': '0001',
+            'invoice_sequence_number_next_prefix': 'RINV/2019/',
+        }])
+
+        move_form = Form(self.invoice)
+        move_form.invoice_sequence_number_next = '0042'
+        move_form.save()
+
+        self.assertRecordValues(self.invoice, [{
+            'invoice_sequence_number_next': '0042',
+            'invoice_sequence_number_next_prefix': 'RINV/2019/',
+        }])
+
+        self.invoice.post()
+
+        self.assertRecordValues(self.invoice, [{'name': 'RINV/2019/0042'}])
+
+        values = {
+            'invoice_date': self.invoice.invoice_date,
+        }
+        invoice_copy = self.invoice.copy(default=values)
+        invoice_copy.post()
+
+        self.assertRecordValues(invoice_copy, [{'name': 'RINV/2019/0043'}])
+
     def test_out_refund_create_1(self):
         # Test creating an account_move with the least information.
         move = self.env['account.move'].create({
-            'move_type': 'out_refund',
+            'type': 'out_refund',
             'partner_id': self.partner_a.id,
             'invoice_date': fields.Date.from_string('2019-01-01'),
             'currency_id': self.currency_data['currency'].id,
@@ -881,7 +901,7 @@ class TestAccountMoveOutRefundOnchanges(AccountTestInvoicingCommon):
     def test_out_refund_write_1(self):
         # Test creating an account_move with the least information.
         move = self.env['account.move'].create({
-            'move_type': 'out_refund',
+            'type': 'out_refund',
             'partner_id': self.partner_a.id,
             'invoice_date': fields.Date.from_string('2019-01-01'),
             'currency_id': self.currency_data['currency'].id,

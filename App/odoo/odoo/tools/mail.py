@@ -11,10 +11,9 @@ import socket
 import threading
 import time
 
+from email.header import decode_header, Header
 from email.utils import getaddresses
 from lxml import etree
-from werkzeug import urls
-import idna
 
 import odoo
 from odoo.loglevels import ustr
@@ -26,19 +25,32 @@ _logger = logging.getLogger(__name__)
 # HTML Sanitizer
 #----------------------------------------------------------
 
-tags_to_kill = ['base', 'embed', 'frame', 'head', 'iframe', 'link', 'meta',
-                'noscript', 'object', 'script', 'style', 'title']
-
+tags_to_kill = ["script", "head", "meta", "title", "link", "style", "frame", "iframe", "base", "object", "embed"]
 tags_to_remove = ['html', 'body']
 
 # allow new semantic HTML5 tags
-allowed_tags = clean.defs.tags | frozenset('article bdi section header footer hgroup nav aside figure main'.split() + [etree.Comment])
+allowed_tags = frozenset({
+    'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside',
+    'audio', 'b', 'basefont', 'bdi', 'bdo', 'big', 'blink', 'blockquote', 'body', 'br',
+    'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
+    'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'dir', 'div', 'dl',
+    'dt', 'em', 'fieldset', 'figcaption', 'figure', 'font', 'footer', 'form',
+    'frameset', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'html',
+    'i', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label', 'legend',
+    'li', 'main', 'map', 'mark', 'marquee', 'math', 'menu', 'meter', 'nav',
+    'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q',
+    'rp', 'rt', 'ruby', 's', 'samp', 'section', 'select', 'small', 'source',
+    'span', 'strike', 'strong', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody',
+    'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'tr', 'track', 'tt', 'u',
+    'ul', 'var', 'video', 'wbr'
+}) | frozenset([etree.Comment])
+
 safe_attrs = clean.defs.safe_attrs | frozenset(
     ['style',
      'data-o-mail-quote',  # quote detection
      'data-oe-model', 'data-oe-id', 'data-oe-field', 'data-oe-type', 'data-oe-expression', 'data-oe-translation-id', 'data-oe-nodeid',
      'data-publish', 'data-id', 'data-res_id', 'data-interval', 'data-member_id', 'data-scroll-background-ratio', 'data-view-id',
-     'data-class',
+     'data-class', 'data-mimetype',
      ])
 
 
@@ -165,7 +177,7 @@ class _Cleaner(clean.Cleaner):
                 del el.attrib['style']
 
 
-def html_sanitize(src, silent=True, sanitize_tags=True, sanitize_attributes=False, sanitize_style=False, sanitize_form=True, strip_style=False, strip_classes=False):
+def html_sanitize(src, silent=True, sanitize_tags=True, sanitize_attributes=False, sanitize_style=False, strip_style=False, strip_classes=False):
     if not src:
         return src
     src = ustr(src, errors='replace')
@@ -183,7 +195,7 @@ def html_sanitize(src, silent=True, sanitize_tags=True, sanitize_attributes=Fals
         'page_structure': True,
         'style': strip_style,              # True = remove style tags/attrs
         'sanitize_style': sanitize_style,  # True = sanitize styling
-        'forms': sanitize_form,            # True = remove form tags
+        'forms': True,                     # True = remove form tags
         'remove_unknown_tags': False,
         'comments': False,
         'processing_instructions': False
@@ -250,36 +262,9 @@ def html_sanitize(src, silent=True, sanitize_tags=True, sanitize_attributes=Fals
 
     return cleaned
 
-# ----------------------------------------------------------
+#----------------------------------------------------------
 # HTML/Text management
-# ----------------------------------------------------------
-
-URL_REGEX = r'(\bhref=[\'"](?!mailto:|tel:|sms:)([^\'"]+)[\'"])'
-TEXT_URL_REGEX = r'https?://[a-zA-Z0-9@:%._\+~#=/-]+(?:\?\S+)?'
-# retrieve inner content of the link
-HTML_TAG_URL_REGEX = URL_REGEX + r'([^<>]*>([^<>]+)<\/)?'
-
-
-def validate_url(url):
-    if urls.url_parse(url).scheme not in ('http', 'https', 'ftp', 'ftps'):
-        return 'http://' + url
-
-    return url
-
-
-def is_html_empty(html_content):
-    """Check if a html content is empty. If there are only formatting tags or
-    a void content return True. Famous use case if a '<p><br></p>' added by
-    some web editor.
-
-    :param str html_content: html content, coming from example from an HTML field
-    :returns: bool, True if no content found or if containing only void formatting tags
-    """
-    if not html_content:
-        return True
-    tag_re = re.compile(r'\<\s*\/?(?:p|div|span|br|b|i)\s*/?\s*\>')
-    return not bool(re.sub(tag_re, '', html_content).strip())
-
+#----------------------------------------------------------
 
 def html_keep_url(text):
     """ Transform the url into clickable link with <a/> tag """
@@ -292,7 +277,6 @@ def html_keep_url(text):
         idx = item.end()
     final += text[idx:]
     return final
-
 
 def html2plaintext(html, body_id=None, encoding='utf-8'):
     """ From an HTML text, convert the HTML to plain text.
@@ -429,20 +413,6 @@ def append_content_to_html(html, content, plaintext=True, preserve=False, contai
         return '%s%s' % (html, content)
     return '%s%s%s' % (html[:insert_location], content, html[insert_location:])
 
-
-def prepend_html_content(html_body, html_content):
-    """Prepend some HTML content at the beginning of an other HTML content."""
-    html_content = re.sub(r'(?i)(</?(?:html|body|head|!\s*DOCTYPE)[^>]*>)', '', html_content)
-    html_content = html_content.strip()
-
-    insert_index = next(re.finditer(r'<body[^>]*>', html_body), None)
-    if insert_index is None:
-        insert_index = next(re.finditer(r'<html[^>]*>', html_body), None)
-
-    insert_index = insert_index.end() if insert_index else 0
-
-    return html_body[:insert_index] + html_content + html_body[insert_index:]
-
 #----------------------------------------------------------
 # Emails
 #----------------------------------------------------------
@@ -554,21 +524,46 @@ def email_escape_char(email_address):
     """ Escape problematic characters in the given email address string"""
     return email_address.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
 
+# was mail_message.decode()
+def decode_smtp_header(smtp_header, quoted=False):
+    """Returns unicode() string conversion of the given encoded smtp header
+    text. email.header decode_header method return a decoded string and its
+    charset for each decoded part of the header. This method unicodes the
+    decoded header and join them in a complete string.
+
+    :param bool quoted: when True, encoded words in the header will be turned into RFC822
+        quoted-strings after decoding, which is appropriate for address headers
+    """
+    if isinstance(smtp_header, Header):
+        smtp_header = ustr(smtp_header)
+    if smtp_header:
+        pairs = decode_header(smtp_header.replace('\r', ''))
+        tokens = []
+        for token, enc in pairs:
+            token = ustr(token, enc)
+            if enc and quoted:
+                # re-quote the encoded word to form an RFC822 quoted-string
+                token = email_addr_escapes_re.sub(r'\\\g<0>', token)
+                tokens.append('"%s"' % token)
+            else:
+                # plain word
+                tokens.append(token)
+        return ''.join(tokens)
+    return ''
+
 # was mail_thread.decode_header()
-def decode_message_header(message, header, separator=' '):
-    return separator.join(h for h in message.get_all(header, []) if h)
+def decode_message_header(message, header, separator=' ', quoted=False):
+    return separator.join(decode_smtp_header(h, quoted=quoted) for h in message.get_all(header, []) if h)
 
 def formataddr(pair, charset='utf-8'):
     """Pretty format a 2-tuple of the form (realname, email_address).
 
+    Set the charset to ascii to get a RFC-2822 compliant email.
+
+    The email address is considered valid and is left unmodified.
+
     If the first element of pair is falsy then only the email address
     is returned.
-
-    Set the charset to ascii to get a RFC-2822 compliant email. The
-    realname will be base64 encoded (if necessary) and the domain part
-    of the email will be punycode encoded (if necessary). The local part
-    is left unchanged thus require the SMTPUTF8 extension when there are
-    non-ascii characters.
 
     >>> formataddr(('John Doe', 'johndoe@example.com'))
     '"John Doe" <johndoe@example.com>'
@@ -577,26 +572,21 @@ def formataddr(pair, charset='utf-8'):
     'johndoe@example.com'
     """
     name, address = pair
-    local, _, domain = address.rpartition('@')
-
-    try:
-        domain.encode(charset)
-    except UnicodeEncodeError:
-        # rfc5890 - Internationalized Domain Names for Applications (IDNA)
-        domain = idna.encode(domain).decode('ascii')
-
+    address.encode('ascii')
     if name:
         try:
             name.encode(charset)
         except UnicodeEncodeError:
             # charset mismatch, encode as utf-8/base64
             # rfc2047 - MIME Message Header Extensions for Non-ASCII Text
-            name = base64.b64encode(name.encode('utf-8')).decode('ascii')
-            return f"=?utf-8?b?{name}?= <{local}@{domain}>"
+            return "=?utf-8?b?{name}?= <{addr}>".format(
+                name=base64.b64encode(name.encode('utf-8')).decode('ascii'),
+                addr=address)
         else:
             # ascii name, escape it if needed
             # rfc2822 - Internet Message Format
             #   #section-3.4 - Address Specification
-            name = email_addr_escapes_re.sub(r'\\\g<0>', name)
-            return f'"{name}" <{local}@{domain}>'
-    return f"{local}@{domain}"
+            return '"{name}" <{addr}>'.format(
+                name=email_addr_escapes_re.sub(r'\\\g<0>', name),
+                addr=address)
+    return address

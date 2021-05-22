@@ -77,7 +77,7 @@ class TestSaleCouponMultiwebsite(TestSaleCouponProgramNumbers):
         # ==============================
 
         order.website_id = False
-        self.env['coupon.generate.wizard'].with_context(active_id=self.discount_coupon_program.id).create({
+        self.env['sale.coupon.generate'].with_context(active_id=self.discount_coupon_program.id).create({
             'nbr_coupons': 4,
         }).generate_coupon()
         coupons = self.discount_coupon_program.coupon_ids

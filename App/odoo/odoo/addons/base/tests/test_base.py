@@ -68,89 +68,41 @@ SAMPLES = [
     ('ryu+giga-Sushi@aizubange.fukushima.jp', '', 'ryu+giga-Sushi@aizubange.fukushima.jp'),
     ('Raoul chirurgiens-dentistes.fr', 'Raoul chirurgiens-dentistes.fr', ''),
     (" Raoul O'hara  <!@historicalsociety.museum>", "Raoul O'hara", '!@historicalsociety.museum'),
-    ('Raoul Grosbedon <raoul@CHIRURGIENS-dentistes.fr> ', 'Raoul Grosbedon', 'raoul@CHIRURGIENS-dentistes.fr'),
-    ('Raoul megaraoul@chirurgiens-dentistes.fr', 'Raoul', 'megaraoul@chirurgiens-dentistes.fr'),
 ]
 
-
 class TestBase(TransactionCase):
-
-    def _check_find_or_create(self, test_string, expected_name, expected_email, check_partner=False, should_create=False):
-        partner = self.env['res.partner'].find_or_create(test_string)
-        if should_create and check_partner:
-            self.assertTrue(partner.id > check_partner.id, 'find_or_create failed - should have found existing')
-        elif check_partner:
-            self.assertEqual(partner, check_partner, 'find_or_create failed - should have found existing')
-        self.assertEqual(partner.name, expected_name)
-        self.assertEqual(partner.email or '', expected_email)
-        return partner
 
     def test_00_res_partner_name_create(self):
         res_partner = self.env['res.partner']
         parse = res_partner._parse_partner_name
         for text, name, mail in SAMPLES:
-            self.assertEqual((name, mail.lower()), parse(text))
+            self.assertEqual((name, mail), parse(text), 'Partner name parsing failed')
             partner_id, dummy = res_partner.name_create(text)
             partner = res_partner.browse(partner_id)
-            self.assertEqual(name or mail.lower(), partner.name)
-            self.assertEqual(mail.lower() or False, partner.email)
-
-        # name_create supports default_email fallback
-        partner = self.env['res.partner'].browse(
-            self.env['res.partner'].with_context(
-                default_email='John.Wick@example.com'
-            ).name_create('"Raoulette Vachette" <Raoul@Grosbedon.fr>')[0]
-        )
-        self.assertEqual(partner.name, 'Raoulette Vachette')
-        self.assertEqual(partner.email, 'raoul@grosbedon.fr')
-
-        partner = self.env['res.partner'].browse(
-            self.env['res.partner'].with_context(
-                default_email='John.Wick@example.com'
-            ).name_create('Raoulette Vachette')[0]
-        )
-        self.assertEqual(partner.name, 'Raoulette Vachette')
-        self.assertEqual(partner.email, 'John.Wick@example.com')
+            self.assertEqual(name or mail, partner.name, 'Partner name incorrect')
+            self.assertEqual(mail or False, partner.email, 'Partner email incorrect')
 
     def test_10_res_partner_find_or_create(self):
         res_partner = self.env['res.partner']
 
-        partner = res_partner.browse(res_partner.name_create(SAMPLES[0][0])[0])
-        self._check_find_or_create(
-            SAMPLES[0][0], SAMPLES[0][1], SAMPLES[0][2],
-            check_partner=partner, should_create=False
-        )
+        email = SAMPLES[0][0]
+        partner_id, dummy = res_partner.name_create(email)
+        found_id = res_partner.find_or_create(email)
+        self.assertEqual(partner_id, found_id, 'find_or_create failed')
+        self.assertEqual(SAMPLES[0][1], res_partner.browse([found_id]).name, 'Partner name is incorrect')
 
-        partner_2 = res_partner.browse(res_partner.name_create('sarah.john@connor.com')[0])
-        found_2 = self._check_find_or_create(
-            'john@connor.com', 'john@connor.com', 'john@connor.com',
-            check_partner=partner_2, should_create=True
-        )
+        partner_id2, dummy2 = res_partner.name_create('sarah.john@connor.com')
+        found_id2 = res_partner.find_or_create('john@connor.com')
+        self.assertNotEqual(partner_id2, found_id2, 'john@connor.com match sarah.john@connor.com')
+        self.assertEqual('john@connor.com', res_partner.browse([found_id2]).name, 'Partner name is incorrect')
 
-        new = self._check_find_or_create(
-            SAMPLES[1][0], SAMPLES[1][2].lower(), SAMPLES[1][2].lower(),
-            check_partner=found_2, should_create=True
-        )
+        new_id = res_partner.find_or_create(SAMPLES[1][0])
+        self.assertTrue(new_id > partner_id, 'find_or_create failed - should have created new one')
+        self.assertEqual(SAMPLES[1][2], res_partner.browse([new_id]).name, 'Partner name is incorrect')
 
-        new2 = self._check_find_or_create(
-            SAMPLES[2][0], SAMPLES[2][1], SAMPLES[2][2],
-            check_partner=new, should_create=True
-        )
-
-        new3 = self._check_find_or_create(
-            SAMPLES[3][0], SAMPLES[3][1], SAMPLES[3][2],
-            check_partner=new2, should_create=True
-        )
-
-        new4 = self._check_find_or_create(
-            SAMPLES[4][0], SAMPLES[0][1], SAMPLES[0][2],
-            check_partner=partner, should_create=False
-        )
-
-        new5 = self._check_find_or_create(
-            SAMPLES[5][0], SAMPLES[5][1], SAMPLES[5][2],
-            check_partner=new4, should_create=True
-        )
+        new_id2 = res_partner.find_or_create(SAMPLES[2][0])
+        self.assertTrue(new_id2 > new_id, 'find_or_create failed - should have created new one again')
+        self.assertEqual(SAMPLES[2][1], res_partner.browse([new_id2]).name, 'Partner name is incorrect')
 
     def test_15_res_partner_name_search(self):
         res_partner = self.env['res.partner']
@@ -196,7 +148,7 @@ class TestBase(TransactionCase):
         self.assertEqual(p1.street, p1street, 'Address fields must not be synced after turning sync off')
         self.assertNotEqual(ghoststep.street, p1street, 'Parent address must never be touched')
 
-        # turn on sync again
+        # turn on sync again       
         p1.write({'type': 'contact'})
         self.assertEqual(p1.street, ghoststep.street, 'Address fields must be synced again')
         self.assertEqual(p1.phone, p1phone, 'Phone should be preserved after address sync')
@@ -228,7 +180,7 @@ class TestBase(TransactionCase):
             'street': 'Strongarm Avenue, 12',
             'parent_id': ironshield.id,
         })
-        self.assertEqual(p1.type, 'contact', 'Default type must be "contact", not the copied parent type')
+        self.assertEquals(p1.type, 'contact', 'Default type must be "contact", not the copied parent type')
         self.assertEqual(ironshield.street, p1.street, 'Address fields should be copied to company')
 
     def test_40_res_partner_address_get(self):
@@ -381,30 +333,30 @@ class TestBase(TransactionCase):
         p3 = res_partner.search([('email', '=', 'ugr@sunhelm.com')], limit=1)
 
         for p in (p0, p1, p11, p2, p3):
-            self.assertEqual(p.commercial_partner_id, sunhelm, 'Incorrect commercial entity resolution')
-            self.assertEqual(p.vat, sunhelm.vat, 'Commercial fields must be automatically synced')
+            self.assertEquals(p.commercial_partner_id, sunhelm, 'Incorrect commercial entity resolution')
+            self.assertEquals(p.vat, sunhelm.vat, 'Commercial fields must be automatically synced')
         sunhelmvat = 'BE0123456749'
         sunhelm.write({'vat': sunhelmvat})
         for p in (p0, p1, p11, p2, p3):
-            self.assertEqual(p.vat, sunhelmvat, 'Commercial fields must be automatically and recursively synced')
+            self.assertEquals(p.vat, sunhelmvat, 'Commercial fields must be automatically and recursively synced')
 
         p1vat = 'BE0987654394'
         p1.write({'vat': p1vat})
         for p in (sunhelm, p0, p11, p2, p3):
-            self.assertEqual(p.vat, sunhelmvat, 'Sync to children should only work downstream and on commercial entities')
+            self.assertEquals(p.vat, sunhelmvat, 'Sync to children should only work downstream and on commercial entities')
 
         # promote p1 to commercial entity
         p1.write({'parent_id': sunhelm.id,
                   'is_company': True,
                   'name': 'Sunhelm Subsidiary'})
-        self.assertEqual(p1.vat, p1vat, 'Setting is_company should stop auto-sync of commercial fields')
-        self.assertEqual(p1.commercial_partner_id, p1, 'Incorrect commercial entity resolution after setting is_company')
+        self.assertEquals(p1.vat, p1vat, 'Setting is_company should stop auto-sync of commercial fields')
+        self.assertEquals(p1.commercial_partner_id, p1, 'Incorrect commercial entity resolution after setting is_company')
 
         # writing on parent should not touch child commercial entities
         sunhelmvat2 = 'BE0112233453'
         sunhelm.write({'vat': sunhelmvat2})
-        self.assertEqual(p1.vat, p1vat, 'Setting is_company should stop auto-sync of commercial fields')
-        self.assertEqual(p0.vat, sunhelmvat2, 'Commercial fields must be automatically synced')
+        self.assertEquals(p1.vat, p1vat, 'Setting is_company should stop auto-sync of commercial fields')
+        self.assertEquals(p0.vat, sunhelmvat2, 'Commercial fields must be automatically synced')
 
     def test_60_read_group(self):
         title_sir = self.env['res.partner.title'].create({'name': 'Sir...'})

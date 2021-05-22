@@ -22,7 +22,7 @@ class SaleAdvancePaymentInv(models.TransientModel):
 
     @api.model
     def _default_deposit_account_id(self):
-        return self._default_product_id()._get_product_accounts()['income']
+        return self._default_product_id().property_account_income_id
 
     @api.model
     def _default_deposit_taxes_id(self):
@@ -58,7 +58,7 @@ class SaleAdvancePaymentInv(models.TransientModel):
     count = fields.Integer(default=_count, string='Order Count')
     amount = fields.Float('Down Payment Amount', digits='Account', help="The percentage of amount to be invoiced in advance, taxes excluded.")
     currency_id = fields.Many2one('res.currency', string='Currency', default=_default_currency_id)
-    fixed_amount = fields.Monetary('Down Payment Amount (Fixed)', help="The fixed amount to be invoiced in advance, taxes excluded.")
+    fixed_amount = fields.Monetary('Down Payment Amount(Fixed)', help="The fixed amount to be invoiced in advance, taxes excluded.")
     deposit_account_id = fields.Many2one("account.account", string="Income Account", domain=[('deprecated', '=', False)],
         help="Account used for deposits", default=_default_deposit_account_id)
     deposit_taxes_id = fields.Many2many("account.tax", string="Customer Taxes", help="Taxes used for deposits", default=_default_deposit_taxes_id)
@@ -73,17 +73,17 @@ class SaleAdvancePaymentInv(models.TransientModel):
     def _prepare_invoice_values(self, order, name, amount, so_line):
         invoice_vals = {
             'ref': order.client_order_ref,
-            'move_type': 'out_invoice',
+            'type': 'out_invoice',
             'invoice_origin': order.name,
             'invoice_user_id': order.user_id.id,
             'narration': order.note,
             'partner_id': order.partner_invoice_id.id,
-            'fiscal_position_id': (order.fiscal_position_id or order.fiscal_position_id.get_fiscal_position(order.partner_id.id)).id,
+            'fiscal_position_id': order.fiscal_position_id.id or order.partner_id.property_account_position_id.id,
             'partner_shipping_id': order.partner_shipping_id.id,
             'currency_id': order.pricelist_id.currency_id.id,
-            'payment_reference': order.reference,
+            'invoice_payment_ref': order.reference,
             'invoice_payment_term_id': order.payment_term_id.id,
-            'partner_bank_id': order.company_id.partner_id.bank_ids[:1].id,
+            'invoice_partner_bank_id': order.company_id.partner_id.bank_ids[:1].id,
             'team_id': order.team_id.id,
             'campaign_id': order.campaign_id.id,
             'medium_id': order.medium_id.id,
@@ -147,7 +147,6 @@ class SaleAdvancePaymentInv(models.TransientModel):
             'analytic_tag_ids': analytic_tag_ids,
             'tax_id': [(6, 0, tax_ids)],
             'is_downpayment': True,
-            'sequence': order.order_line and order.order_line[-1].sequence + 1 or 10,
         }
         del context
         return so_values
@@ -173,7 +172,10 @@ class SaleAdvancePaymentInv(models.TransientModel):
                 if self.product_id.type != 'service':
                     raise UserError(_("The product used to invoice a down payment should be of type 'Service'. Please use another product or update this product."))
                 taxes = self.product_id.taxes_id.filtered(lambda r: not order.company_id or r.company_id == order.company_id)
-                tax_ids = order.fiscal_position_id.map_tax(taxes, self.product_id, order.partner_shipping_id).ids
+                if order.fiscal_position_id and taxes:
+                    tax_ids = order.fiscal_position_id.map_tax(taxes, self.product_id, order.partner_shipping_id).ids
+                else:
+                    tax_ids = taxes.ids
                 analytic_tag_ids = []
                 for line in order.order_line:
                     analytic_tag_ids = [(4, analytic_tag.id, None) for analytic_tag in line.analytic_tag_ids]

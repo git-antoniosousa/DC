@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-
-        <record id="base.partner_root" model="res.partner">
-            <field name="name">OdooBot</field>
-            <field name="email">odoobot@example.com</field>
-            <field name="image_1920" type="base64" file="mail/static/src/img/odoobot.png"/>
-        </record>
-
         <!-- user root should not receive emails at creation -->
         <record id="base.user_root" model="res.users">
             <field name="notification_type">inbox</field>
@@ -239,7 +232,7 @@
             <t t-set="access_action" t-value="record.with_context(force_website=True).get_access_action()"/>
             <t t-set="is_online" t-value="access_action and access_action['type'] == 'ir.actions.act_url'"/>
             <t t-set="base_url" t-value="record.get_base_url()"/>
-            <t t-set="share_url" t-value="record._get_share_url(redirect=True, signup_partner=True)"/>
+            <t t-set="share_url" t-value="record._get_share_url(redirect=True, signup_partner=notification_is_customer, share_token=notification_is_customer)"/>
             <t t-set="access_url" t-value="is_online and share_url and base_url + share_url or ''"/>
             <t t-set="access_name">
                 View <t t-esc="model_description or 'document'"/>
@@ -315,7 +308,7 @@
     <span style="margin-top: 8px;">You have been assigned to the <t t-esc="model_description or 'document'"/> <t t-esc="object.display_name"/>.</span>
 </p>
 <p style="margin-top: 24px; margin-bottom: 16px;">
-    <a t-att-href="access_link" t-att-data-oe-model="object._name" t-att-data-oe-id="object.id" style="background-color:#875A7B; padding: 10px; text-decoration: none; color: #fff; border-radius: 5px;">
+    <a t-att-href="'/mail/view?model=%s&amp;res_id=%s' % (object._name, object.id)" style="background-color:#875A7B; padding: 10px; text-decoration: none; color: #fff; border-radius: 5px;">
             View <t t-esc="model_description or 'document'"/>
     </a>
 </p>
@@ -348,23 +341,13 @@
     on <span t-field="activity.res_name"/>
     to close for <span t-field="activity.date_deadline"/>.<br />
     <p style="margin: 16px 0px 16px 0px;">
-        <a t-att-href="access_link" t-att-data-oe-model="activity.res_model" t-att-data-oe-id="activity.res_id"
+        <a t-att-href="'/mail/view?model=%s&amp;res_id=%s' % (activity.res_model, activity.res_id)"
             style="background-color:#875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px;">
             View <t t-esc="model_description or 'document'"/>
         </a>
     </p>
     <div t-if="activity.note" style="margin-top: 8px;" t-field="activity.note"/>
 </div>
-        </template>
-
-        <template id="message_origin_link">
-            <p>
-                <t t-if="edit">This <t t-esc="self.env['ir.model']._get(self._name).name.lower()"/> has been modified from:</t>
-                <t t-else="">This <t t-esc="self.env['ir.model']._get(self._name).name.lower()"/> has been created from:</t>
-                <t t-foreach="origin" t-as="o">
-                    <a href="#" t-att-data-oe-model="o._name" t-att-data-oe-id="o.id"> <t t-esc="o.display_name"/></a><span t-if="origin.ids[-1:] != o.ids">, </span>
-                </t>
-            </p>
         </template>
 
         <!-- Mail gateway templates -->
@@ -380,19 +363,13 @@
 <blockquote><t t-esc="message['body']"/></blockquote>
         </template>
 
-        <!-- Mail bounce alias mail template -->
-        <template id="mail_bounce_alias_security">
-<div><t t-raw="body"/></div>
-<blockquote><t t-raw="message['body']"/></blockquote>
-        </template>
-
         <!-- Channel and moderation related data -->
         <template id="mail_channel_notify_moderation">
 <div>
     <p>Hello <t t-esc='record.name'/></p>
     <p>You have messages to moderate, please go for the proceedings.</p><br/><br/>
     <div style="text-align: center;">
-        <a href="/web#action=mail.action_discuss&amp;active_id=mail.box_moderation" style="background-color: #1abc9c; padding: 20px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 16px;" class="o_default_snippet_text">Moderate Messages</a>
+        <a href="/web#action=mail.action_discuss&amp;active_id=mailbox_moderation" style="background-color: #1abc9c; padding: 20px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 16px;" class="o_default_snippet_text">Moderate Messages</a>
         <br/><br/><br/>
     </div>
     <p>Thank you!</p>

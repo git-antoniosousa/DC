@@ -14,23 +14,6 @@ PaymentForm.include({
     //--------------------------------------------------------------------------
 
     /**
-     * Returns the parameters for the AcceptUI button that AcceptJS will use.
-     *
-     * @private
-     * @param {Object} formData data obtained by getFormData
-     * @returns {Object} params for the AcceptJS button
-     */
-    _acceptJsParams: function (formData) {
-        return {
-            'class': 'AcceptUI d-none',
-            'data-apiLoginID': formData.login_id,
-            'data-clientKey': formData.client_key,
-            'data-billingAddressOptions': '{"show": false, "required": false}',
-            'data-responseHandler': 'responseHandler'
-        };
-    },
-
-    /**
      * called when clicking on pay now or add payment event to create token for credit card/debit card.
      *
      * @private
@@ -98,7 +81,14 @@ PaymentForm.include({
         };
 
         if (this.$button === undefined) {
-            this.$button = $('<button>', this._acceptJsParams(formData));
+            var params = {
+                'class': 'AcceptUI d-none',
+                'data-apiLoginID': formData.login_id,
+                'data-clientKey': formData.client_key,
+                'data-billingAddressOptions': '{"show": false, "required": false}',
+                'data-responseHandler': 'responseHandler'
+            };
+            this.$button = $('<button>', params);
             this.$button.appendTo('body');
         }
         ajax.loadJS(AcceptJs).then(function () {

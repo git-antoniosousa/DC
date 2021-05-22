@@ -3,19 +3,19 @@
 # 	* uom
 # 
 # Translators:
-# Martin Trigaux, 2020
-# Pavol Krnáč <pavol.krnac@ekoenergo.sk>, 2020
-# Jaroslav Bosansky <jaro.bosansky@ekoenergo.sk>, 2020
-# gebri <gebri@inmail.sk>, 2020
-# Jan Prokop, 2020
+# Martin Trigaux, 2019
+# Pavol Krnáč <pavol.krnac@ekoenergo.sk>, 2019
+# Jaroslav Bosansky <jaro.bosansky@ekoenergo.sk>, 2019
+# gebri <gebri@inmail.sk>, 2019
+# Jan Prokop, 2019
 # Rastislav Brencic <rastislav.brencic@azet.sk>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-02 14:12+0000\n"
-"PO-Revision-Date: 2020-09-07 08:19+0000\n"
+"POT-Creation-Date: 2019-08-26 08:17+0000\n"
+"PO-Revision-Date: 2019-08-26 09:15+0000\n"
 "Last-Translator: Rastislav Brencic <rastislav.brencic@azet.sk>, 2020\n"
 "Language-Team: Slovak (https://www.transifex.com/odoo/teams/41243/sk/)\n"
 "MIME-Version: 1.0\n"
@@ -78,7 +78,6 @@ msgstr "Väčšia než referenčná jednotka"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__category_id
-#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_search
 msgid "Category"
 msgstr "Kategória"
 
@@ -106,7 +105,32 @@ msgstr "Vytvorené"
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_day
 msgid "Days"
-msgstr "Dni"
+msgstr "Dní"
+
+#. module: uom
+#: model:ir.model.fields.selection,name:uom.selection__uom_category__measure_type__length
+msgid "Default Length"
+msgstr "Predvolená dĺžka"
+
+#. module: uom
+#: model:ir.model.fields.selection,name:uom.selection__uom_category__measure_type__unit
+msgid "Default Units"
+msgstr "Predvolené jednotky"
+
+#. module: uom
+#: model:ir.model.fields.selection,name:uom.selection__uom_category__measure_type__volume
+msgid "Default Volume"
+msgstr "Predvolené množstvo"
+
+#. module: uom
+#: model:ir.model.fields.selection,name:uom.selection__uom_category__measure_type__weight
+msgid "Default Weight"
+msgstr "Predvolená hmotnosť"
+
+#. module: uom
+#: model:ir.model.fields.selection,name:uom.selection__uom_category__measure_type__working_time
+msgid "Default Working Time"
+msgstr "Predvolená pracovný čas"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_category__display_name
@@ -118,11 +142,6 @@ msgstr "Zobrazovaný názov"
 #: model:uom.uom,name:uom.product_uom_dozen
 msgid "Dozens"
 msgstr "Desiatky"
-
-#. module: uom
-#: model_terms:ir.ui.view,arch_db:uom.uom_uom_view_search
-msgid "Group By"
-msgstr "Zoskupiť podľa"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_hour
@@ -157,7 +176,7 @@ msgstr "ID"
 #: model:ir.model.fields,field_description:uom.field_uom_category____last_update
 #: model:ir.model.fields,field_description:uom.field_uom_uom____last_update
 msgid "Last Modified on"
-msgstr "Posledná úprava"
+msgstr "Posledná modifikácia"
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_category__write_uid
@@ -175,6 +194,11 @@ msgstr "Naposledy upravované"
 #: model:uom.category,name:uom.uom_categ_length
 msgid "Length / Distance"
 msgstr "Dĺžka / Vzdialenosť"
+
+#. module: uom
+#: model:uom.uom,name:uom.product_uom_litre
+msgid "Liters"
+msgstr "Litre"
 
 #. module: uom
 #: model:res.groups,name:uom.group_uom
@@ -245,15 +269,29 @@ msgstr "Presnosť zaokrúhľovania musí byť pozitívna."
 #, python-format
 msgid ""
 "The unit of measure %s defined on the order line doesn't belong to the same "
-"category as the unit of measure %s defined on the product. Please correct "
+"category than the unit of measure %s defined on the product. Please correct "
 "the unit of measure defined on the order line or on the product, they should"
 " belong to the same category."
 msgstr ""
+"Merná jednotka %s definovaná na riadku objednávky nezodpovedá rovnakej "
+"kategórii ako merná jednotka %s definovaná pre produkt. Opravte mernú "
+"jednotku na riadku objednávky alebo v produkte, aby prislúchali rovnakej "
+"kategórii."
 
 #. module: uom
 #: model:ir.model.fields,field_description:uom.field_uom_uom__uom_type
 msgid "Type"
 msgstr "Typ"
+
+#. module: uom
+#: model:ir.model.fields,field_description:uom.field_uom_category__measure_type
+msgid "Type of Measure"
+msgstr "Typ merania"
+
+#. module: uom
+#: model:ir.model.fields,field_description:uom.field_uom_uom__measure_type
+msgid "Type of measurement category"
+msgstr "Typ kategórie merania"
 
 #. module: uom
 #: model:ir.model.fields,help:uom.field_uom_uom__active
@@ -281,7 +319,7 @@ msgstr "Kategória mernej jednotky"
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_unit
 msgid "Units"
-msgstr "kusy"
+msgstr "ks"
 
 #. module: uom
 #: model:ir.actions.act_window,name:uom.product_uom_form_action
@@ -324,7 +362,7 @@ msgstr ""
 "zaznamenaj ju najprv prosím. "
 
 #. module: uom
-#: code:addons/uom/models/uom_uom.py:0 code:addons/uom/models/uom_uom.py:0
+#: code:addons/uom/models/uom_uom.py:0
 #, python-format
 msgid "UoM category %s should only have one reference unit of measure."
 msgstr ""
@@ -344,6 +382,11 @@ msgstr "Hmotnosť"
 #: model:uom.category,name:uom.uom_categ_wtime
 msgid "Working Time"
 msgstr "Pracovný čas"
+
+#. module: uom
+#: model:ir.model.constraint,message:uom.constraint_uom_category_uom_category_unique_type
+msgid "You can have only one category per measurement type."
+msgstr "Možno mať len jednu kategóriu pre typ merania."
 
 #. module: uom
 #: code:addons/uom/models/uom_uom.py:0
@@ -377,33 +420,23 @@ msgstr "cm"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_floz
-msgid "fl oz (US)"
-msgstr ""
+msgid "fl oz"
+msgstr "fl oz"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_foot
-msgid "ft"
-msgstr ""
-
-#. module: uom
-#: model:uom.uom,name:uom.product_uom_cubic_foot
-msgid "ft³"
-msgstr ""
+msgid "foot(ft)"
+msgstr "stopa(ft)"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_gal
-msgid "gal (US)"
-msgstr ""
+msgid "gals"
+msgstr "gals"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_inch
-msgid "in"
-msgstr "v"
-
-#. module: uom
-#: model:uom.uom,name:uom.product_uom_cubic_inch
-msgid "in³"
-msgstr ""
+msgid "inches"
+msgstr "palce"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_kgm
@@ -417,25 +450,20 @@ msgstr "km"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_lb
-msgid "lb"
-msgstr ""
+msgid "lbs"
+msgstr "lbs"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_mile
-msgid "mi"
-msgstr ""
-
-#. module: uom
-#: model:uom.uom,name:uom.product_uom_cubic_meter
-msgid "m³"
-msgstr ""
+msgid "miles"
+msgstr "míle"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_oz
-msgid "oz"
-msgstr ""
+msgid "ozs"
+msgstr "ozs"
 
 #. module: uom
 #: model:uom.uom,name:uom.product_uom_qt
-msgid "qt (US)"
-msgstr ""
+msgid "qt"
+msgstr "štvrtinka (quart)"

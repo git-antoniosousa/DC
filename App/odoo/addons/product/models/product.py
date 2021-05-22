@@ -5,7 +5,7 @@ import logging
 import re
 
 from odoo import api, fields, models, tools, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import ValidationError
 from odoo.osv import expression
 
 
@@ -60,12 +60,6 @@ class ProductCategory(models.Model):
     @api.model
     def name_create(self, name):
         return self.create({'name': name}).name_get()[0]
-
-    def unlink(self):
-        main_category = self.env.ref('product.product_category_all')
-        if main_category in self:
-            raise UserError(_("You cannot delete this product category, it is the default generic category."))
-        return super().unlink()
 
 
 class ProductProduct(models.Model):
@@ -221,7 +215,8 @@ class ProductProduct(models.Model):
             product.combination_indices = product.product_template_attribute_value_ids._ids2str()
 
     def _compute_is_product_variant(self):
-        self.is_product_variant = True
+        for product in self:
+            product.is_product_variant = True
 
     @api.depends_context('pricelist', 'partner', 'quantity', 'uom', 'date', 'no_variant_attributes_price_extra')
     def _compute_product_price(self):
@@ -514,15 +509,15 @@ class ProductProduct(models.Model):
             positive_operators = ['=', 'ilike', '=ilike', 'like', '=like']
             product_ids = []
             if operator in positive_operators:
-                product_ids = list(self._search([('default_code', '=', name)] + args, limit=limit, access_rights_uid=name_get_uid))
+                product_ids = self._search([('default_code', '=', name)] + args, limit=limit, access_rights_uid=name_get_uid)
                 if not product_ids:
-                    product_ids = list(self._search([('barcode', '=', name)] + args, limit=limit, access_rights_uid=name_get_uid))
+                    product_ids = self._search([('barcode', '=', name)] + args, limit=limit, access_rights_uid=name_get_uid)
             if not product_ids and operator not in expression.NEGATIVE_TERM_OPERATORS:
                 # Do not merge the 2 next lines into one single search, SQL search performance would be abysmal
                 # on a database with thousands of matching products, due to the huge merge+unique needed for the
                 # OR operator (and given the fact that the 'name' lookup results come from the ir.translation table
                 # Performing a quick memory merge of ids in Python will give much better performance
-                product_ids = list(self._search(args + [('default_code', operator, name)], limit=limit))
+                product_ids = self._search(args + [('default_code', operator, name)], limit=limit)
                 if not limit or len(product_ids) < limit:
                     # we may underrun the limit because of dupes in the results, that's fine
                     limit2 = (limit - len(product_ids)) if limit else False
@@ -534,12 +529,12 @@ class ProductProduct(models.Model):
                     ['&', ('default_code', '=', False), ('name', operator, name)],
                 ])
                 domain = expression.AND([args, domain])
-                product_ids = list(self._search(domain, limit=limit, access_rights_uid=name_get_uid))
+                product_ids = self._search(domain, limit=limit, access_rights_uid=name_get_uid)
             if not product_ids and operator in positive_operators:
                 ptrn = re.compile('(\[(.*?)\])')
                 res = ptrn.search(name)
                 if res:
-                    product_ids = list(self._search([('default_code', '=', res.group(2))] + args, limit=limit, access_rights_uid=name_get_uid))
+                    product_ids = self._search([('default_code', '=', res.group(2))] + args, limit=limit, access_rights_uid=name_get_uid)
             # still no results, partner in context: search on supplier info as last hope to find something
             if not product_ids and self._context.get('partner_id'):
                 suppliers_ids = self.env['product.supplierinfo']._search([
@@ -551,16 +546,14 @@ class ProductProduct(models.Model):
                     product_ids = self._search([('product_tmpl_id.seller_ids', 'in', suppliers_ids)], limit=limit, access_rights_uid=name_get_uid)
         else:
             product_ids = self._search(args, limit=limit, access_rights_uid=name_get_uid)
-        return product_ids
+        return models.lazy_name_get(self.browse(product_ids).with_user(name_get_uid))
 
     @api.model
     def view_header_get(self, view_id, view_type):
+        res = super(ProductProduct, self).view_header_get(view_id, view_type)
         if self._context.get('categ_id'):
-            return _(
-                'Products: %(category)s',
-                category=self.env['product.category'].browse(self.env.context['categ_id']).name,
-            )
-        return super().view_header_get(view_id, view_type)
+            return _('Products: ') + self.env['product.category'].browse(self._context['categ_id']).name
+        return res
 
     def open_pricelist_rules(self):
         self.ensure_one()
@@ -590,7 +583,7 @@ class ProductProduct(models.Model):
                 'res_id': self.product_tmpl_id.id,
                 'target': 'new'}
 
-    def _prepare_sellers(self, params=False):
+    def _prepare_sellers(self, params):
         # This search is made to avoid retrieving seller_ids from the cache.
         return self.env['product.supplierinfo'].search([('product_tmpl_id', '=', self.product_tmpl_id.id),
                                                         ('name.active', '=', True)]).sorted(lambda s: (s.sequence, -s.min_qty, s.price, s.id))
@@ -603,7 +596,8 @@ class ProductProduct(models.Model):
 
         res = self.env['product.supplierinfo']
         sellers = self._prepare_sellers(params)
-        sellers = sellers.filtered(lambda s: not s.company_id or s.company_id.id == self.env.company.id)
+        if self.env.context.get('force_company'):
+            sellers = sellers.filtered(lambda s: not s.company_id or s.company_id.id == self.env.context['force_company'])
         for seller in sellers:
             # Set quantity in UoM of seller
             quantity_uom_seller = quantity
@@ -624,7 +618,7 @@ class ProductProduct(models.Model):
                 res |= seller
         return res.sorted('price')[:1]
 
-    def price_compute(self, price_type, uom=False, currency=False, company=None):
+    def price_compute(self, price_type, uom=False, currency=False, company=False):
         # TDE FIXME: delegate to template or not ? fields are reencoded here ...
         # compatibility about context keys used a bit everywhere in the code
         if not uom and self._context.get('uom'):
@@ -637,7 +631,7 @@ class ProductProduct(models.Model):
             # standard_price field can only be seen by users in base.group_user
             # Thus, in order to compute the sale price from the cost for users not in this group
             # We fetch the standard price as the superuser
-            products = self.with_company(company or self.env.company).sudo()
+            products = self.with_context(force_company=company and company.id or self._context.get('force_company', self.env.company.id)).sudo()
 
         prices = dict.fromkeys(self.ids, 0.0)
         for product in products:
@@ -746,7 +740,7 @@ class SupplierInfo(models.Model):
         related='product_tmpl_id.uom_po_id',
         help="This comes from the product form.")
     min_qty = fields.Float(
-        'Quantity', default=0.0, required=True, digits="Product Unit Of Measure",
+        'Quantity', default=0.0, required=True,
         help="The quantity to purchase from this vendor to benefit from the price, expressed in the vendor Product Unit of Measure if not any, in the default unit of measure of the product otherwise.")
     price = fields.Float(
         'Price', default=0.0, digits='Product Price',
@@ -766,7 +760,7 @@ class SupplierInfo(models.Model):
     product_tmpl_id = fields.Many2one(
         'product.template', 'Product Template', check_company=True,
         index=True, ondelete='cascade')
-    product_variant_count = fields.Integer('Variant Count', related='product_tmpl_id.product_variant_count')
+    product_variant_count = fields.Integer('Variant Count', related='product_tmpl_id.product_variant_count', readonly=False)
     delay = fields.Integer(
         'Delivery Lead Time', default=1, required=True,
         help="Lead time in days between the confirmation of the purchase order and the receipt of the products in your warehouse. Used by the scheduler for automatic computation of the purchase order planning.")

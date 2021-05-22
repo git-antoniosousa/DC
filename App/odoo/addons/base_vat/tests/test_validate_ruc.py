@@ -1,20 +1,24 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo.tests.common import SavepointCase, tagged
+
+import logging
+_logger = logging.getLogger(__name__)
+
+from odoo.tests import common
 from odoo.exceptions import ValidationError
-from unittest.mock import patch
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
-import stdnum.eu.vat
+try:
+    import vatnumber
+except ImportError:
+    _logger.warning("VAT validation partially unavailable because the `vatnumber` Python library cannot be found. "
+    "Install it to support more countries, for example with `easy_install vatnumber`.")
+    vatnumber = lambda: False
+    vatnumber.check_vies = lambda: False  # dummy method for mock
 
-
-class TestStructure(SavepointCase):
-    @classmethod
-    def setUpClass(cls):
-        def check_vies(vat_number):
-            return {'valid': vat_number == 'BE0477472701'}
-
-        super().setUpClass()
-        cls.env.user.company_id.vat_check_vies = False
-        cls._vies_check_func = check_vies
+class TestStructure(common.TransactionCase):
 
     def test_peru_ruc_format(self):
         """Only values that has the length of 11 will be checked as RUC, that's what we are proving. The second part
@@ -38,7 +42,7 @@ class TestStructure(SavepointCase):
     def test_parent_validation(self):
         """Test the validation with company and contact"""
 
-        # set an invalid vat number
+        # disable the verification to set an invalid vat number
         self.env.user.company_id.vat_check_vies = False
         company = self.env["res.partner"].create({
             "name": "World Company",
@@ -52,14 +56,22 @@ class TestStructure(SavepointCase):
             "company_type": "person",
         })
 
+        def mock_check_vies(vat_number):
+            """ Fake vatnumber method that will only allow one number """
+            return vat_number == 'BE0987654321'
+
         # reactivate it and correct the vat number
-        with patch('odoo.addons.base_vat.models.res_partner.check_vies', type(self)._vies_check_func):
+        with patch.object(vatnumber, 'check_vies', mock_check_vies):
             self.env.user.company_id.vat_check_vies = True
+            company.vat = "BE0987654321"
 
     def test_vat_syntactic_validation(self):
         """ Tests VAT validation (both successes and failures), with the different country
         detection cases possible.
         """
+        # Disable VIES; syntactic verification is enough for this test case
+        self.env.user.company_id.vat_check_vies = False
+
         test_partner =self.env['res.partner'].create({'name': "John Dex"})
 
         # VAT starting with country code: use the starting country code
@@ -81,12 +93,3 @@ class TestStructure(SavepointCase):
         # If no country can be guessed: VAT number should always be considered valid
         # (for technical reasons due to ORM and res.company making related fields towards res.partner for country_id and vat)
         test_partner.write({'vat': '0477472701', 'country_id': None})
-
-
-@tagged('-standard', 'external')
-class TestStructureVIES(TestStructure):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.env.user.company_id.vat_check_vies = True
-        cls._vies_check_func = stdnum.eu.vat.check_vies

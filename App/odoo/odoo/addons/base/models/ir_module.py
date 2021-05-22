@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import base64
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from decorator import decorator
 from operator import attrgetter
 import importlib
@@ -11,7 +11,6 @@ import os
 import pkg_resources
 import shutil
 import tempfile
-import threading
 import zipfile
 
 import requests
@@ -152,7 +151,7 @@ class Module(models.Model):
     _name = "ir.module.module"
     _rec_name = "shortdesc"
     _description = "Module"
-    _order = 'application desc,sequence,name'
+    _order = 'sequence,name'
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
@@ -174,9 +173,6 @@ class Module(models.Model):
     @api.depends('name', 'description')
     def _get_desc(self):
         for module in self:
-            if not module.name:
-                module.description_html = False
-                continue
             path = modules.get_module_resource(module.name, 'static/description/index.html')
             if path:
                 with tools.file_open(path, 'rb') as desc_file:
@@ -242,10 +238,8 @@ class Module(models.Model):
             if module.icon:
                 path_parts = module.icon.split('/')
                 path = modules.get_module_resource(path_parts[1], *path_parts[2:])
-            elif module.id:
-                path = modules.module.get_module_icon(module.name)
             else:
-                path = ''
+                path = modules.module.get_module_icon(module.name)
             if path:
                 with tools.file_open(path, 'rb') as image_file:
                     module.icon_image = base64.b64encode(image_file.read())
@@ -300,15 +294,10 @@ class Module(models.Model):
     icon = fields.Char('Icon URL')
     icon_image = fields.Binary(string='Icon', compute='_get_icon_image')
     to_buy = fields.Boolean('Odoo Enterprise Module', default=False)
-    has_iap = fields.Boolean(compute='_compute_has_iap')
 
     _sql_constraints = [
         ('name_uniq', 'UNIQUE (name)', 'The name of the module must be unique!'),
     ]
-
-    def _compute_has_iap(self):
-        for module in self:
-            module.has_iap = bool(module.id) and 'iap' in module.upstream_dependencies(exclude_states=('',)).mapped('name')
 
     def unlink(self):
         if not self:
@@ -569,22 +558,14 @@ class Module(models.Model):
         }
 
     def _button_immediate_function(self, function):
-        if getattr(threading.currentThread(), 'testing', False):
-            raise RuntimeError(
-                "Module operations inside tests are not transactional and thus forbidden.\n"
-                "If you really need to perform module operations to test a specific behavior, it "
-                "is best to write it as a standalone script, and ask the runbot/metastorm team "
-                "for help."
-            )
         try:
             # This is done because the installation/uninstallation/upgrade can modify a currently
             # running cron job and prevent it from finishing, and since the ir_cron table is locked
             # during execution, the lock won't be released until timeout.
             self._cr.execute("SELECT * FROM ir_cron FOR UPDATE NOWAIT")
         except psycopg2.OperationalError:
-            raise UserError(_("Odoo is currently processing a scheduled action.\n"
-                              "Module operations are not possible at this time, "
-                              "please try again later or contact your system administrator."))
+            raise UserError(_("The server is busy right now, module operations are not possible at"
+                              " this time, please try again later."))
         function(self)
 
         self._cr.commit()
@@ -619,7 +600,7 @@ class Module(models.Model):
     def button_uninstall(self):
         if 'base' in self.mapped('name'):
             raise UserError(_("The `base` module cannot be uninstalled"))
-        if any(state not in ('installed', 'to upgrade') for state in self.mapped('state')):
+        if not all(state in ('installed', 'to upgrade') for state in self.mapped('state')):
             raise UserError(_(
                 "One or more of the selected modules have already been uninstalled, if you "
                 "believe this to be an error, you may try again later or contact support."
@@ -806,7 +787,7 @@ class Module(models.Model):
                     content = response.content
                 except Exception:
                     _logger.exception('Failed to fetch module %s', module_name)
-                    raise UserError(_('The `%s` module appears to be unavailable at the moment, please try again later.', module_name))
+                    raise UserError(_('The `%s` module appears to be unavailable at the moment, please try again later.') % module_name)
                 else:
                     zipfile.ZipFile(io.BytesIO(content)).extractall(tmp)
                     assert os.path.isdir(os.path.join(tmp, module_name))
@@ -901,7 +882,7 @@ class Module(models.Model):
             cat_id = modules.db.create_categories(self._cr, categs)
             self.write({'category_id': cat_id})
 
-    def _update_translations(self, filter_lang=None, overwrite=False):
+    def _update_translations(self, filter_lang=None):
         if not filter_lang:
             langs = self.env['res.lang'].get_installed()
             filter_lang = [code for code, _ in langs]
@@ -914,7 +895,7 @@ class Module(models.Model):
             for mod in update_mods
         }
         mod_names = topological_sort(mod_dict)
-        self.env['ir.translation']._load_module_terms(mod_names, filter_lang, overwrite)
+        self.env['ir.translation']._load_module_terms(mod_names, filter_lang)
 
     def _check(self):
         for module in self:
@@ -929,55 +910,6 @@ class Module(models.Model):
             module.name: module.id
             for module in self.sudo().search([('state', '=', 'installed')])
         }
-
-    @api.model
-    def search_panel_select_range(self, field_name, **kwargs):
-        if field_name == 'category_id':
-            enable_counters = kwargs.get('enable_counters', False)
-            domain = [('parent_id', '=', False), ('child_ids.module_ids', '!=', False)]
-
-            excluded_xmlids = [
-                'base.module_category_website_theme',
-                'base.module_category_theme',
-            ]
-            if not self.user_has_groups('base.group_no_one'):
-                excluded_xmlids.append('base.module_category_hidden')
-
-            excluded_category_ids = []
-            for excluded_xmlid in excluded_xmlids:
-                categ = self.env.ref(excluded_xmlid, False)
-                if not categ:
-                    continue
-                excluded_category_ids.append(categ.id)
-
-            if excluded_category_ids:
-                domain = expression.AND([
-                    domain,
-                    [('id', 'not in', excluded_category_ids)],
-                ])
-
-            Module = self.env['ir.module.module']
-            records = self.env['ir.module.category'].search_read(domain, ['display_name'], order="sequence")
-
-            values_range = OrderedDict()
-            for record in records:
-                record_id = record['id']
-                if enable_counters:
-                    model_domain = expression.AND([
-                        kwargs.get('search_domain', []),
-                        kwargs.get('category_domain', []),
-                        kwargs.get('filter_domain', []),
-                        [('category_id', 'child_of', record_id), ('category_id', 'not in', excluded_category_ids)]
-                    ])
-                    record['__count'] = Module.search_count(model_domain)
-                values_range[record_id] = record
-
-            return {
-                'parent_field': 'parent_id',
-                'values': list(values_range.values()),
-            }
-
-        return super(Module, self).search_panel_select_range(field_name, **kwargs)
 
 
 DEP_STATES = STATES + [('unknown', 'Unknown')]

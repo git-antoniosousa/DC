@@ -5,7 +5,6 @@ from odoo import models, fields
 
 class Users(models.Model):
     _inherit = 'res.users'
-
     odoobot_state = fields.Selection(
         [
             ('not_initialized', 'Not initialized'),
@@ -15,8 +14,7 @@ class Users(models.Model):
             ('onboarding_ping', 'Onboarding ping'),
             ('idle', 'Idle'),
             ('disabled', 'Disabled'),
-        ], string="OdooBot Status", readonly=True, required=False)  # keep track of the state: correspond to the code of the last message sent
-    odoobot_failed = fields.Boolean(readonly=True)
+        ], string="OdooBot Status", readonly=True, required=True, default="not_initialized")  # keep track of the state: correspond to the code of the last message sent
 
     def __init__(self, pool, cr):
         """ Override of __init__ to add access rights.

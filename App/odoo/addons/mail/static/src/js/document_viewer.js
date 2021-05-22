@@ -9,13 +9,6 @@ var QWeb = core.qweb;
 var SCROLL_ZOOM_STEP = 0.1;
 var ZOOM_STEP = 0.5;
 
-/**
- * This widget is deprecated, and should instead use AttachmentViewer component.
- * @see `mail/static/src/components/attachment_viewer/attachment_viewer.js`
- * TODO: remove this widget when it's not longer used
- *
- * @deprecated
- */
 var DocumentViewer = Widget.extend({
     template: "DocumentViewer",
     events: {
@@ -93,6 +86,7 @@ var DocumentViewer = Widget.extend({
         if (this.isDestroyed()) {
             return;
         }
+        this.trigger_up('document_viewer_closed');
         this.$el.modal('hide');
         this.$el.remove();
         this._super.apply(this, arguments);

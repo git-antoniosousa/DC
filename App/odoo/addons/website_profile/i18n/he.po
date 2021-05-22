@@ -3,17 +3,17 @@
 # 	* website_profile
 # 
 # Translators:
-# Martin Trigaux, 2020
-# Yihya Hugirat <hugirat@gmail.com>, 2020
+# Martin Trigaux, 2019
+# Yihya Hugirat <hugirat@gmail.com>, 2019
 # ZVI BLONDER <ZVIBLONDER@gmail.com>, 2020
 # Lilach Gilliam <lilach.gilliam@gmail.com>, 2021
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.5\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 07:29+0000\n"
-"PO-Revision-Date: 2020-09-07 08:22+0000\n"
+"POT-Creation-Date: 2019-08-26 08:17+0000\n"
+"PO-Revision-Date: 2019-08-26 09:16+0000\n"
 "Last-Translator: Lilach Gilliam <lilach.gilliam@gmail.com>, 2021\n"
 "Language-Team: Hebrew (https://www.transifex.com/odoo/teams/41243/he/)\n"
 "MIME-Version: 1.0\n"
@@ -52,14 +52,19 @@ msgid ". Try another search."
 msgstr ". נסה חיפוש נוסף."
 
 #. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.user_badges
-msgid "<i class=\"fa fa-arrow-right mr-1\"/>All Badges"
-msgstr ""
+#: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
+msgid "40%"
+msgstr "40%"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
-msgid "<i class=\"fa fa-arrow-right\"/> All Badges"
-msgstr ""
+msgid "<i class=\"fa fa-arrow-right mr-1\"/>Check all available badges"
+msgstr "<i class=\"fa fa-arrow-right mr-1\"/>בדוק את כל התגים הזמינים"
+
+#. module: website_profile
+#: model_terms:ir.ui.view,arch_db:website_profile.user_badges
+msgid "<i class=\"fa fa-arrow-right\"/> Check available badges"
+msgstr "<i class=\"fa fa-arrow-right\"/> בדוק תגים זמינים"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_edit_content
@@ -97,6 +102,15 @@ msgid "<small class=\"font-weight-bold\">Joined</small>"
 msgstr ""
 
 #. module: website_profile
+#: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
+msgid ""
+"<span class=\"badge badge-danger font-weight-normal px-2 py-1 "
+"m-1\">Unpublished</span>"
+msgstr ""
+"<span class=\"badge badge-danger font-weight-normal px-2 py-1 m-1\">לא "
+"פורסם</span>"
+
+#. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_edit_content
 msgid "<span class=\"font-weight-bold\">Biography</span>"
 msgstr ""
@@ -118,13 +132,13 @@ msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_edit_content
-msgid "<span class=\"font-weight-bold\">Name</span>"
+msgid "<span class=\"font-weight-bold\">Public profile</span>"
 msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_edit_content
-msgid "<span class=\"font-weight-bold\">Public profile</span>"
-msgstr ""
+msgid "<span class=\"font-weight-bold\">Real name</span>"
+msgstr "<span class=\"font-weight-bold\">שם אמיתי</span>"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_edit_content
@@ -159,11 +173,6 @@ msgid ""
 msgstr ""
 "<span id=\"email_validated_message\">מזל טוב! הדוא\"ל שלך זה עתה "
 "אומת.</span>"
-
-#. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
-msgid "<strong class=\"form-group text-white mr-2\">Rank by :</strong>"
-msgstr ""
 
 #. module: website_profile
 #: model:mail.template,body_html:website_profile.validation_email
@@ -263,7 +272,7 @@ msgstr ""
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
 msgid "About"
-msgstr "על אודות"
+msgstr "על"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
@@ -271,14 +280,7 @@ msgid "All Users"
 msgstr "כל המשתמשים"
 
 #. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
-#: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
-msgid "All time"
-msgstr ""
-
-#. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.badge_content
-#: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
 msgid "Badges"
 msgstr "תגים"
@@ -287,8 +289,8 @@ msgstr "תגים"
 #: model_terms:ir.ui.view,arch_db:website_profile.badge_content
 msgid ""
 "Besides gaining reputation with your questions and answers,\n"
-"                        you receive badges for being especially helpful.<br class=\"d-none d-lg-inline-block\"/>Badges\n"
-"                        appear on your profile page, and your posts."
+"                    you receive badges for being especially helpful.<br class=\"d-none d-lg-inline-block\"/>Badges\n"
+"                    appear on your profile page, and your posts."
 msgstr ""
 
 #. module: website_profile
@@ -297,19 +299,9 @@ msgid "Biography"
 msgstr "ביוגרפיה"
 
 #. module: website_profile
-#: model:ir.model.fields,field_description:website_profile.field_gamification_badge__can_publish
-msgid "Can Publish"
-msgstr "יכול לפרסם"
-
-#. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_edit_content
 msgid "Clear"
 msgstr "נקה"
-
-#. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.user_profile_content
-msgid "Click here to send a verification email."
-msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
@@ -319,14 +311,7 @@ msgstr "סגור"
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_edit_content
 msgid "Country..."
-msgstr "ארץ..."
-
-#. module: website_profile
-#: model:ir.model.fields,field_description:website_profile.field_gamification_badge__display_name
-#: model:ir.model.fields,field_description:website_profile.field_res_users__display_name
-#: model:ir.model.fields,field_description:website_profile.field_website__display_name
-msgid "Display Name"
-msgstr "הצג שם"
+msgstr "ארץ .."
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_edit_content
@@ -359,18 +344,6 @@ msgid "How do I score more points?"
 msgstr "איך אני מרוויח יותר נקודות?"
 
 #. module: website_profile
-#: model:ir.model.fields,field_description:website_profile.field_gamification_badge__id
-#: model:ir.model.fields,field_description:website_profile.field_res_users__id
-#: model:ir.model.fields,field_description:website_profile.field_website__id
-msgid "ID"
-msgstr "תעודה מזהה"
-
-#. module: website_profile
-#: model:ir.model.fields,field_description:website_profile.field_gamification_badge__is_published
-msgid "Is Published"
-msgstr "מפורסם"
-
-#. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.email_validation_banner
 msgid "It appears your email has not been verified.<br/>"
 msgstr ""
@@ -379,13 +352,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid "Keep learning with"
 msgstr "המשך ללמוד עם"
-
-#. module: website_profile
-#: model:ir.model.fields,field_description:website_profile.field_gamification_badge____last_update
-#: model:ir.model.fields,field_description:website_profile.field_res_users____last_update
-#: model:ir.model.fields,field_description:website_profile.field_website____last_update
-msgid "Last Modified on"
-msgstr "שינוי אחרון ב"
 
 #. module: website_profile
 #: model:ir.model.fields,field_description:website_profile.field_website__karma_profile_min
@@ -414,7 +380,7 @@ msgstr "דרגה חדשה:"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.user_badges
-msgid "No badges yet!"
+msgid "No badge yet"
 msgstr ""
 
 #. module: website_profile
@@ -460,27 +426,11 @@ msgid "Search users"
 msgstr "חפש משתמשים"
 
 #. module: website_profile
-#: model:ir.model.fields,help:website_profile.field_gamification_badge__website_url
-msgid "The full URL to access the document through the website."
-msgstr "כתובת האתר המלאה לגישה למסמך דרך אתר האינטרנט."
-
-#. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
-msgid "This month"
-msgstr "חודש נוכחי"
-
-#. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.private_profile
 msgid "This profile is private!"
 msgstr "פרופיל זה הינו פרטי!"
 
 #. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.users_page_header
-msgid "This week"
-msgstr "שבוע נוכחי"
-
-#. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
 #: model_terms:ir.ui.view,arch_db:website_profile.top3_user_card
 msgid "Unpublished"
 msgstr "לא פורסם"
@@ -502,30 +452,14 @@ msgid "Users"
 msgstr "משתמשים"
 
 #. module: website_profile
-#: model:ir.model.fields,field_description:website_profile.field_gamification_badge__website_published
-msgid "Visible on current website"
-msgstr "גלוי באתר האינטרנט הנוכחי"
-
-#. module: website_profile
 #: model:ir.model,name:website_profile.model_website
 msgid "Website"
 msgstr "אתר אינטרנט"
 
 #. module: website_profile
-#: model:ir.model.fields,field_description:website_profile.field_gamification_badge__website_url
-msgid "Website URL"
-msgstr "כתובת אתר אינטרנט"
-
-#. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid "When you finish a course or reach milestones, you're awarded badges."
 msgstr "כשאתה מסיים קורס או מגיע לאבני דרך, אתה מקבל תגים."
-
-#. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
-#: model_terms:ir.ui.view,arch_db:website_profile.top3_user_card
-msgid "XP"
-msgstr "XP"
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
@@ -536,7 +470,6 @@ msgid ""
 msgstr ""
 
 #. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 #: model_terms:ir.ui.view,arch_db:website_profile.user_profile_sub_nav
 msgid "breadcrumb"
 msgstr "סימני דרך"
@@ -545,16 +478,6 @@ msgstr "סימני דרך"
 #: model_terms:ir.ui.view,arch_db:website_profile.rank_badge_main
 msgid "point"
 msgstr "נקודה"
-
-#. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
-msgid "this month"
-msgstr ""
-
-#. module: website_profile
-#: model_terms:ir.ui.view,arch_db:website_profile.all_user_card
-msgid "this week"
-msgstr ""
 
 #. module: website_profile
 #: model_terms:ir.ui.view,arch_db:website_profile.profile_next_rank_card

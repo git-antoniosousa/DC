@@ -39,10 +39,9 @@ class AccountMove(models.Model):
         price_unit_prec = self.env['decimal.precision'].precision_get('Product Price')
 
         for move in self:
-            if move.move_type not in ('in_invoice', 'in_refund', 'in_receipt') or not move.company_id.anglo_saxon_accounting:
+            if move.type not in ('in_invoice', 'in_refund', 'in_receipt') or not move.company_id.anglo_saxon_accounting:
                 continue
 
-            move = move.with_company(move.company_id)
             for line in move.invoice_line_ids.filtered(lambda line: line.product_id.type == 'product' and line.product_id.valuation == 'real_time'):
 
                 # Filter out lines being not eligible for price difference.
@@ -66,7 +65,7 @@ class AccountMove(models.Model):
                         ('state', '=', 'done'),
                         ('product_qty', '!=', 0.0),
                     ])
-                    if move.move_type == 'in_refund':
+                    if move.type == 'in_refund':
                         valuation_stock_moves = valuation_stock_moves.filtered(lambda stock_move: stock_move._is_out())
                     else:
                         valuation_stock_moves = valuation_stock_moves.filtered(lambda stock_move: stock_move._is_in())
@@ -86,9 +85,8 @@ class AccountMove(models.Model):
                                 move.company_id, valuation_date, round=False,
                             )
                             valuation_total_qty += layers_qty
-
                         if float_is_zero(valuation_total_qty, precision_rounding=line.product_uom_id.rounding or line.product_id.uom_id.rounding):
-                            raise UserError(_('Odoo is not able to generate the anglo saxon entries. The total valuation of %s is zero.') % line.product_id.display_name)
+                            raise UserError(_('Odoo is not able to generate the anglo saxon entries. The total valuation of %s is zero.') % _(line.product_id.display_name))
                         valuation_price_unit = valuation_price_unit_total / valuation_total_qty
                         valuation_price_unit = line.product_id.uom_id._compute_price(valuation_price_unit, line.product_uom_id)
 
@@ -114,7 +112,6 @@ class AccountMove(models.Model):
                         move.company_id, fields.Date.today(), round=False
                     )
 
-
                 price_unit = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
                 if line.tax_ids and line.quantity:
                     # We do not want to round the price unit since :
@@ -124,7 +121,7 @@ class AccountMove(models.Model):
                     # multiply then divide the price unit.
                     price_unit *= line.quantity
                     price_unit = line.tax_ids.with_context(round=False, force_sign=move._get_tax_force_sign()).compute_all(
-                        price_unit, currency=move.currency_id, quantity=1.0, is_refund=move.move_type == 'in_refund')['total_excluded']
+                        price_unit, currency=move.currency_id, quantity=1.0, is_refund=move.type == 'in_refund')['total_excluded']
                     price_unit /= line.quantity
 
                 price_unit_val_dif = price_unit - valuation_price_unit
@@ -137,7 +134,6 @@ class AccountMove(models.Model):
                     not move.currency_id.is_zero(price_subtotal)
                     and float_compare(line["price_unit"], line.price_unit, precision_digits=price_unit_prec) == 0
                 ):
-
                     # Add price difference account line.
                     vals = {
                         'name': line.name[:64],
@@ -177,20 +173,20 @@ class AccountMove(models.Model):
                     lines_vals_list.append(vals)
         return lines_vals_list
 
-    def _post(self, soft=True):
+    def post(self):
         # OVERRIDE
         # Create additional price difference lines for vendor bills.
         if self._context.get('move_reverse_cancel'):
-            return super()._post(soft)
+            return super(AccountMove, self).post()
         self.env['account.move.line'].create(self._stock_account_prepare_anglo_saxon_in_lines_vals())
-        return super()._post(soft)
+        return super(AccountMove, self).post()
 
     def _stock_account_get_last_step_stock_moves(self):
         """ Overridden from stock_account.
         Returns the stock moves associated to this invoice."""
         rslt = super(AccountMove, self)._stock_account_get_last_step_stock_moves()
-        for invoice in self.filtered(lambda x: x.move_type == 'in_invoice'):
+        for invoice in self.filtered(lambda x: x.type == 'in_invoice'):
             rslt += invoice.mapped('invoice_line_ids.purchase_line_id.move_ids').filtered(lambda x: x.state == 'done' and x.location_id.usage == 'supplier')
-        for invoice in self.filtered(lambda x: x.move_type == 'in_refund'):
+        for invoice in self.filtered(lambda x: x.type == 'in_refund'):
             rslt += invoice.mapped('invoice_line_ids.purchase_line_id.move_ids').filtered(lambda x: x.state == 'done' and x.location_dest_id.usage == 'supplier')
         return rslt

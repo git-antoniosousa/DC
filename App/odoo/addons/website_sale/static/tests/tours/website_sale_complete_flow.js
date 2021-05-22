@@ -6,12 +6,12 @@ odoo.define('website_sale_tour.tour', function (require) {
 
     tour.register('website_sale_tour', {
         test: true,
-        url: '/shop?search=Storage Box Test',
+        url: '/shop?search=Storage Box',
     }, [
     // Testing b2c with Tax-Excluded Prices
     {
         content: "Open product page",
-        trigger: '.oe_product_cart a:contains("Storage Box Test")',
+        trigger: '.oe_product_cart a:contains("Storage Box")',
     },
     {
         content: "Add one more storage box",
@@ -28,7 +28,7 @@ odoo.define('website_sale_tour.tour', function (require) {
     },
     {
         content: "Check for 2 products in cart and proceed to checkout",
-        extra_trigger: '#cart_products tr:contains("Storage Box Test") input.js_quantity:propValue(2)',
+        extra_trigger: '#cart_products tr:contains("Storage Box") input.js_quantity:propValue(2)',
         trigger: 'a[href*="/shop/checkout"]',
     },
     {
@@ -55,7 +55,6 @@ odoo.define('website_sale_tour.tour', function (require) {
             $('input[name="email"]').val('abc@odoo.com');
             $('input[name="street"]').val('SO1 Billing Street, 33');
             $('input[name="city"]').val('SO1BillingCity');
-            $('input[name="zip"]').val('10000');
             $('#country_id option:eq(1)').attr('selected', true);
         },
     },
@@ -76,7 +75,6 @@ odoo.define('website_sale_tour.tour', function (require) {
             $('input[name="phone"]').val('8888888888');
             $('input[name="street"]').val('17, SO1 Shipping Road');
             $('input[name="city"]').val('SO1ShippingCity');
-            $('input[name="zip"]').val('10000');
             $('#country_id option:eq(1)').attr('selected', true);
         },
     },
@@ -163,7 +161,7 @@ odoo.define('website_sale_tour.tour', function (require) {
     },
     {
         content: "Sign in as admin",
-        trigger: 'header a[href="/web/login"]',
+        trigger: '#top_menu li a b:contains("Sign in")',
     },
     {
         content: "Submit login",
@@ -198,17 +196,17 @@ odoo.define('website_sale_tour.tour', function (require) {
                 });
             });
             def2.then(function () {
-                window.location.href = '/web/session/logout?redirect=/shop?search=Storage Box Test';
+                window.location.href = '/web/session/logout?redirect=/shop?search=Storage Box';
             });
         },
     },
     // Testing b2b with Tax-Included Prices
     {
         content: "Open product page",
-        trigger: '.oe_product_cart a:contains("Storage Box Test")',
+        trigger: '.oe_product_cart a:contains("Storage Box")',
     },
     {
-        content: "Add one more Storage Box Test",
+        content: "Add one more Storage Box",
         trigger: '.js_add_cart_json:eq(1)',
     },
     {
@@ -222,7 +220,7 @@ odoo.define('website_sale_tour.tour', function (require) {
     },
     {
         content: "Check for 2 products in cart and proceed to checkout",
-        extra_trigger: '#cart_products tr:contains("Storage Box Test") input.js_quantity:propValue(2)',
+        extra_trigger: '#cart_products tr:contains("Storage Box") input.js_quantity:propValue(2)',
         trigger: 'a[href*="/shop/checkout"]',
     },
     {
@@ -265,7 +263,6 @@ odoo.define('website_sale_tour.tour', function (require) {
             $('input[name="phone"]').val('7777777777');
             $('input[name="street"]').val('SO2New Shipping Street, 5');
             $('input[name="city"]').val('SO2NewShipping');
-            $('input[name="zip"]').val('1200');
             $('#country_id option:eq(1)').attr('selected', true);
         },
     },
@@ -308,7 +305,7 @@ odoo.define('website_sale_tour.tour', function (require) {
     },
     {
         content: "Sign in as admin",
-        trigger: 'header a[href="/web/login"]',
+        trigger: '#top_menu li a b:contains("Sign in")',
     },
     {
         content: "Submit login",
@@ -339,7 +336,7 @@ odoo.define('website_sale_tour.tour', function (require) {
     },
     {
         content: "Sign in as abc",
-        trigger: 'header a[href="/web/login"]',
+        trigger: '#top_menu li a b:contains("Sign in")',
     },
     {
         content: "Submit login",
@@ -347,13 +344,13 @@ odoo.define('website_sale_tour.tour', function (require) {
         run: function () {
             $('.oe_login_form input[name="login"]').val("abc@odoo.com");
             $('.oe_login_form input[name="password"]').val("1admin@admin");
-            $('.oe_login_form input[name="redirect"]').val("/shop?search=Storage Box Test");
+            $('.oe_login_form input[name="redirect"]').val("/shop?search=Storage Box");
             $('.oe_login_form').submit();
         },
     },
     {
         content: "Open product page",
-        trigger: '.oe_product_cart a:contains("Storage Box Test")',
+        trigger: '.oe_product_cart a:contains("Storage Box")',
     },
     {
         content: "Click on add to cart",

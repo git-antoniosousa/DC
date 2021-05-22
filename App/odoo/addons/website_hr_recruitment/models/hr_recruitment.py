@@ -32,13 +32,6 @@ class Applicant(models.Model):
     def website_form_input_filter(self, request, values):
         if 'partner_name' in values:
             values.setdefault('name', '%s\'s Application' % values['partner_name'])
-        if values.get('job_id'):
-            stage = self.env['hr.recruitment.stage'].sudo().search([
-                ('fold', '=', False),
-                '|', ('job_ids', '=', False), ('job_ids', '=', values['job_id']),
-            ], order='sequence asc', limit=1)
-            if stage:
-                values['stage_id'] = stage.id
         return values
 
 
@@ -49,9 +42,9 @@ class Job(models.Model):
 
     def _get_default_website_description(self):
         default_description = self.env["ir.model.data"].xmlid_to_object("website_hr_recruitment.default_website_description")
-        return (default_description._render() if default_description else "")
+        return (default_description.render() if default_description else "")
 
-    website_description = fields.Html('Website description', translate=html_translate, sanitize_attributes=False, default=_get_default_website_description, prefetch=False, sanitize_form=False)
+    website_description = fields.Html('Website description', translate=html_translate, sanitize_attributes=False, default=_get_default_website_description, prefetch=False)
 
     def _compute_website_url(self):
         super(Job, self)._compute_website_url()
@@ -61,6 +54,3 @@ class Job(models.Model):
     def set_open(self):
         self.write({'website_published': False})
         return super(Job, self).set_open()
-
-    def get_backend_menu_id(self):
-        return self.env.ref('hr_recruitment.menu_hr_recruitment_root').id

@@ -30,7 +30,7 @@ class PurchaseBillUnion(models.Model):
                     id as vendor_bill_id, NULL as purchase_order_id
                 FROM account_move
                 WHERE
-                    move_type='in_invoice' and state = 'posted'
+                    type='in_invoice' and state = 'posted'
             UNION
                 SELECT
                     -id, name, partner_ref as reference, partner_id, date_order::date as date, amount_untaxed as amount, currency_id, company_id,
@@ -61,4 +61,4 @@ class PurchaseBillUnion(models.Model):
         if name:
             domain = ['|', ('name', operator, name), ('reference', operator, name)]
         purchase_bills_union_ids = self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
-        return purchase_bills_union_ids
+        return self.browse(purchase_bills_union_ids).name_get()

@@ -9,14 +9,8 @@
                 <div class="o_handle w readonly"/>
                 <div class="o_handle s readonly"/>
 
-                <div class="o_overlay_options_wrap">
-                    <!-- Overlay move specific section -->
-                    <div class="o_overlay_move_options">
-                        <!-- Button-like handle to drag and drop -->
-                        <div class="o_move_handle"/>
-                    </div>
-                    <button type="button" class="oe_snippet_remove fa fa-trash"/>
-                </div>
+                <!-- Overlay button-like handle to drag and drop -->
+                <div class="o_move_handle"/>
             </div>
         </div>
     </t>
@@ -24,64 +18,32 @@
         <we-customizeblock-options>
             <we-title>
                 <span t-esc="name"/>
-                <we-top-button-group>
-                    <we-button class="fa fa-fw fa-clone oe_snippet_clone o_we_link o_we_hover_success"
+                <we-button-group>
+                    <we-button class="fa fa-files-o oe_snippet_clone"
                                 title="Duplicate Container"
                                 aria-label="Duplicate Container"/>
-                    <we-button class="fa fa-fw fa-trash oe_snippet_remove o_we_link o_we_hover_danger"
+                    <we-button class="fa fa-trash-o oe_snippet_remove"
                                 title="Remove Block"
                                 aria-label="Remove Block"/>
-                </we-top-button-group>
+                </we-button-group>
             </we-title>
         </we-customizeblock-options>
     </t>
-    <t t-name="web_editor.outdated_block_message">
-        <we-alert>
-            <we-title>This block is outdated</we-title>
-            <span>To make changes, drop this block and use the new options in the last version.</span>
-        </we-alert>
+    <t t-name="web_editor.customize_block_option">
+        <we-customizeblock-option/>
     </t>
 
     <!-- options -->
     <div t-name="web_editor.snippet.option.colorpicker" class="colorpicker">
-        <div class="o_we_colorpicker_switch_panel d-flex justify-content-end px-2">
-            <t t-if="widget.withCombinations">
-                <button type="button" tabindex="1" class="o_we_colorpicker_switch_pane_btn active" data-target="color-combinations">
-                    <span>Combinations</span>
-                </button>
-                <button type="button" tabindex="2" t-attf-class="o_we_colorpicker_switch_pane_btn #{widget.withCombinations ? '' : 'active'}" data-target="theme-colors">
-                    <span>Custom</span>
-                </button>
-            </t>
-            <button t-if="widget.resetButton" type="button" class="my-1 ml-auto o_we_color_btn o_colorpicker_reset">
-                <t t-if="widget.withCombinations">None</t>
-                <t t-else="">Reset</t>
-            </button>
+        <div class="btn-group palette-reset">
+            <div class="note-color-reset" data-event="foreColor" data-value="inherit" title="None" role="img" aria-label="No color">
+                <i class="fa fa-ban"/>
+            </div>
         </div>
-        <div t-attf-class="o_colorpicker_sections #{widget.withCombinations ? '' : 'd-none'} pt-2 px-2 pb-3 bg-black-25" data-color-tab="color-combinations">
-            <!-- List all Presets -->
-            <t t-foreach="5" t-as="i">
-                <t t-call="web_editor.colorpalette.combination.btn">
-                    <t t-set="number" t-value="i + 1"/>
-                </t>
-            </t>
+        <div class="o_colorpicker_sections px-1 pb8">
+            <div class="tab-content o_colorpicker_section_tabs"/>
         </div>
-        <div t-attf-class="o_colorpicker_sections #{widget.withCombinations ? 'd-none' : ''} py-3 px-2 bg-black-25" data-color-tab="theme-colors"/>
     </div>
-    <t t-name="web_editor.colorpalette.combination.btn">
-        <button type="button" class="o_we_color_btn o_we_color_combination_btn"
-                t-att-data-color="number" t-attf-title="Preset #{number}">
-            <t t-call="web_editor.color.combination.preview"/>
-        </button>
-    </t>
-    <t t-name="web_editor.color.combination.preview">
-        <div class="o_we_cc_preview_wrapper d-flex justify-content-between">
-            <h1 class="o_we_color_combination_btn_title">Title</h1>
-            <p class="o_we_color_combination_btn_text flex-grow-1">Text</p>
-            <span class="o_we_color_combination_btn_btn btn btn-sm btn-primary o_btn_preview mr-1"><small>Button</small></span>
-            <span class="o_we_color_combination_btn_btn btn btn-sm btn-secondary o_btn_preview"><small>Button</small></span>
-        </div>
-    </t>
 
     <t t-name="web_editor.many2one.button">
         <div class="btn-group">

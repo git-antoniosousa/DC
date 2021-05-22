@@ -7,43 +7,15 @@ var FormEditorRegistry = require('website_form.form_editor_registry');
 var _t = core._t;
 
 FormEditorRegistry.add('create_lead', {
-    formFields: [{
-        type: 'char',
-        required: true,
-        name: 'contact_name',
-        string: 'Your Name',
-    }, {
-        type: 'tel',
-        name: 'phone',
-        string: 'Phone Number',
-    }, {
-        type: 'email',
-        required: true,
-        name: 'email_from',
-        string: 'Your Email',
-    }, {
-        type: 'char',
-        required: true,
-        name: 'partner_name',
-        string: 'Your Company',
-    }, {
-        type: 'char',
-        modelRequired: true,
-        name: 'name',
-        string: 'Subject',
-    }, {
-        type: 'text',
-        required: true,
-        name: 'description',
-        string: 'Your Question',
-    }],
+    defaultTemplateName: 'website_crm.default_crm_form',
+    defaultTemplatePath: '/website_crm/static/src/xml/website_crm.xml',
     fields: [{
         name: 'team_id',
         type: 'many2one',
         relation: 'crm.team',
         domain: [['use_opportunities', '=', true]],
-        string: _t('Sales Team'),
-        title: _t('Assign leads/opportunities to a sales team.'),
+        string: _t('Sales Channel'),
+        title: _t('Assign leads/opportunities to a sales channel.'),
     }, {
         name: 'user_id',
         type: 'many2one',

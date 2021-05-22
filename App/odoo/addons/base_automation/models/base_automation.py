@@ -3,14 +3,17 @@
 
 import datetime
 import logging
+import time
 import traceback
 from collections import defaultdict
 
+import dateutil
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models, SUPERUSER_ID
+from odoo.modules.registry import Registry
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
-from odoo.tools import safe_eval
+from odoo.tools.safe_eval import safe_eval
 
 _logger = logging.getLogger(__name__)
 
@@ -20,14 +23,6 @@ DATE_RANGE_FUNCTION = {
     'day': lambda interval: relativedelta(days=interval),
     'month': lambda interval: relativedelta(months=interval),
     False: lambda interval: relativedelta(0),
-}
-
-DATE_RANGE_FACTOR = {
-    'minutes': 1,
-    'hour': 60,
-    'day': 24 * 60,
-    'month': 30 * 24 * 60,
-    False: 0,
 }
 
 
@@ -48,7 +43,7 @@ class BaseAutomation(models.Model):
         ('on_unlink', 'On Deletion'),
         ('on_change', 'Based on Form Modification'),
         ('on_time', 'Based on Timed Condition')
-        ], string='Trigger', required=True)
+        ], string='Trigger Condition', required=True)
     trg_date_id = fields.Many2one('ir.model.fields', string='Trigger Date',
                                   help="""When should the condition be triggered.
                                   If present, will be checked by the scheduler. If empty, will be checked at creation and update.""",
@@ -58,27 +53,20 @@ class BaseAutomation(models.Model):
                                     You can put a negative number if you need a delay before the
                                     trigger date, like sending a reminder 15 minutes before a meeting.""")
     trg_date_range_type = fields.Selection([('minutes', 'Minutes'), ('hour', 'Hours'), ('day', 'Days'), ('month', 'Months')],
-                                           string='Delay type', default='hour')
+                                           string='Delay type', default='day')
     trg_date_calendar_id = fields.Many2one("resource.calendar", string='Use Calendar',
                                             help="When calculating a day-based timed condition, it is possible to use a calendar to compute the date based on working days.")
     filter_pre_domain = fields.Char(string='Before Update Domain',
                                     help="If present, this condition must be satisfied before the update of the record.")
     filter_domain = fields.Char(string='Apply on', help="If present, this condition must be satisfied before executing the action rule.")
     last_run = fields.Datetime(readonly=True, copy=False)
-    on_change_field_ids = fields.Many2many(
-        "ir.model.fields",
-        relation="base_automation_onchange_fields_rel",
-        string="On Change Fields Trigger",
-        help="Fields that trigger the onchange.",
-    )
-    trigger_field_ids = fields.Many2many('ir.model.fields', string='Trigger Fields',
+    on_change_fields = fields.Char(string="On Change Fields Trigger", help="Comma-separated list of field names that triggers the onchange.")
+    trigger_field_ids = fields.Many2many('ir.model.fields', string='Watched fields',
                                         help="The action will be triggered if and only if one of these fields is updated."
                                              "If empty, all fields are watched.")
-    least_delay_msg = fields.Char(compute='_compute_least_delay_msg')
 
-    # which fields have an impact on the registry and the cron
-    CRITICAL_FIELDS = ['model_id', 'active', 'trigger', 'on_change_field_ids']
-    RANGE_FIELDS = ['trg_date_range', 'trg_date_range_type']
+    # which fields have an impact on the registry
+    CRITICAL_FIELDS = ['model_id', 'active', 'trigger', 'on_change_fields']
 
     @api.onchange('model_id')
     def onchange_model_id(self):
@@ -92,7 +80,6 @@ class BaseAutomation(models.Model):
             self.trg_date_id = self.trg_date_range = self.trg_date_range_type = False
         elif self.trigger == 'on_time':
             self.filter_pre_domain = False
-            self.trg_date_range_type = 'hour'
 
     @api.onchange('trigger', 'state')
     def _onchange_state(self):
@@ -117,22 +104,19 @@ class BaseAutomation(models.Model):
                 ),
             }}
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            vals['usage'] = 'base_automation'
-        base_automations = super(BaseAutomation, self).create(vals_list)
+    @api.model
+    def create(self, vals):
+        vals['usage'] = 'base_automation'
+        base_automation = super(BaseAutomation, self).create(vals)
         self._update_cron()
         self._update_registry()
-        return base_automations
+        return base_automation
 
     def write(self, vals):
         res = super(BaseAutomation, self).write(vals)
         if set(vals).intersection(self.CRITICAL_FIELDS):
             self._update_cron()
             self._update_registry()
-        elif set(vals).intersection(self.RANGE_FIELDS):
-            self._update_cron()
         return res
 
     def unlink(self):
@@ -143,18 +127,10 @@ class BaseAutomation(models.Model):
 
     def _update_cron(self):
         """ Activate the cron job depending on whether there exists action rules
-            based on time conditions.  Also update its frequency according to
-            the smallest action delay, or restore the default 4 hours if there
-            is no time based action.
+            based on time conditions.
         """
         cron = self.env.ref('base_automation.ir_cron_data_base_automation_check', raise_if_not_found=False)
-        if cron:
-            actions = self.with_context(active_test=True).search([('trigger', '=', 'on_time')])
-            cron.try_write({
-                'active': bool(actions),
-                'interval_type': 'minutes',
-                'interval_number': self._get_cron_interval(actions),
-            })
+        return cron and cron.toggle(model=self._name, domain=[('trigger', '=', 'on_time')])
 
     def _update_registry(self):
         """ Update the registry after a modification on action rules. """
@@ -171,7 +147,7 @@ class BaseAutomation(models.Model):
         if '__action_done' not in self._context:
             self = self.with_context(__action_done={})
         domain = [('model_name', '=', records._name), ('trigger', 'in', triggers)]
-        actions = self.with_context(active_test=True).sudo().search(domain)
+        actions = self.with_context(active_test=True).search(domain)
         return actions.with_env(self.env)
 
     def _get_eval_context(self):
@@ -179,34 +155,17 @@ class BaseAutomation(models.Model):
             :returns: dict -- evaluation context given to safe_eval
         """
         return {
-            'datetime': safe_eval.datetime,
-            'dateutil': safe_eval.dateutil,
-            'time': safe_eval.time,
+            'datetime': datetime,
+            'dateutil': dateutil,
+            'time': time,
             'uid': self.env.uid,
             'user': self.env.user,
         }
 
-    def _get_cron_interval(self, actions=None):
-        """ Return the expected time interval used by the cron, in minutes. """
-        def get_delay(rec):
-            return rec.trg_date_range * DATE_RANGE_FACTOR[rec.trg_date_range_type]
-
-        if actions is None:
-            actions = self.with_context(active_test=True).search([('trigger', '=', 'on_time')])
-
-        # Minimum 1 minute, maximum 4 hours, 10% tolerance
-        delay = min(actions.mapped(get_delay), default=0)
-        return min(max(1, delay // 10), 4 * 60) if delay else 4 * 60
-
-    def _compute_least_delay_msg(self):
-        msg = _("Note that this action can be trigged up to %d minutes after its schedule.")
-        self.least_delay_msg = msg % self._get_cron_interval()
-
     def _filter_pre(self, records):
         """ Filter the records that satisfy the precondition of action ``self``. """
-        self_sudo = self.sudo()
-        if self_sudo.filter_pre_domain and records:
-            domain = safe_eval.safe_eval(self_sudo.filter_pre_domain, self._get_eval_context())
+        if self.filter_pre_domain and records:
+            domain = safe_eval(self.filter_pre_domain, self._get_eval_context())
             return records.sudo().filtered_domain(domain).with_env(records.env)
         else:
             return records
@@ -216,9 +175,8 @@ class BaseAutomation(models.Model):
 
     def _filter_post_export_domain(self, records):
         """ Filter the records that satisfy the postcondition of action ``self``. """
-        self_sudo = self.sudo()
-        if self_sudo.filter_domain and records:
-            domain = [('id', 'in', records.ids)] + safe_eval.safe_eval(self_sudo.filter_domain, self._get_eval_context())
+        if self.filter_domain and records:
+            domain = [('id', 'in', records.ids)] + safe_eval(self.filter_domain, self._get_eval_context())
             return records.sudo().search(domain).with_env(records.env), domain
         else:
             return records, None
@@ -267,15 +225,14 @@ class BaseAutomation(models.Model):
                         'domain_post': domain_post,
                     }
                     try:
-                        self.action_server_id.sudo().with_context(**ctx).run()
+                        self.action_server_id.with_context(**ctx).run()
                     except Exception as e:
                         self._add_postmortem_action(e)
                         raise e
 
     def _check_trigger_fields(self, record):
         """ Return whether any of the trigger fields has been modified on ``record``. """
-        self_sudo = self.sudo()
-        if not self_sudo.trigger_field_ids:
+        if not self.trigger_field_ids:
             # all fields are implicit triggers
             return True
 
@@ -293,7 +250,7 @@ class BaseAutomation(models.Model):
                 field.convert_to_cache(record[name], record, validate=False) !=
                 field.convert_to_cache(old_vals[name], record, validate=False)
             )
-        return any(differ(field.name) for field in self_sudo.trigger_field_ids)
+        return any(differ(field.name) for field in self.trigger_field_ids)
 
     def _register_hook(self):
         """ Patch models that should trigger action rules based on creation,
@@ -314,8 +271,6 @@ class BaseAutomation(models.Model):
             def create(self, vals_list, **kw):
                 # retrieve the action rules to possibly execute
                 actions = self.env['base.automation']._get_actions(self, ['on_create', 'on_create_or_write'])
-                if not actions:
-                    return create.origin(self, vals_list, **kw)
                 # call original method
                 records = create.origin(self.with_env(actions.env), vals_list, **kw)
                 # check postconditions, and execute actions on the records that satisfy them
@@ -330,9 +285,7 @@ class BaseAutomation(models.Model):
             def write(self, vals, **kw):
                 # retrieve the action rules to possibly execute
                 actions = self.env['base.automation']._get_actions(self, ['on_write', 'on_create_or_write'])
-                if not (actions and self):
-                    return write.origin(self, vals, **kw)
-                records = self.with_env(actions.env).filtered('id')
+                records = self.with_env(actions.env)
                 # check preconditions on records
                 pre = {action: action._filter_pre(records) for action in actions}
                 # read old values before the update
@@ -357,15 +310,12 @@ class BaseAutomation(models.Model):
             #
             def _compute_field_value(self, field):
                 # determine fields that may trigger an action
-                stored_fields = [f for f in self.pool.field_computed[field] if f.store]
+                stored_fields = [f for f in self._field_computed[field] if f.store]
                 if not any(stored_fields):
                     return _compute_field_value.origin(self, field)
                 # retrieve the action rules to possibly execute
                 actions = self.env['base.automation']._get_actions(self, ['on_write', 'on_create_or_write'])
                 records = self.filtered('id').with_env(actions.env)
-                if not (actions and records):
-                    _compute_field_value.origin(self, field)
-                    return True
                 # check preconditions on records
                 pre = {action: action._filter_pre(records) for action in actions}
                 # read old values before the update
@@ -402,7 +352,7 @@ class BaseAutomation(models.Model):
             def base_automation_onchange(self):
                 action_rule = self.env['base.automation'].browse(action_rule_id)
                 result = {}
-                server_action = action_rule.sudo().action_server_id.with_context(
+                server_action = action_rule.action_server_id.with_context(
                     active_model=self._name,
                     active_id=self._origin.id,
                     active_ids=self._origin.ids,
@@ -462,8 +412,8 @@ class BaseAutomation(models.Model):
             elif action_rule.trigger == 'on_change':
                 # register an onchange method for the action_rule
                 method = make_onchange(action_rule.id)
-                for field in action_rule.on_change_field_ids:
-                    Model._onchange_methods[field.name].append(method)
+                for field_name in action_rule.on_change_fields.split(","):
+                    Model._onchange_methods[field_name.strip()].append(method)
 
     def _unregister_hook(self):
         """ Remove the patches installed by _register_hook() """
@@ -496,14 +446,13 @@ class BaseAutomation(models.Model):
         # retrieve all the action rules to run based on a timed condition
         eval_context = self._get_eval_context()
         for action in self.with_context(active_test=True).search([('trigger', '=', 'on_time')]):
-            _logger.info("Starting time-based automated action `%s`.", action.name)
             last_run = fields.Datetime.from_string(action.last_run) or datetime.datetime.utcfromtimestamp(0)
 
             # retrieve all the records that satisfy the action's condition
             domain = []
             context = dict(self._context)
             if action.filter_domain:
-                domain = safe_eval.safe_eval(action.filter_domain, eval_context)
+                domain = safe_eval(action.filter_domain, eval_context)
             records = self.env[action.model_name].with_context(context).search(domain)
 
             # determine when action should occur for the records
@@ -526,7 +475,6 @@ class BaseAutomation(models.Model):
                         _logger.error(traceback.format_exc())
 
             action.write({'last_run': now.strftime(DEFAULT_SERVER_DATETIME_FORMAT)})
-            _logger.info("Time-based automated action `%s` done.", action.name)
 
             if automatic:
                 # auto-commit for batch processing

@@ -10,9 +10,7 @@ from odoo import api, exceptions, fields, models, _
 class PaymentAcquirerTest(models.Model):
     _inherit = 'payment.acquirer'
 
-    provider = fields.Selection(selection_add=[
-        ('test', 'Test')
-    ], ondelete={'test': 'set default'})
+    provider = fields.Selection(selection_add=[('test', 'Test')])
 
     @api.model
     def create(self, values):
@@ -32,7 +30,7 @@ class PaymentAcquirerTest(models.Model):
             'acquirer_ref': uuid4(),
             'acquirer_id': int(data['acquirer_id']),
             'partner_id': int(data['partner_id']),
-            'name': 'Test - XXXXXXXXXXXX%s - %s' % (data['cc_number'][-4:], data['cc_holder_name'])
+            'name': 'XXXXXXXXXXXX%s - %s' % (data['cc_number'][-4:], data['cc_holder_name'])
         })
         return payment_token
 
@@ -43,6 +41,3 @@ class PaymentTransactionTest(models.Model):
     def test_create(self, values):
         """Automatically set the transaction as successful upon creation. """
         return {'date': datetime.now(), 'state': 'done'}
-
-    def test_s2s_do_transaction(self, **kwargs):
-        self.execute_callback()

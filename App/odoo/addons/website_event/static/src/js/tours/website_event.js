@@ -8,18 +8,14 @@ odoo.define("website_event.tour", function (require) {
 
     tour.register("event", {
         url: "/",
-    }, [{
-        content: _t("Click here to add new content to your website."),
-        trigger: '#new-content-menu > a',
-        position: 'bottom',
-    }, {
+    }, [tour.STEPS.WEBSITE_NEW_PAGE, {
         trigger: "a[data-action=new_event]",
         content: _t("Click here to create a new event."),
         position: "bottom",
     }, {
         trigger: '.modal-dialog #editor_new_event input[type=text]',
         content: _t("Create a name for your new event and click <em>\"Continue\"</em>. e.g: Technical Training"),
-        position: "left",
+        position: "right",
     }, {
         trigger: '.modal-footer button.btn-primary.btn-continue',
         extra_trigger: '#editor_new_event input[type=text][value!=""]',

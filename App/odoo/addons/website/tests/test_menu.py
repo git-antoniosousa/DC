@@ -86,7 +86,7 @@ class TestMenu(common.TransactionCase):
         Translation.search([
             ('name', '=', 'website.menu,name'), ('res_id', '=', template_menu.id),
         ]).module = 'website'
-        self.assertEqual(specific1.name,  'Menu in english',
+        self.assertEquals(specific1.name,  'Menu in english',
             'Translating template menu does not translate specific menu')
 
         # have different translation for specific website
@@ -95,15 +95,15 @@ class TestMenu(common.TransactionCase):
         # loading translation add missing specific translation
         Translation._load_module_terms(['website'], ['fr_FR'])
         Menu.invalidate_cache(['name'])
-        self.assertEqual(specific1.name,  'Menu in french',
+        self.assertEquals(specific1.name,  'Menu in french',
             'Load translation without overwriting keep existing translation')
-        self.assertEqual(specific2.name,  'Menu en français',
+        self.assertEquals(specific2.name,  'Menu en français',
             'Load translation add missing translation from template menu')
 
         # loading translation with overwrite sync all translations from menu template
-        Translation._load_module_terms(['website'], ['fr_FR'], overwrite=True)
+        Translation.with_context(overwrite=True)._load_module_terms(['website'], ['fr_FR'])
         Menu.invalidate_cache(['name'])
-        self.assertEqual(specific1.name,  'Menu en français',
+        self.assertEquals(specific1.name,  'Menu en français',
             'Load translation with overwriting update existing menu from template')
 
     def test_default_menu_unlink(self):

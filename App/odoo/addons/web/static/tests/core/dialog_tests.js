@@ -7,10 +7,10 @@ var Widget = require('web.Widget');
 
 var ESCAPE_KEY = $.Event("keyup", { which: 27 });
 
-async function createEmptyParent(debug) {
+function createEmptyParent(debug) {
     var widget = new Widget();
 
-    await testUtils.mock.addMockEnvironment(widget, {
+    testUtils.mock.addMockEnvironment(widget, {
         debug: debug || false,
     });
     return widget;
@@ -24,7 +24,7 @@ QUnit.module('core', {}, function () {
         assert.expect(3);
 
         var testPromise = testUtils.makeTestPromiseWithAssert(assert, 'custom callback');
-        var parent = await createEmptyParent();
+        var parent = createEmptyParent();
         new Dialog(parent, {
             buttons: [
                 {
@@ -54,7 +54,7 @@ QUnit.module('core', {}, function () {
         assert.expect(3);
 
         var testPromise = testUtils.makeTestPromiseWithAssert(assert, 'custom callback');
-        var parent = await createEmptyParent();
+        var parent = createEmptyParent();
         new Dialog(parent, {
             buttons: [
                 {
@@ -84,7 +84,7 @@ QUnit.module('core', {}, function () {
         assert.expect(3);
 
         var testPromise = testUtils.makeTestPromiseWithAssert(assert, 'confirm callback');
-        var parent = await createEmptyParent();
+        var parent = createEmptyParent();
         var options = {
             confirm_callback: testPromise.reject,
             cancel_callback: testPromise.resolve,
@@ -107,7 +107,7 @@ QUnit.module('core', {}, function () {
         assert.expect(3);
 
         var testPromise = testUtils.makeTestPromiseWithAssert(assert, 'alert callback');
-        var parent = await createEmptyParent();
+        var parent = createEmptyParent();
         var options = {
             confirm_callback: testPromise.resolve,
         };
@@ -121,40 +121,6 @@ QUnit.module('core', {}, function () {
         testPromise.then(() => {
             assert.verifySteps(['ok alert callback']);
         });
-
-        parent.destroy();
-    });
-
-    QUnit.test("Ensure on_attach_callback and on_detach_callback are properly called", async function (assert) {
-        assert.expect(4);
-
-        const TestDialog = Dialog.extend({
-            on_attach_callback() {
-                assert.step('on_attach_callback');
-            },
-            on_detach_callback() {
-                assert.step('on_detach_callback');
-            },
-        });
-
-        const parent = await createEmptyParent();
-        const dialog = new TestDialog(parent, {
-            buttons: [
-                {
-                    text: "Close",
-                    classes: 'btn-primary',
-                    close: true,
-                },
-            ],
-            $content: $('<main/>'),
-        }).open();
-
-        await dialog.opened();
-
-        assert.verifySteps(['on_attach_callback']);
-
-        await testUtils.dom.click($('.modal[role="dialog"] .btn-primary'));
-        assert.verifySteps(['on_detach_callback']);
 
         parent.destroy();
     });

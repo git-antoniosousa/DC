@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.addons.test_mail_full.tests.common import TestMailFullCommon, TestRecipients
+from odoo.addons.sms.tests import common as sms_common
+from odoo.addons.test_mail_full.tests import common as test_mail_full_common
 
 
-class TestServerAction(TestMailFullCommon, TestRecipients):
+class TestServerAction(test_mail_full_common.BaseFunctionalTest, sms_common.MockSMS, test_mail_full_common.TestRecipients):
 
     @classmethod
     def setUpClass(cls):
@@ -25,7 +26,6 @@ class TestServerAction(TestMailFullCommon, TestRecipients):
             'model_id': cls.env['ir.model']._get('mail.test.sms').id,
             'state': 'sms',
             'sms_template_id': cls.sms_template.id,
-            'groups_id': cls.env.ref('base.group_user'),
         })
 
     def test_action_sms(self):
@@ -34,7 +34,7 @@ class TestServerAction(TestMailFullCommon, TestRecipients):
             'active_ids': (self.test_record | self.test_record_2).ids,
         }
 
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             self.action.with_user(self.env.user).with_context(**context).run()
 
         self.assertSMSOutgoing(self.test_record.customer_id, None, 'Dear %s this is an SMS.' % self.test_record.display_name)
@@ -46,7 +46,7 @@ class TestServerAction(TestMailFullCommon, TestRecipients):
             'active_id': self.test_record.id,
         }
 
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             self.action.with_user(self.env.user).with_context(**context).run()
         self.assertSMSOutgoing(self.test_record.customer_id, None, 'Dear %s this is an SMS.' % self.test_record.display_name)
 
@@ -57,7 +57,7 @@ class TestServerAction(TestMailFullCommon, TestRecipients):
             'active_ids': (self.test_record | self.test_record_2).ids,
         }
 
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             self.action.with_user(self.env.user).with_context(**context).run()
 
         self.assertSMSOutgoing(self.test_record.customer_id, None, 'Dear %s this is an SMS.' % self.test_record.display_name)

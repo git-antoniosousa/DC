@@ -59,7 +59,7 @@ QUnit.module('HR Attendance', {
 
         var $target = $('#qunit-fixture');
         var clientAction = new MyAttendances(null, {});
-        await testUtils.mock.addMockEnvironment(clientAction, {
+        testUtils.mock.addMockEnvironment(clientAction, {
             data: this.data,
             session: {
                 uid: 1,
@@ -80,7 +80,7 @@ QUnit.module('HR Attendance', {
         var self = this;
         var rpcCount = 0;
         var clientAction = new KioskMode(null, {});
-        await testUtils.mock.addMockEnvironment(clientAction, {
+        testUtils.mock.addMockEnvironment(clientAction, {
             data: this.data,
             session: {
                 uid: 1,
@@ -124,7 +124,7 @@ QUnit.module('HR Attendance', {
                 barcode: barcode,
             };
             var clientAction = new GreetingMessage(null, action);
-            await testUtils.mock.addMockEnvironment(clientAction, {
+            testUtils.mock.addMockEnvironment(clientAction, {
                 data: self.data,
                 session: {
                     uid: 1,

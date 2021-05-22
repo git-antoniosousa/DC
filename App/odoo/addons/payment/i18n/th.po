@@ -4,17 +4,18 @@
 # 
 # Translators:
 # Martin Trigaux, 2020
+# Khwunchai Jaengsawang <khwunchai.j@ku.th>, 2020
+# monchai7 <montchye@gmail.com>, 2020
 # Pornvibool Tippayawat <pornvibool.t@gmail.com>, 2020
 # gsong <gsong2014@foxmail.com>, 2020
-# Khwunchai Jaengsawang <khwunchai.j@ku.th>, 2020
 # Odoo Thaidev <odoothaidev@gmail.com>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-27 14:12+0000\n"
-"PO-Revision-Date: 2020-09-07 08:15+0000\n"
+"POT-Creation-Date: 2020-04-27 09:22+0000\n"
+"PO-Revision-Date: 2019-08-26 09:12+0000\n"
 "Last-Translator: Odoo Thaidev <odoothaidev@gmail.com>, 2020\n"
 "Language-Team: Thai (https://www.transifex.com/odoo/teams/41243/th/)\n"
 "MIME-Version: 1.0\n"
@@ -24,14 +25,14 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard___data_fetched
-msgid " Data Fetched"
-msgstr ""
-
-#. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__invoice_ids_nbr
 msgid "# of Invoices"
 msgstr "# ของใบแจ้งหนี้"
+
+#. module: payment
+#: model_terms:ir.ui.view,arch_db:payment.payment_confirmation_status
+msgid "&amp;times;"
+msgstr "&amp;times;"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__html_3ds
@@ -101,6 +102,13 @@ msgid "<i class=\"fa fa-trash\"/> Delete"
 msgstr "<i class=\"fa fa-trash\"/> ลบ"
 
 #. module: payment
+#. openerp-web
+#: code:addons/payment/static/src/js/payment_form.js:0
+#, python-format
+msgid "<p>This card is currently linked to the following records:<p/>"
+msgstr ""
+
+#. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_tokens_list
 msgid "<small class=\"text-muted\">(Some fees may apply)</small>"
 msgstr ""
@@ -139,7 +147,7 @@ msgstr ""
 #. module: payment
 #: code:addons/payment/models/account_invoice.py:0
 #, python-format
-msgid "A journal must be specified for the acquirer %s."
+msgid "A journal must be specified of the acquirer %s."
 msgstr ""
 
 #. module: payment
@@ -188,6 +196,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__access_token
 msgid "Access Token"
 msgstr "เข้าถึง"
+
+#. module: payment
+#: code:addons/payment/wizards/payment_acquirer_onboarding_wizard.py:0
+#, python-format
+msgid "Account"
+msgstr "บัญชี"
 
 #. module: payment
 #: model:ir.model,name:payment.model_account_chart_template
@@ -305,12 +319,12 @@ msgstr ""
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_acquirer_onboarding_wizard_form
 msgid "Apply"
-msgstr "ใช้"
+msgstr "นำไปใช้"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_token_view_search
 msgid "Archived"
-msgstr "เก็บถาวร"
+msgstr "ถูกเก็บ"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.account_invoice_view_form_inherit_payment
@@ -341,9 +355,7 @@ msgid "Authorized"
 msgstr ""
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_bank_statement_line__authorized_transaction_ids
 #: model:ir.model.fields,field_description:payment.field_account_move__authorized_transaction_ids
-#: model:ir.model.fields,field_description:payment.field_account_payment__authorized_transaction_ids
 msgid "Authorized Transactions"
 msgstr ""
 
@@ -351,6 +363,12 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_form
 msgid "Availability"
 msgstr "ที่มีอยู่"
+
+#. module: payment
+#: code:addons/payment/wizards/payment_acquirer_onboarding_wizard.py:0
+#, python-format
+msgid "Bank"
+msgstr "ธนาคาร"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__journal_name
@@ -488,7 +506,6 @@ msgstr "บริษัท"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__company_id
-#: model:ir.model.fields,field_description:payment.field_payment_link_wizard__company_id
 #: model:ir.model.fields,field_description:payment.field_payment_token__company_id
 msgid "Company"
 msgstr "บริษัท"
@@ -513,7 +530,7 @@ msgstr ""
 #. module: payment
 #: model:ir.model,name:payment.model_res_partner
 msgid "Contact"
-msgstr "ติดต่อ"
+msgstr "ผู้ติดต่อ"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__module_id
@@ -608,11 +625,6 @@ msgid "Credit Card (powered by Ingenico)"
 msgstr ""
 
 #. module: payment
-#: model:payment.acquirer,display_as:payment.payment_acquirer_odoo_by_adyen
-msgid "Credit Card (powered by Odoo Payments)"
-msgstr ""
-
-#. module: payment
 #: model:payment.acquirer,display_as:payment.payment_acquirer_payulatam
 msgid "Credit Card (powered by PayU Latam)"
 msgstr ""
@@ -680,18 +692,12 @@ msgid "Dismiss"
 msgstr ""
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_chart_template__display_name
-#: model:ir.model.fields,field_description:payment.field_account_move__display_name
-#: model:ir.model.fields,field_description:payment.field_account_payment__display_name
-#: model:ir.model.fields,field_description:payment.field_ir_http__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_icon__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_token__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__display_name
-#: model:ir.model.fields,field_description:payment.field_res_company__display_name
-#: model:ir.model.fields,field_description:payment.field_res_partner__display_name
 msgid "Display Name"
 msgstr "ชื่อที่ใช้แสดง"
 
@@ -714,7 +720,7 @@ msgstr ""
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_transaction__state__draft
 msgid "Draft"
-msgstr "ฉบับร่าง"
+msgstr "ร่าง"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.transaction_form
@@ -728,21 +734,10 @@ msgstr ""
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__paypal_email_account
-#: model:ir.model.fields,field_description:payment.field_payment_link_wizard__partner_email
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__partner_email
 #: model_terms:ir.ui.view,arch_db:payment.payment_acquirer_onboarding_wizard_form
 msgid "Email"
 msgstr "อีเมล"
-
-#. module: payment
-#: model:ir.model.fields,field_description:payment.field_payment_acquirer__qr_code
-msgid "Enable QR Codes"
-msgstr ""
-
-#. module: payment
-#: model:ir.model.fields,help:payment.field_payment_acquirer__qr_code
-msgid "Enable the use of QR-codes for payments made on this provider."
-msgstr ""
 
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_acquirer__state__enabled
@@ -798,6 +793,11 @@ msgid "Fixed international fees"
 msgstr ""
 
 #. module: payment
+#: model:ir.model.fields,field_description:payment.field_payment_acquirer__inbound_payment_method_ids
+msgid "For Incoming Payments"
+msgstr "สําหรับการชําระเงินขาเข้า"
+
+#. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_transaction__type__form
 msgid "Form"
 msgstr "รูปแบบ"
@@ -835,7 +835,7 @@ msgstr ""
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_search
 msgid "Group By"
-msgstr "จัดกลุ่มตาม"
+msgstr "จัดกลุ่มโดย"
 
 #. module: payment
 #: model:ir.model,name:payment.model_ir_http
@@ -868,18 +868,12 @@ msgid "I have a Paypal account"
 msgstr ""
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_chart_template__id
-#: model:ir.model.fields,field_description:payment.field_account_move__id
-#: model:ir.model.fields,field_description:payment.field_account_payment__id
-#: model:ir.model.fields,field_description:payment.field_ir_http__id
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__id
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__id
 #: model:ir.model.fields,field_description:payment.field_payment_icon__id
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__id
 #: model:ir.model.fields,field_description:payment.field_payment_token__id
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__id
-#: model:ir.model.fields,field_description:payment.field_res_company__id
-#: model:ir.model.fields,field_description:payment.field_res_partner__id
 msgid "ID"
 msgstr "รหัส"
 
@@ -913,11 +907,6 @@ msgid ""
 "             payment interface. This mode is advised when setting up the\n"
 "             acquirer. Watch out, test and production modes require\n"
 "             different credentials."
-msgstr ""
-
-#. module: payment
-#: model:ir.model.fields,field_description:payment.field_payment_acquirer__inbound_payment_method_ids
-msgid "Inbound Payment Methods"
 msgstr ""
 
 #. module: payment
@@ -979,8 +968,8 @@ msgstr "ใบแจ้งหนี้"
 
 #. module: payment
 #: model:ir.model,name:payment.model_account_move
-msgid "Journal Entry"
-msgstr "รายการบันทึกบัญชี"
+msgid "Journal Entries"
+msgstr "การบันทึกรายวัน"
 
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_acquirer__journal_id
@@ -998,18 +987,12 @@ msgid "Language"
 msgstr "ภาษา"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_chart_template____last_update
-#: model:ir.model.fields,field_description:payment.field_account_move____last_update
-#: model:ir.model.fields,field_description:payment.field_account_payment____last_update
-#: model:ir.model.fields,field_description:payment.field_ir_http____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_icon____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_token____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_transaction____last_update
-#: model:ir.model.fields,field_description:payment.field_res_company____last_update
-#: model:ir.model.fields,field_description:payment.field_res_partner____last_update
 msgid "Last Modified on"
 msgstr "แก้ไขครั้งสุดท้ายเมื่อ"
 
@@ -1151,6 +1134,15 @@ msgid "Never"
 msgstr "ไม่"
 
 #. module: payment
+#: model_terms:ir.ui.view,arch_db:payment.payment_link_wizard_view_form
+msgid ""
+"This partner has no email, which may cause issues with some payment "
+"acquirers. Setting an email for this partner is advised."
+msgstr ""
+"พันธมิตรรายนี้ไม่มีอีเมลซึ่งอาจทำให้เกิดปัญหากับผู้รับการชำระเงินบางราย "
+"ขอแนะนำให้ตั้งอีเมลสำหรับพันธมิตรรายนี้"
+
+#. module: payment
 #: code:addons/payment/wizards/payment_acquirer_onboarding_wizard.py:0
 #, python-format
 msgid ""
@@ -1203,11 +1195,6 @@ msgid "Odoo Enterprise Module"
 msgstr "Odoo สำหรับองค์กร"
 
 #. module: payment
-#: model:payment.acquirer,name:payment.payment_acquirer_odoo_by_adyen
-msgid "Odoo Payments by Adyen"
-msgstr ""
-
-#. module: payment
 #. openerp-web
 #: code:addons/payment/static/src/js/payment_form.js:0
 #, python-format
@@ -1223,7 +1210,7 @@ msgstr ""
 #. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
 #, python-format
-msgid "Only transactions having the authorized status can be captured."
+msgid "Only transactions having the capture status can be captured."
 msgstr ""
 
 #. module: payment
@@ -1285,7 +1272,7 @@ msgstr "PayUmoney"
 #: model_terms:ir.ui.view,arch_db:payment.confirm
 #: model_terms:ir.ui.view,arch_db:payment.pay
 msgid "Payment"
-msgstr "การชำระเงิน"
+msgstr "การจ่ายเงิน"
 
 #. module: payment
 #: model:ir.model,name:payment.model_payment_acquirer
@@ -1346,12 +1333,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__payment_method
 #: model_terms:ir.ui.view,arch_db:payment.onboarding_payment_acquirer_step
 msgid "Payment Method"
-msgstr "วิธีการชำระเงิน"
+msgstr "วิธีการจ่ายเงิน"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.pay_methods
 msgid "Payment Methods"
-msgstr "วิธีการชำระเงิน"
+msgstr "วิธีชำระเงิน"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__description
@@ -1544,11 +1531,6 @@ msgid "Related Document Model"
 msgstr "รูปแบบเอกสารที่เกี่ยวข้อง"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_payment__related_partner_ids
-msgid "Related Partner"
-msgstr "คู่ค้าที่เกี่ยวข้อง"
-
-#. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
 #, python-format
 msgid "Required fields not filled: %s"
@@ -1713,6 +1695,12 @@ msgid "The %s payment acquirers are not allowed to manual capture mode!"
 msgstr ""
 
 #. module: payment
+#: model_terms:ir.ui.view,arch_db:payment.confirm
+#: model_terms:ir.ui.view,arch_db:payment.payment_confirmation_status
+msgid "The SEPA QR Code informations are not set correctly."
+msgstr ""
+
+#. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
 #, python-format
 msgid "The customer has selected %s to pay this document."
@@ -1777,13 +1765,6 @@ msgid ""
 msgstr ""
 
 #. module: payment
-#. openerp-web
-#: code:addons/payment/static/src/js/payment_form.js:0
-#, python-format
-msgid "This card is currently linked to the following records:"
-msgstr ""
-
-#. module: payment
 #: model:ir.model.fields,help:payment.field_payment_icon__image
 msgid ""
 "This field holds the image used for this payment icon, limited to "
@@ -1798,15 +1779,6 @@ msgid ""
 " invoicing), you need it to automatically charge the customer when you issue"
 " an invoice."
 msgstr ""
-
-#. module: payment
-#: model_terms:ir.ui.view,arch_db:payment.payment_link_wizard_view_form
-msgid ""
-"This partner has no email, which may cause issues with some payment "
-"acquirers. Setting an email for this partner is advised."
-msgstr ""
-"พันธมิตรรายนี้ไม่มีอีเมลซึ่งอาจทำให้เกิดปัญหากับผู้รับการชำระเงินบางราย "
-"ขอแนะนำให้ตั้งอีเมลสำหรับพันธมิตรรายนี้"
 
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_acquirer__country_ids
@@ -1840,9 +1812,7 @@ msgid "This transaction has been cancelled."
 msgstr ""
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_bank_statement_line__transaction_ids
 #: model:ir.model.fields,field_description:payment.field_account_move__transaction_ids
-#: model:ir.model.fields,field_description:payment.field_account_payment__transaction_ids
 msgid "Transactions"
 msgstr "ธุรกรรม"
 
@@ -1870,6 +1840,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_kanban
 msgid "Upgrade"
 msgstr "อัพเกรด"
+
+#. module: payment
+#: model:ir.model.fields,field_description:payment.field_payment_acquirer__qr_code
+msgid "Use SEPA QR Code"
+msgstr ""
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__date
@@ -1930,9 +1905,15 @@ msgstr "คำเตือน!"
 #. module: payment
 #. openerp-web
 #: code:addons/payment/static/src/js/payment_form.js:0
-#: code:addons/payment/static/src/js/payment_form.js:0
 #, python-format
 msgid "We are not able to add your payment method at the moment."
+msgstr ""
+
+#. module: payment
+#. openerp-web
+#: code:addons/payment/static/src/js/payment_form.js:0
+#, python-format
+msgid "We are not able to add your payment method at the moment.</p>"
 msgstr ""
 
 #. module: payment
@@ -2039,7 +2020,6 @@ msgstr ""
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_payulatam
@@ -2058,7 +2038,6 @@ msgstr ""
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_payulatam
@@ -2084,7 +2063,6 @@ msgstr ""
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_payulatam
@@ -2103,7 +2081,6 @@ msgstr ""
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_payulatam

@@ -200,16 +200,10 @@ function formatFloatFactor(value, field, options) {
  * instead of 0.25.
  *
  * @param {float} value
- * @param {Object} [field]
- *        a description of the field (note: this parameter is ignored)
- * @param {Object} [options]
- * @param {boolean} [options.noLeadingZeroHour] if true, format like 1:30
- *        otherwise, format like 01:30
  * @returns {string}
  */
-function formatFloatTime(value, field, options) {
-    options = options || {};
-    var pattern = options.noLeadingZeroHour ? '%1d:%02d' : '%02d:%02d';
+function formatFloatTime(value) {
+    var pattern = '%02d:%02d';
     if (value < 0) {
         value = Math.abs(value);
         pattern = '-' + pattern;
@@ -329,16 +323,13 @@ function formatX2Many(value) {
  *        the number of digits that should be used, instead of the default
  *        digits precision in the field. Note: if the currency defines a
  *        precision, the currency's one is used.
- * @param {boolean} [options.forceString=false]
- *        if false, returns a string encoding the html formatted value (with
- *        whitespace encoded as '&nbsp;')
  * @returns {string}
  */
 function formatMonetary(value, field, options) {
     if (value === false) {
         return "";
     }
-    options = Object.assign({ forceString: false }, options);
+    options = options || {};
 
     var currency = options.currency;
     if (!currency) {
@@ -361,11 +352,10 @@ function formatMonetary(value, field, options) {
     if (!currency || options.noSymbol) {
         return formatted_value;
     }
-    const ws = options.forceString ? ' ' : '&nbsp;';
     if (currency.position === "after") {
-        return formatted_value + ws + currency.symbol;
+        return formatted_value += '&nbsp;' + currency.symbol;
     } else {
-        return currency.symbol + ws + formatted_value;
+        return currency.symbol + '&nbsp;' + formatted_value;
     }
 }
 /**
@@ -380,11 +370,11 @@ function formatMonetary(value, field, options) {
  */
 function formatPercentage(value, field, options) {
     options = options || {};
-    let result = formatFloat(value * 100, field, options) || '0';
-    if (!options.humanReadable || !options.humanReadable(value * 100)) {
-        result = parseFloat(result).toString().replace('.', _t.database.parameters.decimal_point);
+    var result = formatFloat(value * 100, field, options) || '0';
+    if (options.humanReadable && options.humanReadable(value * 100)) {
+        return result + "%";
     }
-    return result + (options.noSymbol ? '' : '%');
+    return (parseFloat(result) + "%").replace('.', _t.database.parameters.decimal_point);
 }
 /**
  * Returns a string representing the value of the selection.
@@ -414,42 +404,6 @@ function formatSelection(value, field, options) {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Smart date inputs are shortcuts to write dates quicker.
- * These shortcuts should respect the format ^[+-]\d+[dmwy]?$
- * 
- * e.g.
- *   "+1d" or "+1" will return now + 1 day
- *   "-2w" will return now - 2 weeks
- *   "+3m" will return now + 3 months
- *   "-4y" will return now + 4 years
- *
- * @param {string} value
- * @returns {Moment|false} Moment date object
- */
-function parseSmartDateInput(value) {
-    const units = {
-        d: 'days',
-        m: 'months',
-        w: 'weeks',
-        y: 'years',
-    };
-    const re = new RegExp(`^([+-])(\\d+)([${Object.keys(units).join('')}]?)$`);
-    const match = re.exec(value);
-    if (match) {
-        let date = moment();
-        const offset = parseInt(match[2], 10);
-        const unit = units[match[3] || 'd'];
-        if (match[1] === '+') {
-            date.add(offset, unit);
-        } else {
-            date.subtract(offset, unit);
-        }
-        return date;
-    }
-    return false;
-}
-
-/**
  * Create an Date object
  * The method toJSON return the formated value to send value server side
  *
@@ -467,24 +421,18 @@ function parseDate(value, field, options) {
         return false;
     }
     var datePattern = time.getLangDateFormat();
-    var datePatternWoZero = datePattern.replace('MM', 'M').replace('DD', 'D');
+    var datePatternWoZero = datePattern.replace('MM','M').replace('DD','D');
     var date;
-    const smartDate = parseSmartDateInput(value);
-    if (smartDate) {
-        date = smartDate;
+    if (options && options.isUTC) {
+        date = moment.utc(value);
     } else {
-        if (options && options.isUTC) {
-            value = value.padStart(10, "0"); // server may send "932-10-10" for "0932-10-10" on some OS
-            date = moment.utc(value);
-        } else {
-            date = moment.utc(value, [datePattern, datePatternWoZero, moment.ISO_8601]);
-        }
+        date = moment.utc(value, [datePattern, datePatternWoZero, moment.ISO_8601]);
     }
     if (date.isValid()) {
         if (date.year() === 0) {
             date.year(moment.utc().year());
         }
-        if (date.year() >= 1000){
+        if (date.year() >= 1900) {
             date.toJSON = function () {
                 return this.clone().locale('en').format('YYYY-MM-DD');
             };
@@ -518,26 +466,20 @@ function parseDateTime(value, field, options) {
     var pattern1 = datePattern + ' ' + timePattern;
     var pattern2 = datePatternWoZero + ' ' + timePatternWoZero;
     var datetime;
-    const smartDate = parseSmartDateInput(value);
-    if (smartDate) {
-        datetime = smartDate;
+    if (options && options.isUTC) {
+        // phatomjs crash if we don't use this format
+        datetime = moment.utc(value.replace(' ', 'T') + 'Z');
     } else {
-        if (options && options.isUTC) {
-            value = value.padStart(19, "0"); // server may send "932-10-10" for "0932-10-10" on some OS
-            // phatomjs crash if we don't use this format
-            datetime = moment.utc(value.replace(' ', 'T') + 'Z');
-        } else {
-            datetime = moment.utc(value, [pattern1, pattern2, moment.ISO_8601]);
-            if (options && options.timezone) {
-                datetime.add(-session.getTZOffset(datetime), 'minutes');
-            }
+        datetime = moment.utc(value, [pattern1, pattern2, moment.ISO_8601]);
+        if (options && options.timezone) {
+            datetime.add(-session.getTZOffset(datetime), 'minutes');
         }
     }
     if (datetime.isValid()) {
         if (datetime.year() === 0) {
             datetime.year(moment.utc().year());
         }
-        if (datetime.year() >= 1000) {
+        if (datetime.year() >= 1900) {
             datetime.toJSON = function () {
                 return this.clone().locale('en').format('YYYY-MM-DD HH:mm:ss');
             };
@@ -656,8 +598,8 @@ function parseFloatTime(value) {
 }
 
 /**
- * Parse a String containing float and unconvert it with a conversion factor
- * of 100. The percentage can be a regular xx.xx float or a xx%.
+ * Parse a String containing a percentage and convert it to float.
+ * The percentage can be a regular xx.xx float or a xx%.
  *
  * @param {string} value
  *                The string to be parsed
@@ -665,7 +607,10 @@ function parseFloatTime(value) {
  * @throws {Error} if the value couldn't be converted to float
  */
 function parsePercentage(value) {
-    return parseFloat(value) / 100;
+    if (value.slice(-1) === '%') {
+        return parseFloat(value.slice(0, -1)) / 100;
+    }
+    return parseFloat(value);
 }
 
 /**

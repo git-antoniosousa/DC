@@ -4,7 +4,7 @@
 {
     'name': 'Israel - Accounting',
     'version': '1.0',
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     'description': """
 This is the latest basic Israelian localisation necessary to run Odoo in Israel:
 ================================================================================
@@ -26,8 +26,5 @@ This module consists of:
         'data/fiscal_templates_data.xml',
         'data/account_chart_template_post_data.xml',
         'data/account_chart_template_configure_data.xml',
-    ],
-    'demo': [
-        'demo/demo_company.xml',
     ],
 }

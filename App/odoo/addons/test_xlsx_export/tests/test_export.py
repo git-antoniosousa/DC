@@ -6,9 +6,9 @@ from datetime import date
 from unittest.mock import patch
 
 from odoo import http
-from odoo.tests import common, tagged
+from odoo.tests import common
 from odoo.addons.web.controllers.main import ExportXlsxWriter
-from odoo.addons.mail.tests.common import mail_new_test_user
+from odoo.addons.test_mail.tests.common import mail_new_test_user
 
 
 class XlsxCreatorCase(common.HttpCase):
@@ -22,8 +22,8 @@ class XlsxCreatorCase(common.HttpCase):
         super().setUp()
         self.model = self.env[self.model_name]
 
-        mail_new_test_user(self.env, login='fof', password='123456789', groups='base.group_user,base.group_allow_export')
-        self.session = self.authenticate('fof', '123456789')
+        mail_new_test_user(self.env, login='fof', password='123456789')
+        self.authenticate('fof', '123456789')
 
         self.worksheet = {}  # mock worksheet
 
@@ -70,7 +70,6 @@ class XlsxCreatorCase(common.HttpCase):
         self.assertFalse(value, "There are unexpected cells in the export")
 
 
-@tagged('-at_install', 'post_install')
 class TestGroupedExport(XlsxCreatorCase):
     model_name = 'export.group_operator'
 

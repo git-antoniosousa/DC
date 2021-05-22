@@ -71,7 +71,7 @@ Wysiwyg.include({
     _loadIframe: function () {
         var self = this;
         this.$iframe = $('<iframe class="wysiwyg_iframe">').css({
-            'min-height': '55vh',
+            'min-height': '400px',
             width: '100%'
         });
         var avoidDoubleLoad = 0; // this bug only appears on some configurations.

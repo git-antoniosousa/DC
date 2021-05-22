@@ -5,7 +5,7 @@ from odoo import models
 
 
 class SaleCoupon(models.Model):
-    _inherit = 'coupon.coupon'
+    _inherit = 'sale.coupon'
 
     def _check_coupon_code(self, order):
         if self.program_id.website_id and self.program_id.website_id != order.website_id:

@@ -4,16 +4,19 @@
 # 
 # Translators:
 # Martin Trigaux, 2020
+# Seksan Poltree <seksan.poltree@gmail.com>, 2020
 # Khwunchai Jaengsawang <khwunchai.j@ku.th>, 2020
+# LAO <sumonchai@gmail.com>, 2020
+# Ekasit Saichompu <ekasitb@gmail.com>, 2020
 # Somchart Jabsung <jabsung.s@gmail.com>, 2020
 # Odoo Thaidev <odoothaidev@gmail.com>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.5\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 07:28+0000\n"
-"PO-Revision-Date: 2020-09-07 08:12+0000\n"
+"POT-Creation-Date: 2020-04-27 09:21+0000\n"
+"PO-Revision-Date: 2019-08-26 09:10+0000\n"
 "Last-Translator: Odoo Thaidev <odoothaidev@gmail.com>, 2020\n"
 "Language-Team: Thai (https://www.transifex.com/odoo/teams/41243/th/)\n"
 "MIME-Version: 1.0\n"
@@ -23,13 +26,24 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #. module: hr_contract
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_employee_view_kanban
+msgid ""
+"<i class=\"fa fa-exclamation-triangle text-danger\" role=\"img\" "
+"title=\"There is something wrong with the contract. Either there is no "
+"running contract for this employee or employee's contract is about to "
+"expire.\" aria-label=\"There is something wrong with the contract. Either "
+"there is no running contract for this employee or employee's contract is "
+"about to expire.\"/>"
+msgstr ""
+
+#. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
 msgid ""
 "<span attrs=\"{'invisible': ['|', ('calendar_mismatch', '=', False), ('state', '!=', 'open')]}\" class=\"fa fa-exclamation-triangle text-danger o_calendar_warning pl-3\">\n"
-"                                </span>\n"
-"                                <span class=\"o_calendar_warning_tooltip text-danger\">\n"
-"                                    Calendar Mismatch : The employee's calendar does not match this contract's calendar. This could lead to unexpected behaviors.\n"
-"                                </span>"
+"                                        </span>\n"
+"                                        <span class=\"o_calendar_warning_tooltip text-danger\">\n"
+"                                            Calendar Mismatch : The employee's calendar does not match this contract's calendar. This could lead to unexpected behaviors.\n"
+"                                        </span>"
 msgstr ""
 
 #. module: hr_contract
@@ -43,27 +57,8 @@ msgid ""
 msgstr ""
 
 #. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_hr_employee_view_form2
-msgid ""
-"<span class=\"o_stat_text text-danger\" attrs=\"{'invisible' : [('contract_warning', '=', False)]}\" title=\"In Contract Since\">\n"
-"                                    In Contract Since\n"
-"                                </span>"
-msgstr ""
-
-#. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_hr_employee_view_form2
-msgid ""
-"<span class=\"o_stat_text text-danger\">\n"
-"                                    Contracts\n"
-"                                </span>"
-msgstr ""
-
-#. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_hr_employee_view_form2
-msgid ""
-"<span class=\"o_stat_text text-success\" attrs=\"{'invisible' : "
-"[('contract_warning', '=', True)]}\" title=\"In Contract Since\"> In "
-"Contract Since</span>"
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
+msgid "<span class=\"text-muted\">(If fixed-term contract)</span>"
 msgstr ""
 
 #. module: hr_contract
@@ -97,14 +92,19 @@ msgid "Activity State"
 msgstr "สถานะกิจกรรม"
 
 #. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__activity_type_icon
-msgid "Activity Type Icon"
-msgstr ""
-
-#. module: hr_contract
 #: model:res.groups,name:hr_contract.group_hr_contract_manager
 msgid "Administrator"
 msgstr "ผู้ดูแลระบบ"
+
+#. module: hr_contract
+#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__advantages
+msgid "Advantages"
+msgstr "ข้อดี"
+
+#. module: hr_contract
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
+msgid "Advantages..."
+msgstr "ข้อดี..."
 
 #. module: hr_contract
 #: code:addons/hr_contract/models/hr_contract.py:0
@@ -118,17 +118,17 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_search
 msgid "Archived"
-msgstr "เก็บถาวร"
+msgstr "ถูกเก็บ"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_attachment_count
 msgid "Attachment Count"
-msgstr "จํานวนสิ่งที่แนบมา"
+msgstr "จำนวนไฟล์แนบ"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_res_users__bank_account_id
 msgid "Bank Account Number"
-msgstr "หมายเลขบัญชีธนาคาร"
+msgstr "เลขบัญชีธนาคาร"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__calendar_mismatch
@@ -139,7 +139,7 @@ msgstr ""
 #. module: hr_contract
 #: model:ir.model.fields.selection,name:hr_contract.selection__hr_contract__state__cancel
 msgid "Cancelled"
-msgstr "ยกเลิกแล้ว"
+msgstr "ถูกยกเลิก"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__company_id
@@ -151,11 +151,6 @@ msgstr "บริษัท"
 #: model:ir.model.fields,field_description:hr_contract.field_res_users__vehicle
 msgid "Company Vehicle"
 msgstr "ยานพาหนะของ บริษัท"
-
-#. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__company_country_id
-msgid "Company country"
-msgstr ""
 
 #. module: hr_contract
 #: model:ir.model,name:hr_contract.model_hr_contract
@@ -174,21 +169,15 @@ msgid "Contract Details"
 msgstr ""
 
 #. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_departure_wizard_view_form
-msgid "Contract End Date"
-msgstr ""
-
-#. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__name
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
 msgid "Contract Reference"
 msgstr "อ้างอิงตามสัญญา"
 
 #. module: hr_contract
-#: model:ir.model,name:hr_contract.model_hr_payroll_structure_type
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__name
-msgid "Contract Type"
-msgstr "ประเถทสัญญา"
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
+msgid "Contract Terms"
+msgstr ""
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_employee__contract_warning
@@ -225,13 +214,9 @@ msgstr ""
 #: model:ir.ui.menu,name:hr_contract.menu_human_resources_configuration_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_activity
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_tree
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_hr_employee_view_form2
 msgid "Contracts"
 msgstr "สัญญา"
-
-#. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__country_id
-msgid "Country"
-msgstr "ประเทศ"
 
 #. module: hr_contract
 #: model_terms:ir.actions.act_window,help:hr_contract.action_hr_contract
@@ -240,13 +225,11 @@ msgstr ""
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__create_uid
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__create_uid
 msgid "Created by"
 msgstr "สร้างโดย"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__create_date
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__create_date
 msgid "Created on"
 msgstr "สร้างเมื่อ"
 
@@ -267,11 +250,6 @@ msgid "Current contract of the employee"
 msgstr ""
 
 #. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__default_resource_calendar_id
-msgid "Default Working Hours"
-msgstr ""
-
-#. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_kanban
 msgid "Delete"
 msgstr "ลบ"
@@ -282,24 +260,7 @@ msgid "Department"
 msgstr "แผนก"
 
 #. module: hr_contract
-#: model:ir.model,name:hr_contract.model_hr_departure_wizard
-msgid "Departure Wizard"
-msgstr ""
-
-#. module: hr_contract
-#: code:addons/hr_contract/wizard/hr_departure_wizard.py:0
-#, python-format
-msgid ""
-"Departure date can't be earlier than the start date of current contract."
-msgstr ""
-
-#. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__display_name
-#: model:ir.model.fields,field_description:hr_contract.field_hr_departure_wizard__display_name
-#: model:ir.model.fields,field_description:hr_contract.field_hr_employee__display_name
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__display_name
-#: model:ir.model.fields,field_description:hr_contract.field_res_users__display_name
-#: model:ir.model.fields,field_description:hr_contract.field_resource_calendar__display_name
 msgid "Display Name"
 msgstr "ชื่อที่ใช้แสดง"
 
@@ -367,12 +328,6 @@ msgid "Expired"
 msgstr ""
 
 #. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__first_contract_date
-#: model:ir.model.fields,field_description:hr_contract.field_hr_employee__first_contract_date
-msgid "First Contract Date"
-msgstr ""
-
-#. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_follower_ids
 msgid "Followers"
 msgstr "ผู้ติดตาม"
@@ -386,11 +341,6 @@ msgstr "ผู้ติดตาม (ช่องทาง)"
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "ผู้ติดตาม (คู่ค้า)"
-
-#. module: hr_contract
-#: model:ir.model.fields,help:hr_contract.field_hr_contract__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr ""
 
 #. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_search
@@ -410,7 +360,7 @@ msgstr ""
 #. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_search
 msgid "Group By"
-msgstr "จัดกลุ่มตาม"
+msgstr "จัดกลุ่มโดย"
 
 #. module: hr_contract
 #: model:ir.actions.server,name:hr_contract.ir_cron_data_contract_update_state_ir_actions_server
@@ -426,11 +376,6 @@ msgstr ""
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__id
-#: model:ir.model.fields,field_description:hr_contract.field_hr_departure_wizard__id
-#: model:ir.model.fields,field_description:hr_contract.field_hr_employee__id
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__id
-#: model:ir.model.fields,field_description:hr_contract.field_res_users__id
-#: model:ir.model.fields,field_description:hr_contract.field_resource_calendar__id
 msgid "ID"
 msgstr "รหัส"
 
@@ -442,7 +387,7 @@ msgstr "ไอคอน"
 #. module: hr_contract
 #: model:ir.model.fields,help:hr_contract.field_hr_contract__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "ไอคอนเพื่อระบุกิจกรรมการยกเว้น"
+msgstr "ไอคอนเพื่อระบุกิจกรรมข้อยกเว้น"
 
 #. module: hr_contract
 #: model:ir.model.fields,help:hr_contract.field_hr_contract__message_needaction
@@ -452,8 +397,9 @@ msgstr "ถ้าเลือก ข้อความใหม่จะต้�
 
 #. module: hr_contract
 #: model:ir.model.fields,help:hr_contract.field_hr_contract__message_has_error
+#: model:ir.model.fields,help:hr_contract.field_hr_contract__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
-msgstr "ถ้าเลือก ข้อความบางข้อความมีข้อผิดพลาดในการส่ง"
+msgstr "หากเลือกข้อความบางข้อความมีข้อผิดพลาดในการจัดส่ง"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_is_follower
@@ -473,40 +419,39 @@ msgstr ""
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract____last_update
-#: model:ir.model.fields,field_description:hr_contract.field_hr_departure_wizard____last_update
-#: model:ir.model.fields,field_description:hr_contract.field_hr_employee____last_update
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type____last_update
-#: model:ir.model.fields,field_description:hr_contract.field_res_users____last_update
-#: model:ir.model.fields,field_description:hr_contract.field_resource_calendar____last_update
 msgid "Last Modified on"
 msgstr "แก้ไขครั้งสุดท้ายเมื่อ"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__write_uid
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__write_uid
 msgid "Last Updated by"
 msgstr "อัพเดทครั้งสุดท้ายโดย"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__write_date
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__write_date
 msgid "Last Updated on"
 msgstr "อัพเดทครั้งสุดท้ายเมื่อ"
 
 #. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_search
 msgid "Late Activities"
-msgstr "กิจกรรม"
+msgstr "กิจกรรมล่าสุด"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_main_attachment_id
 msgid "Main Attachment"
-msgstr "เอกสารหลักที่แนบมา"
+msgstr "ไฟล์แนบหลัก"
+
+#. module: hr_contract
+#: model:ir.model.fields,field_description:hr_contract.field_hr_employee__medic_exam
+#: model:ir.model.fields,field_description:hr_contract.field_res_users__medic_exam
+msgid "Medical Examination Date"
+msgstr "วันที่ตรวจร่างกาย"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_has_error
 msgid "Message Delivery error"
-msgstr "เกิดการผิดพลาดในการส่งข้อความ"
+msgstr "ส่งข้อความผิดพลาด"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_ids
@@ -531,7 +476,7 @@ msgstr "ใหม่"
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__activity_date_deadline
 msgid "Next Activity Deadline"
-msgstr "กำหนดกิจกรรมสุดท้าย"
+msgstr "วันที่สิ้นสุดกิจกรรมถัดไป"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__activity_summary
@@ -547,17 +492,17 @@ msgstr "ประเภทกิจกรรมถัดไป"
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__notes
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
 msgid "Notes"
-msgstr "หมายเหตุ"
+msgstr "โน้ต"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_needaction_counter
 msgid "Number of Actions"
-msgstr "จํานวนการดําเนินการ"
+msgstr "จำนวนกิจกรรม"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_has_error_counter
 msgid "Number of errors"
-msgstr "จํานวนข้อผิดพลาด"
+msgstr "จำนวนข้อผิดพลาด"
 
 #. module: hr_contract
 #: model:ir.model.fields,help:hr_contract.field_hr_contract__message_needaction_counter
@@ -601,29 +546,19 @@ msgid "Running"
 msgstr "กำลังทำงาน"
 
 #. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
-msgid "Salary Information"
-msgstr ""
+#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "ข้อผิดพลาดในการส่ง SMS"
 
 #. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__structure_type_id
-msgid "Salary Structure Type"
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
+msgid "Salary Information"
 msgstr ""
 
 #. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_search
 msgid "Search Contract"
 msgstr "ค้นหา สัญญา"
-
-#. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_departure_wizard__set_date_end
-msgid "Set Contract End Date"
-msgstr ""
-
-#. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_departure_wizard_view_form
-msgid "Set end date to current contract"
-msgstr ""
 
 #. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_search
@@ -654,20 +589,14 @@ msgid ""
 "Today: Activity date is today\n"
 "Planned: Future activities."
 msgstr ""
-"Status based on activities\n"
-"Overdue: Due date is already passed\n"
-"Today: Activity date is today\n"
-"Planned: Future activities."
+"สถานะตามกิจกรรม\n"
+"เกินกำหนด: วันที่ครบกำหนดผ่านไปแล้ว\n"
+"วันนี้: วันที่ทำกิจกรรมคือวันนี้\n"
+"ที่วางแผนไว้: กิจกรรมในอนาคต"
 
 #. module: hr_contract
 #: model:ir.model.fields,help:hr_contract.field_hr_contract__state
 msgid "Status of the contract"
-msgstr ""
-
-#. module: hr_contract
-#: code:addons/hr_contract/models/hr_contract.py:0
-#, python-format
-msgid "The contract of %s is about to expire."
 msgstr ""
 
 #. module: hr_contract
@@ -693,7 +622,7 @@ msgstr "ข้อความที่ยังไม่ได้อ่าน"
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_unread_counter
 msgid "Unread Messages Counter"
-msgstr "ตัวนับข้อความที่ยังไม่ได้อ่าน"
+msgstr "จำนวนข้อความที่ยังไม่ได้อ่าน"
 
 #. module: hr_contract
 #: model:ir.model,name:hr_contract.model_res_users
@@ -716,6 +645,16 @@ msgid "Wage"
 msgstr "ค่าแรง"
 
 #. module: hr_contract
+#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__website_message_ids
+msgid "Website Messages"
+msgstr "ข้อความจากเว็บไซต์"
+
+#. module: hr_contract
+#: model:ir.model.fields,help:hr_contract.field_hr_contract__website_message_ids
+msgid "Website communication history"
+msgstr "ประวัติการสื่อสารเว็บไซต์"
+
+#. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__permit_no
 msgid "Work Permit No"
 msgstr "เลขที่ใบอนุญาตทำงาน"
@@ -724,8 +663,3 @@ msgstr "เลขที่ใบอนุญาตทำงาน"
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__resource_calendar_id
 msgid "Working Schedule"
 msgstr "ตารางการทำงาน"
-
-#. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
-msgid "Yearly Advantages"
-msgstr ""

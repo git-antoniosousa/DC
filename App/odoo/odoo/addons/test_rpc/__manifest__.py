@@ -2,7 +2,7 @@
 {
     "name": "Test RPC",
     "version": "1.0",
-    "category": "Hidden/Tests",
+    "category": "Tests",
     "description": """A module to test the RPC requests.""",
     "depends": ["base", "web"],
     "installable": True,

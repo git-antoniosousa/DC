@@ -268,7 +268,6 @@ QWeb2.Engine = (function() {
                             return this.tools.exception("Can't clone undefined template " + extend);
                         }
                         this.templates[name] = this.templates[extend].cloneNode(true);
-                        this.extend_templates[name] = (this.extend_templates[extend] || []).slice();
                         extend = name;
                         name = undefined;
                     }
@@ -328,7 +327,7 @@ QWeb2.Engine = (function() {
                     // All text nodes between branch nodes are removed
                     var text_node;
                     while ((text_node = node.previousSibling) !== prev_elem) {
-                        if (text_node.nodeType !== 8 && self.tools.trim(text_node.nodeValue)) {
+                        if (self.tools.trim(text_node.nodeValue)) {
                             return self.tools.exception("Error: text is not allowed between branching directives");
                         }
                         // IE <= 11.0 doesn't support ChildNode.remove

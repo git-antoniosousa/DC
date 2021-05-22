@@ -13,21 +13,17 @@ from odoo.tools import html2plaintext
 
 class Blog(models.Model):
     _name = 'blog.blog'
-    _description = 'Blog'
-    _inherit = ['mail.thread', 'website.seo.metadata', 'website.multi.mixin', 'website.cover_properties.mixin']
+    _description = 'Blogs'
+    _inherit = ['mail.thread', 'website.seo.metadata', 'website.multi.mixin']
     _order = 'name'
 
     name = fields.Char('Blog Name', required=True, translate=True)
     subtitle = fields.Char('Blog Subtitle', translate=True)
     active = fields.Boolean('Active', default=True)
     content = fields.Html('Content', translate=html_translate, sanitize=False)
-    blog_post_ids = fields.One2many('blog.post', 'blog_id', 'Blog Posts')
-    blog_post_count = fields.Integer("Posts", compute='_compute_blog_post_count')
-
-    @api.depends('blog_post_ids')
-    def _compute_blog_post_count(self):
-        for record in self:
-            record.blog_post_count = len(record.blog_post_ids)
+    cover_properties = fields.Text(
+        'Cover Properties',
+        default='{"background-image": "none", "background-color": "oe_black", "opacity": "0.2", "resize_class": "cover_mid"}')
 
     def write(self, vals):
         res = super(Blog, self).write(vals)
@@ -41,7 +37,7 @@ class Blog(models.Model):
         return res
 
     @api.returns('mail.message', lambda value: value.id)
-    def message_post(self, *, parent_id=False, subtype_id=False, **kwargs):
+    def message_post(self, *, parent_id=False, subtype=None, **kwargs):
         """ Temporary workaround to avoid spam. If someone replies on a channel
         through the 'Presentation Published' email, it should be considered as a
         note as we don't want all channel followers to be notified of this answer. """
@@ -49,8 +45,10 @@ class Blog(models.Model):
         if parent_id:
             parent_message = self.env['mail.message'].sudo().browse(parent_id)
             if parent_message.subtype_id and parent_message.subtype_id == self.env.ref('website_blog.mt_blog_blog_published'):
-                subtype_id = self.env.ref('mail.mt_note').id
-        return super(Blog, self).message_post(parent_id=parent_id, subtype_id=subtype_id, **kwargs)
+                if kwargs.get('subtype_id'):
+                    kwargs['subtype_id'] = False
+                subtype = 'mail.mt_note'
+        return super(Blog, self).message_post(parent_id=parent_id, subtype=subtype, **kwargs)
 
     def all_tags(self, join=False, min_limit=1):
         BlogTag = self.env['blog.tag']
@@ -118,14 +116,14 @@ class BlogTag(models.Model):
 class BlogPost(models.Model):
     _name = "blog.post"
     _description = "Blog Post"
-    _inherit = ['mail.thread', 'website.seo.metadata', 'website.published.multi.mixin', 'website.cover_properties.mixin']
+    _inherit = ['mail.thread', 'website.seo.metadata', 'website.published.multi.mixin']
     _order = 'id DESC'
     _mail_post_access = 'read'
 
     def _compute_website_url(self):
         super(BlogPost, self)._compute_website_url()
         for blog_post in self:
-            blog_post.website_url = "/blog/%s/%s" % (slug(blog_post.blog_id), slug(blog_post))
+            blog_post.website_url = "/blog/%s/post/%s" % (slug(blog_post.blog_id), slug(blog_post))
 
     def _default_content(self):
         return '''
@@ -134,9 +132,10 @@ class BlogPost(models.Model):
     name = fields.Char('Title', required=True, translate=True, default='')
     subtitle = fields.Char('Sub Title', translate=True)
     author_id = fields.Many2one('res.partner', 'Author', default=lambda self: self.env.user.partner_id)
-    author_avatar = fields.Binary(related='author_id.image_128', string="Avatar", readonly=False)
-    author_name = fields.Char(related='author_id.display_name', string="Author Name", readonly=False, store=True)
     active = fields.Boolean('Active', default=True)
+    cover_properties = fields.Text(
+        'Cover Properties',
+        default='{"background-image": "none", "background-color": "oe_black", "opacity": "0.2", "resize_class": "cover_mid"}')
     blog_id = fields.Many2one('blog.blog', 'Blog', required=True, ondelete='cascade')
     tag_ids = fields.Many2many('blog.tag', string='Tags')
     content = fields.Html('Content', default=_default_content, translate=html_translate, sanitize=False)
@@ -153,8 +152,9 @@ class BlogPost(models.Model):
     create_uid = fields.Many2one('res.users', 'Created by', index=True, readonly=True)
     write_date = fields.Datetime('Last Updated on', index=True, readonly=True)
     write_uid = fields.Many2one('res.users', 'Last Contributor', index=True, readonly=True)
-    visits = fields.Integer('No of Views', copy=False, default=0)
-    website_id = fields.Many2one(related='blog_id.website_id', readonly=True, store=True)
+    author_avatar = fields.Binary(related='author_id.image_128', string="Avatar", readonly=False)
+    visits = fields.Integer('No of Views', copy=False)
+    website_id = fields.Many2one(related='blog_id.website_id', readonly=True)
 
     @api.depends('content', 'teaser_manual')
     def _compute_teaser(self):
@@ -185,7 +185,7 @@ class BlogPost(models.Model):
 
     def _check_for_publication(self, vals):
         if vals.get('is_published'):
-            for post in self.filtered(lambda p: p.active):
+            for post in self:
                 post.blog_id.message_post_with_view(
                     'website_blog.blog_post_template_new_post',
                     subject=post.name,
@@ -202,9 +202,6 @@ class BlogPost(models.Model):
 
     def write(self, vals):
         result = True
-        # archiving a blog post, unpublished the blog post
-        if 'active' in vals and not vals['active']:
-            vals['is_published'] = False
         for post in self:
             copy_vals = dict(vals)
             published_in_vals = set(vals.keys()) & {'is_published', 'website_published'}
@@ -214,13 +211,6 @@ class BlogPost(models.Model):
             result &= super(BlogPost, self).write(copy_vals)
         self._check_for_publication(vals)
         return result
-
-    @api.returns('self', lambda value: value.id)
-    def copy_data(self, default=None):
-        self.ensure_one()
-        name = _("%s (copy)", self.name)
-        default = dict(default or {}, name=name)
-        return super(BlogPost, self).copy_data(default)
 
     def get_access_action(self, access_uid=None):
         """ Instead of the classic form view, redirect to the post on website

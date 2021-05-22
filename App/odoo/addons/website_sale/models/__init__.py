@@ -15,6 +15,4 @@ from . import res_config_settings
 from . import digest
 from . import res_company
 from . import product_attribute
-from . import website_page
 from . import website_visitor
-from . import website_snippet_filter

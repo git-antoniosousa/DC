@@ -4,7 +4,7 @@
 {
     'name': 'Algeria - Accounting',
     'version': '1.0',
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     'description': """
 This is the module to manage the accounting chart for Algeria in Odoo.
 ======================================================================

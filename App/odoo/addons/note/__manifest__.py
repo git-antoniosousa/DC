@@ -4,11 +4,11 @@
 {
     'name': 'Notes',
     'version': '1.0',
-    'category': 'Productivity/Notes',
+    'category': 'Tools',
     'description': "",
     'website': 'https://www.odoo.com/page/notes',
     'summary': 'Organize your work with memos',
-    'sequence': 260,
+    'sequence': 45,
     'depends': [
         'mail',
     ],

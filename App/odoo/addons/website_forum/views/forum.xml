@@ -1,21 +1,6 @@
 <?xml version="1.0"?>
 <odoo>
     <data>
-        <!-- FORUM ACTIONS -->
-        <record id="action_forum_favorites" model="ir.actions.act_window">
-            <field name="name">Users favorite posts</field>
-            <field name="res_model">forum.post</field>
-            <field name="view_mode">tree,form</field>
-            <field name="domain">[('forum_id', '=', active_id), ('favourite_count', '>', 0), ('state', 'in', ('active', 'close'))]</field>
-        </record>
-
-        <record id="action_forum_posts" model="ir.actions.act_window">
-            <field name="name">Posts</field>
-            <field name="res_model">forum.post</field>
-            <field name="view_mode">tree,form</field>
-            <field name="domain">[('forum_id', '=', active_id), ('parent_id', '=', False), ('state', 'in', ('active', 'close'))]</field>
-        </record>
-
         <!-- MAIN FORUM MENU -->
         <menuitem name="Forum" id="menu_website_forum"
             parent="website.menu_website_configuration" sequence="50" groups="website.group_website_designer"/>
@@ -47,29 +32,6 @@
             <field name="arch" type="xml">
                 <form string="Forum">
                     <sheet>
-                        <div class="oe_button_box" name="button_box">
-                            <button name="%(action_forum_posts)d" type="action" class="oe_stat_button" icon="fa-comments">
-                                <div class="o_form_field o_stat_info">
-                                    <span class="o_stat_value">
-                                        <field name="total_posts" />
-                                    </span>
-                                    <span class="o_stat_text">Posts</span>
-                                </div>
-                            </button>
-                            <button name="%(action_forum_favorites)d" class="oe_stat_button" icon="fa-star" type="action">
-                                <div class="o_form_field o_stat_info">
-                                    <span class="o_stat_value">
-                                        <field name="total_favorites" />
-                                    </span>
-                                    <span class="o_stat_text">Favorites</span>
-                                </div>
-                            </button>
-                            <button type="object" class="oe_stat_button" icon="fa-globe" name="go_to_website">
-                                <div class="o_form_field o_stat_info">
-                                    <span class="o_stat_text">Go to <br/>Website</span>
-                                </div>
-                            </button>
-                        </div>
                         <field name="active" invisible="1"/>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <field name="image_1920" widget="image" options="{'preview_image': 'image_128'}" class="oe_avatar"/>
@@ -80,40 +42,29 @@
                             </h1>
                         </div>
                         <group>
-                            <group>
-                                <field name="mode" widget="radio" required="True"/>
-                                <field name="website_id" options="{'no_create': True}" groups="website.group_multi_website"/>
-                            </group>
+                            <field name="mode" widget="radio" required="True"/>
+                            <field name="website_id" options="{'no_create': True}" groups="website.group_multi_website"/>
                         </group>
                         <notebook>
                             <page name="options" string="Options">
-                                <group>
-                                    <group string="Order and Visibility" name="group_order">
-                                        <field name="default_order" string="Default Sort"/>
-                                        <field name="privacy" widget="radio" attrs="{'required': True}"/>
-                                        <field name="authorized_group_id" options="{'no_create': True}" attrs="{'invisible': [('privacy', '!=', 'private')], 'required': [('privacy', '=', 'private')]}"/>
-                                        <label for="relevancy_post_vote" string="Relevance Computation" groups="base.group_no_one" attrs="{'invisible':[('default_order','!=','relevancy desc')]}"/>
-                                        <div groups="base.group_no_one" class="o_row" attrs="{'invisible':[('default_order','!=','relevancy desc')]}">
-                                            (votes - 1) ** <field name="relevancy_post_vote"/> / (days + 2) ** <field name="relevancy_time_decay"/>
-                                        </div>
-                                    </group>
-                                </group>
-                                <group>
-                                    <field name="description" nolabel="1" placeholder="Description visible on website"/>
-                                </group>
+                              <group string="Order" name="group_order">
+                                <field name="default_order"/>
+                                <label for="relevancy_post_vote" string="Relevance Computation" groups="base.group_no_one" attrs="{'invisible':[('default_order','!=','relevancy desc')]}"/>
+                                <div groups="base.group_no_one" class="o_row" attrs="{'invisible':[('default_order','!=','relevancy desc')]}">
+                                    (votes - 1) ** <field name="relevancy_post_vote"/> / (days + 2) ** <field name="relevancy_time_decay"/>
+                                </div>
+                              </group>
                             </page>
                             <page name="karma_gains" string="Karma Gains">
                                 <group name="karma_gain_details">
-                                    <group>
-                                        <field name="karma_gen_question_new"/>
-                                        <field name="karma_gen_question_upvote"/>
-                                        <field name="karma_gen_question_downvote"/>
-                                        <field name="karma_gen_answer_upvote"/>
-                                        <field name="karma_gen_answer_downvote"/>
-                                        <field name="karma_gen_answer_accept"/>
-                                        <field name="karma_gen_answer_accepted"/>
-                                        <field name="karma_gen_answer_flagged"/>
-                                    </group>
+                                    <field name="karma_gen_question_new"/>
+                                    <field name="karma_gen_question_upvote"/>
+                                    <field name="karma_gen_question_downvote"/>
+                                    <field name="karma_gen_answer_upvote"/>
+                                    <field name="karma_gen_answer_downvote"/>
+                                    <field name="karma_gen_answer_accept"/>
+                                    <field name="karma_gen_answer_accepted"/>
+                                    <field name="karma_gen_answer_flagged"/>
                                 </group>
                             </page>
                             <page name="karma_rights" string="Karma Related Rights">
@@ -150,10 +101,13 @@
                                 </group>
                             </page>
                         </notebook>
+                        <group>
+                            <field name="description"/>
+                        </group>
                     </sheet>
                     <div class="oe_chatter">
-                        <field name="message_follower_ids" groups="base.group_user"/>
-                        <field name="message_ids"/>
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
                     </div>
                 </form>
             </field>
@@ -187,11 +141,10 @@
                     <field name="name"/>
                     <field name="active" invisible="1"/>
                     <field name="forum_id"/>
-                    <field name="views" sum="Total Views"/>
-                    <field name="child_count" sum="Total Answers"/>
-                    <field name="favourite_count" sum="Total Favorites"/>
+                    <field name="views"/>
+                    <field name="child_count"/>
+                    <field name="favourite_count"/>
                     <field name="website_id" groups="website.group_multi_website"/>
-                    <field name="state"/>
                 </tree>
             </field>
         </record>
@@ -202,13 +155,6 @@
             <field name="arch" type="xml">
                 <form string="Forum Post">
                     <sheet>
-                        <div class="oe_button_box" name="button_box">
-                            <button type="object" class="oe_stat_button" icon="fa-globe" name="go_to_website">
-                                <div class="o_form_field o_stat_info">
-                                    <span class="o_stat_text">Go to <br/>Website</span>
-                                </div>
-                            </button>
-                        </div>
                         <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                         <label for="name" class="oe_edit_only"/>
                         <h1>
@@ -255,8 +201,8 @@
                         </group>
                     </sheet>
                     <div class="oe_chatter">
-                        <field name="message_follower_ids" groups="base.group_user"/>
-                        <field name="message_ids"/>
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
                     </div>
                 </form>
             </field>
@@ -271,13 +217,10 @@
                     <field name="create_uid"/>
                     <field name="forum_id"/>
                     <field name="tag_ids" string="Tag"/>
-                    <filter string="Posts" name="posts" domain="[('parent_id', '=', False)]" />
+                    <filter string="Questions" name="questions" domain="[('parent_id', '=', False)]" />
                     <filter string="Answers" name="answers" domain="[('parent_id', '!=', False)]" />
                     <filter string="Accepted Answer" name="accepted_answer" domain="[('is_correct' , '!=', False), ('parent_id', '!=', False)]" />
-                    <filter string="Answered Posts" name="answered_posts" domain="[('child_count', '!=', 0), ('parent_id', '=', False)]" />
-                    <separator/>
-                    <filter name="filter_create_date" date="create_date"/>
-                    <filter name="filter_write_date" date="write_date"/>
+                    <filter string="Answered Questions" name="answered_questions" domain="[('child_count', '!=', 0), ('parent_id', '=', False)]" />
                     <separator/>
                     <filter string="Archived" name="inactive" domain="[('active','=',False)]"/>
                     <group expand="0" string="Group By">
@@ -293,7 +236,7 @@
             <field name="name">forum.post.graph</field>
             <field name="model">forum.post</field>
             <field name="arch" type="xml">
-                <graph string="Graph of Posts" sample="1">
+                <graph string="Graph of Posts">
                     <field name="write_date" interval="month" type="col" />
                     <field name="forum_id" type="row" />
                 </graph>
@@ -306,7 +249,7 @@
             <field name="view_mode">tree,form,graph</field>
             <field name="view_id" ref="view_forum_post_list"/>
             <field name="search_view_id" ref="view_forum_post_search"/>
-            <field name="context">{'search_default_posts':1}</field>
+            <field name="context">{'search_default_questions':1}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Create a new forum post
@@ -321,9 +264,9 @@
             <field name="name">forum.tag.list</field>
             <field name="model">forum.tag</field>
             <field name="arch" type="xml">
-                <tree string="Tags" editable="bottom">
+                <tree string="Tags">
                     <field name="name"/>
-                    <field name="forum_id" options="{'no_create_edit': True}"/>
+                    <field name="forum_id"/>
                 </tree>
             </field>
         </record>
@@ -336,12 +279,12 @@
                     <sheet>
                         <group>
                             <field name="name"/>
-                            <field name="forum_id" options="{'no_create_edit': True}"/>
+                            <field name="forum_id"/>
                         </group>
                     </sheet>
                     <div class="oe_chatter">
-                        <field name="message_follower_ids" groups="base.group_user"/>
-                        <field name="message_ids"/>
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
                     </div>
                 </form>
             </field>
@@ -359,28 +302,6 @@
         </record>
 
         <menuitem id="menu_forum_tag_global" parent="menu_website_forum_global" name="Tags" action="forum_tag_action" sequence="30"/>
-
-        <!-- POST REASON VIEWS -->
-        <record id="forum_post_reason_view_list" model="ir.ui.view">
-            <field name="name">forum.post.reason.list</field>
-            <field name="model">forum.post.reason</field>
-            <field name="arch" type="xml">
-                <tree string="Reasons" editable="bottom">
-                    <field name="name"/>
-                    <field name="reason_type"/>
-                </tree>
-            </field>
-        </record>
-
-        <record id="forum_post_reasons_action" model="ir.actions.act_window">
-            <field name="name">Post Close Reasons</field>
-            <field name="res_model">forum.post.reason</field>
-            <field name="view_mode">tree</field>
-        </record>
-
-
         <menuitem id="menu_forum_rank_global" parent="menu_website_forum_global" name="Ranks" action="gamification.gamification_karma_ranks_action" sequence="5"/>
-        <menuitem id="menu_forum_badges" parent="menu_website_forum_global" name="Badges" action="gamification.badge_list_action" sequence="40"/>
-        <menuitem id="menu_forum_post_reasons" parent="menu_website_forum_global" name="Close Reasons" action="forum_post_reasons_action" sequence="50"/>
     </data>
 </odoo>

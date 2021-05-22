@@ -3,8 +3,11 @@
 
 <t t-name="WebClient.DebugManager">
     <li class="o_debug_manager" role="menuitem">
-        <a role="button" href="#" class="o_debug_mode" t-attf-title="Open Developer Tools#{widget.debug_mode_help}"
-                         t-att-data-debug-mode="widget.debug_mode" aria-label="Open Developer Tools#{widget.debug_mode_help}"
+        <t t-set="_devtool_button_title">Open Developer Tools</t>
+        <a role="button" href="#" class="o_debug_mode"
+                         t-att-title="_devtool_button_title + widget.debug_mode_help"
+                         t-att-aria-label="_devtool_button_title + widget.debug_mode_help"
+                         t-att-data-debug-mode="widget.debug_mode"
                          data-toggle="dropdown" aria-expanded="false" tabindex="-1" data-display="static">
             <span class="fa fa-bug"/>
         </a>
@@ -38,9 +41,6 @@
             <a role="menuitem" href="#" data-action="get_view_fields" class="dropdown-item">View Fields</a>
             <a role="menuitem" href="#" data-action="manage_filters" class="dropdown-item">Manage Filters</a>
             <a role="menuitem" href="#" data-action="translate" class="dropdown-item">Technical Translation</a>
-            <div t-if="manager.canSeeModelAccess || manager.canSeeRecordRules" class="dropdown-divider" role="separator"/>
-            <a t-if="manager.canSeeModelAccess" role="menuitem" href="#" data-action="actionModelAccess" class="dropdown-item">View Access Rights</a>
-            <a t-if="manager.canSeeRecordRules" role="menuitem" href="#" data-action="actionRecordRules" class="dropdown-item">View Record Rules</a>
         </t>
     </t>
 </t>
@@ -59,7 +59,7 @@
             <a role="menuitem" href="#" data-action="edit" data-model="ir.ui.view" t-att-data-id="view.fieldsView.view_id" class="dropdown-item">
                 Edit View: <t t-esc="view.displayName"/>
             </a>
-            <a t-if="withControlPanel" role="menuitem" href="#" data-action="edit" data-model="ir.ui.view" t-att-data-id="action.controlPanelFieldsView.view_id" class="dropdown-item">Edit ControlPanelView</a>
+            <a t-if="controlPanelView and controlPanelView.$el.is(':visible')" role="menuitem" href="#" data-action="edit" data-model="ir.ui.view" t-att-data-id="action.controlPanelFieldsView.view_id" class="dropdown-item">Edit ControlPanelView</a>
         </t>
     </t>
 </t>

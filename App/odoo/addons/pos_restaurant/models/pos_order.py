@@ -2,7 +2,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from itertools import groupby
 from re import search
-from functools import partial
 
 from odoo import api, fields, models
 
@@ -12,7 +11,6 @@ class PosOrderLine(models.Model):
 
     note = fields.Char('Note added by the waiter.')
     mp_skip = fields.Boolean('Skip line when sending ticket to kitchen printers.')
-    mp_dirty = fields.Boolean()
 
 
 class PosOrder(models.Model):
@@ -20,7 +18,6 @@ class PosOrder(models.Model):
 
     table_id = fields.Many2one('restaurant.table', string='Table', help='The table where this order was served', index=True)
     customer_count = fields.Integer(string='Guests', help='The amount of customers that have been served by this order.')
-    multiprint_resume = fields.Char()
 
     def _get_pack_lot_lines(self, order_lines):
         """Add pack_lot_lines to the order_lines.
@@ -57,8 +54,6 @@ class PosOrder(models.Model):
             'qty',
             'note',
             'mp_skip',
-            'mp_dirty',
-            'full_product_name',
         ]
 
     def _get_order_lines(self, orders):
@@ -89,18 +84,6 @@ class PosOrder(models.Model):
         for order_id, order_lines in groupby(extended_order_lines, key=lambda x:x[2]['order_id']):
             next(order for order in orders if order['id'] == order_id[0])['lines'] = list(order_lines)
 
-    def _get_fields_for_payment_lines(self):
-        return [
-            'id',
-            'amount',
-            'pos_order_id',
-            'payment_method_id',
-            'card_type',
-            'cardholder_name',
-            'transaction_id',
-            'payment_status'
-            ]
-
     def _get_payment_lines(self, orders):
         """Add account_bank_statement_lines to the orders.
 
@@ -111,7 +94,12 @@ class PosOrder(models.Model):
         """
         payment_lines = self.env['pos.payment'].search_read(
                 domain = [('pos_order_id', 'in', [po['id'] for po in orders])],
-                fields = self._get_fields_for_payment_lines())
+                fields = [
+                    'id',
+                    'amount',
+                    'pos_order_id',
+                    'payment_method_id',
+                    ])
 
         extended_payment_lines = []
         for payment_line in payment_lines:
@@ -137,14 +125,13 @@ class PosOrder(models.Model):
                     'fiscal_position_id',
                     'table_id',
                     'to_invoice',
-                    'multiprint_resume',
                     ]
 
     @api.model
     def get_table_draft_orders(self, table_id):
         """Generate an object of all draft orders for the given table.
 
-        Generate and return an JSON object with all draft orders for the given table, to send to the
+        Generate and return an JSON object with all draft orders for the given table, to send to the 
         front end application.
 
         :param table_id: Id of the selected table.
@@ -185,53 +172,9 @@ class PosOrder(models.Model):
 
         return table_orders
 
-    def set_tip(self, tip_line_vals):
-        """Set tip to `self` based on values in `tip_line_vals`."""
-
-        self.ensure_one()
-        PosOrderLine = self.env['pos.order.line']
-        process_line = partial(PosOrderLine._order_line_fields, session_id=self.session_id.id)
-
-        # 1. add/modify tip orderline
-        processed_tip_line_vals = process_line([0, 0, tip_line_vals])[2]
-        processed_tip_line_vals.update({ "order_id": self.id })
-        tip_line = self.lines.filtered(lambda line: line.product_id == self.session_id.config_id.tip_product_id)
-        if not tip_line:
-            tip_line = PosOrderLine.create(processed_tip_line_vals)
-        else:
-            tip_line.write(processed_tip_line_vals)
-
-        # 2. modify payment
-        payment_line = self.payment_ids.filtered(lambda line: not line.is_change)[0]
-        # TODO it would be better to throw error if there are multiple payment lines
-        # then ask the user to select which payment to update, no?
-        payment_line._update_payment_line_for_tip(tip_line.price_subtotal_incl)
-
-        # 3. flag order as tipped and update order fields
-        self.write({
-            "is_tipped": True,
-            "tip_amount": tip_line.price_subtotal_incl,
-            "amount_total": self.amount_total + tip_line.price_subtotal_incl,
-            "amount_paid": self.amount_paid + tip_line.price_subtotal_incl,
-        })
-
-    def set_no_tip(self):
-        """Override this method to introduce action when setting no tip."""
-        self.ensure_one()
-        self.write({
-            "is_tipped": True,
-            "tip_amount": 0,
-        })
-
     @api.model
     def _order_fields(self, ui_order):
         order_fields = super(PosOrder, self)._order_fields(ui_order)
         order_fields['table_id'] = ui_order.get('table_id', False)
         order_fields['customer_count'] = ui_order.get('customer_count', 0)
-        order_fields['multiprint_resume'] = ui_order.get('multiprint_resume', False)
         return order_fields
-
-    def _export_for_ui(self, order):
-        result = super(PosOrder, self)._export_for_ui(order)
-        result['table_id'] = order.table_id.id
-        return result

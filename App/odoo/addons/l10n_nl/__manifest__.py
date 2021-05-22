@@ -6,7 +6,7 @@
 {
     'name': 'Netherlands - Accounting',
     'version': '3.0',
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     'author': 'Onestein',
     'website': 'http://www.onestein.eu',
     'depends': [
@@ -29,9 +29,7 @@
         'data/account_chart_template_data.xml',
         'data/menuitem.xml',
     ],
-    'demo': [
-        'demo/demo_company.xml',
-    ],
+    'demo': [],
     'auto_install': False,
     'installable': True,
 }

@@ -15,7 +15,6 @@ var BasicController = require('web.BasicController');
 var BasicModel = require('web.BasicModel');
 var config = require('web.config');
 var fieldRegistry = require('web.field_registry');
-var fieldRegistryOwl = require('web.field_registry_owl');
 var pyUtils = require('web.py_utils');
 var utils = require('web.utils');
 
@@ -46,7 +45,7 @@ var BasicView = AbstractView.extend({
         this.rendererParams.viewType = this.viewType;
 
         this.controllerParams.confirmOnDelete = true;
-        this.controllerParams.archiveEnabled = 'active' in this.fields || 'x_active' in this.fields;
+        this.controllerParams.archiveEnabled = 'active' in this.fields;
         this.controllerParams.hasButtons =
                 'action_buttons' in params ? params.action_buttons : true;
         this.controllerParams.viewId = viewInfo.view_id;
@@ -79,8 +78,7 @@ var BasicView = AbstractView.extend({
     _getFieldWidgetClass: function (viewType, field, attrs) {
         var FieldWidget;
         if (attrs.widget) {
-            FieldWidget = fieldRegistryOwl.getAny([viewType + "." + attrs.widget, attrs.widget]) ||
-                fieldRegistry.getAny([viewType + "." + attrs.widget, attrs.widget]);
+            FieldWidget = fieldRegistry.getAny([viewType + "." + attrs.widget, attrs.widget]);
             if (!FieldWidget) {
                 console.warn("Missing widget: ", attrs.widget, " for field", attrs.name, "of type", field.type);
             }
@@ -89,9 +87,7 @@ var BasicView = AbstractView.extend({
             // is not specified in the view
             FieldWidget = fieldRegistry.get('kanban.many2many_tags');
         }
-        return FieldWidget ||
-            fieldRegistryOwl.getAny([viewType + "." + field.type, field.type, "abstract"]) ||
-            fieldRegistry.getAny([viewType + "." + field.type, field.type, "abstract"]);
+        return FieldWidget || fieldRegistry.getAny([viewType + "." + field.type, field.type, "abstract"]);
     },
     /**
      * In some cases, we already have a preloaded record
@@ -184,7 +180,7 @@ var BasicView = AbstractView.extend({
             var def;
             if (fieldNames.length) {
                 if (model.isNew(record.id)) {
-                    def = model.generateDefaultValues(record.id, {
+                    def = model.applyDefaultValues(record.id, {}, {
                         fieldNames: fieldNames,
                         viewType: viewType,
                     });
@@ -197,8 +193,7 @@ var BasicView = AbstractView.extend({
                 }
             }
             return Promise.resolve(def).then(function () {
-                const handle = record.id;
-                return { state: model.get(handle), handle };
+                return model.get(record.id);
             });
         }
         return this._super.apply(this, arguments);
@@ -233,10 +228,11 @@ var BasicView = AbstractView.extend({
 
         // process decoration attributes
         _.each(attrs, function (value, key) {
-            if (key.startsWith('decoration-')) {
+            var splitKey = key.split('-');
+            if (splitKey[0] === 'decoration') {
                 attrs.decorations = attrs.decorations || [];
                 attrs.decorations.push({
-                    name: key,
+                    className: 'text-' + splitKey[1],
                     expression: pyUtils._getPyJSAST(value),
                 });
             }

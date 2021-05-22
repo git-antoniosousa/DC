@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
-
 import odoo
-
-from odoo import tools
 from odoo.tests.common import Form
 from odoo.addons.point_of_sale.tests.common import TestPoSCommon
 
@@ -14,7 +9,6 @@ class TestPoSOtherCurrencyConfig(TestPoSCommon):
 
     def setUp(self):
         super(TestPoSOtherCurrencyConfig, self).setUp()
-
         self.config = self.other_currency_config
         self.product1 = self.create_product('Product 1', self.categ_basic, 10.0, 5)
         self.product2 = self.create_product('Product 2', self.categ_basic, 20.0, 10)
@@ -41,7 +35,6 @@ class TestPoSOtherCurrencyConfig(TestPoSCommon):
         # Product price should be half of the original price because currency rate is 0.5.
         # (see `self._create_other_currency_config` method)
         # Except for product2 where the price is specified in the pricelist.
-
         self.assertAlmostEqual(self.config.pricelist_id.get_product_price(self.product1, 1, self.customer), 5.00)
         self.assertAlmostEqual(self.config.pricelist_id.get_product_price(self.product2, 1, self.customer), 12.99)
         self.assertAlmostEqual(self.config.pricelist_id.get_product_price(self.product3, 1, self.customer), 15.00)
@@ -81,7 +74,6 @@ class TestPoSOtherCurrencyConfig(TestPoSCommon):
         | Total balance       |     0.0 |            0.00 |
         +---------------------+---------+-----------------+
         """
-
         self.open_new_session()
 
         # create orders
@@ -146,7 +138,6 @@ class TestPoSOtherCurrencyConfig(TestPoSCommon):
         | Total balance       |     0.0 |            0.00 |
         +---------------------+---------+-----------------+
         """
-
         self.open_new_session()
 
         # create orders
@@ -222,8 +213,8 @@ class TestPoSOtherCurrencyConfig(TestPoSCommon):
         +---------------------+------------+-----------------+
         | sale_account        |   -7153.90 |        -3576.95 |
         | pos_receivable-cash |    7153.90 |         3576.95 |
-        | expense_account     |    2375.99 |         2375.99 |
-        | output_account      |   -2375.99 |        -2375.99 |
+        | expense_account     |    2375.99 |            0.00 |
+        | output_account      |   -2375.99 |            0.00 |
         +---------------------+------------+-----------------+
         | Total balance       |       0.00 |            0.00 |
         +---------------------+------------+-----------------+
@@ -258,11 +249,19 @@ class TestPoSOtherCurrencyConfig(TestPoSCommon):
 
         expense_line = session_account_move.line_ids.filtered(lambda line: line.account_id == self.expense_account)
         self.assertAlmostEqual(expense_line.balance, 2375.99)
-        self.assertAlmostEqual(expense_line.amount_currency, 2375.99)
+        self.assertFalse(expense_line.currency_id, msg='Should be no currency in the stock expense line.')
+        self.assertAlmostEqual(
+            expense_line.amount_currency, 0.00,
+            msg="Should be zero because the balance is calculated from amounts in company's currency.",
+        )
 
         output_line = session_account_move.line_ids.filtered(lambda line: line.account_id == self.output_account)
         self.assertAlmostEqual(output_line.balance, -2375.99)
-        self.assertAlmostEqual(output_line.amount_currency, -2375.99)
+        self.assertFalse(output_line.currency_id, msg='Should be no currency in the stock output line.')
+        self.assertAlmostEqual(
+            output_line.amount_currency, 0.00,
+            msg="Should be zero because the balance is calculated from amounts in company's currency.",
+        )
 
         self.assertTrue(receivable_line_cash.full_reconcile_id, msg='Cash receivable line should be fully-reconciled.')
         self.assertTrue(output_line.full_reconcile_id, msg='The stock output account line should be fully-reconciled.')
@@ -283,10 +282,10 @@ class TestPoSOtherCurrencyConfig(TestPoSCommon):
         self.assertAlmostEqual(sales_line.amount_currency, -24.5)
 
         receivable_line_cash = session_account_move.line_ids.filtered(lambda line: self.pos_receivable_account == line.account_id and self.cash_pm.name in line.name)
-        self.assertAlmostEqual(receivable_line_cash.balance, 52.43)
-        self.assertAlmostEqual(receivable_line_cash.amount_currency, 26.215)
+        self.assertAlmostEqual(receivable_line_cash.balance, 52.44)
+        self.assertAlmostEqual(receivable_line_cash.amount_currency, 26.22)
 
         tax_line = session_account_move.line_ids.filtered(lambda line: line.account_id == self.tax_received_account)
-        self.assertAlmostEqual(tax_line.balance, -3.43)
-        self.assertAlmostEqual(tax_line.amount_currency, -1.715)
+        self.assertAlmostEqual(tax_line.balance, -3.44)
+        self.assertAlmostEqual(tax_line.amount_currency, -1.72)
         self.assertAlmostEqual(tax_line.tax_base_amount, 49, msg="Value should be in company's currency.")

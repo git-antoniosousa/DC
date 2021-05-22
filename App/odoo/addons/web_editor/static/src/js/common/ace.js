@@ -5,7 +5,6 @@ var ajax = require('web.ajax');
 var config = require('web.config');
 var concurrency = require('web.concurrency');
 var core = require('web.core');
-var dom = require('web.dom');
 var Dialog = require('web.Dialog');
 var Widget = require('web.Widget');
 var localStorage = require('web.local_storage');
@@ -379,20 +378,27 @@ var ViewEditor = Widget.extend({
         }
         this.aceEditor.setSession(editingSession);
 
+        var isCustomized = false;
         if (this.currentType === 'xml') {
             this.$viewID.text(_.str.sprintf(_t("Template ID: %s"), this.views[resID].key));
         } else if (this.currentType === 'scss') {
+            isCustomized = this.scss[resID].customized;
             this.$viewID.text(_.str.sprintf(_t("SCSS file: %s"), resID));
         } else {
+            isCustomized = this.js[resID].customized;
             this.$viewID.text(_.str.sprintf(_t("JS file: %s"), resID));
         }
-        const isCustomized = this._isCustomResource(resID);
         this.$lists[this.currentType].select2('val', resID);
 
         this.$resetButton.toggleClass('d-none', this.currentType === 'xml' || !isCustomized);
 
+        // TODO the warning message is always shown for XML templates but:
+        // 1) We have to implement a way to be able to reset XML templates
+        //    otherwise the warning message is not accurate
+        // 2) We should be able to detect if the XML template is customized to
+        //    not show the warning in that case
         this.$warningMessage.toggleClass('d-none',
-            this.currentType !== 'xml' && (resID.indexOf('/user_custom_') >= 0) || isCustomized);
+            this.currentType !== 'xml' && (resID.indexOf('/user_custom_') >= 0 || isCustomized));
 
         this.aceEditor.resize(true);
     },
@@ -420,23 +426,6 @@ var ViewEditor = Widget.extend({
     _getSelectedResource: function () {
         var value = this.$lists[this.currentType].select2('val');
         return parseInt(value, 10) || value;
-    },
-    /**
-     * Checks resource is customized or not.
-     *
-     * @private
-     * @param {integer|string} resID
-     */
-    _isCustomResource(resID) {
-        // TODO we should be able to detect if the XML template is customized
-        // to not show the warning in that case
-        let isCustomized = false;
-        if (this.currentType === 'scss') {
-            isCustomized = this.scss[resID].customized;
-        } else if (this.currentType === 'js') {
-            isCustomized = this.js[resID].customized;
-        }
-        return isCustomized;
     },
     /**
      * Loads data the ace editor will vizualize and process it. Default behavior
@@ -629,10 +618,6 @@ var ViewEditor = Widget.extend({
 
         var self = this;
         return Promise.all(defs).guardedCatch(function (results) {
-            // some overrides handle errors themselves
-            if (results === undefined) {
-                return;
-            }
             var error = results[1];
             Dialog.alert(self, '', {
                 title: _t("Server error"),
@@ -916,9 +901,8 @@ var ViewEditor = Widget.extend({
      *
      * @private
      */
-    _onSaveClick: function (ev) {
-        const restore = dom.addButtonLoadingEffect(ev.currentTarget);
-        this._saveResources().then(restore).guardedCatch(restore);
+    _onSaveClick: function () {
+        this._saveResources();
     },
     /**
      * Called when the user wants to switch from xml to scss or vice-versa ->

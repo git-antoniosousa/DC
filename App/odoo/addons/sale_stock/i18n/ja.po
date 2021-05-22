@@ -3,20 +3,19 @@
 # 	* sale_stock
 # 
 # Translators:
-# Shunho Kin <s-kin@shonan-innovation.co.jp>, 2020
-# Martin Trigaux, 2020
+# Martin Trigaux, 2019
+# Norimichi Sugimoto <norimichi.sugimoto@tls-ltd.co.jp>, 2019
+# Yoon Nankyung <nankyung.yoon@pro-spire.co.jp>, 2019
+# Tim Siu Lai <tl@roomsfor.hk>, 2019
 # Yoshi Tashiro <tashiro@roomsfor.hk>, 2020
-# Norimichi Sugimoto <norimichi.sugimoto@tls-ltd.co.jp>, 2020
-# Tim Siu Lai <tl@roomsfor.hk>, 2020
-# Yoon Nankyung <nankyung.yoon@pro-spire.co.jp>, 2020
 # Noma Yuki, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-29 13:46+0000\n"
-"PO-Revision-Date: 2020-09-07 08:18+0000\n"
+"POT-Creation-Date: 2019-09-27 09:11+0000\n"
+"PO-Revision-Date: 2019-08-26 09:14+0000\n"
 "Last-Translator: Noma Yuki, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/odoo/teams/41243/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -56,6 +55,9 @@ msgid ""
 "specific.\" role=\"img\" aria-label=\"Values set here are company-"
 "specific.\" groups=\"base.group_multi_company\"/>"
 msgstr ""
+"<span class=\"fa fa-lg fa-building-o\" title=\"ここで設定する値は会社固有です。\" "
+"role=\"img\" aria-label=\"ここで設定する値は会社固有です。\" "
+"groups=\"base.group_multi_company\"/>"
 
 #. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.stock_production_lot_view_form
@@ -98,10 +100,9 @@ msgid "<strong>Incoterm: </strong>"
 msgstr "<strong>貿易条件: </strong>"
 
 #. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.report_invoice_document_inherit_sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.report_saleorder_document_inherit_sale_stock
 msgid "<strong>Incoterm:</strong>"
-msgstr "<strong>貿易条件:</strong>"
+msgstr "<strong>インコタームズ:</strong>"
 
 #. module: sale_stock
 #: model:ir.model.fields,help:sale_stock.field_sale_order_line__product_type
@@ -123,6 +124,11 @@ msgid ""
 "  - Timesheet: the quantity is the sum of hours recorded on tasks linked to this sale line\n"
 "  - Stock Moves: the quantity comes from confirmed pickings\n"
 msgstr ""
+"製品構成に応じて、出荷数量はメカニズムによって自動的に計算できます。\n"
+"-手動:数量はライン上で手動で設定されます\n"
+"-分析から費用:数量は転記された費用からの数量合計です\n"
+"-タイムシート:数量は時間の合計ですこの販売ラインにリンクされたタスクに記録された\n"
+"-在庫移動:数量は確認済みのピッキングから取得されます"
 
 #. module: sale_stock
 #: model:ir.ui.menu,name:sale_stock.menu_aftersale
@@ -131,7 +137,7 @@ msgstr "アフターサービス"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "All planned operations included"
 msgstr ""
@@ -155,17 +161,10 @@ msgstr "開始可能日"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "Available"
 msgstr "処理可能"
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "Available in stock"
-msgstr ""
 
 #. module: sale_stock
 #: model:ir.model.fields,help:sale_stock.field_stock_rules_report__so_route_ids
@@ -193,19 +192,9 @@ msgid "Date:"
 msgstr "日付:"
 
 #. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_res_users__property_warehouse_id
-msgid "Default Warehouse"
-msgstr ""
-
-#. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.view_order_form_inherit_sale_stock
 msgid "Delivery"
 msgstr "配送"
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_cancel__display_delivery_alert
-msgid "Delivery Alert"
-msgstr ""
 
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order__delivery_count
@@ -220,34 +209,12 @@ msgid ""
 "shipping, the shipping policy of the order will be taken into account to "
 "either use the minimum or maximum lead time of the order lines."
 msgstr ""
+"サービス製品の場合、注文ラインの最小リードタイムから計算された、顧客に約束できる納期。配送の場合、注文の配送ポリシーが考慮され、注文ラインの最小または最大のリードタイムが使用されます。"
 
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_res_config_settings__group_lot_on_invoice
 msgid "Display Lots & Serial Numbers on Invoices"
 msgstr "請求書にシリアル/ロット番号表示"
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_account_move__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_account_move_line__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_procurement_group__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_product_template__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_product_product_replenishment__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_stock_rule__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_res_company__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_res_users__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_cancel__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_sale_report__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_location_route__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_move__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_picking__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_production_lot__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rule__display_name
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rules_report__display_name
-msgid "Display Name"
-msgstr "表示名"
 
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__display_qty_widget
@@ -274,16 +241,6 @@ msgstr "オーダと請求書にインコタームズを表示"
 #, python-format
 msgid ""
 "Do not forget to change the partner on the following delivery orders: %s"
-msgstr ""
-
-#. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.res_config_settings_view_form_stock
-msgid "Documentation"
-msgstr "ドキュメント"
-
-#. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.sale_report_product_product_replenishment
-msgid "Draft SO"
 msgstr ""
 
 #. module: sale_stock
@@ -314,24 +271,14 @@ msgstr "予定日"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "Expected Delivery"
-msgstr ""
-
-#. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.view_order_form_inherit_sale_stock
-msgid "Expected:"
-msgstr "予想:"
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__forecast_expected_date
-msgid "Forecast Expected Date"
-msgstr ""
+msgstr "配達予定"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "Forecasted Stock"
 msgstr "予測在庫"
@@ -340,34 +287,6 @@ msgstr "予測在庫"
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__free_qty_today
 msgid "Free Qty Today"
 msgstr ""
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order__show_json_popover
-msgid "Has late picking"
-msgstr ""
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_account_move__id
-#: model:ir.model.fields,field_description:sale_stock.field_account_move_line__id
-#: model:ir.model.fields,field_description:sale_stock.field_procurement_group__id
-#: model:ir.model.fields,field_description:sale_stock.field_product_template__id
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_product_product_replenishment__id
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_stock_rule__id
-#: model:ir.model.fields,field_description:sale_stock.field_res_company__id
-#: model:ir.model.fields,field_description:sale_stock.field_res_config_settings__id
-#: model:ir.model.fields,field_description:sale_stock.field_res_users__id
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order__id
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_cancel__id
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__id
-#: model:ir.model.fields,field_description:sale_stock.field_sale_report__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_location_route__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_move__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_picking__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_production_lot__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rule__id
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rules_report__id
-msgid "ID"
-msgstr "ID"
 
 #. module: sale_stock
 #: model:ir.model.fields,help:sale_stock.field_sale_order__picking_policy
@@ -401,11 +320,6 @@ msgid ""
 msgstr "国際取引条件は国際間の取り引きで使用する、事前に定義された取引条件をまとめたものです。"
 
 #. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.res_users_view_form
-msgid "Inventory"
-msgstr "在庫"
-
-#. module: sale_stock
 #: model:ir.model,name:sale_stock.model_stock_location_route
 msgid "Inventory Routes"
 msgstr "在庫ルート"
@@ -421,42 +335,14 @@ msgid "Is Mto"
 msgstr ""
 
 #. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order__json_popover
-msgid "JSON data for the popover widget"
-msgstr ""
-
-#. module: sale_stock
 #: model:ir.model,name:sale_stock.model_account_move
-msgid "Journal Entry"
+msgid "Journal Entries"
 msgstr "仕訳"
 
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_account_move_line
 msgid "Journal Item"
 msgstr "仕訳項目"
-
-#. module: sale_stock
-#: model:ir.model.fields,field_description:sale_stock.field_account_move____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_account_move_line____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_procurement_group____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_product_template____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_product_product_replenishment____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_report_stock_report_stock_rule____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_res_company____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_res_config_settings____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_res_users____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_cancel____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_sale_order_line____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_sale_report____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_location_route____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_move____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_picking____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_production_lot____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rule____last_update
-#: model:ir.model.fields,field_description:sale_stock.field_stock_rules_report____last_update
-msgid "Last Modified on"
-msgstr "最終更新日"
 
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_stock_production_lot
@@ -500,7 +386,7 @@ msgstr "顧客に約束した日付の許容誤差。サプライチェーンの
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__qty_delivered_method
 msgid "Method to update delivered qty"
-msgstr ""
+msgstr "納品数量を更新する方法"
 
 #. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.res_config_settings_view_form_stock
@@ -509,21 +395,7 @@ msgstr "配送予定を早める日数"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "No enough future availaibility"
-msgstr ""
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "No future availaibility"
-msgstr ""
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "On"
 msgstr "On"
@@ -571,20 +443,6 @@ msgid "Qty To Deliver"
 msgstr ""
 
 #. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "Remaining demand available at"
-msgstr ""
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "Reserved"
-msgstr "引当済"
-
-#. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.res_config_settings_view_form_stock
 msgid ""
 "Reserving products manually in delivery orders or by running the scheduler "
@@ -628,11 +486,6 @@ msgstr "販売分析レポート"
 #: model:ir.model.fields,field_description:sale_stock.field_stock_picking__sale_id
 msgid "Sales Order"
 msgstr "販売オーダ"
-
-#. module: sale_stock
-#: model:ir.model,name:sale_stock.model_sale_order_cancel
-msgid "Sales Order Cancel"
-msgstr ""
 
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_sale_order_line
@@ -700,13 +553,6 @@ msgid "Sold in the last 365 days"
 msgstr "過去365日で販売"
 
 #. module: sale_stock
-#: model_terms:ir.ui.view,arch_db:sale_stock.sale_order_cancel_view_form_inherit
-msgid ""
-"Some products have already been delivered. Returns can be created from the "
-"Delivery Orders."
-msgstr ""
-
-#. module: sale_stock
 #: model:ir.model,name:sale_stock.model_stock_move
 msgid "Stock Move"
 msgstr "在庫移動"
@@ -716,11 +562,6 @@ msgstr "在庫移動"
 #: model:ir.model.fields.selection,name:sale_stock.selection__sale_order_line__qty_delivered_method__stock_move
 msgid "Stock Moves"
 msgstr "在庫移動"
-
-#. module: sale_stock
-#: model:ir.model,name:sale_stock.model_report_stock_report_product_product_replenishment
-msgid "Stock Replenishment Report"
-msgstr "在庫補充レポート"
 
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_stock_rule
@@ -738,13 +579,6 @@ msgid "Stock rule report"
 msgstr "在庫規則レポート"
 
 #. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "The delivery"
-msgstr ""
-
-#. module: sale_stock
 #: code:addons/sale_stock/models/sale_order.py:0
 #, python-format
 msgid ""
@@ -756,14 +590,12 @@ msgstr ""
 #. module: sale_stock
 #: code:addons/sale_stock/models/sale_order.py:0
 #, python-format
-msgid ""
-"This product is packaged by %(pack_size).2f %(pack_name)s. You should sell "
-"%(quantity).2f %(unit)s."
-msgstr ""
+msgid "This product is packaged by %.2f %s. You should sell %.2f %s."
+msgstr "この製品は%.2f %s. でパッケージ化されています。 %.2f %s を売るべきです。"
 
 #. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "This product is replenished on demand."
 msgstr ""
@@ -779,13 +611,8 @@ msgid "Transfers"
 msgstr "運送"
 
 #. module: sale_stock
-#: model:ir.model,name:sale_stock.model_res_users
-msgid "Users"
-msgstr "ユーザ"
-
-#. module: sale_stock
 #. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
+#: code:addons/sale_stock/static/src/xml/qty_at_date.xml:0
 #, python-format
 msgid "View Forecast"
 msgstr "フォーキャスト照会"
@@ -871,11 +698,4 @@ msgstr "が次の数量の代わりにオーダされました:"
 #. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.exception_on_picking
 msgid "processed instead of"
-msgstr ""
-
-#. module: sale_stock
-#. openerp-web
-#: code:addons/sale_stock/static/src/xml/sale_stock.xml:0
-#, python-format
-msgid "will be late."
-msgstr ""
+msgstr "代わりに処理"

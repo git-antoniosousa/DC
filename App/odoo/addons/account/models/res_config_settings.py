@@ -11,39 +11,27 @@ class ResConfigSettings(models.TransientModel):
     currency_id = fields.Many2one('res.currency', related="company_id.currency_id", required=True, readonly=False,
         string='Currency', help="Main currency of the company.")
     currency_exchange_journal_id = fields.Many2one(
-        comodel_name='account.journal',
+        'account.journal',
         related='company_id.currency_exchange_journal_id', readonly=False,
-        string="Currency Exchange Journal",
+        string="Exchange Gain or Loss Journal",
         domain="[('company_id', '=', company_id), ('type', '=', 'general')]",
         help='The accounting journal where automatic exchange differences will be registered')
-    income_currency_exchange_account_id = fields.Many2one(
-        comodel_name="account.account",
-        related="company_id.income_currency_exchange_account_id",
-        string="Gain Account",
-        readonly=False,
-        domain=lambda self: "[('internal_type', '=', 'other'), ('deprecated', '=', False), ('company_id', '=', company_id),\
-                             ('user_type_id', 'in', %s)]" % [self.env.ref('account.data_account_type_revenue').id,
-                                                             self.env.ref('account.data_account_type_other_income').id])
-    expense_currency_exchange_account_id = fields.Many2one(
-        comodel_name="account.account",
-        related="company_id.expense_currency_exchange_account_id",
-        string="Loss Account",
-        readonly=False,
-        domain=lambda self: "[('internal_type', '=', 'other'), ('deprecated', '=', False), ('company_id', '=', company_id),\
-                             ('user_type_id', '=', %s)]" % self.env.ref('account.data_account_type_expenses').id)
     has_chart_of_accounts = fields.Boolean(compute='_compute_has_chart_of_accounts', string='Company has a chart of accounts')
     chart_template_id = fields.Many2one('account.chart.template', string='Template', default=lambda self: self.env.company.chart_template_id,
         domain="[('visible','=', True)]")
     sale_tax_id = fields.Many2one('account.tax', string="Default Sale Tax", related='company_id.account_sale_tax_id', readonly=False)
     purchase_tax_id = fields.Many2one('account.tax', string="Default Purchase Tax", related='company_id.account_purchase_tax_id', readonly=False)
-    tax_calculation_rounding_method = fields.Selection(
-        related='company_id.tax_calculation_rounding_method', string='Tax calculation rounding method', readonly=False)
+    tax_calculation_rounding_method = fields.Selection([
+        ('round_per_line', 'Round calculation of taxes per line'),
+        ('round_globally', 'Round globally calculation of taxes '),
+        ], related='company_id.tax_calculation_rounding_method', string='Tax calculation rounding method', readonly=False)
     module_account_accountant = fields.Boolean(string='Accounting')
     group_analytic_accounting = fields.Boolean(string='Analytic Accounting',
         implied_group='analytic.group_analytic_accounting')
     group_analytic_tags = fields.Boolean(string='Analytic Tags', implied_group='analytic.group_analytic_tags')
     group_warning_account = fields.Boolean(string="Warnings in Invoices", implied_group='account.group_warning_account')
     group_cash_rounding = fields.Boolean(string="Cash Rounding", implied_group='account.group_cash_rounding')
+    group_fiscal_year = fields.Boolean(string='Fiscal Years', implied_group='account.group_fiscal_year')
     # group_show_line_subtotals_tax_excluded and group_show_line_subtotals_tax_included are opposite,
     # so we can assume exactly one of them will be set, and not the other.
     # We need both of them to coexist so we can take advantage of automatic group assignation.
@@ -55,10 +43,6 @@ class ResConfigSettings(models.TransientModel):
         "Show line subtotals with taxes (B2C)",
         implied_group='account.group_show_line_subtotals_tax_included',
         group='base.group_portal,base.group_user,base.group_public')
-    group_show_sale_receipts = fields.Boolean(string='Sale Receipt',
-        implied_group='account.group_sale_receipts')
-    group_show_purchase_receipts = fields.Boolean(string='Purchase Receipt',
-        implied_group='account.group_purchase_receipts')
     show_line_subtotals_tax_selection = fields.Selection([
         ('tax_excluded', 'Tax-Excluded'),
         ('tax_included', 'Tax-Included')], string="Line Subtotals Tax Display",
@@ -88,14 +72,13 @@ class ResConfigSettings(models.TransientModel):
     module_snailmail_account = fields.Boolean(string="Snailmail")
     tax_exigibility = fields.Boolean(string='Cash Basis', related='company_id.tax_exigibility', readonly=False)
     tax_cash_basis_journal_id = fields.Many2one('account.journal', related='company_id.tax_cash_basis_journal_id', string="Tax Cash Basis Journal", readonly=False)
-    account_cash_basis_base_account_id = fields.Many2one(
-        comodel_name='account.account',
-        string="Base Tax Received Account",
-        readonly=False,
-        related='company_id.account_cash_basis_base_account_id',
-        domain=[('deprecated', '=', False)])
+    account_bank_reconciliation_start = fields.Date(string="Bank Reconciliation Threshold",
+        related='company_id.account_bank_reconciliation_start', readonly=False,
+        help="""The bank reconciliation widget won't ask to reconcile payments older than this date.
+               This is useful if you install accounting after having used invoicing for some time and
+               don't want to reconcile all the past payments with bank statements.""")
 
-    qr_code = fields.Boolean(string='Display SEPA QR-code', related='company_id.qr_code', readonly=False)
+    qr_code = fields.Boolean(string='Display SEPA QR code', related='company_id.qr_code', readonly=False)
     invoice_is_print = fields.Boolean(string='Print', related='company_id.invoice_is_print', readonly=False)
     invoice_is_email = fields.Boolean(string='Send Email', related='company_id.invoice_is_email', readonly=False)
     incoterm_id = fields.Many2one('account.incoterms', string='Default incoterm', related='company_id.incoterm_id', help='International Commercial Terms are a series of predefined commercial terms used in international transactions.', readonly=False)
@@ -103,9 +86,6 @@ class ResConfigSettings(models.TransientModel):
     use_invoice_terms = fields.Boolean(
         string='Default Terms & Conditions',
         config_parameter='account.use_invoice_terms')
-
-    # Technical field to hide country specific fields from accounting configuration
-    country_code = fields.Char(related='company_id.country_id.code', readonly=True)
 
     def set_values(self):
         super(ResConfigSettings, self).set_values()
@@ -162,3 +142,15 @@ class ResConfigSettings(models.TransientModel):
                              'Modify your taxes first before disabling this setting.')
             }
         return res
+
+    @api.model
+    def create(self, values):
+        # Optimisation purpose, saving a res_config even without changing any values will trigger the write of all
+        # related values, including the currency_id field on res_company. This in turn will trigger the recomputation
+        # of account_move_line related field company_currency_id which can be slow depending on the number of entries
+        # in the database. Thus, if we do not explicitly change the currency_id, we should not write it on the company
+        if ('company_id' in values and 'currency_id' in values):
+            company = self.env['res.company'].browse(values.get('company_id'))
+            if company.currency_id.id == values.get('currency_id'):
+                values.pop('currency_id')
+        return super(ResConfigSettings, self).create(values)

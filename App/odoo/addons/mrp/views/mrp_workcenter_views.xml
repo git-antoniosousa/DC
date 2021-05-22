@@ -5,8 +5,8 @@
             <field name="context">{'search_default_confirmed': 1}</field>
             <field name="name">Manufacturing Orders</field>
             <field name="res_model">mrp.production</field>
-            <field name="view_mode">tree,kanban,form,gantt</field>
-            <field name="domain">[('bom_id', '!=', False), ('bom_id.operation_ids.workcenter_id', '=', active_id)]</field>
+            <field name="view_mode">tree,form,gantt</field>
+            <field name="domain">[('routing_id', '!=', False),('routing_id.operation_ids.workcenter_id','=', active_id)]</field>
         </record>
 
         <record id="action_work_orders" model="ir.actions.act_window">
@@ -18,12 +18,14 @@
             <field name="domain">[('state', 'not in', ('done', 'cancel'))]</field>
             <field name="context">{'search_default_workcenter_id': active_id}</field>
             <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
-                    No work orders to do!
-                </p><p>
-                    Work orders are operations to do as part of a manufacturing order.
-                    Operations are defined in the bill of materials or added in the manufacturing order directly.
-                </p>
+              <p class="o_view_nocontent_smiling_face">
+                Add a work center
+              </p><p>
+                Work Centers allow you to create and manage manufacturing
+                units. They consist of workers and/or machines, which are
+                considered as units for task assignation as well as capacity
+                and planning forecast.
+              </p>
             </field>
         </record>
 
@@ -70,7 +72,7 @@
             <field name="model">mrp.workcenter.productivity</field>
             <field name="priority">20</field>
             <field name="arch" type="xml">
-                <graph string="Workcenter Productivity" type="pie" sample="1">
+                <graph string="Workcenter Productivity" type="pie">
                     <field name="loss_id"/>
                     <field name="duration" type="measure"/>
                 </graph>
@@ -85,9 +87,9 @@
             <field name="domain">[('workcenter_id','=',active_id')]</field>
             <field name="context">{'search_default_thismonth':True}</field>
             <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
-                    Overall Equipment Effectiveness: no working or blocked time
-                </p>
+              <p class="o_view_nocontent_empty_folder">
+                Overall Equipment Effectiveness: no working or blocked time
+              </p>
             </field>
         </record>
         <record model="ir.actions.act_window" id="mrp_workcenter_productivity_report_blocked">
@@ -140,7 +142,7 @@
             <field name="name">mrp.workcenter.kanban</field>
             <field name="model">mrp.workcenter</field>
             <field name="arch" type="xml">
-                <kanban class="oe_background_grey o_kanban_dashboard o_workcenter_kanban" create="0" sample="1">
+                <kanban class="oe_background_grey o_kanban_dashboard o_workcenter_kanban" create="0">
                     <field name="name"/>
                     <field name="color"/>
                     <field name="workorder_count"/>
@@ -332,7 +334,7 @@
                             </group>
                         </group>
                         <notebook>
-                            <page string="General Information" name="general_info">
+                            <page string="General Information">
                                 <group>
                                     <group string="Production Information" name="capacity">
                                         <label for="time_efficiency"/>
@@ -398,8 +400,9 @@
               <p class="o_view_nocontent_smiling_face">
                 Create a new work center
               </p><p>
-                Manufacturing operations are processed at Work Centers. A Work Center can be composed of
-                workers and/or machines, they are used for costing, scheduling, capacity planning, etc.
+                Manufacturing operations are processed at Work Centers. A Work Center can be composed
+                of workers and/or machines, they are used for costing, scheduling, capacity planning, etc.
+                The Work Centers are defined on the Routing's operations.
               </p>
             </field>
         </record>
@@ -417,7 +420,7 @@
               </p><p>
                 Manufacturing operations are processed at Work Centers. A Work Center can be composed of
                 workers and/or machines, they are used for costing, scheduling, capacity planning, etc.
-                They can be defined via the configuration menu.
+                The Work Centers are defined on the Routing's operations.
               </p>
             </field>
         </record>
@@ -425,8 +428,16 @@
         <menuitem id="menu_view_resource_search_mrp"
             action="mrp_workcenter_action"
             groups="group_mrp_routings"
-            parent="menu_mrp_configuration"
+            parent="menu_mrp_bom"
             sequence="90"/>
+
+        <menuitem id="menu_mrp_dashboard"
+            name="Overview"
+            action="mrp_workcenter_kanban_action"
+            groups="group_mrp_routings"
+            parent="menu_mrp_root"
+            sequence="5"/>
+
 
     <record id="oee_loss_form_view" model="ir.ui.view">
         <field name="name">mrp.workcenter.productivity.loss.form</field>
@@ -494,6 +505,20 @@
         </field>
     </record>
 
+
+    <record model="ir.actions.act_window" id="mrp_workcenter_productivity_loss_action">
+        <field name="name">Productivity Losses</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">mrp.workcenter.productivity.loss</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('manual', '=', 'True')]</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_empty_folder">
+            No productivity loss defined
+          </p>
+        </field>
+    </record>
+
     <record id="oee_search_view" model="ir.ui.view">
         <field name="name">mrp.workcenter.productivity.search</field>
         <field name="model">mrp.workcenter.productivity</field>
@@ -507,7 +532,6 @@
                 <filter name="performance" string="Performance Losses" domain="[('loss_type','=','performance')]"/>
                 <filter name="quality" string="Quality Losses" domain="[('loss_type','=','quality')]"/>
                 <filter name="productive" string="Fully Productive" domain="[('loss_type','=','productive')]"/>
-                <filter name="filter_date_start" string="Date" date="date_start"/>
                 <separator/>
                 <group expand='0' string='Group by...'>
                     <filter string="User" name="user" context="{'group_by': 'create_uid'}"/>
@@ -563,7 +587,7 @@
         <field name="name">mrp.workcenter.productivity.graph</field>
         <field name="model">mrp.workcenter.productivity</field>
         <field name="arch" type="xml">
-            <graph string="Workcenter Productivity" sample="1">
+            <graph string="Workcenter Productivity">
                 <field name="workcenter_id"/>
                 <field name="loss_id"/>
                 <field name="duration" type="measure"/>
@@ -575,7 +599,7 @@
         <field name="name">mrp.workcenter.productivity.pivot</field>
         <field name="model">mrp.workcenter.productivity</field>
         <field name="arch" type="xml">
-            <pivot string="Workcenter Productivity" sample="1">
+            <pivot string="Workcenter Productivity">
                 <field name="date_start" type="row" interval="day"/>
                 <field name="loss_type" type="col"/>
                 <field name="duration" type="measure"/>
@@ -591,9 +615,9 @@
         <field name="domain">[]</field>
         <field name="context">{'search_default_workcenter_group': 1, 'search_default_thismonth':True, 'create':False,'edit':False}</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Overall Equipment Effectiveness: no working or blocked time
-            </p>
+          <p class="o_view_nocontent_empty_folder">
+            Overall Equipment Effectiveness: no working or blocked time
+          </p>
         </field>
     </record>
 

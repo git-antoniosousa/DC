@@ -4,10 +4,9 @@
 import base64
 import logging
 import psycopg2
-import werkzeug.utils
-import werkzeug.wrappers
+import werkzeug
 
-from werkzeug.urls import url_encode
+from werkzeug import url_encode
 
 from odoo import api, http, registry, SUPERUSER_ID, _
 from odoo.exceptions import AccessError
@@ -37,7 +36,7 @@ class MailController(http.Controller):
     def _check_token_and_record_or_redirect(cls, model, res_id, token):
         comparison = cls._check_token(token)
         if not comparison:
-            _logger.warning('Invalid token in route %s', request.httprequest.url)
+            _logger.warning(_('Invalid token in route %s') % request.httprequest.url)
             return comparison, None, cls._redirect_to_messaging()
         try:
             record = request.env[model].browse(res_id).exists()
@@ -127,61 +126,56 @@ class MailController(http.Controller):
         return werkzeug.utils.redirect(url)
 
     @http.route('/mail/read_followers', type='json', auth='user')
-    def read_followers(self, res_model, res_id):
-        request.env['mail.followers'].check_access_rights("read")
-        request.env[res_model].check_access_rights("read")
-        request.env[res_model].browse(res_id).check_access_rule("read")
-        follower_recs = request.env['mail.followers'].search([('res_model', '=', res_model), ('res_id', '=', res_id)])
-
+    def read_followers(self, follower_ids, res_model):
         followers = []
+        # When editing the followers, the "pencil" icon that leads to the edition of subtypes
+        # should be always be displayed and not only when "debug" mode is activated.
+        is_editable = True
+        partner_id = request.env.user.partner_id
         follower_id = None
+        follower_recs = request.env['mail.followers'].sudo().browse(follower_ids)
+        res_ids = follower_recs.mapped('res_id')
+        request.env[res_model].browse(res_ids).check_access_rule("read")
         for follower in follower_recs:
-            if follower.partner_id == request.env.user.partner_id:
-                follower_id = follower.id
+            is_uid = partner_id == follower.partner_id
+            follower_id = follower.id if is_uid else follower_id
             followers.append({
                 'id': follower.id,
-                'partner_id': follower.partner_id.id,
-                'channel_id': follower.channel_id.id,
-                'name': follower.name,
-                'email': follower.email,
-                'is_active': follower.is_active,
-                # When editing the followers, the "pencil" icon that leads to the edition of subtypes
-                # should be always be displayed and not only when "debug" mode is activated.
-                'is_editable': True
+                'name': follower.partner_id.name or follower.channel_id.name,
+                'display_name': follower.partner_id.display_name or follower.channel_id.display_name,
+                'email': follower.partner_id.email if follower.partner_id else None,
+                'res_model': 'res.partner' if follower.partner_id else 'mail.channel',
+                'res_id': follower.partner_id.id or follower.channel_id.id,
+                'is_editable': is_editable,
+                'is_uid': is_uid,
+                'active': follower.partner_id.active or bool(follower.channel_id),
             })
         return {
             'followers': followers,
-            'subtypes': self.read_subscription_data(follower_id) if follower_id else None
+            'subtypes': self.read_subscription_data(res_model, follower_id) if follower_id else None
         }
 
     @http.route('/mail/read_subscription_data', type='json', auth='user')
-    def read_subscription_data(self, follower_id):
+    def read_subscription_data(self, res_model, follower_id):
         """ Computes:
             - message_subtype_data: data about document subtypes: which are
                 available, which are followed if any """
-        request.env['mail.followers'].check_access_rights("read")
-        follower = request.env['mail.followers'].sudo().browse(follower_id)
-        follower.ensure_one()
-        request.env[follower.res_model].check_access_rights("read")
-        request.env[follower.res_model].browse(follower.res_id).check_access_rule("read")
+        followers = request.env['mail.followers'].browse(follower_id)
 
         # find current model subtypes, add them to a dictionary
-        subtypes = request.env['mail.message.subtype'].search([
-            '&', ('hidden', '=', False),
-            '|', ('res_model', '=', follower.res_model), ('res_model', '=', False)])
-        followed_subtypes_ids = set(follower.subtype_ids.ids)
+        subtypes = request.env['mail.message.subtype'].search(['&', ('hidden', '=', False), '|', ('res_model', '=', res_model), ('res_model', '=', False)])
         subtypes_list = [{
             'name': subtype.name,
             'res_model': subtype.res_model,
             'sequence': subtype.sequence,
             'default': subtype.default,
             'internal': subtype.internal,
-            'followed': subtype.id in followed_subtypes_ids,
+            'followed': subtype.id in followers.mapped('subtype_ids').ids,
             'parent_model': subtype.parent_id.res_model,
             'id': subtype.id
         } for subtype in subtypes]
-        return sorted(subtypes_list,
-                      key=lambda it: (it['parent_model'] or '', it['res_model'] or '', it['internal'], it['sequence']))
+        subtypes_list = sorted(subtypes_list, key=lambda it: (it['parent_model'] or '', it['res_model'] or '', it['internal'], it['sequence']))
+        return subtypes_list
 
     @http.route('/mail/view', type='http', auth='public')
     def mail_action_view(self, model=None, res_id=None, access_token=None, **kwargs):
@@ -264,13 +258,9 @@ class MailController(http.Controller):
             'mention_partner_suggestions': request.env['res.partner'].get_static_mention_suggestions(),
             'shortcodes': request.env['mail.shortcode'].sudo().search_read([], ['source', 'substitution', 'description']),
             'menu_id': request.env['ir.model.data'].xmlid_to_res_id('mail.menu_root_discuss'),
+            'is_moderator': request.env.user.is_moderator,
             'moderation_counter': request.env.user.moderation_counter,
             'moderation_channel_ids': request.env.user.moderation_channel_ids.ids,
-            'partner_root': request.env.ref('base.partner_root').sudo().mail_partner_format(),
-            'public_partner': request.env.ref('base.public_partner').sudo().mail_partner_format(),
-            'public_partners': [partner.mail_partner_format() for partner in request.env.ref('base.group_public').sudo().with_context(active_test=False).users.partner_id],
-            'current_partner': request.env.user.partner_id.mail_partner_format(),
-            'current_user_id': request.env.user.id,
         }
         return values
 

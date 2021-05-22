@@ -6,7 +6,7 @@ var tour = require('web_tour.tour');
 tour.register('sale_product_configurator_optional_products_tour', {
     url: "/web",
     test: true,
-}, [tour.stepUtils.showAppsMenuItem(), {
+}, [tour.STEPS.SHOW_APPS_MENU_ITEM, {
     trigger: '.o_app[data-menu-xmlid="sale.sale_menu_root"]',
     edition: 'community'
 }, {
@@ -28,7 +28,7 @@ tour.register('sale_product_configurator_optional_products_tour', {
         $input.trigger(keyDownEvent);
     }
 }, {
-    trigger: 'ul.ui-autocomplete a:contains("Customizable Desk (TEST)")',
+    trigger: 'ul.ui-autocomplete a:contains("Customizable Desk")',
     run: 'click'
 }, {
     trigger: '.o_sale_product_configurator_add'

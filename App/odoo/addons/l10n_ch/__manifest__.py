@@ -26,7 +26,7 @@ Here is how it works:
     - Clicking the 'Send by mail' button will attach two files to your draft mail : the invoice, and the corresponding ISR.
     """,
     'version': '11.0',
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
 
     'depends': ['account', 'l10n_multilang', 'base_iban'],
 
@@ -49,7 +49,6 @@ Here is how it works:
 
     'demo': [
         'demo/account_cash_rounding.xml',
-        'demo/demo_company.xml',
     ],
     'post_init_hook': 'post_init',
 

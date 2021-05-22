@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from email.message import EmailMessage
-from email.utils import make_msgid
-import datetime
-import email
-import email.policy
+from email import encoders
+from email.charset import Charset
+from email.header import Header
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import COMMASPACE, formataddr, formatdate, getaddresses, make_msgid
 import logging
 import re
 import smtplib
-from socket import gaierror, timeout
-from ssl import SSLError
-import sys
 import threading
 
 import html2text
-import idna
 
 from odoo import api, fields, models, tools, _
-from odoo.exceptions import UserError
-from odoo.tools import ustr, pycompat, formataddr
+from odoo.exceptions import except_orm, UserError
+from odoo.tools import ustr, pycompat
 
 _logger = logging.getLogger(__name__)
 _test_logger = logging.getLogger('odoo.tests')
@@ -27,29 +25,15 @@ _test_logger = logging.getLogger('odoo.tests')
 SMTP_TIMEOUT = 60
 
 
-class MailDeliveryException(Exception):
+class MailDeliveryException(except_orm):
     """Specific exception subclass for mail delivery errors"""
-
+    def __init__(self, name, value):
+        super(MailDeliveryException, self).__init__(name, value)
 
 # Python 3: patch SMTP's internal printer/debugger
 def _print_debug(self, *args):
     _logger.debug(' '.join(str(a) for a in args))
 smtplib.SMTP._print_debug = _print_debug
-
-# Python 3: workaround for bpo-35805, only partially fixed in Python 3.8.
-RFC5322_IDENTIFICATION_HEADERS = {'message-id', 'in-reply-to', 'references', 'resent-msg-id'}
-_noFoldPolicy = email.policy.SMTP.clone(max_line_length=None)
-class IdentificationFieldsNoFoldPolicy(email.policy.EmailPolicy):
-    # Override _fold() to avoid folding identification fields, excluded by RFC2047 section 5
-    # These are particularly important to preserve, as MTAs will often rewrite non-conformant
-    # Message-ID headers, causing a loss of thread information (replies are lost)
-    def _fold(self, name, value, *args, **kwargs):
-        if name.lower() in RFC5322_IDENTIFICATION_HEADERS:
-            return _noFoldPolicy._fold(name, value, *args, **kwargs)
-        return super()._fold(name, value, *args, **kwargs)
-
-# Global monkey-patch for our preferred SMTP policy, preserving the non-default linesep
-email.policy.SMTP = IdentificationFieldsNoFoldPolicy(linesep=email.policy.SMTP.linesep)
 
 # Python 2: replace smtplib's stderr
 class WriteToLogger(object):
@@ -59,6 +43,48 @@ smtplib.stderr = WriteToLogger()
 
 def is_ascii(s):
     return all(ord(cp) < 128 for cp in s)
+
+def encode_header(header_text):
+    """Returns an appropriate representation of the given header value,
+       suitable for direct assignment as a header value in an
+       email.message.Message. RFC2822 assumes that headers contain
+       only 7-bit characters, so we ensure it is the case, using
+       RFC2047 encoding when needed.
+
+       :param header_text: unicode or utf-8 encoded string with header value
+       :rtype: string | email.header.Header
+       :return: if ``header_text`` represents a plain ASCII string,
+                return the same 7-bit string, otherwise returns an email.header.Header
+                that will perform the appropriate RFC2047 encoding of
+                non-ASCII values.
+    """
+    if not header_text:
+        return ""
+    header_text = ustr(header_text) # FIXME: require unicode higher up?
+    if is_ascii(header_text):
+        return pycompat.to_text(header_text)
+    return Header(header_text, 'utf-8')
+
+def encode_header_param(param_text):
+    """Returns an appropriate RFC2047 encoded representation of the given
+       header parameter value, suitable for direct assignation as the
+       param value (e.g. via Message.set_param() or Message.add_header())
+       RFC2822 assumes that headers contain only 7-bit characters,
+       so we ensure it is the case, using RFC2047 encoding when needed.
+
+       :param param_text: unicode or utf-8 encoded string with header value
+       :rtype: string
+       :return: if ``param_text`` represents a plain ASCII string,
+                return the same 7-bit string, otherwise returns an
+                ASCII string containing the RFC2047 encoded text.
+    """
+    # For details see the encode_header() method that uses the same logic
+    if not param_text:
+        return ""
+    param_text = ustr(param_text) # FIXME: require unicode higher up?
+    if is_ascii(param_text):
+        return pycompat.to_text(param_text) # TODO: is that actually necessary?
+    return Charset("utf-8").header_encode(param_text)
 
 address_pattern = re.compile(r'([^ ,<@]+@[^> ,]+)')
 
@@ -70,7 +96,41 @@ def extract_rfc2822_addresses(text):
     if not text:
         return []
     candidates = address_pattern.findall(ustr(text))
-    return [formataddr(('', c), charset='ascii') for c in candidates]
+    return [c for c in candidates if is_ascii(c)]
+
+
+def encode_rfc2822_address_header(header_text):
+    """If ``header_text`` contains non-ASCII characters,
+       attempts to locate patterns of the form
+       ``"Name" <address@domain>`` and replace the
+       ``"Name"`` portion by the RFC2047-encoded
+       version, preserving the address part untouched.
+    """
+    def encode_addr(addr):
+        name, email = addr
+        # If s is a <text string>, then charset is a hint specifying the
+        # character set of the characters in the string. The Unicode string
+        # will be encoded using the following charsets in order: us-ascii,
+        # the charset hint, utf-8. The first character set to not provoke a
+        # UnicodeError is used.
+        # -> always pass a text string to Header
+
+        # also Header.__str__ in Python 3 "Returns an approximation of the
+        # Header as a string, using an unlimited line length.", the old one
+        # was "A synonym for Header.encode()." so call encode() directly?
+        name = Header(pycompat.to_text(name)).encode()
+        # if the from does not follow the (name <addr>),* convention, we might
+        # try to encode meaningless strings as address, as getaddresses is naive
+        # note it would also fail on real addresses with non-ascii characters
+        try:
+            return formataddr((name, email))
+        except UnicodeEncodeError:
+            _logger.warning(_('Failed to encode the address %s\n'
+                              'from mail header:\n%s') % (addr, header_text))
+            return ""
+
+    addresses = getaddresses([pycompat.to_text(ustr(header_text))])
+    return COMMASPACE.join(a for a in (encode_addr(addr) for addr in addresses) if a)
 
 
 class IrMailServer(models.Model):
@@ -102,21 +162,16 @@ class IrMailServer(models.Model):
                                                                   "is used. Default priority is 10 (smaller number = higher priority)")
     active = fields.Boolean(default=True)
 
-    def _get_test_email_addresses(self):
-        self.ensure_one()
-        email_from = self.env.user.email
-        if not email_from:
-            raise UserError(_('Please configure an email on the current user to simulate '
-                              'sending an email message via this outgoing server'))
-        return email_from, 'noreply@odoo.com'
-
     def test_smtp_connection(self):
         for server in self:
             smtp = False
             try:
                 smtp = self.connect(mail_server_id=server.id)
                 # simulate sending an email from current user's address - without sending it!
-                email_from, email_to = server._get_test_email_addresses()
+                email_from, email_to = self.env.user.email, 'noreply@odoo.com'
+                if not email_from:
+                    raise UserError(_('Please configure an email on the current user to simulate '
+                                      'sending an email message via this outgoing server'))
                 # Testing the MAIL FROM step should detect sender filter problems
                 (code, repl) = smtp.mail(email_from)
                 if code != 250:
@@ -137,20 +192,8 @@ class IrMailServer(models.Model):
             except UserError as e:
                 # let UserErrors (messages) bubble up
                 raise e
-            except (UnicodeError, idna.core.InvalidCodepoint) as e:
-                raise UserError(_("Invalid server name !\n %s", ustr(e)))
-            except (gaierror, timeout) as e:
-                raise UserError(_("No response received. Check server address and port number.\n %s", ustr(e)))
-            except smtplib.SMTPServerDisconnected as e:
-                raise UserError(_("The server has closed the connection unexpectedly. Check configuration served on this port number.\n %s", ustr(e.strerror)))
-            except smtplib.SMTPResponseException as e:
-                raise UserError(_("Server replied with following exception:\n %s", ustr(e.smtp_error)))
-            except smtplib.SMTPException as e:
-                raise UserError(_("An SMTP exception occurred. Check port number and connection security type.\n %s", ustr(e)))
-            except SSLError as e:
-                raise UserError(_("An SSL exception occurred. Check connection security type.\n %s", ustr(e)))
             except Exception as e:
-                raise UserError(_("Connection Test Failed! Here is what we got instead:\n %s", ustr(e)))
+                raise UserError(_("Connection Test Failed! Here is what we got instead:\n %s") % ustr(e))
             finally:
                 try:
                     if smtp:
@@ -240,10 +283,12 @@ class IrMailServer(models.Model):
 
         if smtp_user:
             # Attempt authentication - will raise if AUTH service not supported
-            local, at, domain = smtp_user.rpartition('@')
-            if at:
-                smtp_user = local + at + idna.encode(domain).decode('ascii')
-            connection.login(smtp_user, smtp_password or '')
+            # The user/password must be converted to bytestrings in order to be usable for
+            # certain hashing schemes, like HMAC.
+            # See also bug #597143 and python issue #5285
+            smtp_user = pycompat.to_text(ustr(smtp_user))
+            smtp_password = pycompat.to_text(ustr(smtp_password))
+            connection.login(smtp_user, smtp_password)
 
         # Some methods of SMTP don't check whether EHLO/HELO was sent.
         # Anyway, as it may have been sent by login(), all subsequent usages should consider this command as sent.
@@ -257,7 +302,7 @@ class IrMailServer(models.Model):
         """Constructs an RFC2822 email.message.Message object based on the keyword arguments passed, and returns it.
 
            :param string email_from: sender email address
-           :param list email_to: list of recipient addresses (to be joined with commas)
+           :param list email_to: list of recipient addresses (to be joined with commas) 
            :param string subject: email subject (no pre-encoding/quoting necessary)
            :param string body: email body, of the type ``subtype`` (by default, plaintext).
                                If html subtype is used, the message will be automatically converted
@@ -279,7 +324,7 @@ class IrMailServer(models.Model):
            :param list email_bcc: optional list of string values for BCC header (to be joined with commas)
            :param dict headers: optional map of headers to set on the outgoing mail (may override the
                                 other headers, including Subject, Reply-To, Message-Id, etc.)
-           :rtype: email.message.EmailMessage
+           :rtype: email.message.Message (usually MIMEMultipart)
            :return: the new RFC2822 email message
         """
         email_from = email_from or self._get_default_from_address()
@@ -288,49 +333,78 @@ class IrMailServer(models.Model):
                            "ICPs, in the server configuration file or with the "\
                            "--email-from startup parameter."
 
+        # Note: we must force all strings to to 8-bit utf-8 when crafting message,
+        #       or use encode_header() for headers, which does it automatically.
+
         headers = headers or {}         # need valid dict later
         email_cc = email_cc or []
         email_bcc = email_bcc or []
         body = body or u''
 
-        msg = EmailMessage(policy=email.policy.SMTP)
-        msg.set_charset('utf-8')
+        email_body = ustr(body)
+        email_text_part = MIMEText(email_body, _subtype=subtype, _charset='utf-8')
+        msg = MIMEMultipart()
 
         if not message_id:
             if object_id:
                 message_id = tools.generate_tracking_message_id(object_id)
             else:
                 message_id = make_msgid()
-        msg['Message-Id'] = message_id
+        msg['Message-Id'] = encode_header(message_id)
         if references:
-            msg['references'] = references
-        msg['Subject'] = subject
-        msg['From'] = email_from
+            msg['references'] = encode_header(references)
+        msg['Subject'] = encode_header(subject)
+        msg['From'] = encode_rfc2822_address_header(email_from)
         del msg['Reply-To']
-        msg['Reply-To'] = reply_to or email_from
-        msg['To'] = email_to
-        if email_cc:
-            msg['Cc'] = email_cc
-        if email_bcc:
-            msg['Bcc'] = email_bcc
-        msg['Date'] = datetime.datetime.utcnow()
-        for key, value in headers.items():
-            msg[pycompat.to_text(ustr(key))] = value
-
-        email_body = ustr(body)
-        if subtype == 'html' and not body_alternative:
-            msg.add_alternative(html2text.html2text(email_body), subtype='plain', charset='utf-8')
-            msg.add_alternative(email_body, subtype=subtype, charset='utf-8')
-        elif body_alternative:
-            msg.add_alternative(ustr(body_alternative), subtype=subtype_alternative, charset='utf-8')
-            msg.add_alternative(email_body, subtype=subtype, charset='utf-8')
+        if reply_to:
+            msg['Reply-To'] = encode_rfc2822_address_header(reply_to)
         else:
-            msg.set_content(email_body, subtype=subtype, charset='utf-8')
+            msg['Reply-To'] = msg['From']
+        msg['To'] = encode_rfc2822_address_header(COMMASPACE.join(email_to))
+        if email_cc:
+            msg['Cc'] = encode_rfc2822_address_header(COMMASPACE.join(email_cc))
+        if email_bcc:
+            msg['Bcc'] = encode_rfc2822_address_header(COMMASPACE.join(email_bcc))
+        msg['Date'] = formatdate()
+        # Custom headers may override normal headers or provide additional ones
+        for key, value in headers.items():
+            msg[pycompat.to_text(ustr(key))] = encode_header(value)
+
+        if subtype == 'html' and not body_alternative:
+            # Always provide alternative text body ourselves if possible.
+            text = html2text.html2text(email_body)
+            alternative_part = MIMEMultipart(_subtype="alternative")
+            alternative_part.attach(MIMEText(text, _charset='utf-8', _subtype='plain'))
+            alternative_part.attach(email_text_part)
+            msg.attach(alternative_part)
+        elif body_alternative:
+            # Include both alternatives, as specified, within a multipart/alternative part
+            alternative_part = MIMEMultipart(_subtype="alternative")
+            body_alternative_ = ustr(body_alternative)
+            alternative_body_part = MIMEText(body_alternative_, _subtype=subtype_alternative, _charset='utf-8')
+            alternative_part.attach(alternative_body_part)
+            alternative_part.attach(email_text_part)
+            msg.attach(alternative_part)
+        else:
+            msg.attach(email_text_part)
 
         if attachments:
             for (fname, fcontent, mime) in attachments:
-                maintype, subtype = mime.split('/') if mime and '/' in mime else ('application', 'octet-stream')
-                msg.add_attachment(fcontent, maintype, subtype, filename=fname)
+                filename_rfc2047 = encode_header_param(fname)
+                if mime and '/' in mime:
+                    maintype, subtype = mime.split('/', 1)
+                    part = MIMEBase(maintype, subtype)
+                else:
+                    part = MIMEBase('application', "octet-stream")
+
+                # The default RFC2231 encoding of Message.add_header() works in Thunderbird but not GMail
+                # so we fix it by using RFC2047 encoding for the filename instead.
+                part.set_param('name', filename_rfc2047)
+                part.add_header('Content-Disposition', 'attachment', filename=filename_rfc2047)
+
+                part.set_payload(fcontent)
+                encoders.encode_base64(part)
+                msg.attach(part)
         return msg
 
     @api.model
@@ -449,22 +523,7 @@ class IrMailServer(models.Model):
             smtp = smtp or self.connect(
                 smtp_server, smtp_port, smtp_user, smtp_password,
                 smtp_encryption, smtp_debug, mail_server_id=mail_server_id)
-
-            if sys.version_info < (3, 7, 4):
-                # header folding code is buggy and adds redundant carriage
-                # returns, it got fixed in 3.7.4 thanks to bpo-34424
-                message_str = message.as_string()
-                message_str = re.sub('\r+(?!\n)', '', message_str)
-
-                mail_options = []
-                if any((not is_ascii(addr) for addr in smtp_to_list + [smtp_from])):
-                    # non ascii email found, require SMTPUTF8 extension,
-                    # the relay may reject it
-                    mail_options.append("SMTPUTF8")
-                smtp.sendmail(smtp_from, smtp_to_list, message_str, mail_options=mail_options)
-            else:
-                smtp.send_message(message, smtp_from, smtp_to_list)
-
+            smtp.sendmail(smtp_from, smtp_to_list, message.as_string())
             # do not quit() a pre-established smtp_session
             if not smtp_session:
                 smtp.quit()
@@ -472,7 +531,7 @@ class IrMailServer(models.Model):
             raise
         except Exception as e:
             params = (ustr(smtp_server), e.__class__.__name__, ustr(e))
-            msg = _("Mail delivery failed via SMTP server '%s'.\n%s: %s", *params)
+            msg = _("Mail delivery failed via SMTP server '%s'.\n%s: %s") % params
             _logger.info(msg)
             raise MailDeliveryException(_("Mail Delivery Failed"), msg)
         return message_id

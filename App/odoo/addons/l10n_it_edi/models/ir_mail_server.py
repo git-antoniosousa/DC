@@ -6,14 +6,17 @@ import io
 import re
 import logging
 import email
-import email.policy
 import dateutil
 import pytz
 import base64
+try:
+    from xmlrpc import client as xmlrpclib
+except ImportError:
+    import xmlrpclib
+
 
 from lxml import etree
 from datetime import datetime
-from xmlrpc import client as xmlrpclib
 
 from odoo import api, fields, models, tools, _
 from odoo.exceptions import ValidationError, UserError
@@ -71,7 +74,7 @@ class FetchmailServer(models.Model):
                         message = bytes(message.data)
                     if isinstance(message, str):
                         message = message.encode('utf-8')
-                    msg_txt = email.message_from_bytes(message, policy=email.policy.SMTP)
+                    msg_txt = email.message_from_bytes(message)
 
                     try:
                         self._attachment_invoice(msg_txt)
@@ -95,7 +98,7 @@ class FetchmailServer(models.Model):
     def _attachment_invoice(self, msg_txt):
         parsed_values = self.env['mail.thread']._message_parse_extract_payload(msg_txt)
         body, attachments = parsed_values['body'], parsed_values['attachments']
-        from_address = msg_txt.get('from')
+        from_address = tools.decode_smtp_header(msg_txt.get('from'))
         for attachment in attachments:
             split_attachment = attachment.fname.rpartition('.')
             if len(split_attachment) < 3:
@@ -131,7 +134,7 @@ class FetchmailServer(models.Model):
 
         invoice_attachment = self.env['ir.attachment'].create({
                 'name': att_name,
-                'datas': base64.encodebytes(att_content),
+                'datas': base64.encodestring(att_content),
                 'type': 'binary',
                 })
 
@@ -140,7 +143,7 @@ class FetchmailServer(models.Model):
         except Exception:
             raise UserError(_('The xml file is badly formatted : {}').format(att_name))
 
-        invoice = self.env.ref('l10n_it_edi.edi_fatturaPA')._create_invoice_from_xml_tree(att_name, tree)
+        invoice = self.env['account.move']._import_xml_invoice(tree)
         invoice.l10n_it_send_state = "new"
         invoice.source_email = from_address
         self._cr.commit()
@@ -240,10 +243,11 @@ class FetchmailServer(models.Model):
             related_invoice.message_post(
                 body=(_("Errors in the E-Invoice :<br/>%s") % (error))
             )
-            related_invoice.activity_schedule(
-                'mail.mail_activity_data_todo',
-                summary='Rejection notice',
-                user_id=related_invoice.invoice_user_id.id if related_invoice.invoice_user_id else self.env.user.id)
+            activity_vals = {
+                'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
+                'invoice_user_id': related_invoice.invoice_user_id.id if related_invoice.invoice_user_id else self.env.user.id
+            }
+            related_invoice.activity_schedule(summary='Rejection notice', **activity_vals)
 
         elif receipt_type == 'MC':
             # Failed delivery notice
@@ -266,7 +270,7 @@ class FetchmailServer(models.Model):
                 unable to deliver the file to the Public Administration. The Exchange System will\
                 contact the PA to report the problem and request that they provide a solution. \
                 During the following 15 days, the Exchange System will try to forward the FatturaPA\
-                file to the Administration in question again. More information:<br/>%s") % (info))
+                file to the Administration in question again. More informations:<br/>%s") % (info))
             )
 
         elif receipt_type == 'NE':
@@ -299,10 +303,11 @@ class FetchmailServer(models.Model):
                 body=(_("Outcome notice: %s<br/>%s") % (related_invoice.l10n_it_send_state, info))
             )
             if related_invoice.l10n_it_send_state == 'delivered_refused':
-                related_invoice.activity_schedule(
-                    'mail.mail_activity_todo',
-                    user_id=related_invoice.invoice_user_id.id if related_invoice.invoice_user_id else self.env.user.id,
-                    summary='Outcome notice: Refused')
+                activity_vals = {
+                    'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
+                    'invoice_user_id': related_invoice.invoice_user_id.id if related_invoice.invoice_user_id else self.env.user.id
+                }
+                related_invoice.activity_schedule(summary='Outcome notice: Refused', **activity_vals)
 
         # elif receipt_type == 'MT':
             # Metadata file
@@ -359,19 +364,6 @@ class FetchmailServer(models.Model):
 class IrMailServer(models.Model):
     _name = "ir.mail_server"
     _inherit = "ir.mail_server"
-    def _get_test_email_addresses(self):
-        self.ensure_one()
-        company = self.env["res.company"].search([("l10n_it_mail_pec_server_id", "=", self.id)], limit=1)
-        if not company:
-            # it's not a PEC server
-            return super()._get_test_email_addresses()
-        email_from = self.smtp_user
-        if not email_from:
-            raise UserError(_('Please configure Username for this Server PEC'))
-        email_to = company.l10n_it_address_recipient_fatturapa
-        if not email_to:
-            raise UserError(_('Please configure Government PEC-mail	in company settings'))
-        return email_from, email_to
 
     def build_email(self, email_from, email_to, subject, body, email_cc=None, email_bcc=None, reply_to=False,
                 attachments=None, message_id=None, references=None, object_id=False, subtype='plain', headers=None,

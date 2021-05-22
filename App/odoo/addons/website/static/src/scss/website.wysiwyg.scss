@@ -1,67 +1,78 @@
-
-@each $font-name, $font-config in $o-theme-font-configs {
-    $url: map-get($font-config, 'url');
-    @if $url {
-        @import url("https://fonts.googleapis.com/css?family=#{unquote($url)}&display=swap");
-    }
-}
-
+// Override css variables to influence the default style of the editor without
+// duplicating the css.
 :root {
-    // Override css variables to influence the default style of the editor
-    // without duplicating the css.
-    @include print-variable('o-we-toolbar-height', $o-navbar-height);
+    --o-we-toolbar-height: #{$o-navbar-height};
+    --o-we-bg-color: #{$o-we-color-dark};
+    --o-we-bg-color-dark: #{$o-we-color-darker};
+    --o-we-color: #{$o-we-color-text-normal};
+    --o-we-color-accent: #{$o-we-color-text-light};
 
-    // Need info about the color of each color palette
-    @for $index from 1 through length($o-color-palettes) - 1 { // Not the user one
-        @each $name, $color in nth($o-color-palettes, $index) {
-            @include print-variable('o-palette-#{$index}-#{$name}', $color);
-        }
-    }
+    --o-we-dropdown-bg-color: #{$o-we-color-darker};
+    --o-we-dropdown-color: #{$o-we-color-text-normal};
+
+    --o-we-snippets-bg-color: #{$o-we-color-normal};
+    --o-we-snippets-color: #{$o-we-color-text-light};
 }
 
 // EDITOR TOP BAR AND POPOVER
-.o_we_website_top_actions {
-    @include o-position-absolute($top: 0, $right: 0);
-    z-index: ($zindex-fixed + $zindex-modal-backdrop) / 2 + 2; // $o-we-zindex
-    display: flex;
-    justify-content: flex-end;
-    width: $o-we-sidebar-width;
-    height: $o-we-sidebar-top-height;
-    background-color: $o-we-sidebar-tabs-bg;
+#web_editor-top-edit {
+    form.navbar-form {
+        @include o-position-absolute(0, 0, 0, auto);
+        z-index: $zindex-popover + 5;
+        height: $o-navbar-height;
+        margin: 0;
+        padding: 0;
+        transition: right 0.4s $o-we-md-ease 0s;
+        border-left: 1px solid $o-we-color-divider;
 
-    .btn-group, .btn {
-        height: 100%;
-    }
-
-    .btn {
-        border: none;
-        border-radius: 0;
-        padding: 0.375rem 0.75rem;
-        font-size: $o-we-font-size;
-        font-family: $o-we-font-family;
-        font-weight: 400;
-        line-height: 1;
-
-        &.btn-primary {
-            @include button-variant($o-brand-primary, $o-brand-primary);
+        .btn-group {
+            height: 100%;
         }
-        &.btn-secondary {
-            @include button-variant($o-we-sidebar-tabs-bg, $o-we-sidebar-tabs-bg);
+
+        .btn {
+            height: 100%;
+            margin: 0;
+            padding: 10px;
+            line-height: 1.2;
+            font-size: 13px;
+            font-family: $o-we-font-family;
+
+            transition: all 0.3s ease 0s;
+            border: none;
+            border-radius: 0;
+
+            .fa {
+                margin-right: $grid-gutter-width/4;
+
+                &.fa-times {
+                    color: $o-we-color-danger;
+                }
+            }
+
+            &.btn-primary {
+                @include button-variant($o-brand-odoo, $o-brand-odoo);
+            }
+
+            &.btn-secondary {
+                @include button-variant($o-we-color-dark, $o-we-color-dark);
+
+                &:hover {
+                    background: rgba(black, 0.5);
+                }
+            }
+
+            &:focus,
+            &:active,
+            &:focus:active {
+                outline: none;
+            }
         }
-        &:focus, &:active, &:focus:active {
-            outline: none;
-            box-shadow: none;
+
+        .dropdown-menu {
+            left: auto;
+            right: 0;
         }
     }
-
-    .dropdown-menu {
-        left: auto;
-        right: 0;
-    }
-}
-
-#oe_snippets {
-    top: $o-we-sidebar-top-height;
 }
 
 .note-statusbar {
@@ -86,150 +97,223 @@ html[lang] > body.editor_enable [data-oe-translation-state] {
     }
 }
 
-// SNIPPET PANEL
-$i: 1;
-@each $font-name, $font-config in $o-theme-font-configs {
-    we-toggler.o_we_option_font_#{$i}, we-button.o_we_option_font_#{$i} > div {
-        font-family: o-safe-get($font-config, 'family', $font-family-base);
-
-        &::before {
-            content: $font-name;
-        }
-    }
-    $i: $i + 1;
-}
-.o_we_add_google_font_btn {
-    border-top: 1px solid currentColor !important;
-}
-
-#oe_snippets > .o_we_customize_panel {
-    .o_we_user_value_widget.o_palette_color_preview_button {
-        > div {
-            display: flex;
-            flex: 1 1 auto;
-            align-items: stretch;
-        }
-        .o_palette_color_preview {
-            flex: 1 0 0;
-            margin: 1px 0;
-            transition: flex 150ms ease 0s;
-        }
-        &:not(:hover) .o_palette_color_preview {
-            &:nth-child(4), &:nth-child(5) {
-                flex: 0 0 0;
-            }
-        }
-    }
-
-    we-select.o_scroll_effects_selector we-button {
-        padding-top: $o-we-item-spacing;
-        padding-bottom: $o-we-item-spacing;
-
-        img {
-            max-height: 80px;
-            width: auto;
-            margin-right: $o-we-item-spacing;
-            margin-left: $o-we-item-spacing * .5;
-        }
-    }
-
-    //----------------------------------------------------------------------
-    // 'Options' Tab Specific Components
-    //----------------------------------------------------------------------
-
-    // Theme Colors Editor
-    .o_we_theme_colors_selector {
-
-        > we-title {
-            display: none
-        }
-        .o_we_so_color_palette.o_we_user_value_widget {
-
-            + .o_we_so_color_palette {
-                margin-left: 10px;
-            }
-            .o_we_color_preview {
-                width: $o-we-sidebar-content-field-colorpicker-size-large;
-                height: $o-we-sidebar-content-field-colorpicker-size-large;
-            }
-        }
-        > div, we-select.o_we_theme_colors_select, we-toggler {
-            display: flex;
-        }
-        > div {
-            align-items: stretch;
-            width: 100%;
-        }
-        we-select.o_we_theme_colors_select {
-            justify-content: flex-end;
-            margin-left: auto;
-
-            > div, we-toggler {
-                height: 100%;
-            }
-        }
-        we-toggler {
-            align-items: center;
-            padding: 0 0.4rem;
-            font-size: 1.5em;
-
-            &:after {
-                content: none;
-            }
-        }
-    }
-
-    // Palettes Dropdown
-    .o_palette_color_preview_button > div {
-        min-height: 24px;
-    }
-
-    // CC Edition
-    .o_we_cc_preview_wrapper {
-        // Use box-shadow rather than border-bottom in order to
-        // avoid misalignments in the 'Options' tab.
-        border: 1px solid;
-        border-color: rgba($o-we-item-standup-color-light, .2) $o-we-sidebar-content-field-dropdown-border-color transparent;
-        box-shadow: 0 1px 0 $o-we-item-standup-color-dark;
-
-        + .o_we_collapse_toggler {
-            height: 35px; // FIXME hardcoded...
-        }
-    }
-}
-
 // SNIPPET OPTIONS
-.o_we_border_preview {
-    display: inline-block;
-    width: 999px;
-    max-width: 100%;
-    margin-bottom: 2px;
-    border-width: 4px;
-    border-bottom: none !important;
-}
-
-.pac-container { // google map autosuggestion
-    z-index: $zindex-modal-backdrop; // > $o-we-zindex
-    width: $o-we-sidebar-width !important;
-    font-size: $o-we-sidebar-font-size;
-    margin-left: -$o-we-sidebar-width/2;
-    border-top: none;
-    background-color: $o-we-sidebar-content-field-dropdown-bg;
-    box-shadow: $o-we-sidebar-content-field-dropdown-shadow;
-    &:after {
-        display: none;
-    }
-    .pac-item {
-        border-top: $o-we-sidebar-content-field-border-width solid lighten($o-we-sidebar-content-field-dropdown-border-color, 15%);
-        border-radius: $o-we-sidebar-content-field-border-radius;
-        background-color: $o-we-sidebar-content-field-clickable-bg;
-        color: $o-we-sidebar-content-field-clickable-color;
-        &:hover {
-            background-color: $o-we-sidebar-content-field-dropdown-item-bg-hover;
-            cursor: pointer;
+.colorpicker {
+    .o_colorpicker_sections {
+        .note-color-palette > div {
+            color: $o-we-color-text-light;
         }
     }
-    .pac-item-query {
-        color: $o-we-sidebar-content-field-clickable-color;
+
+    .o_colorpicker_section {
+        &:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        > button {
+
+            &:hover,
+            &.selected {
+                box-shadow: 0px 0px 2px 2px $o-we-color-light;
+            }
+
+            &[data-event="foreColor"] {
+                background-color: $o-we-color-normal;
+
+                &:before {
+                    background-color: rgba(white, 0.3);
+                }
+            }
+        }
+    }
+
+    .note-palette-title {
+        color: $o-we-color-text-light;
+    }
+
+    .palette-reset {
+        .note-color-reset {
+            color: desaturate(rgba($o-we-color-danger, 0.6), 40%);
+
+            &:hover {
+                color: $o-we-color-danger;
+            }
+        }
+    }
+}
+
+// ANIMATIONS
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+    25% {
+        opacity: 1;
+    }
+    75% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+// MODALS
+body .modal {
+
+    // BACKGROUND IMAGE OPTIONS
+    .o_bg_img_opt_modal .o_bg_img_opt {
+        margin: 15px 0;
+
+        .help-control {
+            @include o-position-absolute(15px, 15px);
+        }
+
+        .help {
+            margin: 15px 0;
+
+            .simulator {
+                position: relative;
+                float: left;
+                margin-right: 15px;
+                width: 120px;
+                height: 100px;
+
+                .bg {
+                    @include o-position-absolute(0, 0, 0, 0);
+                    border: 1px dotted #888787;
+                    background-image: url(/web/image);
+                    background-position: center center;
+                    background-size: cover;
+                }
+
+                .el {
+                    @include o-position-absolute(10px, 0, 10px, 0);
+                    border: 1px solid #222;
+                }
+
+                &.contain_bg {
+                    .bg {
+                        @include o-position-absolute(0, 12px, 20px, 12px);
+                    }
+
+                    .el {
+                        @include o-position-absolute(0, 0, 20px, 0);
+                    }
+                }
+            }
+
+            +* {
+                clear: left;
+            }
+        }
+
+        .o_bg_img_opt_cover_edition {
+            @include o-we-preview-box;
+            padding: 0 25px 25px 25px;
+
+            h6 {
+                color: white;
+                font-weight: bold;
+            }
+
+            .o_bg_img_opt_object {
+                position: relative;
+                background: white;
+                min-height: 10px;
+                @include o-we-preview-content;
+
+                >img {
+                    cursor: crosshair;
+                    border-top: 1px solid #5A5A5A;
+                    border-bottom: 1px solid #111;
+                }
+
+                &:hover .o_focus_point:before {
+                    opacity: 0.5;
+                }
+            }
+
+            .o_bg_img_opt_ui_info {
+                animation: fadeInOut 2s ease forwards;
+                @include o-position-absolute($bottom: 1px, $right: 0);
+                display: block;
+                padding: 3px 13px;
+                background-color: rgba(255, 255, 255, 0.8);
+                color: #333;
+                text-align: center;
+                font-weight: bold;
+                pointer-events: none;
+
+                span {
+                    font-weight: normal;
+                }
+
+                .o_x {
+                    margin-right: 10px
+                }
+            }
+
+            .grid {
+                @include o-position-absolute($top: 33.33%, $left: 0);
+                display: block;
+                width: 100%;
+                height: 1px;
+                background: fade-out(lighten($o-brand-primary, 30%), 0.5);
+                pointer-events: none;
+
+                &.grid-2 {
+                    top: 66.66%
+                }
+
+                &.grid-3 {
+                    top: 0;
+                    left: 33.33%;
+                    width: 1px;
+                    height: 100%
+                }
+
+                &.grid-4 {
+                    top: 0;
+                    left: 66.66%;
+                    width: 1px;
+                    height: 100%
+                }
+            }
+
+            .o_focus_point {
+                @include o-position-absolute($top: 0, $left: 0);
+                width: 30px;
+                height: 30px;
+                border: 2px solid white;
+                border-radius: 100%;
+                margin-top: -15px;
+                margin-left: -15px;
+                box-shadow: 0 0 1px #333;
+                pointer-events: none;
+
+                &.o_with_transition {
+                    transition: all 0.2s ease 0s;
+                }
+
+                &:before {
+                    pointer-events: none;
+                    content: "";
+                    display: block;
+                    width: 100px;
+                    height: 100px;
+                    margin-top: -37px;
+                    margin-left: -37px;
+                    border: 1px solid #EAEAEA;
+                    background: rgba(247, 76, 76, 0);
+                    border-radius: 100em;
+                    opacity: 1;
+                    box-shadow: 0 0 0 100em rgba(0, 0, 0, 0.33);
+                    transition: opacity 0.2s ease 0s;
+                }
+            }
+        }
     }
 }

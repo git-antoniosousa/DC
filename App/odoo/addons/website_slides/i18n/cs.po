@@ -3,23 +3,22 @@
 # 	* website_slides
 # 
 # Translators:
-# Jakub Lohnisky <jakub@lepremier.cz>, 2020
-# Jan Horzinka <jan.horzinka@centrum.cz>, 2020
+# Jakub Lohnisky <jakub@lepremier.cz>, 2019
+# Jan Horzinka <jan.horzinka@centrum.cz>, 2019
+# Michal Veselý <michal@veselyberanek.net>, 2019
 # Martin Trigaux, 2020
-# Jaroslav Helemik Nemec <nemec@helemik.cz>, 2020
-# Michal Veselý <michal@veselyberanek.net>, 2020
 # Damian Brencic <brencicdamian12313@gmail.com>, 2021
 # karolína schusterová <karolina.schusterova@vdp.sk>, 2021
-# Rastislav Brencic <rastislav.brencic@azet.sk>, 2021
 # trendspotter, 2021
+# Rastislav Brencic <rastislav.brencic@azet.sk>, 2021
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-16 13:33+0000\n"
-"PO-Revision-Date: 2020-09-07 08:22+0000\n"
-"Last-Translator: trendspotter, 2021\n"
+"POT-Creation-Date: 2020-04-27 09:22+0000\n"
+"PO-Revision-Date: 2019-08-26 09:16+0000\n"
+"Last-Translator: Rastislav Brencic <rastislav.brencic@azet.sk>, 2021\n"
 "Language-Team: Czech (https://www.transifex.com/odoo/teams/41243/cs/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,7 +27,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel_partner__completed_slides_count
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel_partner__completion
 msgid "# Completed Slides"
 msgstr "Počet dokončených prezentací"
 
@@ -53,14 +52,11 @@ msgid "${user.name} shared a ${object.slide_type} with you!"
 msgstr "${user.name} sdílel ${object.slide_type} s vámi."
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel_partner__completion
-msgid "% Completed Slides"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "&amp;nbsp;"
-msgstr "&amp;nbsp;"
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
+#, python-format
+msgid "&times;"
+msgstr "&times;"
 
 #. module: website_slides
 #. openerp-web
@@ -71,22 +67,14 @@ msgid "(empty)"
 msgstr "(prázdný)"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid ". This way, they will be secured."
-msgstr ""
-
-#. module: website_slides
 #: model:slide.slide,name:website_slides.slide_slide_demo_1_5
 msgid "3 Main Methodologies"
 msgstr "3 hlavní metodologie"
 
 #. module: website_slides
-#: code:addons/website_slides/models/slide_channel.py:0
-#, python-format
-msgid "<b>%s</b> is requesting access to this course."
-msgstr ""
+#: model_terms:ir.ui.view,arch_db:website_slides.slides_home_user_profile_small
+msgid "50%"
+msgstr "50%"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list
@@ -99,21 +87,6 @@ msgid "<b>Order by</b>"
 msgstr "<b>Řadit podle</b>"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"<b>Save & Publish</b> your lesson to make it available to your attendees."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "<b>Save</b> your question."
-msgstr "<b>Uložit</b> vaši otázku."
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_aside_training_category
 msgid "<b>Uncategorized</b>"
 msgstr "<b>Nezařazené</b>"
@@ -123,12 +96,31 @@ msgstr "<b>Nezařazené</b>"
 msgid ""
 "<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
 "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Hello<br/><br/>\n"
+"        Dear ${object.partner_id.name or 'participant'}<br/><br/>\n"
 "        You have been invited to join a new course: ${object.channel_id.name}.\n"
+"        <div style=\"margin: 16px 0px 16px 0px;\">\n"
+"            <a href=\"${(object.channel_id.website_url) | safe}\" style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
+"                Click here to start the course.\n"
+"            </a>\n"
+"        </div>\n"
+"        Enjoy this exclusive content !\n"
 "    </p>\n"
 "</div>\n"
 "            "
 msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Vážený ${object.partner_id.name or 'participant'}<br/><br/>\n"
+"        Byl jste pozván do nového kurzu: ${object.channel_id.name}.\n"
+"        <div style=\"margin: 16px 0px 16px 0px;\">\n"
+"            <a href=\"${(object.channel_id.website_url) | safe}\" style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
+"                Klepnutím sem zahájíte kurz.\n"
+"            </a>\n"
+"        </div>\n"
+"       Užijte si tento exkluzivní obsah!\n"
+"    </p>\n"
+"</div>\n"
+"            "
 
 #. module: website_slides
 #: model:mail.template,body_html:website_slides.slide_template_shared
@@ -145,14 +137,25 @@ msgid ""
 "                        <div style=\"margin: 16px 8px 16px 8px; text-align: center;\">\n"
 "                            <a href=\"${(object.website_url + '?fullscreen=1') if ctx['fullscreen'] else object.website_url | safe}\" style=\"background-color: #875a7b; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px;\">View <strong>${object.name}</strong></a>\n"
 "                        </div>\n"
-"                        % if user.signature\n"
-"                            <br/>\n"
-"                            ${user.signature | safe}\n"
-"                        % endif\n"
 "                    </p>\n"
 "                </div>\n"
 "            "
 msgstr ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"                    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                        Dobrý den<br/><br/>\n"
+"                        ${user.name} s vámi sdílel ${object.slide_type} <strong>${object.name}</strong> \n"
+"                        <div style=\"margin: 16px 8px 16px 8px; text-align: center;\">\n"
+"                            <a href=\"${(object.website_url + '?fullscreen=1') if ctx['fullscreen'] else object.website_url | safe}\">\n"
+"                                <img alt=\"${object.name}\" src=\"${ctx['base_url']}/web/image/slide.slide/${object.id}/image_1024\" style=\"height:auto; width:150px; margin: 16px;\"/>\n"
+"                            </a>\n"
+"                        </div>\n"
+"                        <div style=\"margin: 16px 8px 16px 8px; text-align: center;\">\n"
+"                            <a href=\"${(object.website_url + '?fullscreen=1') if ctx['fullscreen'] else object.website_url | safe}\" style=\"background-color: #875a7b; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px;\">Zobrazit <strong>${object.name}</strong></a>\n"
+"                        </div>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
 
 #. module: website_slides
 #: model:mail.template,body_html:website_slides.slide_template_published
@@ -173,19 +176,10 @@ msgid ""
 "                            <a href=\"${object.website_url}\" style=\"background-color: #875a7b; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px;\">View content</a>\n"
 "                        </div>\n"
 "                        Enjoy this exclusive content!\n"
-"                        % if user.signature\n"
-"                            <br/>\n"
-"                            ${user.signature | safe}\n"
-"                        % endif\n"
 "                    </p>\n"
 "                </div>\n"
 "            "
 msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.user_profile_content
-msgid "<i class=\"fa fa-arrow-right mr-1\"/>All Courses"
-msgstr "<i class=\"fa fa-arrow-right mr-1\"/>Všechny kurzy"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
@@ -216,11 +210,6 @@ msgid "<i class=\"fa fa-circle-o-notch fa-spin mr-2\"/><b>Loading...</b>"
 msgstr "<i class=\"fa fa-circle-o-notch fa-spin mr-2\"/><b>Nahrávání...</b>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.rating_rating_view_kanban_slide_channel
-msgid "<i class=\"fa fa-clock-o mr-2\" aria-label=\"Create date\"/>"
-msgstr ""
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
 msgid ""
 "<i class=\"fa fa-clock-o mr-2\" aria-label=\"Duration\" role=\"img\" "
@@ -239,8 +228,8 @@ msgstr "<i class=\"fa fa-code\"/> K vložení"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
-msgid "<i class=\"fa fa-comments\"/> Comments ("
-msgstr ""
+msgid "<i class=\"fa fa-comments-o\"/> Comments ("
+msgstr "<i class=\"fa fa-comments-o\"/> Komentáře ("
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
@@ -258,8 +247,8 @@ msgstr "<i class=\"fa fa-envelope\"/> E-mail"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
-msgid "<i class=\"fa fa-envelope\"/> Send Email"
-msgstr "<i class=\"fa fa-envelope\"/> Odeslat e-mail"
+msgid "<i class=\"fa fa-envelope-o\"/> Send Email"
+msgstr "<i class=\"fa fa-envelope-o\"/> Odeslat e-mail"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
@@ -318,7 +307,7 @@ msgstr ""
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
 msgid "<i class=\"fa fa-flag mr-2\" aria-label=\"Quiz\" role=\"img\" title=\"Quiz\"/>"
-msgstr "<i class=\"fa fa-flag mr-2\" aria-label=\"Quiz\" role=\"img\" title=\"Quiz\"/>"
+msgstr "<i class=\"fa fa-flag mr-2\" aria-label=\"Kvíz\" role=\"img\" title=\"Kvíz\"/>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_aside_training_category
@@ -331,24 +320,23 @@ msgid "<i class=\"fa fa-flag-checkered text-warning mr-2\"/>Quiz"
 msgstr "<i class=\"fa fa-flag-checkered text-warning mr-2\"/>Kvíz"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.rating_rating_view_kanban_slide_channel
-msgid "<i class=\"fa fa-folder mr-2\" aria-label=\"Open folder\"/>"
-msgstr ""
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list
 msgid "<i class=\"fa fa-folder-o mr-1\"/><span>Add Section</span>"
 msgstr "<i class=\"fa fa-folder-o mr-1\"/><span>Přidat sekci</span>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
-msgid "<i class=\"fa fa-folder-o mr-1\"/>Add a section"
-msgstr ""
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_home
 msgid "<i class=\"fa fa-graduation-cap mr-1\"/>All courses"
 msgstr "<i class=\"fa fa-graduation-cap mr-1\"/>Všechny kurzy"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
+msgid ""
+"<i class=\"fa fa-home d-md-none\"/><span class=\"d-none d-md-inline-block "
+"ml-1\">Back to course</span>"
+msgstr ""
+"<i class=\"fa fa-home d-md-none\"/><span class=\"d-none d-md-inline-block "
+"ml-1\">Zpět ke kurzu</span>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_main
@@ -368,15 +356,6 @@ msgstr "<i class=\"fa fa-home\"/> O ..."
 #: model_terms:ir.ui.view,arch_db:website_slides.course_main
 msgid "<i class=\"fa fa-home\"/> Course"
 msgstr "<i class=\"fa fa-home\"/> Kurz"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
-msgid ""
-"<i class=\"fa fa-home\"/><span class=\"d-none d-md-inline-block ml-1\">Back "
-"to course</span>"
-msgstr ""
-"<i class=\"fa fa-home\"/><span class=\"d-none d-md-inline-block ml-1\">Zpět "
-"do kurzu</span>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
@@ -409,29 +388,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list
 msgid "<i class=\"fa fa-plus mr-1\"/><span>Add Content</span>"
 msgstr "<i class=\"fa fa-plus mr-1\"/><span>Přidat obsah</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
-msgid "<i class=\"fa fa-plus mr-1\"/><span>Add Tag</span>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.lesson_content_quiz_add_buttons
-msgid ""
-"<i class=\"fa fa-plus mr-2\"/>\n"
-"            <span>Add Question</span>"
-msgstr ""
-"<i class=\"fa fa-plus mr-2\"/>\n"
-"            <span>Přidat otázku</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.lesson_content_quiz_add_buttons
-msgid ""
-"<i class=\"fa fa-plus mr-2\"/>\n"
-"            <span>Add Quiz</span>"
-msgstr ""
-"<i class=\"fa fa-plus mr-2\"/>\n"
-"            <span>Přidat kvíz</span>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_kanban
@@ -468,33 +424,11 @@ msgstr "<i class=\"fa fa-share-square\"/> Sdílet"
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
 msgid ""
-"<i class=\"fa fa-sign-out\"/><span class=\"d-none d-md-inline-block "
-"ml-1\">Exit Fullscreen</span>"
+"<i class=\"fa fa-sign-out d-md-none\"/><span class=\"d-none d-md-inline-"
+"block ml-1\">Exit Fullscreen</span>"
 msgstr ""
-"<i class=\"fa fa-sign-out\"/><span class=\"d-none d-md-inline-block "
-"ml-1\">Ukončit celou obrazovku</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.rating_rating_view_kanban_slide_channel
-msgid "<i class=\"fa fa-star text-black-25\" aria-label=\"A star\"/>"
-msgstr "<i class=\"fa fa-star text-black-25\" aria-label=\"A star\"/>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.rating_rating_view_kanban_slide_channel
-msgid "<i class=\"fa fa-star\" aria-label=\"A star\" role=\"img\"/>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.rating_rating_view_kanban_slide_channel
-msgid "<i class=\"fa fa-star-half-o\" aria-label=\"Half a star\" role=\"img\"/>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_all
-msgid ""
-"<i class=\"fa fa-tag mr-2 text-muted\"/>\n"
-"                      My Courses"
-msgstr ""
+"<i class=\"fa fa-sign-out d-md-none\"/><span class=\"d-none d-md-inline-"
+"block ml-1\">Ukončit celoobrazovkový režim</span>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.lesson_card
@@ -511,23 +445,9 @@ msgid "<i class=\"fa fa-thumbs-up fa-1x\" role=\"img\" aria-label=\"Likes\" titl
 msgstr ""
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
-msgid ""
-"<small class=\"text-success\">\n"
-"                                Request already sent\n"
-"                            </small>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_main
-msgid ""
-"<small><span class=\"badge badge-pill badge-success pull-right my-1 py-1 "
-"px-2 font-weight-normal\"><i class=\"fa fa-check\"/> "
-"Completed</span></small>"
-msgstr ""
-"<small><span class=\"badge badge-pill badge-success pull-right my-1 py-1 "
-"px-2 font-weight-normal\"><i class=\"fa fa-check\"/> "
-"Dokončeno</span></small>"
+#: model_terms:ir.ui.view,arch_db:website_slides.lesson_content_quiz
+msgid "<span aria-hidden=\"true\">&amp;times;</span>"
+msgstr "<span aria-hidden=\"true\">&amp;times;</span>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.lesson_card
@@ -535,25 +455,9 @@ msgid "<span class=\"badge badge-danger\">Unpublished</span>"
 msgstr "<span class=\"badge badge-danger\">Nepublikováno</span>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid ""
-"<span class=\"badge badge-info badge-arrow-right font-weight-normal px-2 "
-"py-1 m-1\">New</span>"
-msgstr ""
-"<span class=\"badge badge-info badge-arrow-right font-weight-normal px-2 "
-"py-1 m-1\">Nový</span>"
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.lesson_card
-msgid "<span class=\"badge badge-info\">Preview</span>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_slide
-msgid ""
-"<span class=\"badge badge-light badge-hide border font-weight-normal px-2 "
-"py-1 m-1\">Add Quiz</span>"
-msgstr ""
+msgid "<span class=\"badge badge-info\">Free preview</span>"
+msgstr "<span class=\"badge badge-info\">Ukázka zdarma</span>"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_card
@@ -565,22 +469,6 @@ msgstr ""
 "class=\"fa fa-check\"/> Dokončeno</span>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
-msgid ""
-"<span class=\"badge badge-pill badge-success py-1 px-2 mx-auto\" style"
-"=\"font-size: 1em\"><i class=\"fa fa-check\"/> Completed</span>"
-msgstr ""
-"<span class=\"badge badge-pill badge-success py-1 px-2 mx-auto\" style"
-"=\"font-size: 1em\"><i class=\"fa fa-check\"/> Dokončeno</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
-msgid ""
-"<span class=\"badge badge-pill badge-success py-1 px-2\" style=\"font-size: "
-"1em\"><i class=\"fa fa-check\"/> Completed</span>"
-msgstr ""
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.lesson_card
 msgid ""
 "<span class=\"badge badge-pill badge-success\"><i class=\"fa fa-check\"/> "
@@ -588,28 +476,6 @@ msgid ""
 msgstr ""
 "<span class=\"badge badge-pill badge-success\"><i class=\"fa fa-check\"/> "
 "Dokončeno</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_slide
-msgid ""
-"<span class=\"badge badge-success font-weight-normal px-2 py-1 "
-"m-1\"><span>Preview</span></span>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid ""
-"<span class=\"badge badge-success font-weight-normal px-2 py-1 "
-"m-1\">Preview</span>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid ""
-"<span class=\"badge font-weight-bold px-2 py-1 m-1 badge-warning\">\n"
-"                            <i class=\"fa fa-fw fa-flag\"/> 10 xp\n"
-"                        </span>"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
@@ -630,7 +496,8 @@ msgstr ""
 "                                    Vytvořte projekt Google a získejte klíč"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_link
+#: model_terms:ir.ui.view,arch_db:website_slides.course_main
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_media
 msgid "<span class=\"fa fa-clipboard\"> Copy Text</span>"
 msgstr "<span class=\"fa fa-clipboard\"> Kopírovat text</span>"
 
@@ -655,6 +522,20 @@ msgstr ""
 "e-mail</span>"
 
 #. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_media
+msgid ""
+"<span class=\"form-text text-muted\">Use permanent link to share in social "
+"media</span>"
+msgstr ""
+"<span class=\"form-text text-muted\">Použít trvalý odkaz ke sdílení přes "
+"sociální media</span>"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
+msgid "<span class=\"ml-2\">Hours</span>"
+msgstr "<span class=\"ml-2\">Hodiny</span>"
+
+#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.res_config_settings_view_form
 msgid ""
 "<span class=\"o_form_label\">Slides</span>\n"
@@ -667,11 +548,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_slides.res_partner_view_form
 msgid "<span class=\"o_stat_text\">Courses</span>"
 msgstr "<span class=\"o_stat_text\">Kurzy</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_card_information_arrow
-msgid "<span class=\"o_wslides_arrow\">New Content</span>"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_aside_training
@@ -689,19 +565,9 @@ msgid "<span class=\"text-muted\">Attendees</span>"
 msgstr "<span class=\"text-muted\">Účastníci</span>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid "<span class=\"text-muted\">Common tasks for a computer scientist</span>"
-msgstr ""
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_kanban
 msgid "<span class=\"text-muted\">Contents</span>"
 msgstr "<span class=\"text-muted\">Obsah</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid "<span class=\"text-muted\">Parts of computer science</span>"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_kanban
@@ -716,54 +582,19 @@ msgstr ""
 "class=\"o_stat_text\">Dokončeno</span>"
 
 #. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
+msgid "<span name=\"total_slides_label\" class=\"o_stat_text\">Contents</span>"
+msgstr "<span name=\"total_slides_label\" class=\"o_stat_text\">Obsah</span>"
+
+#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
 msgid "<span> hours</span>"
 msgstr "<span> hodin</span>"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_modal_header
+#: model_terms:ir.ui.view,arch_db:website_slides.course_main
 msgid "<span>&amp;times;</span>"
 msgstr "<span>&amp;times;</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_main
-msgid "<span>Add Tag</span>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid "<span>Answering Questions</span>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid "<span>Asking Question</span>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid "<span>Asking the right question</span>"
-msgstr "<span>Kladení správné otázky</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid "<span>Logic</span>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid "<span>Mathematics</span>"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_slide
-msgid "<span>Preview</span>"
-msgstr "<span>Náhled</span>"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_sample
-msgid "<span>Science</span>"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
@@ -788,22 +619,12 @@ msgid "A fruit"
 msgstr "ovoce"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"A good course has structure and a table of content. Your first section will "
-"be the <b>Introduction</b>."
-msgstr ""
-
-#. module: website_slides
 #: model:slide.slide,name:website_slides.slide_slide_demo_1_4
 msgid "A little chat with Harry Potted"
 msgstr "Pár slov s Harrym Potterem"
 
 #. module: website_slides
 #: model:slide.channel,description:website_slides.slide_channel_demo_2_gard2
-#: model:slide.channel,description_short:website_slides.slide_channel_demo_2_gard2
 msgid ""
 "A lot of nice documentation: trees, wood, gardens. A gold mine for "
 "references."
@@ -868,31 +689,15 @@ msgid "API Key"
 msgstr "Klíč API"
 
 #. module: website_slides
-#: code:addons/website_slides/models/slide_channel.py:0
-#, python-format
-msgid "Access Granted"
-msgstr ""
+#: model_terms:slide.slide,html_content:website_slides.slide_slide_demo_1_4
+#: model_terms:slide.slide,html_content:website_slides.slide_slide_demo_2_1
+msgid "About us"
+msgstr "O nás"
 
 #. module: website_slides
 #: model:ir.model,name:website_slides.model_res_groups
 msgid "Access Groups"
 msgstr "Přístupové skupiny"
-
-#. module: website_slides
-#: code:addons/website_slides/models/slide_channel.py:0
-#, python-format
-msgid "Access Refused"
-msgstr "Přístup odmítnut"
-
-#. module: website_slides
-#: model:mail.activity.type,name:website_slides.mail_activity_data_access_request
-msgid "Access Request"
-msgstr ""
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__has_requested_access
-msgid "Access Requested"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
@@ -917,33 +722,6 @@ msgid "Active"
 msgstr "Aktivní"
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_ids
-msgid "Activities"
-msgstr "Aktivity"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_exception_decoration
-msgid "Activity Exception Decoration"
-msgstr "Dekorace výjimky aktivity"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_state
-msgid "Activity State"
-msgstr "Stav aktivity"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_type_icon
-msgid "Activity Type Icon"
-msgstr "Ikona typu aktivity"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_tag_add.js:0
-#, python-format
-msgid "Add"
-msgstr "Přidat"
-
-#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__karma_slide_comment
 msgid "Add Comment"
 msgstr "Přidat komentář"
@@ -959,16 +737,9 @@ msgid "Add Review"
 msgstr "Přidat recenzi"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 msgid "Add Section"
 msgstr "Přidat sekci"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_main
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
-msgid "Add Tag"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.actions.act_window,help:website_slides.slide_slide_action
@@ -983,28 +754,6 @@ msgid "Add a section"
 msgstr "Přidat sekci"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_tag_add.js:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_group_view_form
-#, python-format
-msgid "Add a tag"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#, python-format
-msgid "Add an answer below this one"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#, python-format
-msgid "Add comment on this answer"
-msgstr "Přidat komentář k této odpovědi"
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_invite_view_form
 msgid "Add existing contacts..."
 msgstr "Přidat existující kontakty ..."
@@ -1017,22 +766,6 @@ msgid ""
 msgstr ""
 "Na konci lekce přidejte kvízy, abyste vyhodnotili, co vaši studenti "
 "pochopili."
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide__slide_resource_ids
-msgid "Additional Resource for this slide"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
-#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
-msgid "Additional Resources"
-msgstr ""
-
-#. module: website_slides
-#: model:ir.model,name:website_slides.model_slide_slide_resource
-msgid "Additional resource for a particular slide"
-msgstr ""
 
 #. module: website_slides
 #: model:slide.channel.tag,name:website_slides.slide_channel_tag_level_advanced
@@ -1065,14 +798,8 @@ msgstr "Všechny otázky musí být zodpovězeny!"
 
 #. module: website_slides
 #: model:slide.channel,description:website_slides.slide_channel_demo_5_furn2
-#: model:slide.channel,description_short:website_slides.slide_channel_demo_5_furn2
 msgid "All you need to know about furniture creation."
 msgstr "Vše, co potřebujete vědět o výrobě  nábytku."
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide__slide_resource_downloadable
-msgid "Allow Download"
-msgstr "Umožnit stahování"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__is_preview
@@ -1093,13 +820,8 @@ msgstr "Umožnit hodnocení kurzu"
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
 #, python-format
-msgid "Allow students to review your course"
-msgstr ""
-
-#. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_slide__slide_resource_downloadable
-msgid "Allow the user to download the content of the slide."
-msgstr "Umožněte uživateli stáhnout obsah snímku."
+msgid "Allow review on Course"
+msgstr "Umožnit recenzování kurzu"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__channel_allow_comment
@@ -1107,22 +829,10 @@ msgid "Allows comment"
 msgstr "Umožnit komentování"
 
 #. module: website_slides
-#: code:addons/website_slides/models/slide_channel.py:0
-#, python-format
-msgid "Already Requested"
-msgstr ""
-
-#. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/js/slides_upload.js:0
 #, python-format
 msgid "Already installing \"%s\"."
-msgstr ""
-
-#. module: website_slides
-#: code:addons/website_slides/models/slide_channel.py:0
-#, python-format
-msgid "Already member"
 msgstr ""
 
 #. module: website_slides
@@ -1144,7 +854,12 @@ msgid "Answer"
 msgstr "Odpovědět"
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_gamification_challenge__challenge_category
+#: model:ir.model,name:website_slides.model_slide_answer
+msgid "Answer for a slide question"
+msgstr "Odpověď na otázku z obrazovky prezentace"
+
+#. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_gamification_challenge__category
 msgid "Appears in"
 msgstr "Objeví se v"
 
@@ -1185,13 +900,6 @@ msgstr "Archivováno"
 #, python-format
 msgid "Are you sure you want to archive this slide ?"
 msgstr "Opravdu chcete tento snímek prezentace archivovat?"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#, python-format
-msgid "Are you sure you want to delete this question :"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
@@ -1243,14 +951,14 @@ msgid "Attendees of %s"
 msgstr "Účastníci %s"
 
 #. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite__author_id
+msgid "Author"
+msgstr "Autor"
+
+#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__enroll_group_ids
 msgid "Auto Enroll Groups"
 msgstr "Skupiny automatického zápisu"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slides_home_user_achievements_small
-msgid "Badges"
-msgstr "Odznaky"
 
 #. module: website_slides
 #: model:slide.channel.tag,name:website_slides.slide_channel_tag_level_basic
@@ -1266,13 +974,6 @@ msgstr "Základy tvorby nábytku"
 #: model:slide.channel,name:website_slides.slide_channel_demo_0_gard_0
 msgid "Basics of Gardening"
 msgstr "Základy zahradnictví"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_unsubscribe.xml:0
-#, python-format
-msgid "Be notified when a new content is added."
-msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__can_comment
@@ -1303,11 +1004,8 @@ msgstr "Může hlasovat"
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_enroll_email.js:0
 #: code:addons/website_slides/static/src/js/slides_slide_archive.js:0
 #: code:addons/website_slides/static/src/js/slides_upload.js:0
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_invite_view_form
 #, python-format
 msgid "Cancel"
@@ -1341,7 +1039,6 @@ msgstr "Cetrifikace"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_res_config_settings__module_website_slides_survey
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_all
 msgid "Certifications"
 msgstr "Certifikace"
 
@@ -1351,13 +1048,6 @@ msgstr "Certifikace"
 #: model:gamification.goal.definition,name:website_slides.badge_data_certification_goal
 msgid "Certified Knowledge"
 msgstr "Certifikovaná znalost"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "Change video privacy settings"
-msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_partner__channel_id
@@ -1393,14 +1083,10 @@ msgstr ""
 "Kanál byl ověřen, i když jsou prezentace / lekce přidány po dokončení."
 
 #. module: website_slides
-#: model:ir.model,name:website_slides.model_slide_channel_tag_group
-msgid "Channel/Course Groups"
-msgstr ""
-
-#. module: website_slides
 #: model:ir.model,name:website_slides.model_slide_channel_tag
-msgid "Channel/Course Tag"
-msgstr ""
+#: model:ir.model,name:website_slides.model_slide_channel_tag_group
+msgid "Channel/Course tags"
+msgstr "Značky kanálů / kurzů"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag__channel_ids
@@ -1417,14 +1103,6 @@ msgstr "Tahák"
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #, python-format
-msgid "Check Profile"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#, python-format
 msgid "Check answers"
 msgstr "Zkontrolovat odpovědi"
 
@@ -1437,10 +1115,10 @@ msgstr "Zkontroluj si své odpovědi"
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
+#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
 #, python-format
-msgid "Choose a <b>File</b> on your computer."
-msgstr ""
+msgid "Choose a Cover Image"
+msgstr "Vybrat titulní obrázek"
 
 #. module: website_slides
 #. openerp-web
@@ -1448,13 +1126,6 @@ msgstr ""
 #, python-format
 msgid "Choose a PDF or an Image"
 msgstr "Vyberte PDF nebo obrázek"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
-#, python-format
-msgid "Choose a layout"
-msgstr ""
 
 #. module: website_slides
 #: model:slide.channel,name:website_slides.slide_channel_demo_3_furn0
@@ -1469,66 +1140,24 @@ msgstr "Vymazat filtry"
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_all
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_home
-msgid ""
-"Click here to send a verification email allowing you to participate at the "
-"eLearning."
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Click here to start the course"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_all
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_home
 msgid "Click on \"New\" in the top-right corner to write your first course."
 msgstr "Kliknutím na \"Nový\" v pravém horním rohu napíšete svůj první kurz."
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "Click on <b>Save</b> to apply changes."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "Click on the <b>Create</b> button to create your first course."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "Click on your <b>Course</b> to go back to the table of content."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_modal_header
+#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
+#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
+#: model_terms:ir.ui.view,arch_db:website_slides.course_main
+#: model_terms:ir.ui.view,arch_db:website_slides.lesson_content_quiz
 #, python-format
 msgid "Close"
 msgstr "Zavřít"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_group_view_form
-msgid "Color"
-msgstr "Barva"
-
-#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__color
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag__color
 msgid "Color Index"
 msgstr "Barevný index"
-
-#. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_channel_tag__color
-msgid "Color to apply to this tag (including in website)."
-msgstr ""
 
 #. module: website_slides
 #: model:slide.tag,name:website_slides.slide_tag_demo_colorful
@@ -1536,33 +1165,10 @@ msgid "Colorful"
 msgstr "Pestrý"
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_answer__comment
-msgid "Comment"
-msgstr "Komentář"
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
 msgid "Comments"
 msgstr "Komentáře"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
-#, python-format
-msgid ""
-"Common tasks for a computer scientist is asking the right questions and "
-"answering                               questions. In this course, you'll "
-"study those topics with activities about mathematics, science and logic."
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
-msgid ""
-"Common tasks for a computer scientist is asking the right questions and "
-"answering questions. In this course, you'll study those topics with "
-"activities about mathematics, science and logic."
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
@@ -1626,14 +1232,6 @@ msgid "Compose Email"
 msgstr "Napsat e-mail"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
-#, python-format
-msgid "Computer Science for kids"
-msgstr ""
-
-#. module: website_slides
 #: model:ir.model.fields,help:website_slides.field_slide_channel__enroll
 msgid "Condition to enroll: everyone, on invite, on payment (sale bridge)."
 msgstr ""
@@ -1650,56 +1248,15 @@ msgid "Configuration"
 msgstr "Konfigurace"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"Congratulations! Your first lesson is available. Let's see the options "
-"available here. The tag \"<b>New</b>\" indicates that this lesson was "
-"created less than 7 days ago."
-msgstr ""
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slides_home_user_profile_small
 msgid "Congratulations, you have reached the last rank!"
 msgstr "Gratulujeme, dosáhli jste poslední pozice!"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"Congratulations, you've created your first course.<br/>Click on the title of"
-" this content to see it in fullscreen mode."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"Congratulations, your course has been created, but there isn't any content "
-"yet. First, let's add a <b>Section</b> to give your course a structure."
-msgstr ""
 
 #. module: website_slides
 #: model:ir.model,name:website_slides.model_res_partner
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_partner_view_tree
 msgid "Contact"
 msgstr "Kontakt"
-
-#. module: website_slides
-#: code:addons/website_slides/models/slide_channel.py:0
-#: model_terms:slide.channel,enroll_msg:website_slides.slide_channel_demo_0_gard_0
-#: model_terms:slide.channel,enroll_msg:website_slides.slide_channel_demo_1_gard1
-#: model_terms:slide.channel,enroll_msg:website_slides.slide_channel_demo_2_gard2
-#: model_terms:slide.channel,enroll_msg:website_slides.slide_channel_demo_3_furn0
-#: model_terms:slide.channel,enroll_msg:website_slides.slide_channel_demo_4_furn1
-#: model_terms:slide.channel,enroll_msg:website_slides.slide_channel_demo_5_furn2
-#: model_terms:slide.channel,enroll_msg:website_slides.slide_channel_demo_6_furn3
-#, python-format
-msgid "Contact Responsible"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.res_config_settings_view_form
@@ -1710,14 +1267,19 @@ msgstr "Obraťte se na všechny členy kurzu hromadnou poštou"
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #, python-format
-msgid "Contact the responsible to enroll."
-msgstr ""
+msgid "Contact the website administrator"
+msgstr "Obraťte se na správce webstránky"
 
 #. module: website_slides
 #: model_terms:slide.slide,html_content:website_slides.slide_slide_demo_1_4
 #: model_terms:slide.slide,html_content:website_slides.slide_slide_demo_2_1
 msgid "Contact us"
 msgstr "Kontaktujte nás"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
+msgid "Contact website administrator."
+msgstr "Obraťte se na správce webstránky."
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__total_slides
@@ -1759,7 +1321,6 @@ msgstr "Název obsahu"
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite__body
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_courses_content
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_report_contents
-#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_tree
 msgid "Contents"
 msgstr "Obsah"
@@ -1779,30 +1340,11 @@ msgid "Copy Link"
 msgstr "Kopírovat odkaz"
 
 #. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_1_4_question_0_0
-#: model:slide.answer,comment:website_slides.slide_slide_demo_2_0_question_0_1
-#: model:slide.answer,comment:website_slides.slide_slide_demo_2_0_question_1_1
-msgid "Correct !"
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_0_4_question_1_0
-msgid "Correct ! A shovel is the perfect tool to dig a hole."
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_0_4_question_0_0
-msgid "Correct ! A strawberry is a fruit because it's the product of a tree."
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_1_4_question_1_0
-msgid "Correct ! Congratulations you have time to loose"
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_5_3_question_0_0
-msgid "Correct ! You did it !"
+#: code:addons/website_slides/controllers/main.py:0
+#, python-format
+msgid ""
+"Could not fetch data from url. Document or access right not available.\n"
+"Here is the received response: %s"
 msgstr ""
 
 #. module: website_slides
@@ -1815,7 +1357,6 @@ msgstr ""
 "Nelze načíst data z URL. Dokument nebo přístupové právo není k dispozici: %s"
 
 #. module: website_slides
-#: model:ir.model,name:website_slides.model_slide_channel
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__channel_id
 #: model_terms:ir.ui.view,arch_db:website_slides.rating_rating_view_search_slide_channel
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_search
@@ -1829,12 +1370,6 @@ msgstr "Kurs"
 #: model:ir.model.fields,field_description:website_slides.field_res_users__slide_channel_count
 msgid "Course Count"
 msgstr "Počet kurzů"
-
-#. module: website_slides
-#: model:ir.actions.act_window,name:website_slides.slide_channel_tag_group_action
-#: model:ir.ui.menu,name:website_slides.website_slides_menu_config_course_groups
-msgid "Course Groups"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_view_form
@@ -1854,13 +1389,18 @@ msgstr "Značka kurzu skupin"
 
 #. module: website_slides
 #: model:ir.actions.act_window,name:website_slides.slide_channel_tag_action
+#: model:ir.actions.act_window,name:website_slides.slide_channel_tag_group_action
+#: model:ir.ui.menu,name:website_slides.website_slides_menu_config_course_tags
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_view_search
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_view_tree
 msgid "Course Tags"
 msgstr "Značky kurzu"
 
 #. module: website_slides
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
+#, python-format
 msgid "Course Title"
 msgstr "Název kurzu"
 
@@ -1868,12 +1408,6 @@ msgstr "Název kurzu"
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__karma_gen_channel_finish
 msgid "Course finished"
 msgstr "Kurz dokončen"
-
-#. module: website_slides
-#: code:addons/website_slides/models/slide_channel.py:0
-#, python-format
-msgid "Course not published yet"
-msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__karma_gen_channel_rank
@@ -1886,18 +1420,16 @@ msgid "Course type"
 msgstr ""
 
 #. module: website_slides
-#: code:addons/website_slides/models/website.py:0
 #: model:ir.actions.act_window,name:website_slides.slide_channel_action_report
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_courses
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_courses_courses
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_report_courses
-#: model:website.menu,name:website_slides.website_menu_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_nav
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_graph
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_search
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_tree
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_view_tree_report
-#, python-format
+#: model:website.menu,name:website_slides.website_menu_slides
 msgid "Courses"
 msgstr "Kurzy"
 
@@ -1921,22 +1453,9 @@ msgstr "Vytvořit kurz"
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_tag_add.js:0
 #: code:addons/website_slides/static/src/js/slides_upload.js:0
 #, python-format
 msgid "Create new %s '%s'"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/website_slides.editor.js:0
-#, python-format
-msgid "Create new Tag '%s'"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.actions.act_window,help:website_slides.slide_slide_action_report
-msgid "Create new content for your eLearning"
 msgstr ""
 
 #. module: website_slides
@@ -1951,7 +1470,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__create_uid
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_link__create_uid
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_partner__create_uid
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__create_uid
 #: model:ir.model.fields,field_description:website_slides.field_slide_tag__create_uid
 msgid "Created by"
 msgstr "Vytvořeno od"
@@ -1968,7 +1486,6 @@ msgstr "Vytvořeno od"
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__create_date
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_link__create_date
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_partner__create_date
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__create_date
 #: model:ir.model.fields,field_description:website_slides.field_slide_tag__create_date
 msgid "Created on"
 msgstr "Vytvořeno"
@@ -1989,7 +1506,7 @@ msgid "DIY Furniture"
 msgstr "Vlastnoručně vyrobený nábytek"
 
 #. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_gamification_challenge__challenge_category
+#: model:ir.model.fields,help:website_slides.field_gamification_challenge__category
 msgid "Define the visibility of the challenge through menus"
 msgstr "Definujte viditelnost výzvy prostřednictvím nabídek"
 
@@ -2000,37 +1517,14 @@ msgstr "Smazat"
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
-#, python-format
-msgid "Delete Question"
-msgstr ""
-
-#. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_channel__promote_strategy
-msgid ""
-"Depending the promote strategy, a slide will appear on the top of the course's page :\n"
-" * Latest Published : the slide created last.\n"
-" * Most Voted : the slide which has to most votes.\n"
-" * Most Viewed ; the slide which has been viewed the most.\n"
-" * Specific : You choose the slide to appear.\n"
-" * None : No slides will be shown.\n"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__description
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel__description_html
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__description
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
 #, python-format
 msgid "Description"
 msgstr "Popis"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__description_html
-msgid "Detailed Description"
-msgstr ""
 
 #. module: website_slides
 #: model:slide.question,question:website_slides.slide_slide_demo_1_4_question_1
@@ -2040,12 +1534,10 @@ msgstr "Přečetli jste celý článek?"
 #. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/js/slides_category_add.js:0
-#: code:addons/website_slides/static/src/js/slides_course_tag_add.js:0
 #: code:addons/website_slides/static/src/js/slides_course_unsubscribe.js:0
 #: code:addons/website_slides/static/src/js/slides_course_unsubscribe.js:0
-#: code:addons/website_slides/static/src/js/slides_upload.js:0
-#: code:addons/website_slides/static/src/js/slides_upload.js:0
 #: code:addons/website_slides/static/src/js/website_slides.editor.js:0
+#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
 #, python-format
 msgid "Discard"
 msgstr "Zrušit"
@@ -2068,12 +1560,6 @@ msgid "Display"
 msgstr "Zobrazit"
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_gamification_challenge__display_name
-#: model:ir.model.fields,field_description:website_slides.field_ir_http__display_name
-#: model:ir.model.fields,field_description:website_slides.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:website_slides.field_res_groups__display_name
-#: model:ir.model.fields,field_description:website_slides.field_res_partner__display_name
-#: model:ir.model.fields,field_description:website_slides.field_res_users__display_name
 #: model:ir.model.fields,field_description:website_slides.field_slide_answer__display_name
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__display_name
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite__display_name
@@ -2085,9 +1571,7 @@ msgstr "Zobrazit"
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__display_name
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_link__display_name
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_partner__display_name
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__display_name
 #: model:ir.model.fields,field_description:website_slides.field_slide_tag__display_name
-#: model:ir.model.fields,field_description:website_slides.field_website__display_name
 msgid "Display Name"
 msgstr "Zobrazované jméno"
 
@@ -2123,19 +1607,12 @@ msgstr "Myslíte si, že Harry Potted má dobré jméno?"
 #: code:addons/website_slides/static/src/js/slides_upload.js:0
 #, python-format
 msgid "Do you want to install the \"%s\" app?"
-msgstr ""
+msgstr "Chcete nainstalovat aplikaci \"%s\" ?"
 
 #. module: website_slides
 #: model:slide.question,question:website_slides.slide_slide_demo_5_3_question_0
 msgid "Do you want to reply correctly ?"
 msgstr "Chcete odpovědět správně?"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_course_join.xml:0
-#, python-format
-msgid "Do you want to request access to this course ?"
-msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields.selection,name:website_slides.selection__slide_slide__slide_type__document
@@ -2154,16 +1631,12 @@ msgid "Document URL"
 msgstr "URL dokumentu"
 
 #. module: website_slides
-#: model:ir.model.fields.selection,name:website_slides.selection__slide_channel__channel_type__documentation
-msgid "Documentation"
-msgstr "Dokumentace"
-
-#. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
+#: model:ir.model.fields.selection,name:website_slides.selection__slide_channel__channel_type__documentation
 #, python-format
-msgid "Documentation Layout"
-msgstr ""
+msgid "Documentation"
+msgstr "Dokumentace"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__nbr_document
@@ -2232,11 +1705,6 @@ msgid "Edit"
 msgstr "Upravit"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_slide
-msgid "Edit in backend"
-msgstr "Upravit v backendu"
-
-#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_partner__partner_email
 msgid "Email"
 msgstr "E-mail"
@@ -2284,11 +1752,6 @@ msgid "Energy Efficiency Facts"
 msgstr "Fakta o energetické účinnosti"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Enjoy this exclusive content !"
-msgstr ""
-
-#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__enroll_msg
 msgid "Enroll Message"
 msgstr "Zapsat zprávu"
@@ -2300,34 +1763,6 @@ msgstr "Zásady zápisu"
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "Enter at least two possible <b>Answers</b>."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "Enter your <b>Question</b>. Be clear and concise."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#, python-format
-msgid "Enter your answer"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#, python-format
-msgid "Enter your question"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
 #, python-format
 msgid "Estimated slide completion time"
@@ -2336,8 +1771,8 @@ msgstr "Odhadovaná doba dokončení prezentace"
 #. module: website_slides
 #: code:addons/website_slides/controllers/main.py:0
 #, python-format
-msgid "Evaluate and certify your students."
-msgstr ""
+msgid "Evaluate and certificate your students."
+msgstr "Vyhodnoťte a certifikujte své studenty."
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.res_config_settings_view_form
@@ -2378,6 +1813,11 @@ msgid "Failed to install \"%s\"."
 msgstr ""
 
 #. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel__promote_strategy
+msgid "Featured Content"
+msgstr ""
+
+#. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/controllers/main.py:0
 #: code:addons/website_slides/static/src/js/slides_upload.js:0
@@ -2401,35 +1841,14 @@ msgid "First attempt"
 msgstr "První pokus"
 
 #. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_slide_slide__quiz_first_attempt_reward
+msgid "First attempt reward"
+msgstr ""
+
+#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.embed_slide
 msgid "First slide"
 msgstr "První obrazovka"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid ""
-"First, create your lesson, then edit it with the website builder. You'll be "
-"able to drop building blocks on your page and edit them."
-msgstr ""
-"Nejprve si vytvořte lekci a poté ji upravte pomocí nástroje pro tvorbu "
-"webových stránek. Na své stránce budete moci rozmístit stavební bloky a "
-"upravovat je."
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "First, let's add a <b>Presentation</b>. It can be a .pdf or an image."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "First, upload your videos on YouTube and mark them as"
-msgstr "Nejprve nahrajte svá videa na YouTube a označte je jako"
 
 #. module: website_slides
 #: code:addons/website_slides/models/res_partner.py:0
@@ -2457,11 +1876,6 @@ msgid "Followers (Partners)"
 msgstr "Sledující (partneři)"
 
 #. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_channel__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Skvělá ikona písma, např. fa-úkoly"
-
-#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_res_config_settings__module_website_slides_forum
 msgid "Forum"
 msgstr "Fórum"
@@ -2469,7 +1883,17 @@ msgstr "Fórum"
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
 msgid "Fourth and more attempt"
-msgstr ""
+msgstr "Čtvrtý a další pokus"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_slide
+msgid "Free preview"
+msgstr "Ukázka zdarma"
+
+#. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite__email_from
+msgid "From"
+msgstr "Od"
 
 #. module: website_slides
 #: model:slide.slide,description:website_slides.slide_slide_demo_5_2
@@ -2526,16 +1950,15 @@ msgstr "Začít"
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
+#: code:addons/website_slides/static/src/js/slides_upload.js:0
+#: code:addons/website_slides/static/src/js/slides_upload.js:0
 #, python-format
-msgid "Give your course a helpful <b>Description</b>."
-msgstr ""
+msgid "Go Back"
+msgstr "Zpět"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "Give your course an engaging <b>Title</b>."
+#: model_terms:ir.ui.view,arch_db:website_slides.courses_footer
+msgid "Go meet them"
 msgstr ""
 
 #. module: website_slides
@@ -2548,14 +1971,6 @@ msgstr "Google Doc Key"
 #: model_terms:ir.ui.view,arch_db:website_slides.res_config_settings_view_form
 msgid "Google Drive API Key"
 msgstr "Google Drive API Key"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/activity.xml:0
-#: code:addons/website_slides/static/src/xml/activity.xml:0
-#, python-format
-msgid "Grant Access"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_slide_view_graph
@@ -2573,15 +1988,9 @@ msgid "Group By"
 msgstr "Seskupit podle"
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag_group__name
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_group_view_form
-msgid "Group Name"
-msgstr "Název Skupiny"
-
-#. module: website_slides
 #: model:ir.model.fields,help:website_slides.field_slide_channel__upload_group_ids
 msgid "Group of users allowed to publish contents on a documentation course."
-msgstr ""
+msgstr "Skupina uživatelů s povolením publikovat obsah na kurzu dokumentace."
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag__group_sequence
@@ -2631,13 +2040,6 @@ msgid ""
 msgstr ""
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "How to create a Lesson as a Web Page?"
-msgstr ""
-
-#. module: website_slides
 #: model:slide.slide,name:website_slides.slide_slide_demo_5_2
 msgid "How to create your own piece of furniture"
 msgstr "Jak vytvořit svůj vlastní kus nábytku"
@@ -2653,20 +2055,6 @@ msgid "How to plant a potted tree"
 msgstr ""
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "How to upload your PowerPoint Presentations or Word Documents?"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "How to upload your videos ?"
-msgstr ""
-
-#. module: website_slides
 #: model:slide.slide,description:website_slides.slide_slide_demo_2_2
 msgid "How to wall decorating by tree planting in hanging plastic bottles."
 msgstr ""
@@ -2677,12 +2065,6 @@ msgid "HowTo"
 msgstr ""
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_gamification_challenge__id
-#: model:ir.model.fields,field_description:website_slides.field_ir_http__id
-#: model:ir.model.fields,field_description:website_slides.field_res_config_settings__id
-#: model:ir.model.fields,field_description:website_slides.field_res_groups__id
-#: model:ir.model.fields,field_description:website_slides.field_res_partner__id
-#: model:ir.model.fields,field_description:website_slides.field_res_users__id
 #: model:ir.model.fields,field_description:website_slides.field_slide_answer__id
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__id
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite__id
@@ -2694,21 +2076,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__id
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_link__id
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_partner__id
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__id
 #: model:ir.model.fields,field_description:website_slides.field_slide_tag__id
-#: model:ir.model.fields,field_description:website_slides.field_website__id
 msgid "ID"
 msgstr "ID"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_exception_icon
-msgid "Icon"
-msgstr "Ikona"
-
-#. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_channel__activity_exception_icon
-msgid "Icon to indicate an exception activity."
-msgstr "Ikona označuje vyjímečnou aktivitu."
 
 #. module: website_slides
 #: model:ir.model.fields,help:website_slides.field_slide_channel__allow_comment
@@ -2740,19 +2110,9 @@ msgstr "Pokud je zaškrtnuto, některé zprávy mají chybu při doručení."
 
 #. module: website_slides
 #: model:slide.channel,description:website_slides.slide_channel_demo_4_furn1
-#: model:slide.channel,description_short:website_slides.slide_channel_demo_4_furn1
 msgid ""
 "If you are looking for technical specifications, have a look at this "
 "documentation."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"If you want to be sure that attendees have understood and memorized the "
-"content, you can add a Quiz on the lesson. Click on <b>Add Quiz</b>."
 msgstr ""
 
 #. module: website_slides
@@ -2786,45 +2146,10 @@ msgid "Image 512"
 msgstr "Obrázek 512"
 
 #. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_1_4_question_0_1
-#: model:slide.answer,comment:website_slides.slide_slide_demo_2_0_question_0_0
-#: model:slide.answer,comment:website_slides.slide_slide_demo_2_0_question_1_0
-msgid "Incorrect !"
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_0_4_question_0_1
-msgid "Incorrect ! A strawberry is not a vegetable."
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_0_4_question_0_2
-msgid "Incorrect ! A table is a piece of furniture."
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_0_4_question_1_1
-msgid "Incorrect ! Good luck digging a hole with a spoon..."
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_1_4_question_1_2
-msgid "Incorrect ! Seriously ?"
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_5_3_question_0_1
-msgid "Incorrect ! You better think twice..."
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_1_4_question_1_1
-msgid "Incorrect ! You really should read it."
-msgstr ""
-
-#. module: website_slides
-#: model:slide.answer,comment:website_slides.slide_slide_demo_2_0_question_1_2
-msgid "Incorrect ! of course not ..."
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
+#, python-format
+msgid "Image File"
 msgstr ""
 
 #. module: website_slides
@@ -2849,7 +2174,7 @@ msgstr "Instalovat"
 #: code:addons/website_slides/static/src/js/slides_upload.js:0
 #, python-format
 msgid "Installing \"%s\"."
-msgstr ""
+msgstr "Instalování \"%s\"."
 
 #. module: website_slides
 #: model:slide.slide,name:website_slides.slide_category_demo_1_0
@@ -2863,7 +2188,7 @@ msgstr ""
 
 #. module: website_slides
 #: model:slide.slide,description:website_slides.slide_slide_demo_0_1
-msgid "Interesting information about home gardening. Keep it close !"
+msgid "Interesting informations about home gardening. Keep it close !"
 msgstr ""
 
 #. module: website_slides
@@ -2914,11 +2239,6 @@ msgid "Is Member"
 msgstr ""
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide__is_new_slide
-msgid "Is New Slide"
-msgstr ""
-
-#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__is_published
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag_group__is_published
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__is_published
@@ -2928,12 +2248,12 @@ msgstr "Je publikováno"
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__is_category
 msgid "Is a category"
-msgstr ""
+msgstr "Je kategorie"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_answer__is_correct
 msgid "Is correct answer"
-msgstr ""
+msgstr "Je správná odpověď"
 
 #. module: website_slides
 #: model:slide.slide,description:website_slides.slide_slide_demo_1_3
@@ -2944,33 +2264,10 @@ msgstr ""
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
-#, python-format
-msgid "Join & Submit"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_join.js:0
+#: code:addons/website_slides/static/src/xml/channel_management.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
-#: model_terms:ir.ui.view,arch_db:website_slides.join_course_link
 #, python-format
 msgid "Join Course"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_course_join.xml:0
-#: code:addons/website_slides/static/src/xml/slide_course_join.xml:0
-#, python-format
-msgid "Join the Course"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#, python-format
-msgid "Join the course to take the quiz and verify your answers!"
 msgstr ""
 
 #. module: website_slides
@@ -2990,8 +2287,8 @@ msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
-msgid "Karma"
-msgstr "Karma"
+msgid "Karma Rules"
+msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,help:website_slides.field_slide_channel__karma_slide_comment
@@ -3017,7 +2314,6 @@ msgstr ""
 
 #. module: website_slides
 #: model:slide.channel,description:website_slides.slide_channel_demo_3_furn0
-#: model:slide.channel,description_short:website_slides.slide_channel_demo_3_furn0
 msgid ""
 "Knowing which kind of wood to use depending on your application is important. In this course you\n"
 "will learn the basics of wood characteristics."
@@ -3031,12 +2327,6 @@ msgid ""
 msgstr ""
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_gamification_challenge____last_update
-#: model:ir.model.fields,field_description:website_slides.field_ir_http____last_update
-#: model:ir.model.fields,field_description:website_slides.field_res_config_settings____last_update
-#: model:ir.model.fields,field_description:website_slides.field_res_groups____last_update
-#: model:ir.model.fields,field_description:website_slides.field_res_partner____last_update
-#: model:ir.model.fields,field_description:website_slides.field_res_users____last_update
 #: model:ir.model.fields,field_description:website_slides.field_slide_answer____last_update
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel____last_update
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite____last_update
@@ -3048,9 +2338,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide____last_update
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_link____last_update
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_partner____last_update
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource____last_update
 #: model:ir.model.fields,field_description:website_slides.field_slide_tag____last_update
-#: model:ir.model.fields,field_description:website_slides.field_website____last_update
 msgid "Last Modified on"
 msgstr "Naposled změněno"
 
@@ -3072,7 +2360,6 @@ msgstr "Poslední aktualizace"
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__write_uid
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_link__write_uid
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_partner__write_uid
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__write_uid
 #: model:ir.model.fields,field_description:website_slides.field_slide_tag__write_uid
 msgid "Last Updated by"
 msgstr "Naposledy upraveno od"
@@ -3089,7 +2376,6 @@ msgstr "Naposledy upraveno od"
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__write_date
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_link__write_date
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_partner__write_date
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__write_date
 #: model:ir.model.fields,field_description:website_slides.field_slide_tag__write_date
 msgid "Last Updated on"
 msgstr "Naposled upraveno"
@@ -3116,25 +2402,24 @@ msgstr "Výsledková tabulka"
 
 #. module: website_slides
 #: model:slide.channel,description:website_slides.slide_channel_demo_1_gard1
-#: model:slide.channel,description_short:website_slides.slide_channel_demo_1_gard1
 msgid ""
 "Learn how to take care of your favorite trees. Learn when to plant, how to "
 "manage potted trees, ..."
 msgstr ""
 
 #. module: website_slides
+#: model:slide.slide,description:website_slides.slide_slide_demo_5_1
+msgid "Learn of to identify quality wood in order to create solid furnitures."
+msgstr ""
+
+#. module: website_slides
 #: model:slide.channel,description:website_slides.slide_channel_demo_0_gard_0
-#: model:slide.channel,description_short:website_slides.slide_channel_demo_0_gard_0
 msgid "Learn the basics of gardening !"
 msgstr ""
 
 #. module: website_slides
-#: model:slide.slide,description:website_slides.slide_slide_demo_5_1
-msgid "Learn to identify quality wood in order to create solid furnitures."
-msgstr ""
-
-#. module: website_slides
 #. openerp-web
+#: code:addons/website_slides/static/src/js/slides_course_unsubscribe.js:0
 #: code:addons/website_slides/static/src/js/slides_course_unsubscribe.js:0
 #: code:addons/website_slides/static/src/js/slides_course_unsubscribe.js:0
 #, python-format
@@ -3161,13 +2446,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
 msgid "Lessons"
 msgstr "Lekce"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_quiz_finish.js:0
-#, python-format
-msgid "Level up!"
-msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__likes
@@ -3197,15 +2475,8 @@ msgid "Main Trees Categories"
 msgstr ""
 
 #. module: website_slides
-#: model:res.groups,name:website_slides.group_website_slides_manager
-msgid "Manager"
-msgstr "Manažer"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "Mark the correct answer by checking the <b>correct</b> mark."
+#: model_terms:ir.ui.view,arch_db:website_slides.courses_footer
+msgid "Meet The Heros Who Transformed Their Company!"
 msgstr ""
 
 #. module: website_slides
@@ -3227,7 +2498,7 @@ msgstr ""
 #. module: website_slides
 #: model:ir.model.fields.selection,name:website_slides.selection__slide_channel__visibility__members
 msgid "Members Only"
-msgstr ""
+msgstr "Pouze členové"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
@@ -3241,9 +2512,13 @@ msgid ""
 msgstr "Členové těchto skupin se automaticky přidají jako členové kanálu."
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_group_view_form
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_group_view_tree
 msgid "Menu Entry"
+msgstr ""
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_group_view_form
+msgid "Menu entry"
 msgstr ""
 
 #. module: website_slides
@@ -3295,12 +2570,6 @@ msgid "Minutes"
 msgstr "Minut"
 
 #. module: website_slides
-#: code:addons/website_slides/controllers/main.py:0
-#, python-format
-msgid "Missing \"Tag Group\" for creating a new \"Tag\"."
-msgstr ""
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_nav
 msgid "Mobile sub-nav"
 msgstr "Mobilní sub-navigace"
@@ -3342,7 +2611,7 @@ msgstr "Moje kurzy"
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__name
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag__name
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__name
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag_group__name
 #: model:ir.model.fields,field_description:website_slides.field_slide_tag__name
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_question_view_form
 msgid "Name"
@@ -3352,11 +2621,6 @@ msgstr "Název"
 #: model_terms:ir.ui.view,arch_db:website_slides.course_nav
 msgid "Nav"
 msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_slide
-msgid "New"
-msgstr "Nové"
 
 #. module: website_slides
 #: model:mail.template,subject:website_slides.slide_template_published
@@ -3400,21 +2664,6 @@ msgid "Next"
 msgstr "Další"
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_date_deadline
-msgid "Next Activity Deadline"
-msgstr "Termín další aktivity"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_summary
-msgid "Next Activity Summary"
-msgstr "Souhrn další aktivity"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_type_id
-msgid "Next Activity Type"
-msgstr "Další typ aktivity"
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slides_home_user_profile_small
 msgid "Next rank:"
 msgstr "Další úroveň:"
@@ -3425,14 +2674,11 @@ msgid "Next slide"
 msgstr "Další snímek"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_1_4_question_0_1
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_1_4_question_1_1
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_2_0_question_0_1
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_2_0_question_1_1
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_5_3_question_0_1
-#, python-format
 msgid "No"
 msgstr "Ne"
 
@@ -3443,8 +2689,13 @@ msgid "No Course created yet."
 msgstr ""
 
 #. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.toggle_latest_achievements
+msgid "No achievements currently :("
+msgstr ""
+
+#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.user_profile_content
-msgid "No completed courses yet!"
+msgid "No completed course yet"
 msgstr ""
 
 #. module: website_slides
@@ -3455,21 +2706,16 @@ msgstr ""
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_all
 msgid "No course was found matching your search"
-msgstr ""
+msgstr "Vašemu hledání nebyl nalezen žádný kurz"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_all
 msgid "No course was found matching your search."
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.actions.act_window,help:website_slides.slide_slide_action_report
-msgid "No data yet!"
-msgstr "Zatím žádná data!"
+msgstr "Vašemu vyhledávání nebyl nalezen žádný kurz."
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.user_profile_content
-msgid "No followed courses yet!"
+msgid "No followed course yet"
 msgstr ""
 
 #. module: website_slides
@@ -3483,11 +2729,6 @@ msgid "No presentation available."
 msgstr "Prezentace není k dispozici."
 
 #. module: website_slides
-#: model:ir.model.fields.selection,name:website_slides.selection__slide_channel__promote_strategy__none
-msgid "None"
-msgstr "Nic"
-
-#. module: website_slides
 #: code:addons/website_slides/models/slide_slide.py:0
 #, python-format
 msgid "Not enough karma to comment"
@@ -3498,13 +2739,6 @@ msgstr "Není dost karmy ke komentování"
 #, python-format
 msgid "Not enough karma to review"
 msgstr "Není dost karmy k recenzi"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_unsubscribe.js:0
-#, python-format
-msgid "Notifications"
-msgstr "Upozornění"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__message_needaction_counter
@@ -3575,12 +2809,7 @@ msgstr "Počet nepřečtených zpráv"
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__questions_count
 msgid "Numbers of Questions"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Odoo"
-msgstr "Odoo"
+msgstr "Počet otázek"
 
 #. module: website_slides
 #: model_terms:slide.slide,html_content:website_slides.slide_slide_demo_1_4
@@ -3589,28 +2818,9 @@ msgid "Odoo • Image and Text"
 msgstr "Odoo • obrázek a text"
 
 #. module: website_slides
-#: model:res.groups,name:website_slides.group_website_slides_officer
-msgid "Officer"
-msgstr "úředník"
-
-#. module: website_slides
 #: model:ir.model.fields.selection,name:website_slides.selection__slide_channel__enroll__invite
 msgid "On Invitation"
 msgstr "Na pozvání"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "Once you're done, don't forget to <b>Publish</b> your course."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "Only JPG, PNG, PDF, files types are supported"
-msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
@@ -3624,11 +2834,6 @@ msgid "Partner"
 msgstr "Partner"
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__partner_has_new_content
-msgid "Partner Has New Content"
-msgstr ""
-
-#. module: website_slides
 #: code:addons/website_slides/models/slide_slide.py:0
 #, python-format
 msgid ""
@@ -3639,10 +2844,13 @@ msgstr ""
 "mazán."
 
 #. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.courses_home
+msgid "Pick a course"
+msgstr ""
+
+#. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #: code:addons/website_slides/static/src/xml/website_slides_share.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
 #, python-format
 msgid "Please"
@@ -3695,13 +2903,6 @@ msgstr "Zadejte prosím platnou adresu URL youtube nebo google doc"
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_quiz_question_form.js:0
-#, python-format
-msgid "Please fill in the question"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
 #, python-format
 msgid "Please fill in this field"
@@ -3713,11 +2914,6 @@ msgstr ""
 #: model:gamification.goal.definition,name:website_slides.badge_data_course_goal
 msgid "Power User"
 msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Powered by"
-msgstr "Běží na"
 
 #. module: website_slides
 #. openerp-web
@@ -3740,11 +2936,6 @@ msgid "Presentations"
 msgstr "Prezentace"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
-msgid "Preview"
-msgstr "Náhled"
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.embed_slide
 msgid "Previous slide"
 msgstr ""
@@ -3753,21 +2944,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
 msgid "Private Course"
 msgstr "Soukromý kurz"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_partner_view_tree
-msgid "Progress"
-msgstr "Průběh"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__promote_strategy
-msgid "Promoted Content"
-msgstr ""
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__promoted_slide_id
-msgid "Promoted Slide"
-msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields.selection,name:website_slides.selection__slide_channel__enroll__public
@@ -3782,12 +2958,18 @@ msgid "Public Views"
 msgstr ""
 
 #. module: website_slides
+#. openerp-web
+#: code:addons/website_slides/static/src/js/slides_upload.js:0
+#, python-format
+msgid "Publish"
+msgstr "Publikovat"
+
+#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__date_published
 msgid "Publish Date"
 msgstr "Datum zveřejnění"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_search
 msgid "Published"
 msgstr "Publikováno"
@@ -3814,13 +2996,19 @@ msgstr "Otázka"
 #. module: website_slides
 #: code:addons/website_slides/models/slide_question.py:0
 #, python-format
-msgid "Question \"%s\" must have 1 correct answer"
+msgid "Question \"%s\" can only have one good answer"
 msgstr ""
 
 #. module: website_slides
 #: code:addons/website_slides/models/slide_question.py:0
 #, python-format
-msgid "Question \"%s\" must have 1 correct answer and at least 1 incorrect answer"
+msgid "Question \"%s\" has no valid answer, please set one"
+msgstr ""
+
+#. module: website_slides
+#: code:addons/website_slides/models/slide_question.py:0
+#, python-format
+msgid "Question \"%s\" must at least have one good answer"
 msgstr ""
 
 #. module: website_slides
@@ -3839,19 +3027,12 @@ msgstr "Otázky"
 #. openerp-web
 #: code:addons/website_slides/static/src/js/slides_upload.js:0
 #: model:ir.model.fields.selection,name:website_slides.selection__slide_slide__slide_type__quiz
-#: model:slide.channel.tag,name:website_slides.slide_channel_tag_other_0
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_question_view_form
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
+#: model:slide.channel.tag,name:website_slides.slide_channel_tag_other_0
 #, python-format
 msgid "Quiz"
 msgstr "Kvíz"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "Quiz Demo Data"
-msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_partner__quiz_attempts_count
@@ -3864,13 +3045,20 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_question_view_search
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_question_view_tree
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_question_view_tree_report
+#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 msgid "Quizzes"
 msgstr "Kvízy"
+
+#. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
+msgid "Rank Course"
+msgstr ""
 
 #. module: website_slides
 #: model:ir.actions.act_window,name:website_slides.rating_rating_action_slide_channel
 #: model:ir.actions.act_window,name:website_slides.rating_rating_action_slide_channel_report
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__rating_ids
+#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 msgid "Rating"
 msgstr "Hodnocení"
 
@@ -3883,7 +3071,7 @@ msgstr "Průměrné hodnocení"
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__rating_avg_stars
 msgid "Rating Average (Stars)"
-msgstr ""
+msgstr "Průměrné hodnocení (hvězdičky)"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__rating_last_feedback
@@ -3913,7 +3101,6 @@ msgstr ""
 
 #. module: website_slides
 #: model:gamification.badge,description:website_slides.badge_data_karma
-#: model:gamification.challenge,name:website_slides.badge_data_karma_challenge
 msgid "Reach 2000 XP"
 msgstr ""
 
@@ -3921,6 +3108,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_home
 msgid "Reach new heights"
 msgstr "Dosáhněte nových výšin"
+
+#. module: website_slides
+#: model:gamification.challenge,name:website_slides.badge_data_karma_challenge
+msgid "Read 2000 XP"
+msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,help:website_slides.field_slide_channel__rating_last_feedback
@@ -3931,14 +3123,6 @@ msgstr "Důvod hodnocení"
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite__partner_ids
 msgid "Recipients"
 msgstr "Příjemci"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/activity.xml:0
-#: code:addons/website_slides/static/src/xml/activity.xml:0
-#, python-format
-msgid "Refuse Access"
-msgstr "Odmítnout přístup"
 
 #. module: website_slides
 #: model:gamification.badge,description:website_slides.badge_data_register
@@ -3957,72 +3141,14 @@ msgid "Remove"
 msgstr "Odebrat"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#, python-format
-msgid "Remove the answer comment"
-msgstr "Odebrat komentář odpovědi"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#, python-format
-msgid "Remove this answer"
-msgstr ""
-
-#. module: website_slides
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_report
 msgid "Reporting"
-msgstr "Přehledy"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_enroll_email.js:0
-#, python-format
-msgid "Request Access."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_enroll_email.js:0
-#, python-format
-msgid "Request sent !"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#, python-format
-msgid "Reset"
-msgstr "Resetovat"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__data
-msgid "Resource"
-msgstr "Zdroj"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
-msgid "Resources"
-msgstr "Zdroje"
+msgstr "Sestavy"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__user_id
-#: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
 msgid "Responsible"
 msgstr "Odpovědný"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__activity_user_id
-msgid "Responsible User"
-msgstr "Zodpovědný uživatel"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#, python-format
-msgid "Responsible already contacted."
-msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,help:website_slides.field_slide_channel__website_id
@@ -4045,19 +3171,14 @@ msgstr "Návrat do kurzu."
 #. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
+#: model_terms:ir.ui.view,arch_db:website_slides.course_main
 #, python-format
 msgid "Review"
 msgstr "Recenze"
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
-msgid "Review Course"
-msgstr ""
-
-#. module: website_slides
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_courses_reviews
 #: model:ir.ui.menu,name:website_slides.website_slides_menu_report_reviews
-#: model_terms:ir.ui.view,arch_db:website_slides.course_main
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 msgid "Reviews"
@@ -4065,26 +3186,10 @@ msgstr "Recenze"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__quiz_fourth_attempt_reward
-msgid "Reward: every attempt after the third try"
-msgstr "Odměna: každý pokus po třetím pokusu"
+msgid "Reward for every attempt after the third try"
+msgstr ""
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide__quiz_first_attempt_reward
-msgid "Reward: first attempt"
-msgstr "Odměna: první pokus"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide__quiz_second_attempt_reward
-msgid "Reward: second attempt"
-msgstr "Odměna: druhý pokus"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide__quiz_third_attempt_reward
-msgid "Reward: third attempt"
-msgstr "Odměna: třetí pokus"
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
 msgid "Rewards"
 msgstr "Odměny"
@@ -4105,9 +3210,6 @@ msgstr "Chyba doručení SMS"
 #. openerp-web
 #: code:addons/website_slides/static/src/js/slides_category_add.js:0
 #: code:addons/website_slides/static/src/js/slides_course_unsubscribe.js:0
-#: code:addons/website_slides/static/src/js/slides_upload.js:0
-#: code:addons/website_slides/static/src/js/slides_upload.js:0
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
 #, python-format
 msgid "Save"
 msgstr "Uložit"
@@ -4115,16 +3217,10 @@ msgstr "Uložit"
 #. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/js/slides_upload.js:0
+#: code:addons/website_slides/static/src/js/slides_upload.js:0
 #, python-format
-msgid "Save & Publish"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "Save your presentations or documents as PDF files and upload them."
-msgstr ""
+msgid "Save as Draft"
+msgstr "Uložit jako rozpracované"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_nav
@@ -4137,7 +3233,7 @@ msgstr "Hledání"
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_search
 msgid "Search Contents"
-msgstr ""
+msgstr "Hledat obsah"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_nav
@@ -4155,6 +3251,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
 msgid "Second attempt"
 msgstr "Druhý pokus"
+
+#. module: website_slides
+#: model:ir.model.fields,field_description:website_slides.field_slide_slide__quiz_second_attempt_reward
+msgid "Second attempt reward"
+msgstr ""
 
 #. module: website_slides
 #. openerp-web
@@ -4176,7 +3277,7 @@ msgstr "Sekce titulky"
 #: code:addons/website_slides/static/src/xml/slide_management.xml:0
 #, python-format
 msgid "Section name"
-msgstr ""
+msgstr "Název sekce"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__access_token
@@ -4184,28 +3285,14 @@ msgid "Security Token"
 msgstr "Bezpečnostní token"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid "Select <b>Course</b> to create it and manage it."
-msgstr ""
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_social_embed
 msgid "Select page to start with"
 msgstr "Vybrat stránku, kterou chcete začít"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#, python-format
-msgid "Select the correct answer below :"
-msgstr ""
-
-#. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_res_config_settings__module_website_sale_slides
 msgid "Sell on eCommerce"
-msgstr ""
+msgstr "Prodat na e-shopu"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_invite_view_form
@@ -4220,13 +3307,6 @@ msgid "Send Email"
 msgstr "Odeslat e-mail"
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__seo_name
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide__seo_name
-msgid "Seo name"
-msgstr "Seo jméno"
-
-#. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_answer__sequence
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__sequence
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag__sequence
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag_group__sequence
@@ -4247,8 +3327,8 @@ msgid "Settings"
 msgstr "Nastavení"
 
 #. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.course_main
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_fullscreen
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_modal_header
 msgid "Share"
 msgstr "Sdílet"
 
@@ -4256,12 +3336,13 @@ msgstr "Sdílet"
 #: model_terms:ir.ui.view,arch_db:website_slides.course_main
 #: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
 msgid "Share Channel"
-msgstr ""
+msgstr "Sdílet kanál"
 
 #. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_share.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_link
+#: model_terms:ir.ui.view,arch_db:website_slides.course_main
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_media
 #, python-format
 msgid "Share Link"
 msgstr "Sdílet odkaz"
@@ -4269,7 +3350,7 @@ msgstr "Sdílet odkaz"
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__share_template_id
 msgid "Share Template"
-msgstr ""
+msgstr "Sdílet šablonu"
 
 #. module: website_slides
 #. openerp-web
@@ -4282,8 +3363,7 @@ msgstr "Sdílet e-mailem"
 #. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_share.xml:0
-#: code:addons/website_slides/static/src/xml/website_slides_share.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_social
+#: model_terms:ir.ui.view,arch_db:website_slides.slides_share
 #, python-format
 msgid "Share on Facebook"
 msgstr "Sdílet na Facebook"
@@ -4291,8 +3371,7 @@ msgstr "Sdílet na Facebook"
 #. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_share.xml:0
-#: code:addons/website_slides/static/src/xml/website_slides_share.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_social
+#: model_terms:ir.ui.view,arch_db:website_slides.slides_share
 #, python-format
 msgid "Share on LinkedIn"
 msgstr "Sdílet na LinkedIn"
@@ -4300,8 +3379,8 @@ msgstr "Sdílet na LinkedIn"
 #. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_share.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_modal_body
+#: model_terms:ir.ui.view,arch_db:website_slides.course_main
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_social_media
 #, python-format
 msgid "Share on Social Networks"
 msgstr "Sdílet na sociálních sítích"
@@ -4309,16 +3388,15 @@ msgstr "Sdílet na sociálních sítích"
 #. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_share.xml:0
-#: code:addons/website_slides/static/src/xml/website_slides_share.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_share_social
+#: model_terms:ir.ui.view,arch_db:website_slides.slides_share
 #, python-format
 msgid "Share on Twitter"
 msgstr "Sdílet na Twitter"
 
 #. module: website_slides
-#: model:ir.model.fields,field_description:website_slides.field_slide_channel__description_short
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel__description
 msgid "Short Description"
-msgstr ""
+msgstr "Stručný popis"
 
 #. module: website_slides
 #: model:slide.slide,description:website_slides.slide_slide_demo_0_4
@@ -4334,34 +3412,28 @@ msgstr "Zaregistrujte se"
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_course_join.xml:0
+#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #, python-format
 msgid "Sign in"
-msgstr "Přihlásit se"
+msgstr "Přihlásit"
 
 #. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #, python-format
-msgid "Sign in and join the course to verify your answers!"
+msgid "Sign in and join the course to take the quiz!"
 msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
-msgid "Size"
-msgstr "Velikost"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_home
 msgid ""
-"Skill up and have an impact! Your business career starts here.<br/>Time to "
-"start a course."
+"Skill up and have an impact! Your business career starts here. Time to start"
+" a course."
 msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_link__slide_id
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide_partner__slide_id
-#: model:ir.model.fields,field_description:website_slides.field_slide_slide_resource__slide_id
 msgid "Slide"
 msgstr "Prezentace"
 
@@ -4371,9 +3443,9 @@ msgid "Slide / Partner decorated m2m"
 msgstr "Snímek / Partner zdobený m2m"
 
 #. module: website_slides
-#: model:ir.model,name:website_slides.model_slide_answer
-msgid "Slide Question's Answer"
-msgstr ""
+#: model:ir.model,name:website_slides.model_slide_channel
+msgid "Slide Channel"
+msgstr "Kanál prezentace"
 
 #. module: website_slides
 #: model:ir.model,name:website_slides.model_slide_tag
@@ -4405,6 +3477,8 @@ msgid ""
 "Slide with questions must be marked as done when submitting all good answers"
 " "
 msgstr ""
+"Při odesílání všech dobrých odpovědí musí být snímek s otázkami označen jako"
+" vyřízený"
 
 #. module: website_slides
 #: model:ir.model,name:website_slides.model_slide_slide
@@ -4416,11 +3490,10 @@ msgstr "prezentace"
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__slide_ids
 msgid "Slides and categories"
-msgstr ""
+msgstr "Prezentace a kategorie"
 
 #. module: website_slides
 #: model:slide.channel,description:website_slides.slide_channel_demo_6_furn3
-#: model:slide.channel,description_short:website_slides.slide_channel_demo_6_furn3
 msgid "So much amazing certification."
 msgstr ""
 
@@ -4430,17 +3503,18 @@ msgid "Sort by"
 msgstr "Řadit podle"
 
 #. module: website_slides
-#: model:ir.model.fields.selection,name:website_slides.selection__slide_channel__promote_strategy__specific
-msgid "Specific"
-msgstr "Charakteristický"
-
-#. module: website_slides
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/channel_management.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
+#, python-format
 msgid "Start Course"
 msgstr "Spustit kurz"
 
 #. module: website_slides
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/channel_management.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
+#, python-format
 msgid "Start Course Channel"
 msgstr ""
 
@@ -4452,26 +3526,14 @@ msgstr "Začněte s klientem – zjistěte, co chce, a dejte mu to."
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_home
-msgid "Start your online course today!"
+msgid "Start your online course today !"
 msgstr ""
 
 #. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
 msgid "Statistics"
 msgstr "Statistiky"
-
-#. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_channel__activity_state
-msgid ""
-"Status based on activities\n"
-"Overdue: Due date is already passed\n"
-"Today: Activity date is today\n"
-"Planned: Future activities."
-msgstr ""
-"Stav na základě aktivit\n"
-"Vypršeno: Datum již uplynulo\n"
-"Dnes: Datum aktivity je dnes\n"
-"Plánováno: Budoucí aktivity."
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite__subject
@@ -4489,6 +3551,13 @@ msgstr "Předmět..."
 #, python-format
 msgid "Subscribe"
 msgstr "Odebírat"
+
+#. module: website_slides
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/website_slides_unsubscribe.xml:0
+#, python-format
+msgid "Subscribe to get notified when a new content is added."
+msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__user_membership_id
@@ -4514,41 +3583,14 @@ msgstr ""
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #, python-format
 msgid "Succeed and gain karma"
 msgstr "Uspěj a získej karmu"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_tag_add.js:0
-#: code:addons/website_slides/static/src/xml/website_slides_channel_tag.xml:0
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_tag_form
-#, python-format
 msgid "Tag"
-msgstr "Tag"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_channel_tag.xml:0
-#, python-format
-msgid "Tag Group"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_tag_add.js:0
-#, python-format
-msgid "Tag Group (required for new tags)"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_group_view_form
-msgid "Tag Name"
-msgstr "Název značky"
+msgstr "Štítek"
 
 #. module: website_slides
 #. openerp-web
@@ -4559,12 +3601,12 @@ msgstr "Název značky"
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__tag_ids
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag_group__tag_ids
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__tag_ids
-#: model:slide.channel.tag.group,name:website_slides.slide_channel_tag_group_data_other
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_tag_tree
+#: model:slide.channel.tag.group,name:website_slides.slide_channel_tag_group_data_other
 #, python-format
 msgid "Tags"
-msgstr "Tagy"
+msgstr "Štítky"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
@@ -4593,49 +3635,10 @@ msgid "Test your knowledge !"
 msgstr ""
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "Test your students with small Quizzes"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"The <b>Duration</b> of the lesson is based on the number of pages of your "
-"document. You can change this number if your attendees will need more time "
-"to assimilate the content."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"The <b>Title</b> of your lesson is autocompleted but you can change it if "
-"you want.</br>A <b>Preview</b> of your file is available on the right side "
-"of the screen."
-msgstr ""
-
-#. module: website_slides
 #: model:ir.model.fields,help:website_slides.field_slide_slide__is_preview
 msgid ""
 "The course is accessible by anyone : the users don't need to join the "
 "channel to access the content of the course."
-msgstr ""
-
-#. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_channel__description_short
-msgid "The description that is displayed on the course card"
-msgstr ""
-
-#. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_channel__description
-msgid ""
-"The description that is displayed on top of the course page, just below the "
-"title"
 msgstr ""
 
 #. module: website_slides
@@ -4650,7 +3653,7 @@ msgstr ""
 #. module: website_slides
 #: model:ir.model.fields,help:website_slides.field_slide_slide__completion_time
 msgid "The estimated completion time for this slide"
-msgstr ""
+msgstr "Odhadovaná doba dokončení tohoto snímku"
 
 #. module: website_slides
 #: code:addons/website_slides/wizard/slide_channel_invite.py:0
@@ -4662,6 +3665,7 @@ msgstr ""
 
 #. module: website_slides
 #: model:ir.model.fields,help:website_slides.field_slide_channel__website_url
+#: model:ir.model.fields,help:website_slides.field_slide_channel_invite__channel_url
 #: model:ir.model.fields,help:website_slides.field_slide_channel_tag_group__website_url
 #: model:ir.model.fields,help:website_slides.field_slide_slide__website_url
 msgid "The full URL to access the document through the website."
@@ -4681,7 +3685,7 @@ msgstr ""
 #: model_terms:ir.actions.act_window,help:website_slides.rating_rating_action_slide_channel
 #: model_terms:ir.actions.act_window,help:website_slides.rating_rating_action_slide_channel_report
 msgid "There are no ratings for these courses at the moment"
-msgstr ""
+msgstr "V současné době nejsou pro tyto kurzy žádná hodnocení"
 
 #. module: website_slides
 #. openerp-web
@@ -4701,9 +3705,9 @@ msgid "Third attempt"
 msgstr "Třetí pokus"
 
 #. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_answer__comment
-msgid "This comment will be displayed to the user if he selects this answer"
-msgstr "Tento komentář se uživateli zobrazí, pokud si tuto odpověď vybere"
+#: model:ir.model.fields,field_description:website_slides.field_slide_slide__quiz_third_attempt_reward
+msgid "Third attempt reward"
+msgstr ""
 
 #. module: website_slides
 #. openerp-web
@@ -4714,24 +3718,10 @@ msgstr "Tento kurz je soukromý."
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#, python-format
-msgid "This is the correct answer"
-msgstr "Toto je správná odpověď"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
-#, python-format
-msgid "This is the correct answer, congratulations"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
 #: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
 #, python-format
 msgid "This quiz is already done. Retaking it is not possible."
-msgstr ""
+msgstr "Tento kvíz je již hotový. Opakování není možné."
 
 #. module: website_slides
 #: code:addons/website_slides/controllers/main.py:0
@@ -4796,7 +3786,7 @@ msgstr "Tréning"
 #. openerp-web
 #: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
 #, python-format
-msgid "Training Layout"
+msgid "Training (with progress)"
 msgstr ""
 
 #. module: website_slides
@@ -4820,16 +3810,14 @@ msgid "Trees, Wood and Gardens"
 msgstr ""
 
 #. module: website_slides
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__slide_type
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_search
+#, python-format
 msgid "Type"
 msgstr "Typ"
-
-#. module: website_slides
-#: model:ir.model.fields,help:website_slides.field_slide_channel__activity_exception_decoration
-msgid "Type of the exception activity on record."
-msgstr "Typ zaznamenané výjimečné aktivity."
 
 #. module: website_slides
 #: code:addons/website_slides/wizard/slide_channel_invite.py:0
@@ -4838,7 +3826,6 @@ msgid "Unable to post message, please configure the sender's email address."
 msgstr "Nelze odeslat zprávu, nakonfigurujte e-mailovou adresu odesílatele."
 
 #. module: website_slides
-#: code:addons/website_slides/models/slide_channel.py:0
 #: code:addons/website_slides/models/slide_channel.py:0
 #: model_terms:ir.ui.view,arch_db:website_slides.course_nav
 #, python-format
@@ -4865,13 +3852,6 @@ msgid "Unknown error"
 msgstr "Neznámá chyba"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_enroll_email.js:0
-#, python-format
-msgid "Unknown error, try again."
-msgstr ""
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_card
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_list_slide
 msgid "Unpublished"
@@ -4891,15 +3871,29 @@ msgstr "Počítadlo nepřečtených zpráv"
 
 #. module: website_slides
 #. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz_create.xml:0
+#: code:addons/website_slides/static/src/js/slides_course_unsubscribe.js:0
 #, python-format
-msgid "Update"
-msgstr "Aktualizace"
+msgid "Unsubscribe"
+msgstr "Odhlásit odběr"
+
+#. module: website_slides
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
+#, python-format
+msgid "Upload"
+msgstr "Nahrát"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__upload_group_ids
 msgid "Upload Groups"
 msgstr "Nahrát skupiny"
+
+#. module: website_slides
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
+#, python-format
+msgid "Upload Image"
+msgstr ""
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
@@ -4919,6 +3913,13 @@ msgstr "Nahrát dokument"
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__user_id
 msgid "Uploaded by"
 msgstr "Nahráno od"
+
+#. module: website_slides
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
+#, python-format
+msgid "Uploading Image..."
+msgstr "Nahrávání obrázku ..."
 
 #. module: website_slides
 #. openerp-web
@@ -4973,7 +3974,6 @@ msgstr "Pohled"
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_slides_cards
 #: model_terms:ir.ui.view,arch_db:website_slides.courses_home
-#: model_terms:ir.ui.view,arch_db:website_slides.slides_home_user_achievements_small
 #: model_terms:ir.ui.view,arch_db:website_slides.toggle_leaderboard
 msgid "View all"
 msgstr ""
@@ -5011,7 +4011,7 @@ msgstr "Viditelnost"
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag_group__website_published
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__website_published
 msgid "Visible on current website"
-msgstr "Viditelné na aktuální webstránce"
+msgstr "Viditelné na aktuálním webu"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__total_views
@@ -5043,6 +4043,11 @@ msgid "Waiting for validation"
 msgstr "Čeká na ověření"
 
 #. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.view_slide_channel_form
+msgid "Watch Time"
+msgstr ""
+
+#. module: website_slides
 #: model:slide.slide,description:website_slides.slide_slide_demo_3_1
 msgid "Watching the master(s) at work"
 msgstr ""
@@ -5065,7 +4070,7 @@ msgstr "Webová strana"
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__nbr_webpage
 msgid "Webpages"
-msgstr ""
+msgstr "Webové strany"
 
 #. module: website_slides
 #: model:ir.model,name:website_slides.model_website
@@ -5075,7 +4080,7 @@ msgid "Website"
 msgstr "Webstránka"
 
 #. module: website_slides
-#: model:ir.model.fields.selection,name:website_slides.selection__gamification_challenge__challenge_category__slides
+#: model:ir.model.fields.selection,name:website_slides.selection__gamification_challenge__category__slides
 msgid "Website / Slides"
 msgstr ""
 
@@ -5087,6 +4092,7 @@ msgstr "Zprávy webové stránky"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel__website_url
+#: model:ir.model.fields,field_description:website_slides.field_slide_channel_invite__channel_url
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_tag_group__website_url
 #: model:ir.model.fields,field_description:website_slides.field_slide_slide__website_url
 msgid "Website URL"
@@ -5123,22 +4129,6 @@ msgid "Website opengraph image"
 msgstr "Opengraph obrázek webových stránek"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"Welcome on your course's home page. It's still empty for now. Click on "
-"\"<b>New</b>\" to write your first course."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "What does"
-msgstr ""
-
-#. module: website_slides
 #: model:slide.question,question:website_slides.slide_slide_demo_0_4_question_0
 msgid "What is a strawberry ?"
 msgstr ""
@@ -5151,15 +4141,6 @@ msgstr ""
 #. module: website_slides
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_1_4_question_1_2
 msgid "What was the question again ?"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid ""
-"With Quizzes you can keep your students focused and motivated by answering "
-"some questions and gaining some karma points"
 msgstr ""
 
 #. module: website_slides
@@ -5180,6 +4161,13 @@ msgstr ""
 #. module: website_slides
 #: model:slide.slide,name:website_slides.slide_category_demo_3_0
 msgid "Working with Wood"
+msgstr ""
+
+#. module: website_slides
+#. openerp-web
+#: code:addons/website_slides/static/src/xml/website_slides_channel.xml:0
+#, python-format
+msgid "Write here a short description of your first course"
 msgstr ""
 
 #. module: website_slides
@@ -5204,32 +4192,18 @@ msgstr ""
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
 #, python-format
 msgid "XP"
 msgstr "XP"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_enroll_email.js:0
-#: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_1_4_question_0_0
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_1_4_question_1_0
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_2_0_question_0_0
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_2_0_question_1_0
 #: model:slide.answer,text_value:website_slides.slide_slide_demo_5_3_question_0_0
-#, python-format
 msgid "Yes"
 msgstr "Ano"
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"You can add <b>comments</b> on answers. This will be visible with the "
-"results if the user select this answer."
-msgstr ""
 
 #. module: website_slides
 #. openerp-web
@@ -5237,12 +4211,6 @@ msgstr ""
 #, python-format
 msgid "You can not upload password protected file."
 msgstr "Nelze nahrát soubor chráněný heslem."
-
-#. module: website_slides
-#: code:addons/website_slides/controllers/main.py:0
-#, python-format
-msgid "You cannot add tags to this course."
-msgstr ""
 
 #. module: website_slides
 #: code:addons/website_slides/models/slide_slide.py:0
@@ -5310,18 +4278,6 @@ msgid "You have been invited to join ${object.channel_id.name}"
 msgstr ""
 
 #. module: website_slides
-#: code:addons/website_slides/models/slide_channel.py:0
-#, python-format
-msgid "You have to sign in before"
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_all
-#: model_terms:ir.ui.view,arch_db:website_slides.courses_home
-msgid "You may now participate in our eLearning."
-msgstr ""
-
-#. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/js/slides_course_quiz.js:0
 #, python-format
@@ -5346,19 +4302,6 @@ msgid "You're enrolled"
 msgstr ""
 
 #. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.mail_notification_channel_invite
-msgid "Your"
-msgstr "Váš"
-
-#. module: website_slides
-#: code:addons/website_slides/models/slide_slide.py:0
-#, python-format
-msgid ""
-"Your Google API key is invalid, please update it in your settings.\n"
-"Settings > Website > Features > API Key"
-msgstr ""
-
-#. module: website_slides
 #: model:slide.channel.tag.group,name:website_slides.slide_channel_tag_group_level
 msgid "Your Level"
 msgstr ""
@@ -5366,16 +4309,6 @@ msgstr ""
 #. module: website_slides
 #: model:slide.channel.tag.group,name:website_slides.slide_channel_tag_group_role
 msgid "Your Role"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
-#, python-format
-msgid ""
-"Your first section is created, now it's time to add lessons to your course. "
-"Click on <b>Add Content</b> to upload a document, create a web page or link "
-"a video."
 msgstr ""
 
 #. module: website_slides
@@ -5408,6 +4341,11 @@ msgid "achieved"
 msgstr ""
 
 #. module: website_slides
+#: model_terms:ir.ui.view,arch_db:website_slides.slides_home_user_profile_small
+msgid "bg-200"
+msgstr "bg-200"
+
+#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_nav
 msgid "breadcrumb"
 msgstr "drobečky"
@@ -5431,6 +4369,8 @@ msgid ""
 "e.g. In this video, we'll give you the keys on how Odoo can help you to grow"
 " your business. At the end, we'll propose you a quiz to test your knowledge."
 msgstr ""
+"např. V tomto videu vám poskytneme klíče, jak vám Odoo může pomoci rozšířit "
+"vaše podnikání. Na konci vám navrhneme kvíz, který prověří vaše znalosti."
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_slide_form
@@ -5447,7 +4387,7 @@ msgstr "eLearning"
 #: model:ir.model.fields,field_description:website_slides.field_res_partner__slide_channel_ids
 #: model:ir.model.fields,field_description:website_slides.field_res_users__slide_channel_ids
 msgid "eLearning Courses"
-msgstr ""
+msgstr "eLearning Kurzy"
 
 #. module: website_slides
 #: model:ir.actions.act_window,name:website_slides.slide_channel_action_overview
@@ -5464,20 +4404,8 @@ msgid "login"
 msgstr "přihlášení"
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid ""
-"means? The YouTube \"unlisted\" means it is a video which can be viewed only"
-" by the users with the link to it. Your video will never come up in the "
-"search results nor on your channel."
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/js/slides_course_unsubscribe.js:0
-#, python-format
-msgid "or Leave the course"
+#: model_terms:ir.ui.view,arch_db:website_slides.slide_content_detailed
+msgid "mr-1"
 msgstr ""
 
 #. module: website_slides
@@ -5486,27 +4414,9 @@ msgid "reviews"
 msgstr ""
 
 #. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/slide_quiz.xml:0
-#: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
-#, python-format
-msgid "sign in"
-msgstr "přihlásit se"
-
-#. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.course_card
 msgid "steps"
 msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.course_sidebar
-msgid "to contact responsible."
-msgstr ""
-
-#. module: website_slides
-#: model_terms:ir.ui.view,arch_db:website_slides.join_course_link
-msgid "to download resources"
-msgstr "ke stažení zdrojů"
 
 #. module: website_slides
 #. openerp-web
@@ -5521,14 +4431,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_social_email
 #, python-format
 msgid "to share this"
-msgstr ""
-
-#. module: website_slides
-#. openerp-web
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#: code:addons/website_slides/static/src/xml/website_slides_upload.xml:0
-#, python-format
-msgid "unlisted"
 msgstr ""
 
 #. module: website_slides

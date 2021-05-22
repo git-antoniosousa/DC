@@ -4,7 +4,7 @@
 {
     'name': 'Calendar',
     'version': '1.0',
-    'sequence': 165,
+    'sequence': 130,
     'depends': ['base', 'mail'],
     'summary': "Schedule employees' meetings",
     'description': """
@@ -18,7 +18,7 @@ It supports:
 
 If you need to manage your meetings, you should install the CRM module.
     """,
-    'category': 'Productivity/Calendar',
+    'category': 'Tools',
     'demo': [
         'data/calendar_demo.xml'
     ],

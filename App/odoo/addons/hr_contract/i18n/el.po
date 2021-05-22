@@ -3,16 +3,16 @@
 # 	* hr_contract
 # 
 # Translators:
-# Martin Trigaux, 2020
+# Martin Trigaux, 2019
 # Kostas Goutoudis <goutoudis@gmail.com>, 2020
 # George Tarasidis <george_tarasidis@yahoo.com>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.5\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 07:28+0000\n"
-"PO-Revision-Date: 2020-09-07 08:12+0000\n"
+"POT-Creation-Date: 2020-04-27 09:21+0000\n"
+"PO-Revision-Date: 2019-08-26 09:10+0000\n"
 "Last-Translator: George Tarasidis <george_tarasidis@yahoo.com>, 2020\n"
 "Language-Team: Greek (https://www.transifex.com/odoo/teams/41243/el/)\n"
 "MIME-Version: 1.0\n"
@@ -22,13 +22,24 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: hr_contract
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_employee_view_kanban
+msgid ""
+"<i class=\"fa fa-exclamation-triangle text-danger\" role=\"img\" "
+"title=\"There is something wrong with the contract. Either there is no "
+"running contract for this employee or employee's contract is about to "
+"expire.\" aria-label=\"There is something wrong with the contract. Either "
+"there is no running contract for this employee or employee's contract is "
+"about to expire.\"/>"
+msgstr ""
+
+#. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
 msgid ""
 "<span attrs=\"{'invisible': ['|', ('calendar_mismatch', '=', False), ('state', '!=', 'open')]}\" class=\"fa fa-exclamation-triangle text-danger o_calendar_warning pl-3\">\n"
-"                                </span>\n"
-"                                <span class=\"o_calendar_warning_tooltip text-danger\">\n"
-"                                    Calendar Mismatch : The employee's calendar does not match this contract's calendar. This could lead to unexpected behaviors.\n"
-"                                </span>"
+"                                        </span>\n"
+"                                        <span class=\"o_calendar_warning_tooltip text-danger\">\n"
+"                                            Calendar Mismatch : The employee's calendar does not match this contract's calendar. This could lead to unexpected behaviors.\n"
+"                                        </span>"
 msgstr ""
 
 #. module: hr_contract
@@ -42,27 +53,8 @@ msgid ""
 msgstr ""
 
 #. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_hr_employee_view_form2
-msgid ""
-"<span class=\"o_stat_text text-danger\" attrs=\"{'invisible' : [('contract_warning', '=', False)]}\" title=\"In Contract Since\">\n"
-"                                    In Contract Since\n"
-"                                </span>"
-msgstr ""
-
-#. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_hr_employee_view_form2
-msgid ""
-"<span class=\"o_stat_text text-danger\">\n"
-"                                    Contracts\n"
-"                                </span>"
-msgstr ""
-
-#. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_hr_employee_view_form2
-msgid ""
-"<span class=\"o_stat_text text-success\" attrs=\"{'invisible' : "
-"[('contract_warning', '=', True)]}\" title=\"In Contract Since\"> In "
-"Contract Since</span>"
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
+msgid "<span class=\"text-muted\">(If fixed-term contract)</span>"
 msgstr ""
 
 #. module: hr_contract
@@ -96,13 +88,18 @@ msgid "Activity State"
 msgstr "Κατάσταση Δραστηριότητας"
 
 #. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__activity_type_icon
-msgid "Activity Type Icon"
+#: model:res.groups,name:hr_contract.group_hr_contract_manager
+msgid "Administrator"
 msgstr ""
 
 #. module: hr_contract
-#: model:res.groups,name:hr_contract.group_hr_contract_manager
-msgid "Administrator"
+#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__advantages
+msgid "Advantages"
+msgstr ""
+
+#. module: hr_contract
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
+msgid "Advantages..."
 msgstr ""
 
 #. module: hr_contract
@@ -152,11 +149,6 @@ msgid "Company Vehicle"
 msgstr ""
 
 #. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__company_country_id
-msgid "Company country"
-msgstr ""
-
-#. module: hr_contract
 #: model:ir.model,name:hr_contract.model_hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_search
 msgid "Contract"
@@ -173,21 +165,15 @@ msgid "Contract Details"
 msgstr ""
 
 #. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_departure_wizard_view_form
-msgid "Contract End Date"
-msgstr ""
-
-#. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__name
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
 msgid "Contract Reference"
 msgstr ""
 
 #. module: hr_contract
-#: model:ir.model,name:hr_contract.model_hr_payroll_structure_type
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__name
-msgid "Contract Type"
-msgstr "Τύπος Σύμβασης"
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
+msgid "Contract Terms"
+msgstr ""
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_employee__contract_warning
@@ -224,13 +210,9 @@ msgstr "Σύμβαση προς Ανανέωση"
 #: model:ir.ui.menu,name:hr_contract.menu_human_resources_configuration_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_activity
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_tree
+#: model_terms:ir.ui.view,arch_db:hr_contract.hr_hr_employee_view_form2
 msgid "Contracts"
 msgstr "Συμβάσεις"
-
-#. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__country_id
-msgid "Country"
-msgstr "Χώρα"
 
 #. module: hr_contract
 #: model_terms:ir.actions.act_window,help:hr_contract.action_hr_contract
@@ -239,13 +221,11 @@ msgstr ""
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__create_uid
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__create_uid
 msgid "Created by"
 msgstr "Δημιουργήθηκε από"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__create_date
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__create_date
 msgid "Created on"
 msgstr "Δημιουργήθηκε στις"
 
@@ -266,11 +246,6 @@ msgid "Current contract of the employee"
 msgstr ""
 
 #. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__default_resource_calendar_id
-msgid "Default Working Hours"
-msgstr ""
-
-#. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_kanban
 msgid "Delete"
 msgstr "Διαγραφή"
@@ -281,24 +256,7 @@ msgid "Department"
 msgstr "Τμήμα"
 
 #. module: hr_contract
-#: model:ir.model,name:hr_contract.model_hr_departure_wizard
-msgid "Departure Wizard"
-msgstr ""
-
-#. module: hr_contract
-#: code:addons/hr_contract/wizard/hr_departure_wizard.py:0
-#, python-format
-msgid ""
-"Departure date can't be earlier than the start date of current contract."
-msgstr ""
-
-#. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__display_name
-#: model:ir.model.fields,field_description:hr_contract.field_hr_departure_wizard__display_name
-#: model:ir.model.fields,field_description:hr_contract.field_hr_employee__display_name
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__display_name
-#: model:ir.model.fields,field_description:hr_contract.field_res_users__display_name
-#: model:ir.model.fields,field_description:hr_contract.field_resource_calendar__display_name
 msgid "Display Name"
 msgstr "Εμφάνιση Ονόματος"
 
@@ -366,12 +324,6 @@ msgid "Expired"
 msgstr ""
 
 #. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__first_contract_date
-#: model:ir.model.fields,field_description:hr_contract.field_hr_employee__first_contract_date
-msgid "First Contract Date"
-msgstr ""
-
-#. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_follower_ids
 msgid "Followers"
 msgstr "Ακόλουθοι"
@@ -385,11 +337,6 @@ msgstr "Ακόλουθοι (Κανάλια)"
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Ακόλουθοι (Συνεργάτες)"
-
-#. module: hr_contract
-#: model:ir.model.fields,help:hr_contract.field_hr_contract__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Γραμματοσειρά awesome  π.χ. fa-tasks"
 
 #. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_search
@@ -425,11 +372,6 @@ msgstr ""
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__id
-#: model:ir.model.fields,field_description:hr_contract.field_hr_departure_wizard__id
-#: model:ir.model.fields,field_description:hr_contract.field_hr_employee__id
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__id
-#: model:ir.model.fields,field_description:hr_contract.field_res_users__id
-#: model:ir.model.fields,field_description:hr_contract.field_resource_calendar__id
 msgid "ID"
 msgstr "Κωδικός"
 
@@ -451,6 +393,7 @@ msgstr "Εάν επιλεγεί τα νέα μηνύματα χρειάζοντ�
 
 #. module: hr_contract
 #: model:ir.model.fields,help:hr_contract.field_hr_contract__message_has_error
+#: model:ir.model.fields,help:hr_contract.field_hr_contract__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr ""
 
@@ -472,23 +415,16 @@ msgstr ""
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract____last_update
-#: model:ir.model.fields,field_description:hr_contract.field_hr_departure_wizard____last_update
-#: model:ir.model.fields,field_description:hr_contract.field_hr_employee____last_update
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type____last_update
-#: model:ir.model.fields,field_description:hr_contract.field_res_users____last_update
-#: model:ir.model.fields,field_description:hr_contract.field_resource_calendar____last_update
 msgid "Last Modified on"
 msgstr "Τελευταία τροποποίηση στις"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__write_uid
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__write_uid
 msgid "Last Updated by"
 msgstr "Τελευταία Ενημέρωση από"
 
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__write_date
-#: model:ir.model.fields,field_description:hr_contract.field_hr_payroll_structure_type__write_date
 msgid "Last Updated on"
 msgstr "Τελευταία Ενημέρωση στις"
 
@@ -500,6 +436,12 @@ msgstr "Καθυστερημένες Δραστηριότητες"
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_main_attachment_id
 msgid "Main Attachment"
+msgstr ""
+
+#. module: hr_contract
+#: model:ir.model.fields,field_description:hr_contract.field_hr_employee__medic_exam
+#: model:ir.model.fields,field_description:hr_contract.field_res_users__medic_exam
+msgid "Medical Examination Date"
 msgstr ""
 
 #. module: hr_contract
@@ -600,28 +542,18 @@ msgid "Running"
 msgstr "Σε Εξέλιξη"
 
 #. module: hr_contract
+#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
 msgid "Salary Information"
 msgstr ""
 
 #. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__structure_type_id
-msgid "Salary Structure Type"
-msgstr ""
-
-#. module: hr_contract
 #: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_search
 msgid "Search Contract"
-msgstr ""
-
-#. module: hr_contract
-#: model:ir.model.fields,field_description:hr_contract.field_hr_departure_wizard__set_date_end
-msgid "Set Contract End Date"
-msgstr ""
-
-#. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_departure_wizard_view_form
-msgid "Set end date to current contract"
 msgstr ""
 
 #. module: hr_contract
@@ -661,12 +593,6 @@ msgstr ""
 #. module: hr_contract
 #: model:ir.model.fields,help:hr_contract.field_hr_contract__state
 msgid "Status of the contract"
-msgstr ""
-
-#. module: hr_contract
-#: code:addons/hr_contract/models/hr_contract.py:0
-#, python-format
-msgid "The contract of %s is about to expire."
 msgstr ""
 
 #. module: hr_contract
@@ -715,6 +641,16 @@ msgid "Wage"
 msgstr "Μισθός"
 
 #. module: hr_contract
+#: model:ir.model.fields,field_description:hr_contract.field_hr_contract__website_message_ids
+msgid "Website Messages"
+msgstr "Μηνύματα Ιστότοπου"
+
+#. module: hr_contract
+#: model:ir.model.fields,help:hr_contract.field_hr_contract__website_message_ids
+msgid "Website communication history"
+msgstr "Ιστορικό επικοινωνίας ιστότοπου"
+
+#. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__permit_no
 msgid "Work Permit No"
 msgstr ""
@@ -722,9 +658,4 @@ msgstr ""
 #. module: hr_contract
 #: model:ir.model.fields,field_description:hr_contract.field_hr_contract__resource_calendar_id
 msgid "Working Schedule"
-msgstr ""
-
-#. module: hr_contract
-#: model_terms:ir.ui.view,arch_db:hr_contract.hr_contract_view_form
-msgid "Yearly Advantages"
 msgstr ""

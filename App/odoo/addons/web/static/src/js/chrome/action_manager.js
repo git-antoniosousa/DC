@@ -170,9 +170,6 @@ var ActionManager = Widget.extend({
 
                 return action;
             });
-        }).then(function(action) {
-            self.trigger_up('webclient_started');
-            return action;
         });
     },
     /**
@@ -393,10 +390,10 @@ var ActionManager = Widget.extend({
 
             return dialog.open().opened(function () {
                 self.currentDialogController = controller;
-                widget.setParent(dialog);
+
                 dom.append(dialog.$el, widget.$el, {
                     in_DOM: true,
-                    callbacks: [{widget: controller.widget}],
+                    callbacks: [{widget: dialog}, {widget: controller.widget}],
                 });
                 widget.renderButtons(dialog.$footer);
                 dialog.rebindButtonBehavior();
@@ -453,6 +450,9 @@ var ActionManager = Widget.extend({
         action.controllerID = controllerID;
         var prom = this._executeAction(action, options);
         prom.then(function () {
+            // AAB: this should be done automatically in AbstractAction, so that
+            // it can be overridden by actions that have specific stuff to push
+            // (e.g. Discuss, Views)
             self._pushState(controllerID, {});
         });
         return prom;
@@ -536,7 +536,7 @@ var ActionManager = Widget.extend({
                 var message = _t('A popup window has been blocked. You ' +
                              'may need to change your browser settings to allow ' +
                              'popup windows for this page.');
-                this.do_warn(false, message, true);
+                this.do_warn(_t('Warning'), message, true);
             }
         }
 
@@ -625,7 +625,6 @@ var ActionManager = Widget.extend({
                 state.active_ids = action.context.active_ids.join(',');
             }
         }
-        state = _.extend({}, controller.widget.getState(), state);
         return state;
     },
     /**
@@ -877,7 +876,7 @@ var ActionManager = Widget.extend({
     /**
      * @private
      * @param {OdooEvent} ev
-     * @param {string} ev.data.controllerID
+     * @param {OdooEvent} ev.data.controllerID
      */
     _onBreadcrumbClicked: function (ev) {
         ev.stopPropagation();

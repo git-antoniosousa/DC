@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo import api, fields, models
 
 
 class ResConfigSettings(models.TransientModel):
@@ -19,7 +18,7 @@ class ResConfigSettings(models.TransientModel):
         implied_group='stock.group_production_lot')
     group_lot_on_delivery_slip = fields.Boolean("Display Lots & Serial Numbers on Delivery Slips",
         implied_group='stock.group_lot_on_delivery_slip')
-    group_stock_tracking_lot = fields.Boolean("Packages",
+    group_stock_tracking_lot = fields.Boolean("Delivery Packages",
         implied_group='stock.group_tracking_lot')
     group_stock_tracking_owner = fields.Boolean("Consignment",
         implied_group='stock.group_tracking_owner')
@@ -27,26 +26,32 @@ class ResConfigSettings(models.TransientModel):
         implied_group='stock.group_adv_location',
         help="Add and customize route operations to process product moves in your warehouse(s): e.g. unload > quality control > stock for incoming products, pick > pack > ship for outgoing products. \n You can also set putaway strategies on warehouse locations in order to send incoming products into specific child locations straight away (e.g. specific bins, racks).")
     group_warning_stock = fields.Boolean("Warnings for Stock", implied_group='stock.group_warning_stock')
-    group_stock_sign_delivery = fields.Boolean("Signature", implied_group='stock.group_stock_sign_delivery')
     module_stock_picking_batch = fields.Boolean("Batch Pickings")
     module_stock_barcode = fields.Boolean("Barcode Scanner")
     stock_move_email_validation = fields.Boolean(related='company_id.stock_move_email_validation', readonly=False)
     stock_mail_confirmation_template_id = fields.Many2one(related='company_id.stock_mail_confirmation_template_id', readonly=False)
     module_stock_sms = fields.Boolean("SMS Confirmation")
     module_delivery = fields.Boolean("Delivery Methods")
-    module_delivery_dhl = fields.Boolean("DHL USA Connector")
-    module_delivery_fedex = fields.Boolean("FedEx Connector")
-    module_delivery_ups = fields.Boolean("UPS Connector")
-    module_delivery_usps = fields.Boolean("USPS Connector")
-    module_delivery_bpost = fields.Boolean("bpost Connector")
-    module_delivery_easypost = fields.Boolean("Easypost Connector")
+    module_delivery_dhl = fields.Boolean("DHL USA")
+    module_delivery_fedex = fields.Boolean("FedEx")
+    module_delivery_ups = fields.Boolean("UPS")
+    module_delivery_usps = fields.Boolean("USPS")
+    module_delivery_bpost = fields.Boolean("bpost")
+    module_delivery_easypost = fields.Boolean("Easypost")
     group_stock_multi_locations = fields.Boolean('Storage Locations', implied_group='stock.group_stock_multi_locations',
         help="Store products in specific locations of your warehouse (e.g. bins, racks) and to track inventory accordingly.")
+    group_stock_multi_warehouses = fields.Boolean('Multi-Warehouses', implied_group='stock.group_stock_multi_warehouses')
 
     @api.onchange('group_stock_multi_locations')
     def _onchange_group_stock_multi_locations(self):
         if not self.group_stock_multi_locations:
+            self.group_stock_multi_warehouses = False
             self.group_stock_adv_location = False
+
+    @api.onchange('group_stock_multi_warehouses')
+    def _onchange_group_stock_multi_warehouses(self):
+        if self.group_stock_multi_warehouses:
+            self.group_stock_multi_locations = True
 
     @api.onchange('group_stock_production_lot')
     def _onchange_group_stock_production_lot(self):
@@ -59,12 +64,6 @@ class ResConfigSettings(models.TransientModel):
             self.group_stock_multi_locations = True
 
     def set_values(self):
-        warehouse_grp = self.env.ref('stock.group_stock_multi_warehouses')
-        location_grp = self.env.ref('stock.group_stock_multi_locations')
-        base_user = self.env.ref('base.group_user')
-        if not self.group_stock_multi_locations and location_grp in base_user.implied_ids and warehouse_grp in base_user.implied_ids:
-            raise UserError(_("You can't desactivate the multi-location if you have more than once warehouse by company"))
-
         res = super(ResConfigSettings, self).set_values()
 
         if not self.user_has_groups('stock.group_stock_manager'):

@@ -41,7 +41,7 @@
                             <field name="email" attrs="{'required': [('send_by', '=', 'mail')]}"/>
                             <field name="phone" class="o_force_ltr" attrs="{'required': [('send_by', '=', 'phone')]}"/>
                             <field name="company_id" groups="base.group_multi_company"/>
-                            <field name="responsible_id" attrs="{'required': [('send_by', '=', 'mail')]}" groups="base.group_no_one" domain="[('share', '=', False)]"/>
+                            <field name="responsible_id" attrs="{'required': [('send_by', '=', 'mail')]}" groups="base.group_no_one"/>
                         </group>
                     </group>
                     <group>
@@ -66,9 +66,9 @@
                     </group>
                 </sheet>
                 <div class="oe_chatter">
-                    <field name="message_follower_ids" groups="base.group_user"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
                 </div>
             </form>
         </field>

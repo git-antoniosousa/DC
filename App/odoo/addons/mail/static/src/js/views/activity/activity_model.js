@@ -1,14 +1,15 @@
 odoo.define('mail.ActivityModel', function (require) {
 'use strict';
 
-const BasicModel = require('web.BasicModel');
-const session = require('web.session');
+var BasicModel = require('web.BasicModel');
+var session = require('web.session');
 
-const ActivityModel = BasicModel.extend({
+var ActivityModel = BasicModel.extend({
 
     //--------------------------------------------------------------------------
     // Public
     //--------------------------------------------------------------------------
+
     /**
      * Add the following (activity specific) keys when performing a `get` on the
      * main list datapoint:
@@ -18,52 +19,18 @@ const ActivityModel = BasicModel.extend({
      *
      * @override
      */
-    __get: function () {
+    get: function () {
         var result = this._super.apply(this, arguments);
         if (result && result.model === this.modelName && result.type === 'list') {
-            _.extend(result, this.additionalData, {getKanbanActivityData: this.getKanbanActivityData});
+            _.extend(result, this.additionalData);
         }
         return result;
-    },
-    /**
-     * @param {Object} activityGroup
-     * @param {integer} resId
-     * @returns {Object}
-     */
-    getKanbanActivityData(activityGroup, resId) {
-        return {
-            data: {
-                activity_ids: {
-                    model: 'mail.activity',
-                    res_ids: activityGroup.ids,
-                },
-                activity_state: activityGroup.state,
-                closest_deadline: activityGroup.o_closest_deadline,
-            },
-            fields: {
-                activity_ids: {},
-                activity_state: {
-                    selection: [
-                        ['overdue', "Overdue"],
-                        ['today', "Today"],
-                        ['planned', "Planned"],
-                    ],
-                },
-            },
-            fieldsInfo: {},
-            model: this.model,
-            type: 'record',
-            res_id: resId,
-            getContext: function () {
-                return {};
-            },
-        };
     },
     /**
      * @override
      * @param {Array[]} params.domain
      */
-    __load: function (params) {
+    load: function (params) {
         this.originalDomain = _.extend([], params.domain);
         params.domain.push(['activity_ids', '!=', false]);
         this.domain = params.domain;
@@ -78,7 +45,7 @@ const ActivityModel = BasicModel.extend({
      * @override
      * @param {Array[]} [params.domain]
      */
-    __reload: function (handle, params) {
+    reload: function (handle, params) {
         if (params && 'domain' in params) {
             this.originalDomain = _.extend([], params.domain);
             params.domain.push(['activity_ids', '!=', false]);

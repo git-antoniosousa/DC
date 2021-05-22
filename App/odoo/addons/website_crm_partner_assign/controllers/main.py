@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import datetime
-import werkzeug.urls
+import werkzeug
 
 from collections import OrderedDict
 from werkzeug.exceptions import NotFound
@@ -32,12 +32,14 @@ class WebsiteAccount(CustomerPortal):
             ('type', '=', 'opportunity')
         ]
 
-    def _prepare_home_portal_values(self, counters):
-        values = super()._prepare_home_portal_values(counters)
-        if 'lead_count' in counters:
-            values['lead_count'] = request.env['crm.lead'].search_count(self.get_domain_my_lead(request.env.user))
-        if 'opp_count' in counters:
-            values['opp_count'] = request.env['crm.lead'].search_count(self.get_domain_my_opp(request.env.user))
+    def _prepare_home_portal_values(self):
+        values = super(WebsiteAccount, self)._prepare_home_portal_values()
+        lead_count = request.env['crm.lead'].search_count(self.get_domain_my_lead(request.env.user))
+        opp_count = request.env['crm.lead'].search_count(self.get_domain_my_opp(request.env.user))
+        values.update({
+            'lead_count': lead_count,
+            'opp_count': opp_count,
+        })
         return values
 
     @http.route(['/my/leads', '/my/leads/page/<int:page>'], type='http', auth="user", website=True)
@@ -57,9 +59,10 @@ class WebsiteAccount(CustomerPortal):
             sortby = 'date'
         order = searchbar_sortings[sortby]['order']
 
+        # archive groups - Default Group By 'create_date'
+        archive_groups = self._get_archive_groups('crm.lead', domain) if values.get('my_details') else []
         if date_begin and date_end:
             domain += [('create_date', '>', date_begin), ('create_date', '<=', date_end)]
-
         # pager
         lead_count = CrmLead.search_count(domain)
         pager = request.website.pager(
@@ -76,6 +79,7 @@ class WebsiteAccount(CustomerPortal):
             'date': date_begin,
             'leads': leads,
             'page_name': 'lead',
+            'archive_groups': archive_groups,
             'default_url': '/my/leads',
             'pager': pager,
             'searchbar_sortings': searchbar_sortings,
@@ -105,7 +109,7 @@ class WebsiteAccount(CustomerPortal):
             'date': {'label': _('Newest'), 'order': 'create_date desc'},
             'name': {'label': _('Name'), 'order': 'name'},
             'contact_name': {'label': _('Contact Name'), 'order': 'contact_name'},
-            'revenue': {'label': _('Expected Revenue'), 'order': 'expected_revenue desc'},
+            'revenue': {'label': _('Expected Revenue'), 'order': 'planned_revenue desc'},
             'probability': {'label': _('Probability'), 'order': 'probability desc'},
             'stage': {'label': _('Stage'), 'order': 'stage_id'},
         }
@@ -121,6 +125,8 @@ class WebsiteAccount(CustomerPortal):
         if filterby == 'lost':
             CrmLead = CrmLead.with_context(active_test=False)
 
+        # archive groups - Default Group By 'create_date'
+        archive_groups = self._get_archive_groups('crm.lead', domain) if values.get('my_details') else []
         if date_begin and date_end:
             domain += [('create_date', '>', date_begin), ('create_date', '<=', date_end)]
         # pager
@@ -132,13 +138,14 @@ class WebsiteAccount(CustomerPortal):
             page=page,
             step=self._items_per_page
         )
-        # content according to pager
+        # content according to pager and archive selected
         opportunities = CrmLead.search(domain, order=order, limit=self._items_per_page, offset=pager['offset'])
 
         values.update({
             'date': date_begin,
             'opportunities': opportunities,
             'page_name': 'opportunity',
+            'archive_groups': archive_groups,
             'default_url': '/my/opportunities',
             'pager': pager,
             'searchbar_sortings': searchbar_sortings,
@@ -285,7 +292,7 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage):
 
         # search partners matching current search parameters
         partner_ids = partner_obj.sudo().search(
-            base_partner_domain, order="grade_sequence ASC, implemented_count DESC, display_name ASC, id ASC",
+            base_partner_domain, order="grade_sequence DESC, implemented_count DESC, display_name ASC, id ASC",
             offset=pager['offset'], limit=self._references_per_page)
         partners = partner_ids.sudo()
 
@@ -302,7 +309,7 @@ class WebsiteCrmPartnerAssign(WebsitePartnerPage):
             'google_map_partner_ids': google_map_partner_ids,
             'pager': pager,
             'searches': post,
-            'search_path': "%s" % werkzeug.urls.url_encode(post),
+            'search_path': "%s" % werkzeug.url_encode(post),
             'google_maps_api_key': google_maps_api_key,
         }
         return request.render("website_crm_partner_assign.index", values, status=partners and 200 or 404)

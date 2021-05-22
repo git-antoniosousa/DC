@@ -11,7 +11,6 @@ import re
 
 import requests
 from lxml import etree
-from random import randint
 from werkzeug import urls
 
 from odoo import api, fields, models, tools, SUPERUSER_ID, _
@@ -47,8 +46,8 @@ class FormatAddressMixin(models.AbstractModel):
 
     def _fields_view_get_address(self, arch):
         # consider the country of the user, not the country of the partner we want to display
-        address_view_id = self.env.company.country_id.address_view_id.sudo()
-        if address_view_id and not self._context.get('no_address_format') and (not address_view_id.model or address_view_id.model == self._name):
+        address_view_id = self.env.company.country_id.address_view_id
+        if address_view_id and not self._context.get('no_address_format'):
             #render the partner address accordingly to address_view_id
             doc = etree.fromstring(arch)
             for address_node in doc.xpath("//div[hasclass('o_address_format')]"):
@@ -60,7 +59,7 @@ class FormatAddressMixin(models.AbstractModel):
                 #(e.g fields not present on the model). In that case we just return arch
                 if self._name != 'res.partner':
                     try:
-                        self.env['ir.ui.view'].postprocess_and_fields(sub_view_node, model=self._name)
+                        self.env['ir.ui.view'].postprocess_and_fields(self._name, sub_view_node, None)
                     except ValueError:
                         return arch
                 address_node.getparent().replace(address_node, sub_view_node)
@@ -73,11 +72,8 @@ class PartnerCategory(models.Model):
     _order = 'name'
     _parent_store = True
 
-    def _get_default_color(self):
-        return randint(1, 11)
-
     name = fields.Char(string='Tag Name', required=True, translate=True)
-    color = fields.Integer(string='Color Index', default=_get_default_color)
+    color = fields.Integer(string='Color Index')
     parent_id = fields.Many2one('res.partner.category', string='Parent Category', index=True, ondelete='cascade')
     child_ids = fields.One2many('res.partner.category', 'parent_id', string='Child Tags')
     active = fields.Boolean(default=True, help="The active field allows you to hide the category without removing it.")
@@ -117,7 +113,8 @@ class PartnerCategory(models.Model):
             # Be sure name_search is symetric to name_get
             name = name.split(' / ')[-1]
             args = [('name', operator, name)] + args
-        return self._search(args, limit=limit, access_rights_uid=name_get_uid)
+        partner_category_ids = self._search(args, limit=limit, access_rights_uid=name_get_uid)
+        return models.lazy_name_get(self.browse(partner_category_ids).with_user(name_get_uid))
 
 
 class PartnerTitle(models.Model):
@@ -140,16 +137,14 @@ class Partner(models.Model):
 
     @api.model
     def default_get(self, default_fields):
-        """Add the company of the parent as default if we are creating a child partner.
-        Also take the parent lang by default if any, otherwise, fallback to default DB lang."""
+        """Add the company of the parent as default if we are creating a child partner."""
         values = super().default_get(default_fields)
-        parent = self.env["res.partner"]
         if 'parent_id' in default_fields and values.get('parent_id'):
-            parent = self.browse(values.get('parent_id'))
-            values['company_id'] = parent.company_id.id
-        if 'lang' in default_fields:
-            values['lang'] = values.get('lang') or parent.lang or self.env.lang
+            values['company_id'] = self.browse(values.get('parent_id')).company_id.id
         return values
+
+    def _split_street_with_params(self, street_raw, street_format):
+        return {'street': street_raw}
 
     name = fields.Char(index=True)
     display_name = fields.Char(compute='_compute_display_name', store=True, index=True)
@@ -159,7 +154,7 @@ class Partner(models.Model):
     parent_name = fields.Char(related='parent_id.name', readonly=True, string='Parent name')
     child_ids = fields.One2many('res.partner', 'parent_id', string='Contact', domain=[('active', '=', True)])  # force "active_test" domain to bypass _search() override
     ref = fields.Char(string='Reference', index=True)
-    lang = fields.Selection(_lang_get, string='Language',
+    lang = fields.Selection(_lang_get, string='Language', default=lambda self: self.env.lang,
                             help="All the emails and documents sent to this contact will be translated in this language.")
     active_lang_count = fields.Integer(compute='_compute_active_lang_count')
     tz = fields.Selection(_tz_get, string='Timezone', default=lambda self: self._context.get('tz'),
@@ -191,7 +186,6 @@ class Partner(models.Model):
         ], string='Address Type',
         default='contact',
         help="Invoice & Delivery addresses are used in sales orders. Private addresses are only visible by authorized users.")
-    # address fields
     street = fields.Char()
     street2 = fields.Char()
     zip = fields.Char(change_default=True)
@@ -228,7 +222,6 @@ class Partner(models.Model):
     commercial_company_name = fields.Char('Company Name Entity', compute='_compute_commercial_company_name',
                                           store=True)
     company_name = fields.Char('Company Name')
-    barcode = fields.Char(help="Use a barcode to identify this contact.", copy=False, company_dependent=True)
 
     # hack to allow using plain browse record in qweb views, and used in ir.qweb.field.contact
     self = fields.Many2one(comodel_name=_name, compute='_compute_get_ids')
@@ -263,21 +256,15 @@ class Partner(models.Model):
         for partner in self - super_partner:
             partner.partner_share = not partner.user_ids or not any(not user.share for user in partner.user_ids)
 
-    @api.depends('vat', 'company_id')
+    @api.depends('vat')
     def _compute_same_vat_partner_id(self):
         for partner in self:
             # use _origin to deal with onchange()
             partner_id = partner._origin.id
-            #active_test = False because if a partner has been deactivated you still want to raise the error,
-            #so that you can reactivate it instead of creating a new one, which would loose its history.
-            Partner = self.with_context(active_test=False).sudo()
-            domain = [
-                ('vat', '=', partner.vat),
-                ('company_id', 'in', [False, partner.company_id.id]),
-            ]
+            domain = [('vat', '=', partner.vat)]
             if partner_id:
                 domain += [('id', '!=', partner_id), '!', ('id', 'child_of', partner_id)]
-            partner.same_vat_partner_id = bool(partner.vat) and not partner.parent_id and Partner.search(domain, limit=1)
+            partner.same_vat_partner_id = bool(partner.vat) and not partner.parent_id and self.env['res.partner'].search(domain, limit=1)
 
     @api.depends(lambda self: self._display_address_depends())
     def _compute_contact_address(self):
@@ -319,7 +306,7 @@ class Partner(models.Model):
     def copy(self, default=None):
         self.ensure_one()
         chosen_name = default.get('name') if default else ''
-        new_name = chosen_name or _('%s (copy)', self.name)
+        new_name = chosen_name or _('%s (copy)') % self.name
         default = dict(default or {}, name=new_name)
         return super(Partner, self).copy(default)
 
@@ -388,11 +375,6 @@ class Partner(models.Model):
     @api.onchange('company_type')
     def onchange_company_type(self):
         self.is_company = (self.company_type == 'company')
-
-    @api.constrains('barcode')
-    def _check_barcode_unicity(self):
-        if self.env['res.partner'].search_count([('barcode', '=', self.barcode)]) > 1:
-            raise ValidationError('An other user already has this barcode')
 
     def _update_fields_values(self, fields):
         """ Returns dict of write() values for synchronizing ``fields`` """
@@ -517,7 +499,7 @@ class Partner(models.Model):
             self.invalidate_cache(['user_ids'], self._ids)
             for partner in self:
                 if partner.active and partner.user_ids:
-                    raise ValidationError(_('You cannot archive a contact linked to an internal user.'))
+                    raise ValidationError(_('You cannot archive a contact linked to a portal or internal user.'))
         # res.partner must only allow to set the company_id of a partner if it
         # is the same as the company of all users that inherit from this partner
         # (this is to allow the code from res_users to write to the partner!) or
@@ -679,33 +661,16 @@ class Partner(models.Model):
             res.append((partner.id, name))
         return res
 
-    def _parse_partner_name(self, text):
-        """ Parse partner name (given by text) in order to find a name and an
-        email. Supported syntax:
-
-          * Raoul <raoul@grosbedon.fr>
-          * "Raoul le Grand" <raoul@grosbedon.fr>
-          * Raoul raoul@grosbedon.fr (strange fault tolerant support from df40926d2a57c101a3e2d221ecfd08fbb4fea30e)
-
-        Otherwise: default, everything is set as the name. Starting from 13.3
-        returned email will be normalized to have a coherent encoding.
-         """
-        name, email = '', ''
-        split_results = tools.email_split_tuples(text)
-        if split_results:
-            name, email = split_results[0]
-
-        if email and not name:
-            fallback_emails = tools.email_split(text.replace(' ', ','))
-            if fallback_emails:
-                email = fallback_emails[0]
-                name = text[:text.index(email)].replace('"', '').replace('<', '').strip()
-
-        if email:
-            email = tools.email_normalize(email)
+    def _parse_partner_name(self, text, context=None):
+        """ Supported syntax:
+            - 'Raoul <raoul@grosbedon.fr>': will find name and email address
+            - otherwise: default, everything is set as the name """
+        emails = tools.email_split(text.replace(' ', ','))
+        if emails:
+            email = emails[0]
+            name = text[:text.index(email)].replace('"', '').replace('<', '').strip()
         else:
             name, email = text, ''
-
         return name, email
 
     @api.model
@@ -724,11 +689,9 @@ class Partner(models.Model):
         name, email = self._parse_partner_name(name)
         if self._context.get('force_email') and not email:
             raise UserError(_("Couldn't create contact without email address!"))
-
-        create_values = {self._rec_name: name or email}
-        if email:  # keep default_email in context
-            create_values['email'] = email
-        partner = self.create(create_values)
+        if not name and email:
+            name = email
+        partner = self.create({self._rec_name: name or email, 'email': email or self.env.context.get('default_email', False)})
         return partner.name_get()[0]
 
     @api.model
@@ -793,42 +756,37 @@ class Partner(models.Model):
                                vat=unaccent('res_partner.vat'),)
 
             where_clause_params += [search_name]*3  # for email / display_name, reference
-            where_clause_params += [re.sub('[^a-zA-Z0-9\-\.]+', '', search_name) or None]  # for vat
+            where_clause_params += [re.sub('[^a-zA-Z0-9]+', '', search_name) or None]  # for vat
             where_clause_params += [search_name]  # for order by
             if limit:
                 query += ' limit %s'
                 where_clause_params.append(limit)
             self.env.cr.execute(query, where_clause_params)
-            return [row[0] for row in self.env.cr.fetchall()]
+            partner_ids = [row[0] for row in self.env.cr.fetchall()]
 
+            if partner_ids:
+                return models.lazy_name_get(self.browse(partner_ids))
+            else:
+                return []
         return super(Partner, self)._name_search(name, args, operator=operator, limit=limit, name_get_uid=name_get_uid)
 
     @api.model
-    @api.returns('self', lambda value: value.id)
-    def find_or_create(self, email, assert_valid_email=False):
+    def find_or_create(self, email):
         """ Find a partner with the given ``email`` or use :py:method:`~.name_create`
-        to create a new one.
+            to create one
 
-        :param str email: email-like string, which should contain at least one email,
-            e.g. ``"Raoul Grosbedon <r.g@grosbedon.fr>"``
-        :param boolean assert_valid_email: raise if no valid email is found
-        :return: newly created record
-        """
-        if not email:
-            raise ValueError(_('An email is required for find_or_create to work'))
-
-        parsed_name, parsed_email = self._parse_partner_name(email)
-        if not parsed_email and assert_valid_email:
-            raise ValueError(_('A valid email is required for find_or_create to work properly.'))
-
-        partners = self.search([('email', '=ilike', parsed_email)], limit=1)
-        if partners:
-            return partners
-
-        create_values = {self._rec_name: parsed_name or parsed_email}
-        if parsed_email:  # keep default_email in context
-            create_values['email'] = parsed_email
-        return self.create(create_values)
+            :param str email: email-like string, which should contain at least one email,
+                e.g. ``"Raoul Grosbedon <r.g@grosbedon.fr>"``"""
+        assert email, 'an email is required for find_or_create to work'
+        emails = tools.email_split(email)
+        name_emails = tools.email_split_and_format(email)
+        if emails:
+            email = emails[0]
+            name_email = name_emails[0]
+        else:
+            name_email = email
+        partners = self.search([('email', '=ilike', email)], limit=1)
+        return partners.id or self.name_create(name_email)[0]
 
     def _get_gravatar_image(self, email):
         email_hash = hashlib.md5(email.lower().encode('utf-8')).hexdigest()
@@ -888,12 +846,11 @@ class Partner(models.Model):
 
     @api.model
     def view_header_get(self, view_id, view_type):
-        if self.env.context.get('category_id'):
-            return  _(
-                'Partners: %(category)s',
-                category=self.env['res.partner.category'].browse(self.env.context['category_id']).name,
-            )
-        return super().view_header_get(view_id, view_type)
+        res = super(Partner, self).view_header_get(view_id, view_type)
+        if res: return res
+        if not self._context.get('category_id'):
+            return False
+        return _('Partners: ') + self.env['res.partner.category'].browse(self._context['category_id']).name
 
     @api.model
     @api.returns('self')

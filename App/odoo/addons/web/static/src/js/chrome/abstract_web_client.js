@@ -20,20 +20,21 @@ var data_manager = require('web.data_manager');
 var dom = require('web.dom');
 var KeyboardNavigationMixin = require('web.KeyboardNavigationMixin');
 var Loading = require('web.Loading');
+var local_storage = require('web.local_storage');
 var RainbowMan = require('web.RainbowMan');
+var ServiceProviderMixin = require('web.ServiceProviderMixin');
 var session = require('web.session');
 var utils = require('web.utils');
 var Widget = require('web.Widget');
 
-const env = require('web.env');
-
 var _t = core._t;
 
-var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
+var AbstractWebClient = Widget.extend(ServiceProviderMixin, KeyboardNavigationMixin, {
     dependencies: ['notification'],
-    events: _.extend({}, KeyboardNavigationMixin.events),
+    events: _.extend({}, KeyboardNavigationMixin.events, {
+        'click .o_search_options .dropdown-menu': '_onClickDropDownMenu',
+    }),
     custom_events: {
-        call_service: '_onCallService',
         clear_uncommitted_changes: function (e) {
             this.clear_uncommitted_changes().then(e.data.callback);
         },
@@ -75,8 +76,7 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
             }
         },
         do_action: function (event) {
-            const actionProm = this.do_action(event.data.action, event.data.options || {});
-            this.menu_dp.add(actionProm).then(function (result) {
+            this.do_action(event.data.action, event.data.options || {}).then(function (result) {
                 if (event.data.on_success) {
                     event.data.on_success(result);
                 }
@@ -89,27 +89,21 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
         getScrollPosition: '_onGetScrollPosition',
         scrollTo: '_onScrollTo',
         set_title_part: '_onSetTitlePart',
-        webclient_started: '_onWebClientStarted',
     },
     init: function (parent) {
         // a flag to determine that odoo is fully loaded
         odoo.isReady = false;
         this.client_options = {};
         this._super(parent);
+        ServiceProviderMixin.init.call(this);
         KeyboardNavigationMixin.init.call(this);
         this.origin = undefined;
         this._current_state = null;
         this.menu_dp = new concurrency.DropPrevious();
         this.action_mutex = new concurrency.Mutex();
         this.set('title_part', {"zopenerp": "Odoo"});
-        this.env = env;
-        this.env.bus.on('set_title_part', this, this._onSetTitlePart);
     },
-    /**
-     * @override
-     */
     start: function () {
-        KeyboardNavigationMixin.start.call(this);
         var self = this;
 
         // we add the o_touch_device css class to allow CSS to target touch
@@ -127,10 +121,7 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
         if (!state.cids) {
             state.cids = utils.get_cookie('cids') !== null ? utils.get_cookie('cids') : String(current_company_id);
         }
-        // If a key appears several times in the hash, it is available in the
-        // bbq state as an array containing all occurrences of that key
-        const cids = Array.isArray(state.cids) ? state.cids[0] : state.cids;
-        let stateCompanyIDS = cids.split(',').map(cid => parseInt(cid, 10));
+        var stateCompanyIDS = _.map(state.cids.split(','), function (cid) { return parseInt(cid) });
         var userCompanyIDS = _.map(session.user_companies.allowed_companies, function(company) {return company[0]});
         // Check that the user has access to all the companies
         if (!_.isEmpty(_.difference(stateCompanyIDS, userCompanyIDS))) {
@@ -159,15 +150,17 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
                     // though it has no valid session
                     return Promise.resolve();
                 }
+            }).then(function () {
+                // Listen to 'scroll' event and propagate it on main bus
+                self.action_manager.$el.on('scroll', core.bus.trigger.bind(core.bus, 'scroll'));
+                core.bus.trigger('web_client_ready');
+                odoo.isReady = true;
+                if (session.uid === 1) {
+                    self.$el.addClass('o_is_superuser');
+                }
             });
     },
-    /**
-     * @override
-     */
-    destroy: function () {
-        KeyboardNavigationMixin.destroy.call(this);
-        return this._super(...arguments);
-    },
+
     bind_events: function () {
         var self = this;
         $('.oe_systray').show();
@@ -196,12 +189,14 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
                 }
             }, 0);
         });
+        window.addEventListener('blur', function (e) {self._hideAccessKeyOverlay(); });
         core.bus.on('click', this, function (ev) {
             $('.tooltip').remove();
             if (!$(ev.target).is('input[type=file]')) {
                 $(this.el.getElementsByClassName('oe_dropdown_menu oe_opened')).removeClass('oe_opened');
                 $(this.el.getElementsByClassName('oe_dropdown_toggle oe_opened')).removeClass('oe_opened');
             }
+            this._hideAccessKeyOverlay();
         });
         core.bus.on('connection_lost', this, this._onConnectionLost);
         core.bus.on('connection_restored', this, this._onConnectionRestored);
@@ -209,11 +204,6 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
     set_action_manager: function () {
         var self = this;
         this.action_manager = new ActionManager(this, session.user_context);
-        this.env.bus.on('do-action', this, payload => {
-            this.do_action(payload.action, payload.options || {})
-                .then(payload.on_success || (() => {}))
-                .guardedCatch(payload.on_fail || (() => {}));
-        });
         var fragment = document.createDocumentFragment();
         return this.action_manager.appendTo(fragment).then(function () {
             dom.append(self.$el, fragment, {
@@ -344,24 +334,14 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
     //--------------------------------------------------------------------------
 
     /**
-     * Calls the requested service from the env.
-     *
-     * For the ajax service, the arguments are extended with the target so that
-     * it can call back the caller.
+     * When clicking inside a dropdown to modify search options
+     * prevents the bootstrap dropdown to close on itself
      *
      * @private
-     * @param {OdooEvent} event
+     * @param {Event} ev
      */
-    _onCallService: function (ev) {
-        const payload = ev.data;
-        let args = payload.args || [];
-        if (payload.service === 'ajax' && payload.method === 'rpc') {
-            // ajax service uses an extra 'target' argument for rpc
-            args = args.concat(ev.target);
-        }
-        const service = this.env.services[payload.service];
-        const result = service[payload.method].apply(service, args);
-        payload.callback(result);
+    _onClickDropDownMenu: function (ev) {
+        ev.stopPropagation();
     },
     /**
      * Whenever the connection is lost, we need to notify the user.
@@ -370,7 +350,8 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
      */
     _onConnectionLost: function () {
         this.connectionNotificationID = this.displayNotification({
-            message: _t('Connection lost. Trying to reconnect...'),
+            title: _t('Connection lost'),
+            message: _t('Trying to reconnect...'),
             sticky: true
         });
     },
@@ -384,7 +365,8 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
             this.call('notification', 'close', this.connectionNotificationID);
             this.displayNotification({
                 type: 'info',
-                message: _t('Connection restored. You are back online.'),
+                title: _t('Connection restored'),
+                message: _t('You are back online'),
                 sticky: false
             });
             this.connectionNotificationID = false;
@@ -496,13 +478,13 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
     },
     /**
      * @private
-     * @param {Object} payload
-     * @param {string} payload.part
-     * @param {string} [payload.title]
+     * @param {OdooEvent} ev
+     * @param {string} ev.data.part
+     * @param {string} [ev.data.title]
      */
-    _onSetTitlePart: function (payload) {
-        var part = payload.part;
-        var title = payload.title;
+    _onSetTitlePart: function (ev) {
+        var part = ev.data.part;
+        var title = ev.data.title;
         this.set_title_part(part, title);
     },
     /**
@@ -531,24 +513,6 @@ var AbstractWebClient = Widget.extend(KeyboardNavigationMixin, {
             throw new Error('Unknown effect type: ' + type);
         }
     },
-    /**
-     * Reacts to the end of the loading of the WebClient as a whole
-     * It allows for signalling to the rest of the ecosystem that the interface is usable
-     *
-     * @private
-     */
-    _onWebClientStarted: function() {
-        if (!this.isStarted) {
-            // Listen to 'scroll' event and propagate it on main bus
-            this.action_manager.$el.on('scroll', core.bus.trigger.bind(core.bus, 'scroll'));
-            odoo.isReady = true;
-            core.bus.trigger('web_client_ready');
-            if (session.uid === 1) {
-                this.$el.addClass('o_is_superuser');
-            }
-            this.isStarted = true;
-        }
-    }
 });
 
 return AbstractWebClient;

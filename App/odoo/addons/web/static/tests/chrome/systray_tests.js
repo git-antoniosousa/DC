@@ -7,7 +7,8 @@ odoo.define('web.systray_tests', function (require) {
 
     QUnit.test('Adding async components to the registry respects the sequence', async function (assert) {
         assert.expect(2);
-        var parent = await testUtils.createParent({});
+        var parent = testUtils.createParent({
+        });
         var prom = testUtils.makeTestPromise();
 
         var synchronousFirstWidget = Widget.extend({

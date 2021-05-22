@@ -38,7 +38,7 @@ class SurveyUserInput(models.Model):
             user_inputs = self.search([
                 ('id', 'in', self.ids),
                 ('state', '=', 'done'),
-                ('scoring_success', '=', False),
+                ('quizz_passed', '=', False),
                 ('slide_partner_id', '!=', False)
             ])
 

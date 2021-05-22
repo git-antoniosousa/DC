@@ -1,32 +1,46 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import itertools
 import psycopg2
 
 from odoo import api
 from odoo.addons.base.models.ir_mail_server import MailDeliveryException
-from odoo.addons.test_mail.tests.common import TestMailCommon
+from odoo.addons.test_mail.tests import common as mail_common
 from odoo.tests import common
 from odoo.tools import mute_logger
 
 
-class TestMailMail(TestMailCommon):
+class TestMail(mail_common.BaseFunctionalTest, mail_common.MockEmails):
 
     @mute_logger('odoo.addons.mail.models.mail_mail')
     def test_mail_message_notify_from_mail_mail(self):
         # Due ot post-commit hooks, store send emails in every step
-        mail = self.env['mail.mail'].sudo().create({
+        self.email_to_list = []
+        mail = self.env['mail.mail'].create({
             'body_html': '<p>Test</p>',
             'email_to': 'test@example.com',
             'partner_ids': [(4, self.user_employee.partner_id.id)]
         })
-        with self.mock_mail_gateway():
-            mail.send()
-        self.assertSentEmail(mail.env.user.partner_id, ['test@example.com'])
-        self.assertEqual(len(self._mails), 1)
+        self.email_to_list.extend(itertools.chain.from_iterable(sent_email['email_to'] for sent_email in self._mails if sent_email.get('email_to')))
+        self.assertNotIn(u'Ernest Employee <e.e@example.com>', self.email_to_list)
+        mail.send()
+        self.email_to_list.extend(itertools.chain.from_iterable(sent_email['email_to'] for sent_email in self._mails if sent_email.get('email_to')))
+        self.assertNotIn(u'Ernest Employee <e.e@example.com>', self.email_to_list)
+        self.assertIn(u'test@example.com', self.email_to_list)
+
+    @mute_logger('odoo.addons.mail.models.mail_mail')
+    def test_mail_message_values_unicode(self):
+        mail = self.env['mail.mail'].create({
+            'body_html': '<p>Test</p>',
+            'email_to': 'test.😊@example.com',
+            'partner_ids': [(4, self.user_employee.partner_id.id)]
+        })
+
+        self.assertRaises(MailDeliveryException, lambda: mail.send(raise_exception=True))
 
 
-class TestMailMailRace(common.TransactionCase):
+class TestMailRace(common.TransactionCase, mail_common.MockEmails):
 
     @mute_logger('odoo.addons.mail.models.mail_mail')
     def test_mail_bounce_during_send(self):
@@ -34,7 +48,7 @@ class TestMailMailRace(common.TransactionCase):
             'name': 'Ernest Partner',
         })
         # we need to simulate a mail sent by the cron task, first create mail, message and notification by hand
-        mail = self.env['mail.mail'].sudo().create({
+        mail = self.env['mail.mail'].create({
             'body_html': '<p>Test</p>',
             'notification': True,
             'state': 'outgoing',

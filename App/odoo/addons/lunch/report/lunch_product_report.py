@@ -13,9 +13,9 @@ class LunchProductReport(models.Model):
 
     id = fields.Integer('ID')
     product_id = fields.Many2one('lunch.product', 'Product')
-    name = fields.Char('Product Name', related='product_id.name')
+    name = fields.Char('Product Name')
     category_id = fields.Many2one('lunch.product.category', 'Product Category')
-    description = fields.Text('Description', related='product_id.description')
+    description = fields.Text('Description')
     price = fields.Float('Price')
     supplier_id = fields.Many2one('lunch.supplier', 'Vendor')
     company_id = fields.Many2one('res.company')
@@ -33,7 +33,7 @@ class LunchProductReport(models.Model):
     def _compute_image_128(self):
         for product_r in self:
             product = product_r.product_id
-            category = product_r.sudo().category_id
+            category = product_r.category_id
             if product.image_128:
                 product_r.image_128 = product.image_128
             elif category.image_128:
@@ -92,7 +92,9 @@ class LunchProductReport(models.Model):
                 SELECT
                     row_number() over (ORDER BY users.id,product.id) AS id,
                     product.id AS product_id,
+                    product.name,
                     product.category_id,
+                    product.description,
                     product.price,
                     product.supplier_id,
                     product.company_id,

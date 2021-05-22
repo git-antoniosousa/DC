@@ -3,7 +3,7 @@
 
 {
     'name': 'EU Mini One Stop Shop (MOSS)',
-    'category': 'Accounting/Localizations',
+    'category': 'Localization',
     'description': """
 EU Mini One Stop Shop (MOSS) VAT for telecommunications, broadcasting and electronic services
 =============================================================================================

@@ -5,7 +5,6 @@
 
 // ======  Variables =========
 $o-theme-navbar-logo-height: $nav-link-height !default;
-$o-theme-navbar-fixed-logo-height: $nav-link-height !default;
 
 // Portal toolbar (filters, search bar)
 $o-portal-mobile-toolbar: true; // Enable/Disable custom design
@@ -31,6 +30,21 @@ body {
     direction: ltr;
 }
 
+#wrapwrap {
+    position: relative;
+    display: flex;
+    flex-flow: column nowrap;
+    width: 100%;
+    min-height: 100%;
+
+    > * {
+        flex: 0 0 auto;
+    }
+    > main {
+        flex: 1 0 auto;
+    }
+}
+
 header {
     .navbar-brand {
         flex: 0 0 auto;
@@ -48,6 +62,7 @@ header {
                 height: $o-theme-navbar-logo-height;
 
                 @include media-breakpoint-down(sm) {
+                    height: auto;
                     max-height: min($o-theme-navbar-logo-height, 5rem);
                 }
             }
@@ -59,6 +74,17 @@ header {
 }
 .navbar {
     margin-bottom: 0;
+
+    ul.nav > li {
+        &.divider {
+            display: none;
+            border-right: 1px solid $nav-divider-color;
+        }
+
+        &.active + .divider {
+            visibility: hidden;
+        }
+    }
     .nav.navbar-nav.float-right {
         @include media-breakpoint-down(sm) {
             float: none!important;
@@ -195,6 +221,11 @@ img, .media_iframe_video, .o_image {
         margin-right: $grid-gutter-width / 2;
     }
 }
+img.o_we_custom_image {
+    // Images added with the editor are .img-fluid by default but should
+    // still behave like inline content.
+    display: inline-block;
+}
 
 // Others
 ::-moz-selection {
@@ -324,13 +355,11 @@ img, .media_iframe_video, .o_image {
         th {
             padding-top: $o-portal-table-th-pt;
             padding-bottom: $o-portal-table-th-pb;
-            max-width: 500px;
         }
 
         td {
             padding-top: $o-portal-table-td-pt;
             padding-bottom: $o-portal-table-td-pb;
-            max-width: 10rem;
 
         }
 
@@ -341,8 +370,6 @@ img, .media_iframe_video, .o_image {
         td, th {
             vertical-align: middle;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
     }
 
@@ -510,54 +537,4 @@ form label {
             opacity: 1;
         }
     }
-
-    .o_portal_message_internal_off {
-        .btn-danger {
-            display: none;
-        }
-    }
-
-    .o_portal_message_internal_on {
-        .btn-success {
-            display: none;
-        }
-    }
 }
-
-.o_portal_security_body {
-    @extend .mx-auto;
-    max-width: map-get($container-max-widths, sm);
-    section {
-        @extend .mt-4;
-        form.oe_reset_password_form {
-            max-width: initial;
-            margin: initial;
-        }
-        .form-group {
-            // for the absolutely positioned meter on new password
-            position: relative;
-        }
-        label, button {
-            @extend .text-nowrap;
-        }
-    }
-}
-
-// Copyright
-.o_footer_copyright {
-    .o_footer_copyright_name {
-        vertical-align: middle;
-    }
-    .js_language_selector {
-        display: inline-block;
-    }
-    @include media-breakpoint-up(md) {
-        .row {
-            display: flex;
-            > div {
-                margin: auto 0;
-            }
-        }
-    }
-}
-

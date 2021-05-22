@@ -1,4 +1,4 @@
-France, 22/11/2019
+France, 2019-10-28
 
 I hereby agree to the terms of the Odoo Individual Contributor License
 Agreement v1.0.
@@ -8,4 +8,4 @@ declaration.
 
 Signed,
 
-Aurelien Pillevesse aurelienpillevesse@hotmail.fr https://github.com/AurelienPillevesse
+Aurelien Pillevesse aurelienpillevesse@hotmail.fr https://github.com/aurelienpillevesse

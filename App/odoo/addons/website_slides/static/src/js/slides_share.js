@@ -77,13 +77,12 @@ publicWidget.registry.websiteSlidesShare = publicWidget.Widget.extend({
 
     _onShareLinkCopy: function (ev) {
         ev.preventDefault();
-        var $clipboardBtn = $(ev.currentTarget);
+        var $clipboardBtn = this.$('.o_clipboard_button');
         $clipboardBtn.tooltip({title: "Copied !", trigger: "manual", placement: "bottom"});
         var self = this;
-        var clipboard = new ClipboardJS('#' + $clipboardBtn[0].id, {
+        var clipboard = new ClipboardJS('.o_clipboard_button', {
             target: function () {
-                var share_link_el = self.$('#wslides_share_link_id_' + $clipboardBtn[0].id.split('id_')[1]);
-                return share_link_el[0];
+                return self.$('.o_wslides_js_share_link')[0];
             },
             container: this.el
         });

@@ -5,7 +5,6 @@
 # Copyright 2015 Camptocamp SA
 
 from odoo.addons.stock.tests.common2 import TestStockCommon
-from odoo.tests.common import Form
 
 
 class TestVirtualAvailable(TestStockCommon):
@@ -82,36 +81,3 @@ class TestVirtualAvailable(TestStockCommon):
         self.picking_out_2.do_unreserve()
         # 8 units are available again
         self.assertAlmostEqual(40.0, self.product_3.free_qty)
-
-    def test_archive_product_1(self):
-        """`qty_available` and `virtual_available` are computed on archived products"""
-        self.assertTrue(self.product_3.active)
-        self.assertAlmostEqual(40.0, self.product_3.qty_available)
-        self.assertAlmostEqual(40.0, self.product_3.virtual_available)
-        self.product_3.active = False
-        self.assertAlmostEqual(40.0, self.product_3.qty_available)
-        self.assertAlmostEqual(40.0, self.product_3.virtual_available)
-
-    def test_archive_product_2(self):
-        """Archiving a product should archive its reordering rules"""
-        self.assertTrue(self.product_3.active)
-        orderpoint_form = Form(self.env['stock.warehouse.orderpoint'])
-        orderpoint_form.product_id = self.product_3
-        orderpoint_form.location_id = self.env.ref('stock.stock_location_stock')
-        orderpoint_form.product_min_qty = 0.0
-        orderpoint_form.product_max_qty = 5.0
-        orderpoint = orderpoint_form.save()
-        self.assertTrue(orderpoint.active)
-        self.product_3.active = False
-        self.assertFalse(orderpoint.active)
-
-    def test_search_qty_available(self):
-        product = self.env['product.product'].create({
-            'name': 'Brand new product',
-            'type': 'product',
-        })
-        result = self.env['product.product'].search([
-            ('qty_available', '=', 0),
-            ('id', 'in', product.ids),
-        ])
-        self.assertEqual(product, result)

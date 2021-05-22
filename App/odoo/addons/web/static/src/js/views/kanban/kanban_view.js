@@ -2,6 +2,7 @@ odoo.define('web.KanbanView', function (require) {
 "use strict";
 
 var BasicView = require('web.BasicView');
+var config = require('web.config');
 var core = require('web.core');
 var KanbanController = require('web.KanbanController');
 var kanbanExamplesRegistry = require('web.kanban_examples_registry');
@@ -31,7 +32,9 @@ var KanbanView = BasicView.extend({
         this._super.apply(this, arguments);
 
         this.loadParams.limit = this.loadParams.limit || 40;
-        this.loadParams.openGroupByDefault = true;
+        // in mobile, columns are lazy-loaded, so set 'openGroupByDefault' to
+        // false so that they will won't be loaded by the initial load
+        this.loadParams.openGroupByDefault = config.device.isMobile ? false : true;
         this.loadParams.type = 'list';
         this.noDefaultGroupby = params.noDefaultGroupby;
         var progressBar;
@@ -81,6 +84,12 @@ var KanbanView = BasicView.extend({
         this.controllerParams.on_create = archAttrs.on_create;
         this.controllerParams.hasButtons = !params.selectionMode ? true : false;
         this.controllerParams.quickCreateEnabled = this.rendererParams.quickCreateEnabled;
+
+
+        if (config.device.isMobile) {
+            this.jsLibs.push('/web/static/lib/jquery.touchSwipe/jquery.touchSwipe.js');
+        }
+
     },
 
     //--------------------------------------------------------------------------
@@ -108,8 +117,13 @@ var KanbanView = BasicView.extend({
      */
     _updateMVCParams: function () {
         this._super.apply(this, arguments);
-        if (this.searchMenuTypes.includes('groupBy') && !this.noDefaultGroupby && this.arch.attrs.default_group_by) {
-            this.loadParams.groupBy = [this.arch.attrs.default_group_by];
+        var defaultGroupBy = this.arch.attrs.default_group_by;
+        if (this.searchMenuTypes.includes('groupBy') && !this.noDefaultGroupby) {
+            this.loadParams.groupBy = defaultGroupBy ?
+                                        [defaultGroupBy] :
+                                        (this.loadParams.groupedBy || []);
+        } else {
+            this.loadParams.groupBy = [];
         }
     },
 });

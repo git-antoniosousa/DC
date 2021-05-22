@@ -105,7 +105,7 @@ publicWidget.registry.ProductWishlist = publicWidget.Widget.extend(VariantMixin,
                         product_id: productId,
                     },
                 }).then(function () {
-                    var $navButton = $('header .o_wsale_my_wish').first();
+                    var $navButton = wSaleUtils.getNavBarButton('.o_wsale_my_wish');
                     self.wishlistProductIDs.push(productId);
                     self._updateWishlistView();
                     wSaleUtils.animateClone($navButton, $el.closest('form'), 25, 40);
@@ -121,11 +121,12 @@ publicWidget.registry.ProductWishlist = publicWidget.Widget.extend(VariantMixin,
      * @private
      */
     _updateWishlistView: function () {
-        const $wishButton = $('.o_wsale_my_wish');
-        if ($wishButton.hasClass('o_wsale_my_wish_hide_empty')) {
-            $wishButton.toggleClass('d-none', !this.wishlistProductIDs.length);
+        if (this.wishlistProductIDs.length > 0) {
+            $('.o_wsale_my_wish').show();
+            $('.my_wish_quantity').text(this.wishlistProductIDs.length);
+        } else {
+            $('.o_wsale_my_wish').hide();
         }
-        $wishButton.find('.my_wish_quantity').text(this.wishlistProductIDs.length);
     },
     /**
      * @private
@@ -156,7 +157,7 @@ publicWidget.registry.ProductWishlist = publicWidget.Widget.extend(VariantMixin,
      * @private
      */
     _addOrMoveWish: function (e) {
-        var $navButton = $('header .o_wsale_my_cart').first();
+        var $navButton = wSaleUtils.getNavBarButton('.o_wsale_my_cart');
         var tr = $(e.currentTarget).parents('tr');
         var product = tr.data('product-id');
         $('.o_wsale_my_cart').removeClass('d-none');

@@ -9,7 +9,7 @@ from unicodedata import normalize
 
 import requests
 from lxml import etree, objectify
-from werkzeug import urls
+from werkzeug import urls, url_encode
 
 from odoo import api, fields, models, _
 from odoo.addons.payment.models.payment_acquirer import ValidationError
@@ -25,9 +25,7 @@ _logger = logging.getLogger(__name__)
 class PaymentAcquirerOgone(models.Model):
     _inherit = 'payment.acquirer'
 
-    provider = fields.Selection(selection_add=[
-        ('ogone', 'Ingenico')
-    ], ondelete={'ogone': 'set default'})
+    provider = fields.Selection(selection_add=[('ogone', 'Ingenico')])
     ogone_pspid = fields.Char('PSPID', required_if_provider='ogone', groups='base.group_user')
     ogone_userid = fields.Char('API User ID', required_if_provider='ogone', groups='base.group_user')
     ogone_password = fields.Char('API User Password', required_if_provider='ogone', groups='base.group_user')
@@ -179,7 +177,7 @@ class PaymentAcquirerOgone(models.Model):
             'DECLINEURL': urls.url_join(base_url, OgoneController._decline_url),
             'EXCEPTIONURL': urls.url_join(base_url, OgoneController._exception_url),
             'CANCELURL': urls.url_join(base_url, OgoneController._cancel_url),
-            'PARAMPLUS': urls.url_encode(param_plus),
+            'PARAMPLUS': url_encode(param_plus),
         }
         if self.save_token in ['ask', 'always']:
             temp_ogone_tx_values.update({
@@ -367,7 +365,7 @@ class PaymentTxOgone(models.Model):
             'ECI': 9,   # Recurring (from eCommerce)
             'ALIAS': self.payment_token_id.acquirer_ref,
             'RTIMEOUT': 30,
-            'PARAMPLUS': urls.url_encode(param_plus),
+            'PARAMPLUS': url_encode(param_plus),
             'EMAIL': self.partner_id.email or '',
             'CN': self.partner_id.name or '',
         }

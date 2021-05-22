@@ -3,15 +3,15 @@
 # 	* resource
 # 
 # Translators:
-# Martin Trigaux, 2020
+# Martin Trigaux, 2019
 # Alina Lisnenko <alinasemeniuk1@gmail.com>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-16 13:33+0000\n"
-"PO-Revision-Date: 2020-09-07 08:17+0000\n"
+"POT-Creation-Date: 2019-08-26 08:17+0000\n"
+"PO-Revision-Date: 2019-08-26 09:13+0000\n"
 "Last-Translator: Alina Lisnenko <alinasemeniuk1@gmail.com>, 2020\n"
 "Language-Team: Ukrainian (https://www.transifex.com/odoo/teams/41243/uk/)\n"
 "MIME-Version: 1.0\n"
@@ -22,13 +22,11 @@ msgstr ""
 
 #. module: resource
 #: code:addons/resource/models/resource.py:0
-#: code:addons/resource/models/resource.py:0
 #, python-format
 msgid "%s (copy)"
 msgstr "%s (копія)"
 
 #. module: resource
-#: model:ir.model.fields,field_description:resource.field_resource_calendar__active
 #: model:ir.model.fields,field_description:resource.field_resource_resource__active
 msgid "Active"
 msgstr "Активно"
@@ -37,11 +35,6 @@ msgstr "Активно"
 #: model:ir.model.fields.selection,name:resource.selection__resource_calendar_attendance__day_period__afternoon
 msgid "Afternoon"
 msgstr "Вдень"
-
-#. module: resource
-#: model_terms:ir.ui.view,arch_db:resource.view_resource_calendar_search
-msgid "Archived"
-msgstr "Заархівовано"
 
 #. module: resource
 #: model_terms:ir.ui.view,arch_db:resource.resource_calendar_form
@@ -158,8 +151,6 @@ msgstr ""
 "учасників проекту"
 
 #. module: resource
-#: model:ir.model.fields,field_description:resource.field_res_company__display_name
-#: model:ir.model.fields,field_description:resource.field_res_users__display_name
 #: model:ir.model.fields,field_description:resource.field_resource_calendar__display_name
 #: model:ir.model.fields,field_description:resource.field_resource_calendar_attendance__display_name
 #: model:ir.model.fields,field_description:resource.field_resource_calendar_leaves__display_name
@@ -167,7 +158,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:resource.field_resource_resource__display_name
 #: model:ir.model.fields,field_description:resource.field_resource_test__display_name
 msgid "Display Name"
-msgstr "Відобразити назву"
+msgstr "Назва для відображення"
 
 #. module: resource
 #: model:ir.model.fields,field_description:resource.field_resource_calendar_attendance__display_type
@@ -240,8 +231,6 @@ msgid "Human"
 msgstr "Кадри"
 
 #. module: resource
-#: model:ir.model.fields,field_description:resource.field_res_company__id
-#: model:ir.model.fields,field_description:resource.field_res_users__id
 #: model:ir.model.fields,field_description:resource.field_resource_calendar__id
 #: model:ir.model.fields,field_description:resource.field_resource_calendar_attendance__id
 #: model:ir.model.fields,field_description:resource.field_resource_calendar_leaves__id
@@ -270,13 +259,6 @@ msgstr ""
 " ресурсу, не видаливши його."
 
 #. module: resource
-#: model:ir.model.fields,help:resource.field_resource_calendar__active
-msgid ""
-"If the active field is set to false, it will allow you to hide the Working "
-"Time without removing it."
-msgstr ""
-
-#. module: resource
 #: code:addons/resource/models/resource.py:0
 #, python-format
 msgid ""
@@ -289,8 +271,6 @@ msgid "Inactive"
 msgstr "Неактивний"
 
 #. module: resource
-#: model:ir.model.fields,field_description:resource.field_res_company____last_update
-#: model:ir.model.fields,field_description:resource.field_res_users____last_update
 #: model:ir.model.fields,field_description:resource.field_resource_calendar____last_update
 #: model:ir.model.fields,field_description:resource.field_resource_calendar_attendance____last_update
 #: model:ir.model.fields,field_description:resource.field_resource_calendar_leaves____last_update
@@ -362,7 +342,7 @@ msgstr "Ранок"
 #: model:ir.model.fields,field_description:resource.field_resource_resource__name
 #: model:ir.model.fields,field_description:resource.field_resource_test__name
 msgid "Name"
-msgstr "Назва"
+msgstr "Ім'я"
 
 #. module: resource
 #: model:ir.model.fields.selection,name:resource.selection__resource_calendar_attendance__week_type__1
@@ -397,7 +377,7 @@ msgstr "Пов'язане ім'я користувача кадру для уп�
 #: model_terms:ir.ui.view,arch_db:resource.view_resource_calendar_leaves_search
 #: model_terms:ir.ui.view,arch_db:resource.view_resource_resource_search
 msgid "Resource"
-msgstr "Ресурс"
+msgstr "Кадр"
 
 #. module: resource
 #: model:ir.model,name:resource.model_resource_mixin
@@ -552,8 +532,8 @@ msgstr "Коефіцієнт ефективності не може бути р�
 #. module: resource
 #: code:addons/resource/models/resource.py:0
 #, python-format
-msgid "The start date of the time off must be earlier than the end date."
-msgstr ""
+msgid "The start date of the time off must be earlier end date."
+msgstr "Дата початку відпустки повинна бути раніше за дату кінця."
 
 #. module: resource
 #: model:ir.model.fields,help:resource.field_resource_calendar__tz
@@ -570,12 +550,17 @@ msgstr ""
 #. module: resource
 #: model:ir.model.fields,help:resource.field_resource_resource__time_efficiency
 msgid ""
-"This field is used to calculate the expected duration of a work order at "
-"this work center. For example, if a work order takes one hour and the "
+"This field is used to calculate the the expected duration of a work order at"
+" this work center. For example, if a work order takes one hour and the "
 "efficiency factor is 100%, then the expected duration will be one hour. If "
 "the efficiency factor is 200%, however the expected duration will be 30 "
 "minutes."
 msgstr ""
+"Це поле використовується для розрахунку очікуваної тривалості робочого "
+"замовлення в цьому робочому центрі. Наприклад, якщо робочий порядок займає "
+"одну годину, а коефіцієнт ефективності становить 100%, то очікувана "
+"тривалість становитиме одну годину. Якщо коефіцієнт ефективності становить "
+"200%, очікувана тривалість становить 30 хвилин."
 
 #. module: resource
 #: model:ir.model.fields.selection,name:resource.selection__resource_calendar_attendance__dayofweek__3

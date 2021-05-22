@@ -6,7 +6,7 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='is_move_sent']" position="after">
+                <xpath expr="//field[@name='invoice_sent']" position="after">
                     <field name="l10n_ch_isr_sent" invisible="1"/>
                     <field name="l10n_ch_currency_name" invisible="1" readonly="1"/>
                 </xpath>
@@ -17,10 +17,10 @@
                         string="Print ISR"
                         type="object"
                         attrs="{'invisible':['|', '|', '|', '|',
-                            ('move_type', 'not in', ('out_invoice', 'out_refund')),
+                            ('type', 'not in', ('out_invoice', 'out_refund')),
                             ('l10n_ch_isr_sent', '=', True),
                             ('state', '!=', 'posted'),
-                            ('payment_state', 'not in', ('not_paid', 'partial')),
+                            ('invoice_payment_state', '!=', 'not_paid'),
                             ('l10n_ch_currency_name', 'not in', ['EUR', 'CHF'])]}"
                         class="oe_highlight"
                         groups="base.group_user"
@@ -33,10 +33,10 @@
                         string="Print ISR"
                         type="object"
                         attrs="{'invisible':['|', '|', '|', '|',
-                            ('move_type', 'not in', ('out_invoice', 'out_refund')),
+                            ('type', 'not in', ('out_invoice', 'out_refund')),
                             ('l10n_ch_isr_sent', '=', False),
                             ('state', '!=', 'posted'),
-                            ('payment_state', 'not in', ('not_paid', 'partial')),
+                            ('invoice_payment_state', '!=', 'not_paid'),
                             ('l10n_ch_currency_name', 'not in', ['EUR', 'CHF'])]}"
                         groups="base.group_user"
                         />
@@ -46,7 +46,7 @@
                         type="object"
                         attrs="{'invisible':['|', ('state', '!=', 'posted'),
                                              '|', ('l10n_ch_isr_sent', '=', True),
-                                             '|', ('move_type', '!=', 'out_invoice'),
+                                             '|', ('type', '!=', 'out_invoice'),
                                              ('l10n_ch_currency_name', 'not in', ['EUR', 'CHF'])]}"
                         groups="base.group_user"
                         class="oe_highlight"
@@ -57,7 +57,7 @@
                         type="object"
                         attrs="{'invisible':['|', ('state', '!=', 'posted'),
                                              '|', ('l10n_ch_isr_sent', '=', False),
-                                             '|', ('move_type', '!=', 'out_invoice'),
+                                             '|', ('type', '!=', 'out_invoice'),
                                              ('l10n_ch_currency_name', 'not in', ['EUR', 'CHF'])]}"
                         groups="base.group_user"
                         />

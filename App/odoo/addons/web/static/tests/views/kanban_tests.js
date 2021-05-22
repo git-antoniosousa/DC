@@ -2,9 +2,7 @@ odoo.define('web.kanban_tests', function (require) {
 "use strict";
 
 var AbstractField = require('web.AbstractField');
-const Domain = require('web.Domain');
 var fieldRegistry = require('web.field_registry');
-const FormRenderer = require("web.FormRenderer");
 var KanbanColumnProgressBar = require('web.KanbanColumnProgressBar');
 var kanbanExamplesRegistry = require('web.kanban_examples_registry');
 var KanbanRenderer = require('web.KanbanRenderer');
@@ -14,9 +12,9 @@ var testUtils = require('web.test_utils');
 var Widget = require('web.Widget');
 var widgetRegistry = require('web.widget_registry');
 
+var createActionManager = testUtils.createActionManager;
 var makeTestPromise = testUtils.makeTestPromise;
 var nextTick = testUtils.nextTick;
-const cpHelpers = testUtils.controlPanel;
 var createView = testUtils.createView;
 
 QUnit.module('Views', {
@@ -42,14 +40,12 @@ QUnit.module('Views', {
                     datetime: {string: "Datetime Field", type: 'datetime'},
                     image: {string: "Image", type: "binary"},
                     displayed_image_id: {string: "cover", type: "many2one", relation: "ir.attachment"},
-                    currency_id: {string: "Currency", type: "many2one", relation: "currency", default: 1},
-                    salary: {string: "Monetary field", type: "monetary"},
                 },
                 records: [
-                    {id: 1, bar: true, foo: "yop", int_field: 10, qux: 0.4, product_id: 3, state: "abc", category_ids: [], 'image': 'R0lGODlhAQABAAD/ACwAAAAAAQABAAACAA==', salary: 1750, currency_id: 1},
-                    {id: 2, bar: true, foo: "blip", int_field: 9, qux: 13, product_id: 5, state: "def", category_ids: [6], salary: 1500, currency_id: 1},
-                    {id: 3, bar: true, foo: "gnap", int_field: 17, qux: -3, product_id: 3, state: "ghi", category_ids: [7], salary: 2000, currency_id: 2},
-                    {id: 4, bar: false, foo: "blip", int_field: -4, qux: 9, product_id: 5, state: "ghi", category_ids: [], salary: 2222, currency_id: 1},
+                    {id: 1, bar: true, foo: "yop", int_field: 10, qux: 0.4, product_id: 3, state: "abc", category_ids: [], 'image': 'R0lGODlhAQABAAD/ACwAAAAAAQABAAACAA=='},
+                    {id: 2, bar: true, foo: "blip", int_field: 9, qux: 13, product_id: 5, state: "def", category_ids: [6]},
+                    {id: 3, bar: true, foo: "gnap", int_field: 17, qux: -3, product_id: 3, state: "ghi", category_ids: [7]},
+                    {id: 4, bar: false, foo: "blip", int_field: -4, qux: 9, product_id: 5, state: "ghi", category_ids: []},
                 ]
             },
             product: {
@@ -83,20 +79,6 @@ QUnit.module('Views', {
                     {id: 1, name: "1.png", mimetype: 'image/png', res_model: 'partner', res_id: 1},
                     {id: 2, name: "2.png", mimetype: 'image/png', res_model: 'partner', res_id: 2},
                 ]
-            },
-            'currency': {
-                fields: {
-                    symbol: {string: "Symbol", type: "char"},
-                    position: {
-                        string: "Position",
-                        type: "selection",
-                        selection: [['after', 'A'], ['before', 'B']],
-                    },
-                },
-                records: [
-                    {id: 1, display_name: "USD", symbol: '$', position: 'before'},
-                    {id: 2, display_name: "EUR", symbol: '€', position: 'after'},
-                ],
             },
         };
     },
@@ -179,11 +161,12 @@ QUnit.module('Views', {
 
     QUnit.test('basic grouped rendering with active field (archivable by default)', async function (assert) {
         // var done = assert.async();
-        assert.expect(9);
+        assert.expect(10);
 
         // add active field on partner model and make all records active
         this.data.partner.fields.active = {string: 'Active', type: 'char', default: true};
 
+        var action = { action_id: 1 }
         var envIDs = [1, 2, 3, 4]; // the ids that should be in the environment during this test
         var kanban = await createView({
             View: KanbanView,
@@ -202,14 +185,23 @@ QUnit.module('Views', {
                     var records = this.data.partner.records
                     _.each(partnerIDS, function(partnerID) {
                         _.find(records, function (record) {
-                            return record.id === partnerID;
+                            return record.id === partnerID; 
                         }).active = false;
                     })
-                    this.data.partner.records[0].active;
-                    return Promise.resolve();
+
+                    // Returning an action should not cause a traceback (opw-2259540)
+                    return Promise.resolve(action);
                 }
                 return this._super.apply(this, arguments);
             },
+            intercepts: {
+                do_action: function (event) {
+                    assert.deepEqual(event.data.action, action, "should trigger a do_action");
+                    // Mocking the JS framework behavior
+                    kanban.reload();
+                    event.data.on_success(event.data.action);
+                },
+            }
         });
 
         // check archive/restore all actions in kanban header's config dropdown
@@ -229,7 +221,7 @@ QUnit.module('Views', {
         await testUtils.dom.click(kanban.$('.o_kanban_group:last .o_column_archive_records'));
         assert.ok($('.modal').length, 'a confirm modal should be displayed');
         await testUtils.modal.clickButton('Ok');
-        assert.containsNone(kanban, '.o_kanban_group:last .o_kanban_record', "last column should not contain any records");
+        assert.containsN(kanban, '.o_kanban_view .o_kanban_group', 1, "there should be one remaining column");
         envIDs = [4];
         assert.deepEqual(kanban.exportState().resIds, envIDs);
         kanban.destroy();
@@ -259,7 +251,7 @@ QUnit.module('Views', {
                     var records = this.data.partner.records
                     _.each(partnerIDS, function(partnerID) {
                         _.find(records, function (record) {
-                            return record.id === partnerID;
+                            return record.id === partnerID; 
                         }).active = false;
                     })
                     this.data.partner.records[0].active;
@@ -364,9 +356,10 @@ QUnit.module('Views', {
                     '</t></templates></kanban>',
             groupBy: ['bar'],
         });
+        await kanban.renderPager();
 
-        assert.containsNone(kanban, '.o_pager');
-
+        assert.isNotVisible(kanban.pager.$el,
+                        "pager should be hidden in grouped kanban");
         kanban.destroy();
     });
 
@@ -387,8 +380,9 @@ QUnit.module('Views', {
             },
         });
 
-        assert.containsOnce(kanban, '.o_pager');
-        assert.strictEqual(cpHelpers.getPagerSize(kanban), "4", "pager's size should be 4");
+        assert.isVisible(kanban.pager.$el,
+                        "pager should be visible in ungrouped kanban");
+        assert.strictEqual(kanban.pager.state.size, 4, "pager's size should be 4");
         kanban.destroy();
     });
 
@@ -412,8 +406,8 @@ QUnit.module('Views', {
             },
         });
 
-        assert.strictEqual(cpHelpers.getPagerValue(kanban), "1-2", "pager's limit should be 2");
-        assert.strictEqual(cpHelpers.getPagerSize(kanban), "4", "pager's size should be 4");
+        assert.strictEqual(kanban.pager.state.limit, 2, "pager's limit should be 2");
+        assert.strictEqual(kanban.pager.state.size, 4, "pager's size should be 4");
         kanban.destroy();
     });
 
@@ -438,8 +432,8 @@ QUnit.module('Views', {
             },
         });
 
-        assert.strictEqual(cpHelpers.getPagerValue(kanban), "1-3", "pager's limit should be 3");
-        assert.strictEqual(cpHelpers.getPagerSize(kanban), "4", "pager's size should be 4");
+        assert.strictEqual(kanban.pager.state.limit, 3, "pager's limit should be 3");
+        assert.strictEqual(kanban.pager.state.size, 4, "pager's size should be 4");
         kanban.destroy();
     });
 
@@ -552,10 +546,10 @@ QUnit.module('Views', {
             'web_read_group', // initial read_group
             '/web/dataset/search_read', // initial search_read (first column)
             '/web/dataset/search_read', // initial search_read (second column)
-            'onchange', // quick create
+            'default_get', // quick create
             'name_create', // should perform a name_create to create the record
             'read', // read the created record
-            'onchange', // reopen the quick create automatically
+            'default_get', // reopen the quick create automatically
         ]);
 
         kanban.destroy();
@@ -594,7 +588,7 @@ QUnit.module('Views', {
             },
         });
 
-        assert.containsOnce(kanban, '.o_control_panel', 'should have one control panel');
+        assert.containsOnce(kanban, '.o_cp_controller', 'should have one control panel');
         assert.containsOnce(kanban, '.o_kanban_group:first .o_kanban_record',
             "first column should contain one record");
 
@@ -606,7 +600,7 @@ QUnit.module('Views', {
             "should have a quick create element in the first column");
         assert.strictEqual($quickCreate.find('.o_form_view.o_xxs_form_view').length, 1,
             "should have rendered an XXS form view");
-        assert.containsOnce(kanban, '.o_control_panel', 'should not have instantiated an extra control panel');
+        assert.containsOnce(kanban, '.o_cp_controller', 'should not have instantiated an extra control panel');
         assert.strictEqual($quickCreate.find('input').length, 2,
             "should have two inputs");
         assert.strictEqual($quickCreate.find('.o_field_widget').length, 3,
@@ -626,11 +620,11 @@ QUnit.module('Views', {
             '/web/dataset/search_read', // initial search_read (first column)
             '/web/dataset/search_read', // initial search_read (second column)
             'load_views', // form view in quick create
-            'onchange', // quick create
+            'default_get', // quick create
             'create', // should perform a create to create the record
             'read', // read the created record
             'load_views', // form view in quick create (is actually in cache)
-            'onchange', // reopen the quick create automatically
+            'default_get', // reopen the quick create automatically
         ]);
 
         kanban.destroy();
@@ -683,10 +677,10 @@ QUnit.module('Views', {
             'web_read_group', // initial read_group
             '/web/dataset/search_read', // initial search_read (first column)
             '/web/dataset/search_read', // initial search_read (second column)
-            'onchange', // quick create
+            'default_get', // quick create
             'name_create', // should perform a name_create to create the record
             'read', // read the created record
-            'onchange', // reopen the quick create automatically
+            'default_get', // reopen the quick create automatically
         ]);
 
         kanban.destroy();
@@ -751,18 +745,18 @@ QUnit.module('Views', {
             '/web/dataset/search_read', // initial search_read (first column)
             '/web/dataset/search_read', // initial search_read (second column)
             'load_views', // form view in quick create
-            'onchange', // quick create
+            'default_get', // quick create
             'create', // should perform a create to create the record
             'read', // read the created record
             'load_views', // form view in quick create (is actually in cache)
-            'onchange', // reopen the quick create automatically
+            'default_get', // reopen the quick create automatically
         ]);
 
         kanban.destroy();
     });
 
     QUnit.test('quick create record with default values and onchanges', async function (assert) {
-        assert.expect(10);
+        assert.expect(11);
 
         this.data.partner.fields.int_field.default = 4;
         this.data.partner.onchanges = {
@@ -815,7 +809,8 @@ QUnit.module('Views', {
             '/web/dataset/search_read', // initial search_read (first column)
             '/web/dataset/search_read', // initial search_read (second column)
             'load_views', // form view in quick create
-            'onchange', // quick create
+            'default_get', // quick create
+            'onchange', // default_get's onchange
             'onchange', // onchange due to 'foo' field change
         ]);
 
@@ -897,42 +892,6 @@ QUnit.module('Views', {
         assert.hasClass(kanban.$('.o_status').first(),'o_status_green',
             "Kanban state should be done (Green)");
         kanban.destroy();
-    });
-
-    QUnit.test('window resize should not change quick create form size', async function (assert) {
-        assert.expect(2);
-
-        testUtils.mock.patch(FormRenderer, {
-            start: function () {
-                this._super.apply(this, arguments);
-                window.addEventListener("resize", this._applyFormSizeClass.bind(this));
-            },
-
-        });
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: '<kanban on_create="quick_create">' +
-                        '<field name="bar"/>' +
-                        '<templates><t t-name="kanban-box">' +
-                        '<div><field name="foo"/></div>' +
-                    '</t></templates></kanban>',
-            groupBy: ['bar'],
-        });
-
-        // click to add an element and cancel the quick creation by pressing ESC
-        await testUtils.dom.click(kanban.el.querySelector('.o_kanban_header .o_kanban_quick_add i'));
-
-        const quickCreate = kanban.el.querySelector('.o_kanban_quick_create');
-        assert.hasClass(quickCreate.querySelector('.o_form_view'), "o_xxs_form_view");
-
-        // trigger window resize explicitly to call _applyFormSizeClass
-        window.dispatchEvent(new Event('resize'));
-        assert.hasClass(quickCreate.querySelector('.o_form_view'), 'o_xxs_form_view');
-
-        kanban.destroy();
-        testUtils.mock.unpatch(FormRenderer);
     });
 
     QUnit.test('quick create record: cancel and validate without using the buttons', async function (assert) {
@@ -1212,7 +1171,7 @@ QUnit.module('Views', {
                     assert.step('onchange');
                     if (shouldDelayOnchange) {
                         return Promise.resolve(prom).then(function () {
-                            return result;
+                            return result
                         });
                     }
                 }
@@ -1307,7 +1266,7 @@ QUnit.module('Views', {
                     assert.step('onchange');
                     if (shouldDelayOnchange) {
                         return Promise.resolve(prom).then(function () {
-                            return result;
+                            return result
                         });
                     }
                 }
@@ -2573,7 +2532,6 @@ QUnit.module('Views', {
                     throw new Error("should not switch view");
                 },
             },
-            doNotDisableAHref: true,
         });
 
         var $record = kanban.$('.o_kanban_record:not(.o_kanban_ghost)');
@@ -2586,6 +2544,10 @@ QUnit.module('Views', {
         assert.ok(!!$testLink[0].href,
             "link inside kanban record should have non-empty href");
 
+        // Mocked views prevent accessing a link with href. This is intented
+        // most of the time, but not in this test which specifically needs to
+        // let the browser access a link with href.
+        kanban.$el.off('click', 'a');
         // Prevent the browser default behaviour when clicking on anything.
         // This includes clicking on a `<a>` with `href`, so that it does not
         // change the URL in the address bar.
@@ -3116,45 +3078,89 @@ QUnit.module('Views', {
         kanban.destroy();
     });
 
-    QUnit.test('kanban view not groupable', async function (assert) {
+    QUnit.test('kanban view without groupby menu', async function (assert) {
         assert.expect(3);
 
         const searchMenuTypesOriginal = KanbanView.prototype.searchMenuTypes;
         KanbanView.prototype.searchMenuTypes = ['filter', 'favorite'];
 
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <kanban class="o_kanban_test" default_group_by="bar">
-                    <field name="bar"/>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div><field name="foo"/></div>
-                        </t>
-                    </templates>
-                </kanban>
-            `,
+        const actionManager = await createActionManager({
+            actions: [{
+                id: 11,
+                name: 'Partners Action 11',
+                res_model: 'partner',
+                type: 'ir.actions.act_window',
+                views: [[3, 'kanban']],
+                search_view_id: [9, 'search'],
+                context: {
+                    search_default_itsName: 1,
+                },
+            }],
             archs: {
-                'partner,false,search': `
-                    <search>
-                        <filter string="candle" name="itsName" context="{'group_by': 'foo'}"/>
-                    </search>
-                `,
+                'partner,3,kanban': `<kanban class="o_kanban_test" default_group_by="bar">
+                    <field name="bar"/>
+                    <templates><t t-name="kanban-box">
+                    <div><field name="foo"/></div>
+                    </t></templates></kanban>`,
+
+                'partner,9,search': `<search>
+                    <filter name="filterA" string="A" domain="[]"/>
+                    <filter string="candle" name="itsName" context="{'group_by': 'foo'}"/>
+                    </search>`,
             },
+            data: this.data,
             mockRPC: function (route, args) {
                 if (args.method === 'read_group') {
                     throw new Error("Should not do a read_group RPC");
                 }
                 return this._super.apply(this, arguments);
             },
-            context: { search_default_itsName: 1, },
+        });
+
+        await actionManager.doAction(11);
+        await testUtils.nextTick();
+
+        assert.doesNotHaveClass(actionManager.$('.o_kanban_view'), 'o_kanban_grouped');
+        assert.containsNone(actionManager, '.o_control_panel .o_cp_right button:contains(Group By)',
+            "there should not be groupby dropdown");
+        await testUtils.fields.triggerKey('press', actionManager.$('.o_control_panel .o_searchview_input'), 97);
+        assert.containsNone(actionManager,
+            '.o_searchview .o_searchview_autocomplete:contains("Group by: candle")',
+            `filter suggestion should not have Group by suggestion`
+        );
+
+        actionManager.destroy();
+        KanbanView.prototype.searchMenuTypes = searchMenuTypesOriginal;
+    });
+
+    QUnit.test('kanban view with default_group_by and without groupby menu', async function (assert) {
+        assert.expect(2);
+
+        const searchMenuTypesOriginal = KanbanView.prototype.searchMenuTypes;
+        KanbanView.prototype.searchMenuTypes = ['filter', 'favorite'];
+        this.data.partner.records.product_id = 1;
+        this.data.product.records.push({ id: 1, display_name: "third product" });
+
+        const kanban = await createView({
+            View: KanbanView,
+            model: 'partner',
+            data: this.data,
+            arch: `<kanban class="o_kanban_test" default_group_by="bar">
+                        <field name="bar"/>
+                        <templates><t t-name="kanban-box">
+                        <div><field name="foo"/></div>
+                    '</t></templates></kanban>`,
+            mockRPC: function (route, args) {
+                if (route === '/web/dataset/call_kw/partner/web_read_group') {
+                    throw new Error("Should not do a read_group RPC");
+                }
+                return this._super.apply(this, arguments);
+            },
         });
 
         assert.doesNotHaveClass(kanban.$('.o_kanban_view'), 'o_kanban_grouped');
-        assert.containsNone(kanban, '.o_control_panel div.o_search_options div.o_group_by_menu');
-        assert.deepEqual(cpHelpers.getFacetTexts(kanban), []);
+        assert.containsNone(kanban, '.o_control_panel .o_cp_right button:contains(Group By)',
+            "there should not be groupby dropdown");
 
         kanban.destroy();
         KanbanView.prototype.searchMenuTypes = searchMenuTypesOriginal;
@@ -3490,8 +3496,8 @@ QUnit.module('Views', {
 
         // test column drag and drop having an 'Undefined' column
         await testUtils.dom.dragAndDrop(
-            kanban.$('.o_column_title:first'),
-            kanban.$('.o_column_title:last'), {position: 'right'}
+            kanban.$('.o_kanban_header_title:first'),
+            kanban.$('.o_kanban_header_title:last'), {position: 'right'}
         );
         assert.strictEqual(resequencedIDs, undefined,
             "resequencing require at least 2 not Undefined columns");
@@ -3500,14 +3506,14 @@ QUnit.module('Views', {
         await testUtils.dom.click(kanban.$('.o_column_quick_create button.o_kanban_add'));
         var newColumnID = kanban.$('.o_kanban_group:last').data('id');
         await testUtils.dom.dragAndDrop(
-            kanban.$('.o_column_title:first'),
-            kanban.$('.o_column_title:last'), {position: 'right'}
+            kanban.$('.o_kanban_header_title:first'),
+            kanban.$('.o_kanban_header_title:last'), {position: 'right'}
         );
         assert.deepEqual([3, newColumnID], resequencedIDs,
             "moving the Undefined column should not affect order of other columns");
         await testUtils.dom.dragAndDrop(
-            kanban.$('.o_column_title:first'),
-            kanban.$('.o_column_title:nth(1)'), {position: 'right'}
+            kanban.$('.o_kanban_header_title:first'),
+            kanban.$('.o_kanban_header_title:nth(1)'), {position: 'right'}
         );
         await nextTick(); // wait for resequence after drag and drop
         assert.deepEqual([newColumnID, 3], resequencedIDs,
@@ -3874,60 +3880,6 @@ QUnit.module('Views', {
         kanban.destroy();
     });
 
-    QUnit.test('nocontent helper after adding a record (kanban with progressbar)', async function (assert) {
-        assert.expect(3);
-
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `<kanban >
-                    <field name="product_id"/>
-                    <progressbar field="foo" colors='{"yop": "success", "gnap": "warning", "blip": "danger"}' sum_field="int_field"/>
-                    <templates>
-                      <t t-name="kanban-box">
-                        <div><field name="foo"/></div>
-                      </t>
-                    </templates>
-                </kanban>`,
-            groupBy: ['product_id'],
-            domain: [['foo', '=', 'abcd']],
-            mockRPC: function (route, args) {
-                if (args.method === 'web_read_group') {
-                    const result = {
-                        groups: [
-                            { __domain: [['product_id', '=', 3]], product_id_count: 0, product_id: [3, 'hello'] },
-                        ],
-                    };
-                    return Promise.resolve(result);
-                }
-                return this._super.apply(this, arguments);
-            },
-            viewOptions: {
-                action: {
-                    help: "No content helper",
-                },
-            },
-        });
-
-        assert.containsOnce(kanban, '.o_view_nocontent', "the nocontent helper is displayed");
-
-        // add a record
-        await testUtils.dom.click(kanban.$('.o_kanban_quick_add'));
-        await testUtils.fields.editInput(kanban.$('.o_kanban_quick_create .o_input'), 'twilight sparkle');
-        await testUtils.dom.click(kanban.$('button.o_kanban_add'));
-
-        assert.containsNone(kanban, '.o_view_nocontent',
-            "the nocontent helper is not displayed after quick create");
-
-        // cancel quick create
-        await testUtils.dom.click(kanban.$('button.o_kanban_cancel'));
-        assert.containsNone(kanban, '.o_view_nocontent',
-            "the nocontent helper is not displayed after cancelling the quick create");
-
-        kanban.destroy();
-    });
-
     QUnit.test('if view was not grouped at start, it can be grouped and ungrouped', async function (assert) {
         assert.expect(3);
 
@@ -3949,61 +3901,6 @@ QUnit.module('Views', {
         await kanban.update({groupBy: []});
         assert.doesNotHaveClass(kanban.$('.o_kanban_view'), 'o_kanban_grouped');
 
-        kanban.destroy();
-    });
-
-    QUnit.test('no content helper when archive all records in kanban group', async function (assert) {
-        assert.expect(3);
-
-        // add active field on partner model to have archive option
-        this.data.partner.fields.active = {string: 'Active', type: 'boolean', default: true};
-        // remove last records to have only one column
-        this.data.partner.records = this.data.partner.records.slice(0, 3);
-
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `<kanban class="o_kanban_test">
-                        <field name="active"/>
-                        <field name="bar"/>
-                        <templates>
-                            <t t-name="kanban-box">
-                               <div><field name="foo"/></div>
-                            </t>
-                        </templates>
-                    </kanban>`,
-            viewOptions: {
-                action: {
-                    help: '<p class="hello">click to add a partner</p>'
-                }
-            },
-            groupBy: ['bar'],
-            mockRPC: function (route, args) {
-                if (route === '/web/dataset/call_kw/partner/action_archive') {
-                    const partnerIDS = args.args[0];
-                    const records = this.data.partner.records;
-                    _.each(partnerIDS, function (partnerID) {
-                        _.find(records, function (record) {
-                            return record.id === partnerID;
-                        }).active = false;
-                    });
-                    return Promise.resolve();
-                }
-                return this._super.apply(this, arguments);
-            },
-        });
-
-        // check that the (unique) column contains 3 records
-        assert.containsN(kanban, '.o_kanban_group:last .o_kanban_record', 3);
-
-        // archive the records of the last column
-        testUtils.kanban.toggleGroupSettings($(kanban.el.querySelector('.o_kanban_group'))); // we should change the helper
-        await testUtils.dom.click(kanban.el.querySelector('.o_kanban_group .o_column_archive_records'));
-        assert.containsOnce(document.body, '.modal');
-        await testUtils.modal.clickButton('Ok');
-        // check no content helper is exist
-        assert.containsOnce(kanban, '.o_view_nocontent');
         kanban.destroy();
     });
 
@@ -4380,649 +4277,6 @@ QUnit.module('Views', {
             "there should not be a nocontent helper");
         assert.containsNone(kanban, '.o_column_quick_create',
             "there should not be a column quick create");
-        kanban.destroy();
-    });
-
-    QUnit.test('empty grouped kanban with sample data and no columns', async function (assert) {
-        assert.expect(3);
-
-        this.data.partner.records = [];
-
-        const kanban = await createView({
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <div t-name="kanban-box">
-                            <field name="foo"/>
-                        </div>
-                    </templates>
-                </kanban>`,
-            data: this.data,
-            groupBy: ['product_id'],
-            model: 'partner',
-            View: KanbanView,
-            viewOptions: {
-                action: {
-                    help: "No content helper",
-                },
-            },
-        });
-
-        assert.containsNone(kanban, '.o_view_nocontent');
-        assert.containsOnce(kanban, '.o_quick_create_unfolded');
-        assert.containsOnce(kanban, '.o_kanban_example_background_container');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('empty grouped kanban with sample data and click quick create', async function (assert) {
-        assert.expect(11);
-
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div><field name="foo"/></div>
-                        </t>
-                    </templates>
-                </kanban>`,
-            groupBy: ['product_id'],
-            async mockRPC(route, { kwargs, method }) {
-                const result = await this._super(...arguments);
-                if (method === 'web_read_group') {
-                    // override read_group to return empty groups, as this is
-                    // the case for several models (e.g. project.task grouped
-                    // by stage_id)
-                    result.groups.forEach(group => {
-                        group[`${kwargs.groupby[0]}_count`] = 0;
-                    });
-                }
-                return result;
-            },
-            viewOptions: {
-                action: {
-                    help: "No content helper",
-                },
-            },
-        });
-
-        assert.containsN(kanban, '.o_kanban_group', 2,
-            "there should be two columns");
-        assert.hasClass(kanban.$el, 'o_view_sample_data');
-        assert.containsOnce(kanban, '.o_view_nocontent');
-        assert.containsN(kanban, '.o_kanban_record', 16,
-            "there should be 8 sample records by column");
-
-        await testUtils.dom.click(kanban.$('.o_kanban_quick_add:first'));
-        assert.doesNotHaveClass(kanban.$el, 'o_view_sample_data');
-        assert.containsNone(kanban, '.o_kanban_record');
-        assert.containsNone(kanban, '.o_view_nocontent');
-        assert.containsOnce(kanban.$('.o_kanban_group:first'), '.o_kanban_quick_create');
-
-        await testUtils.fields.editInput(kanban.$('.o_kanban_quick_create .o_input'), 'twilight sparkle');
-        await testUtils.dom.click(kanban.$('.o_kanban_quick_create button.o_kanban_add'));
-
-        assert.doesNotHaveClass(kanban.$el, 'o_view_sample_data');
-        assert.containsOnce(kanban.$('.o_kanban_group:first'), '.o_kanban_record');
-        assert.containsNone(kanban, '.o_view_nocontent');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('empty grouped kanban with sample data and cancel quick create', async function (assert) {
-        assert.expect(12);
-
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div><field name="foo"/></div>
-                        </t>
-                    </templates>
-                </kanban>`,
-            groupBy: ['product_id'],
-            async mockRPC(route, { kwargs, method }) {
-                const result = await this._super(...arguments);
-                if (method === 'web_read_group') {
-                    // override read_group to return empty groups, as this is
-                    // the case for several models (e.g. project.task grouped
-                    // by stage_id)
-                    result.groups.forEach(group => {
-                        group[`${kwargs.groupby[0]}_count`] = 0;
-                    });
-                }
-                return result;
-            },
-            viewOptions: {
-                action: {
-                    help: "No content helper",
-                },
-            },
-        });
-
-        assert.containsN(kanban, '.o_kanban_group', 2,
-            "there should be two columns");
-        assert.hasClass(kanban.$el, 'o_view_sample_data');
-        assert.containsOnce(kanban, '.o_view_nocontent');
-        assert.containsN(kanban, '.o_kanban_record', 16,
-            "there should be 8 sample records by column");
-
-        await testUtils.dom.click(kanban.$('.o_kanban_quick_add:first'));
-        assert.doesNotHaveClass(kanban.$el, 'o_view_sample_data');
-        assert.containsNone(kanban, '.o_kanban_record');
-        assert.containsNone(kanban, '.o_view_nocontent');
-        assert.containsOnce(kanban.$('.o_kanban_group:first'), '.o_kanban_quick_create');
-
-        await testUtils.dom.click(kanban.$('.o_kanban_view'));
-        assert.doesNotHaveClass(kanban.$el, 'o_view_sample_data');
-        assert.containsNone(kanban, '.o_kanban_quick_create');
-        assert.containsNone(kanban, '.o_kanban_record');
-        assert.containsOnce(kanban, '.o_view_nocontent');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('empty grouped kanban with sample data: keyboard navigation', async function (assert) {
-        assert.expect(5);
-
-        const kanban = await createView({
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <div t-name="kanban-box">
-                            <field name="foo"/>
-                            <field name="state" widget="priority"/>
-                        </div>
-                    </templates>
-                </kanban>`,
-            data: this.data,
-            groupBy: ['product_id'],
-            model: 'partner',
-            View: KanbanView,
-            async mockRPC(route, { kwargs, method }) {
-                const result = await this._super(...arguments);
-                if (method === 'web_read_group') {
-                    result.groups.forEach(g => g.product_id_count = 0);
-                }
-                return result;
-            },
-        });
-
-        // Check keynav is disabled
-        assert.hasClass(
-            kanban.el.querySelector('.o_kanban_record'),
-            'o_sample_data_disabled'
-        );
-        assert.hasClass(
-            kanban.el.querySelector('.o_kanban_toggle_fold'),
-            'o_sample_data_disabled'
-        );
-        assert.containsNone(kanban.renderer, '[tabindex]:not([tabindex="-1"])');
-
-        assert.hasClass(document.activeElement, 'o_searchview_input');
-
-        await testUtils.fields.triggerKeydown(document.activeElement, 'down');
-
-        assert.hasClass(document.activeElement, 'o_searchview_input');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('empty kanban with sample data', async function (assert) {
-        assert.expect(6);
-
-        this.data.partner.records = [];
-
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div><field name="foo"/></div>
-                        </t>
-                    </templates>
-                </kanban>`,
-            viewOptions: {
-                action: {
-                    help: "No content helper",
-                },
-            },
-        });
-
-        assert.hasClass(kanban.$el, 'o_view_sample_data');
-        assert.containsN(kanban, '.o_kanban_record:not(.o_kanban_ghost)', 10,
-            "there should be 10 sample records");
-        assert.containsOnce(kanban, '.o_view_nocontent');
-
-        await kanban.reload({ domain: [['id', '<', 0]]});
-        assert.doesNotHaveClass(kanban.$el, 'o_view_sample_data');
-        assert.containsNone(kanban, '.o_kanban_record:not(.o_kanban_ghost)');
-        assert.containsOnce(kanban, '.o_view_nocontent');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('empty grouped kanban with sample data and many2many_tags', async function (assert) {
-        assert.expect(6);
-
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div>
-                                <field name="int_field"/>
-                                <field name="category_ids" widget="many2many_tags"/>
-                            </div>
-                        </t>
-                    </templates>
-                </kanban>`,
-            groupBy: ['product_id'],
-            async mockRPC(route, { kwargs, method }) {
-                assert.step(method || route);
-                const result = await this._super(...arguments);
-                if (method === 'web_read_group') {
-                    // override read_group to return empty groups, as this is
-                    // the case for several models (e.g. project.task grouped
-                    // by stage_id)
-                    result.groups.forEach(group => {
-                        group[`${kwargs.groupby[0]}_count`] = 0;
-                    });
-                }
-                return result;
-            },
-        });
-
-        assert.containsN(kanban, '.o_kanban_group', 2, "there should be 2 'real' columns");
-        assert.hasClass(kanban.$el, 'o_view_sample_data');
-        assert.ok(kanban.$('.o_kanban_record').length >= 1, "there should be sample records");
-        assert.ok(kanban.$('.o_field_many2manytags .o_tag').length >= 1, "there should be tags");
-
-        assert.verifySteps(["web_read_group"], "should not read the tags");
-        kanban.destroy();
-    });
-
-    QUnit.test('sample data does not change after reload with sample data', async function (assert) {
-        assert.expect(4);
-
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div><field name="int_field"/></div>
-                        </t>
-                    </templates>
-                </kanban>`,
-            groupBy: ['product_id'],
-            async mockRPC(route, { kwargs, method }) {
-                const result = await this._super(...arguments);
-                if (method === 'web_read_group') {
-                    // override read_group to return empty groups, as this is
-                    // the case for several models (e.g. project.task grouped
-                    // by stage_id)
-                    result.groups.forEach(group => {
-                        group[`${kwargs.groupby[0]}_count`] = 0;
-                    });
-                }
-                return result;
-            },
-        });
-
-        const columns = kanban.el.querySelectorAll('.o_kanban_group');
-
-        assert.ok(columns.length >= 1, "there should be at least 1 sample column");
-        assert.hasClass(kanban.$el, 'o_view_sample_data');
-        assert.containsN(kanban, '.o_kanban_record', 16);
-
-        const kanbanText = kanban.el.innerText;
-        await kanban.reload();
-
-        assert.strictEqual(kanbanText, kanban.el.innerText,
-            "the content should be the same after reloading the view");
-
-        kanban.destroy();
-    });
-
-    QUnit.test('non empty kanban with sample data', async function (assert) {
-        assert.expect(5);
-
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div><field name="foo"/></div>
-                        </t>
-                    </templates>
-                </kanban>`,
-            viewOptions: {
-                action: {
-                    help: "No content helper",
-                },
-            },
-        });
-
-        assert.doesNotHaveClass(kanban.$el, 'o_view_sample_data');
-        assert.containsN(kanban, '.o_kanban_record:not(.o_kanban_ghost)', 4);
-        assert.containsNone(kanban, '.o_view_nocontent');
-
-        await kanban.reload({ domain: [['id', '<', 0]]});
-        assert.doesNotHaveClass(kanban.$el, 'o_view_sample_data');
-        assert.containsNone(kanban, '.o_kanban_record:not(.o_kanban_ghost)');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('empty grouped kanban with sample data: add a column', async function (assert) {
-        assert.expect(6);
-
-        const kanban = await createView({
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <div t-name="kanban-box">
-                            <field name="foo"/>
-                        </div>
-                    </templates>
-                </kanban>`,
-            data: this.data,
-            groupBy: ['product_id'],
-            model: 'partner',
-            View: KanbanView,
-            async mockRPC(route, { method }) {
-                const result = await this._super(...arguments);
-                if (method === 'web_read_group') {
-                    result.groups = this.data.product.records.map(r => {
-                        return {
-                            product_id: [r.id, r.display_name],
-                            product_id_count: 0,
-                            __domain: ['product_id', '=', r.id],
-                        };
-                    });
-                    result.length = result.groups.length;
-                }
-                return result;
-            },
-        });
-
-        assert.hasClass(kanban, 'o_view_sample_data');
-        assert.containsN(kanban, '.o_kanban_group', 2);
-        assert.ok(kanban.$('.o_kanban_record').length > 0, 'should contain sample records');
-
-        await testUtils.dom.click(kanban.el.querySelector('.o_kanban_add_column'));
-        await testUtils.fields.editInput(kanban.el.querySelector('.o_kanban_header input'), "Yoohoo");
-        await testUtils.dom.click(kanban.el.querySelector('.btn.o_kanban_add'));
-
-        assert.hasClass(kanban, 'o_view_sample_data');
-        assert.containsN(kanban, '.o_kanban_group', 3);
-        assert.ok(kanban.$('.o_kanban_record').length > 0, 'should contain sample records');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('empty grouped kanban with sample data: cannot fold a column', async function (assert) {
-        // folding a column in grouped kanban with sample data is disabled, for the sake of simplicity
-        assert.expect(5);
-
-        const kanban = await createView({
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <div t-name="kanban-box">
-                            <field name="foo"/>
-                        </div>
-                    </templates>
-                </kanban>`,
-            data: this.data,
-            groupBy: ['product_id'],
-            model: 'partner',
-            View: KanbanView,
-            async mockRPC(route, { kwargs, method }) {
-                const result = await this._super(...arguments);
-                if (method === 'web_read_group') {
-                    // override read_group to return a single, empty group
-                    result.groups = result.groups.slice(0, 1);
-                    result.groups[0][`${kwargs.groupby[0]}_count`] = 0;
-                    result.length = 1;
-                }
-                return result;
-            },
-        });
-
-        assert.hasClass(kanban, 'o_view_sample_data');
-        assert.containsOnce(kanban, '.o_kanban_group');
-        assert.ok(kanban.$('.o_kanban_record').length > 0, 'should contain sample records');
-
-        await testUtils.dom.click(kanban.el.querySelector('.o_kanban_config > a'));
-
-        assert.hasClass(kanban.el.querySelector('.o_kanban_config .o_kanban_toggle_fold'), 'o_sample_data_disabled');
-        assert.hasClass(kanban.el.querySelector('.o_kanban_config .o_kanban_toggle_fold'), 'disabled');
-
-        kanban.destroy();
-    });
-
-    QUnit.skip('empty grouped kanban with sample data: fold/unfold a column', async function (assert) {
-        // folding/unfolding of grouped kanban with sample data is currently disabled
-        assert.expect(8);
-
-        const kanban = await createView({
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <div t-name="kanban-box">
-                            <field name="foo"/>
-                        </div>
-                    </templates>
-                </kanban>`,
-            data: this.data,
-            groupBy: ['product_id'],
-            model: 'partner',
-            View: KanbanView,
-            async mockRPC(route, { kwargs, method }) {
-                const result = await this._super(...arguments);
-                if (method === 'web_read_group') {
-                    // override read_group to return a single, empty group
-                    result.groups = result.groups.slice(0, 1);
-                    result.groups[0][`${kwargs.groupby[0]}_count`] = 0;
-                    result.length = 1;
-                }
-                return result;
-            },
-        });
-
-        assert.hasClass(kanban, 'o_view_sample_data');
-        assert.containsOnce(kanban, '.o_kanban_group');
-        assert.ok(kanban.$('.o_kanban_record').length > 0, 'should contain sample records');
-
-        // Fold the column
-        await testUtils.dom.click(kanban.el.querySelector('.o_kanban_config > a'));
-        await testUtils.dom.click(kanban.el.querySelector('.dropdown-item.o_kanban_toggle_fold'));
-
-        assert.containsOnce(kanban, '.o_kanban_group');
-        assert.hasClass(kanban.$('.o_kanban_group'), 'o_column_folded');
-
-        // Unfold the column
-        await testUtils.dom.click(kanban.el.querySelector('.o_kanban_group.o_column_folded'));
-
-        assert.containsOnce(kanban, '.o_kanban_group');
-        assert.doesNotHaveClass(kanban.$('.o_kanban_group'), 'o_column_folded');
-        assert.ok(kanban.$('.o_kanban_record').length > 0, 'should contain sample records');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('empty grouped kanban with sample data: delete a column', async function (assert) {
-        assert.expect(5);
-
-        this.data.partner.records = [];
-
-        let groups = [{
-            product_id: [1, 'New'],
-            product_id_count: 0,
-            __domain: [],
-        }];
-        const kanban = await createView({
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <div t-name="kanban-box">
-                            <field name="foo"/>
-                        </div>
-                    </templates>
-                </kanban>`,
-            data: this.data,
-            groupBy: ['product_id'],
-            model: 'partner',
-            View: KanbanView,
-            async mockRPC(route, { method }) {
-                let result = await this._super(...arguments);
-                if (method === 'web_read_group') {
-                    // override read_group to return a single, empty group
-                    return {
-                        groups,
-                        length: groups.length,
-                    };
-                }
-                return result;
-            },
-        });
-
-        assert.hasClass(kanban, 'o_view_sample_data');
-        assert.containsOnce(kanban, '.o_kanban_group');
-        assert.ok(kanban.$('.o_kanban_record').length > 0, 'should contain sample records');
-
-        // Delete the first column
-        groups = [];
-        await testUtils.dom.click(kanban.el.querySelector('.o_kanban_config > a'));
-        await testUtils.dom.click(kanban.el.querySelector('.dropdown-item.o_column_delete'));
-        await testUtils.dom.click(document.querySelector('.modal .btn-primary'));
-
-        assert.containsNone(kanban, '.o_kanban_group');
-        assert.containsOnce(kanban, '.o_column_quick_create .o_quick_create_unfolded');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('empty grouped kanban with sample data: add a column and delete it right away', async function (assert) {
-        assert.expect(9);
-
-        const kanban = await createView({
-            arch: `
-                <kanban sample="1">
-                    <field name="product_id"/>
-                    <templates>
-                        <div t-name="kanban-box">
-                            <field name="foo"/>
-                        </div>
-                    </templates>
-                </kanban>`,
-            data: this.data,
-            groupBy: ['product_id'],
-            model: 'partner',
-            View: KanbanView,
-            async mockRPC(route, { method }) {
-                const result = await this._super(...arguments);
-                if (method === 'web_read_group') {
-                    result.groups = this.data.product.records.map(r => {
-                        return {
-                            product_id: [r.id, r.display_name],
-                            product_id_count: 0,
-                            __domain: ['product_id', '=', r.id],
-                        };
-                    });
-                    result.length = result.groups.length;
-                }
-                return result;
-            },
-        });
-
-        assert.hasClass(kanban, 'o_view_sample_data');
-        assert.containsN(kanban, '.o_kanban_group', 2);
-        assert.ok(kanban.$('.o_kanban_record').length > 0, 'should contain sample records');
-
-        // add a new column
-        await testUtils.dom.click(kanban.el.querySelector('.o_kanban_add_column'));
-        await testUtils.fields.editInput(kanban.el.querySelector('.o_kanban_header input'), "Yoohoo");
-        await testUtils.dom.click(kanban.el.querySelector('.btn.o_kanban_add'));
-
-        assert.hasClass(kanban, 'o_view_sample_data');
-        assert.containsN(kanban, '.o_kanban_group', 3);
-        assert.ok(kanban.$('.o_kanban_record').length > 0, 'should contain sample records');
-
-        // delete the column we just created
-        const newColumn = kanban.el.querySelectorAll('.o_kanban_group')[2];
-        await testUtils.dom.click(newColumn.querySelector('.o_kanban_config > a'));
-        await testUtils.dom.click(newColumn.querySelector('.dropdown-item.o_column_delete'));
-        await testUtils.dom.click(document.querySelector('.modal .btn-primary'));
-
-        assert.hasClass(kanban, 'o_view_sample_data');
-        assert.containsN(kanban, '.o_kanban_group', 2);
-        assert.ok(kanban.$('.o_kanban_record').length > 0, 'should contain sample records');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('bounce create button when no data and click on empty area', async function (assert) {
-        assert.expect(2);
-
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `<kanban class="o_kanban_test"><templates><t t-name="kanban-box">
-                    <div>
-                        <t t-esc="record.foo.value"/>
-                        <field name="foo"/>
-                    </div>
-                </t></templates></kanban>`,
-            viewOptions: {
-                action: {
-                    help: '<p class="hello">click to add a partner</p>'
-                }
-            },
-        });
-
-        await testUtils.dom.click(kanban.$('.o_kanban_view'));
-        assert.doesNotHaveClass(kanban.$('.o-kanban-button-new'), 'o_catch_attention');
-
-        await kanban.reload({ domain: [['id', '<', 0]] });
-
-        await testUtils.dom.click(kanban.$('.o_kanban_view'));
-        assert.hasClass(kanban.$('.o-kanban-button-new'), 'o_catch_attention');
-
         kanban.destroy();
     });
 
@@ -5485,6 +4739,7 @@ QUnit.module('Views', {
         await testUtils.dom.click(kanban.$('.o_column_quick_create'));
         kanban.$('.o_column_quick_create input').val('new column');
         await testUtils.dom.click(kanban.$('.o_column_quick_create button.o_kanban_add'));
+
         assert.isVisible(kanban.$buttons.find('.o-kanban-button-new'),
             "Create button should now be visible");
         kanban.destroy();
@@ -5875,7 +5130,7 @@ QUnit.module('Views', {
                     '</t></templates>' +
                 '</kanban>',
             mockRPC: function (route, args) {
-                assert.step(route);
+                assert.step(route)
                 return this._super(route, args);
             },
         });
@@ -6010,12 +5265,12 @@ QUnit.module('Views', {
             mockRPC: function (route, args) {
                 if (route === '/web/dataset/call_kw/partner/action_archive') {
                     var partnerIDS = args.args[0];
-                    var records = this.data.partner.records;
+                    var records = this.data.partner.records
                     _.each(partnerIDS, function(partnerID) {
                         _.find(records, function (record) {
-                            return record.id === partnerID;
+                            return record.id === partnerID; 
                         }).active = false;
-                    });
+                    })
                     this.data.partner.records[0].active;
                     return Promise.resolve();
                 }
@@ -6070,7 +5325,7 @@ QUnit.module('Views', {
                     var records = this.data.partner.records
                     _.each(partnerIDS, function(partnerID) {
                         _.find(records, function (record) {
-                            return record.id === partnerID;
+                            return record.id === partnerID; 
                         }).active = false;
                     })
                     this.data.partner.records[0].active;
@@ -6336,15 +5591,8 @@ QUnit.module('Views', {
                 return this._super.apply(this, arguments);
             },
         });
-        var images = kanban.el.querySelectorAll('img');
-        var placeholders = [];
-        for (var [index, img] of images.entries()) {
-            if (img.dataset.src.indexOf(this.data.partner.records[index].image) === -1) {
-                // Then we display a placeholder
-                placeholders.push(img);
-            }
-        }
 
+        var placeholders = kanban.$('img[data-src$="/web/static/src/img/placeholder.png"]');
         assert.strictEqual(placeholders.length, this.data.partner.records.length - 1,
             "partner with no image should display the placeholder");
 
@@ -6385,7 +5633,7 @@ QUnit.module('Views', {
     });
 
     QUnit.test('check if the view destroys all widgets and instances', async function (assert) {
-        assert.expect(2);
+        assert.expect(1);
 
         var instanceNumber = 0;
         testUtils.mock.patch(mixins.ParentedMixin, {
@@ -6422,10 +5670,21 @@ QUnit.module('Views', {
         };
 
         var kanban = await createView(params);
-        assert.ok(instanceNumber > 0);
+        kanban.destroy();
+
+        var initialInstanceNumber = instanceNumber;
+        instanceNumber = 0;
+
+        kanban = await createView(params);
+
+        // call destroy function of controller to ensure that it correctly destroys everything
+        kanban.__destroy();
+
+        // + 1 (parent)
+        assert.strictEqual(instanceNumber, initialInstanceNumber + 1,
+            "every widget must be destroyed exept the parent");
 
         kanban.destroy();
-        assert.strictEqual(instanceNumber, 0);
 
         testUtils.mock.unpatch(mixins.ParentedMixin);
     });
@@ -7045,117 +6304,6 @@ QUnit.module('Views', {
         assert.containsN(kanban, '.o_kanban_record:not(.o_kanban_ghost)', 4);
 
         await testUtils.dom.click(kanban.$('.o_field_image').first());
-
-        kanban.destroy();
-    });
-
-    QUnit.test('kanban view with boolean field', async function (assert) {
-        assert.expect(2);
-
-        const kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <kanban>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div><field name="bar"/></div>
-                        </t>
-                    </templates>
-                </kanban>`,
-        });
-
-        assert.containsN(kanban, '.o_kanban_record:contains(True)', 3);
-        assert.containsOnce(kanban, '.o_kanban_record:contains(False)');
-
-        kanban.destroy();
-    });
-
-    QUnit.test('kanban view with boolean widget', async function (assert) {
-        assert.expect(1);
-
-        const kanban = await testUtils.createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <kanban>
-                    <templates>
-                        <t t-name="kanban-box">
-                            <div><field name="bar" widget="boolean"/></div>
-                        </t>
-                    </templates>
-                </kanban>
-            `,
-        });
-
-        assert.containsOnce(kanban.el.querySelector('.o_kanban_record'),
-            'div.custom-checkbox.o_field_boolean');
-        kanban.destroy();
-    });
-
-    QUnit.test('kanban view with monetary and currency fields without widget', async function (assert) {
-        assert.expect(1);
-
-        var kanban = await createView({
-            View: KanbanView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <kanban>
-                    <field name="currency_id"/>
-                    <templates><t t-name="kanban-box">
-                        <div><field name="salary"/></div>
-                    </t></templates>
-                </kanban>`,
-            session: {
-                currencies: _.indexBy(this.data.currency.records, 'id'),
-            },
-        });
-
-        const kanbanRecords = kanban.el.querySelectorAll('.o_kanban_record:not(.o_kanban_ghost)');
-        assert.deepEqual([...kanbanRecords].map(r => r.innerText),
-            ['$ 1750.00', '$ 1500.00', '2000.00 €', '$ 2222.00']);
-
-        kanban.destroy();
-    });
-
-    QUnit.test("quick create: keyboard navigation to buttons", async function (assert) {
-        assert.expect(2);
-
-        const kanban = await createView({
-            arch: `
-                <kanban on_create="quick_create">
-                    <field name="bar"/>
-                    <templates>
-                        <div t-name="kanban-box">
-                            <field name="display_name"/>
-                        </div>
-                    </templates>
-                </kanban>`,
-            data: this.data,
-            groupBy: ["bar"],
-            model: "partner",
-            View: KanbanView,
-        });
-
-        // Open quick create
-        await testUtils.kanban.clickCreate(kanban);
-
-        assert.containsOnce(kanban, ".o_kanban_group:first .o_kanban_quick_create");
-
-        const $displayName = kanban.$(".o_kanban_quick_create .o_field_widget[name=display_name]");
-
-        // Fill in mandatory field
-        await testUtils.fields.editInput($displayName, "aaa");
-        // Tab -> goes to first primary button
-        await testUtils.dom.triggerEvent($displayName, "keydown", {
-            keyCode: $.ui.keyCode.TAB,
-            which: $.ui.keyCode.TAB,
-        });
-
-        assert.hasClass(document.activeElement, "btn btn-primary o_kanban_add");
 
         kanban.destroy();
     });

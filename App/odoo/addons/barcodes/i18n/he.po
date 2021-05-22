@@ -3,17 +3,17 @@
 # 	* barcodes
 # 
 # Translators:
-# Yihya Hugirat <hugirat@gmail.com>, 2020
-# דודי מלכה <Dudimalka6@gmail.com>, 2020
-# ZVI BLONDER <ZVIBLONDER@gmail.com>, 2020
+# Yihya Hugirat <hugirat@gmail.com>, 2019
+# דודי מלכה <Dudimalka6@gmail.com>, 2019
+# ZVI BLONDER <ZVIBLONDER@gmail.com>, 2019
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.5\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 07:28+0000\n"
-"PO-Revision-Date: 2020-09-07 08:10+0000\n"
-"Last-Translator: ZVI BLONDER <ZVIBLONDER@gmail.com>, 2020\n"
+"POT-Creation-Date: 2019-08-26 08:16+0000\n"
+"PO-Revision-Date: 2019-08-26 09:09+0000\n"
+"Last-Translator: ZVI BLONDER <ZVIBLONDER@gmail.com>, 2019\n"
 "Language-Team: Hebrew (https://www.transifex.com/odoo/teams/41243/he/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -26,6 +26,24 @@ msgstr ""
 #, python-format
 msgid " '*' is not a valid Regex Barcode Pattern. Did you mean '.*' ?"
 msgstr "'*' אינו ביטוי תקין של תבנית ברקוד. האם התכוונת '.*' ?"
+
+#. module: barcodes
+#: code:addons/barcodes/models/barcodes.py:0
+#, python-format
+msgid ": a rule can only contain one pair of braces."
+msgstr "כלל יכול להכיל זוג סוגריים אחד בלבד:"
+
+#. module: barcodes
+#: code:addons/barcodes/models/barcodes.py:0
+#, python-format
+msgid ": braces can only contain N's followed by D's."
+msgstr "סוגרים מסולסלים יכולים להכיל רק N-ים בא אחריהן D-ים:"
+
+#. module: barcodes
+#: code:addons/barcodes/models/barcodes.py:0
+#, python-format
+msgid ": empty braces."
+msgstr "סוגריים ריקים:"
 
 #. module: barcodes
 #: model_terms:ir.ui.view,arch_db:barcodes.view_barcode_nomenclature_form
@@ -56,7 +74,7 @@ msgstr "הוסף קידומת ברקוד חדשה"
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__alias
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_rule__type__alias
 msgid "Alias"
-msgstr "כינוי"
+msgstr "שם נוסף"
 
 #. module: barcodes
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_nomenclature__upc_ean_conv__always
@@ -141,10 +159,8 @@ msgstr "בטל"
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__display_name
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__display_name
 #: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin__display_name
-#: model:ir.model.fields,field_description:barcodes.field_ir_http__display_name
-#: model:ir.model.fields,field_description:barcodes.field_res_company__display_name
 msgid "Display Name"
-msgstr "שם תצוגה"
+msgstr "השם המוצג"
 
 #. module: barcodes
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_rule__encoding__ean13
@@ -154,7 +170,7 @@ msgstr "EAN-13"
 #. module: barcodes
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_nomenclature__upc_ean_conv__ean2upc
 msgid "EAN-13 to UPC-A"
-msgstr "EAN-13 ל- UPC-A"
+msgstr "EAN-13 עד UPC-A"
 
 #. module: barcodes
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_rule__encoding__ean8
@@ -162,16 +178,40 @@ msgid "EAN-8"
 msgstr "EAN-8"
 
 #. module: barcodes
-#. openerp-web
-#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
-#, python-format
-msgid "Enable edit mode to modify this document"
-msgstr ""
-
-#. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__encoding
 msgid "Encoding"
 msgstr "קידוד"
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "Error: Barcode command is undefined"
+msgstr "שגיאה: פקודת הברקוד אינה מוגדרת"
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "Error: Document not editable"
+msgstr "שגיאה: המסמך אינו ניתן לעריכה"
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "Error: No last scanned barcode"
+msgstr "שגיאה: אין ברקוד אחרון שנסרק"
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "Error: Pager not available"
+msgstr "שגיאה: הביפר לא זמין"
 
 #. module: barcodes
 #: model:ir.model,name:barcodes.model_ir_http
@@ -182,8 +222,6 @@ msgstr "ניתוב HTTP"
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__id
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__id
 #: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin__id
-#: model:ir.model.fields,field_description:barcodes.field_ir_http__id
-#: model:ir.model.fields,field_description:barcodes.field_res_company__id
 msgid "ID"
 msgstr "מזהה"
 
@@ -191,10 +229,8 @@ msgstr "מזהה"
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature____last_update
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule____last_update
 #: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin____last_update
-#: model:ir.model.fields,field_description:barcodes.field_ir_http____last_update
-#: model:ir.model.fields,field_description:barcodes.field_res_company____last_update
 msgid "Last Modified on"
-msgstr "שונה לאחרונה ב - "
+msgstr "שינוי אחרון ב"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__write_uid
@@ -211,19 +247,12 @@ msgstr "עדכון אחרון ב"
 #. module: barcodes
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_nomenclature__upc_ean_conv__none
 msgid "Never"
-msgstr "אף פעם"
+msgstr "לעולם לא"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_res_company__nomenclature_id
 msgid "Nomenclature"
 msgstr "מונחים"
-
-#. module: barcodes
-#. openerp-web
-#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
-#, python-format
-msgid "Pager unavailable"
-msgstr ""
 
 #. module: barcodes
 #: model_terms:ir.ui.view,arch_db:barcodes.view_barcode_nomenclature_form
@@ -245,7 +274,7 @@ msgstr ""
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__name
 msgid "Rule Name"
-msgstr "שם כלל"
+msgstr "שם הכלל"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__rule_ids
@@ -256,15 +285,8 @@ msgstr "כללים"
 #. openerp-web
 #: code:addons/barcodes/static/src/js/barcode_form_view.js:0
 #, python-format
-msgid "Scan a barcode to set the quantity"
-msgstr ""
-
-#. module: barcodes
-#. openerp-web
-#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
-#, python-format
 msgid "Select"
-msgstr "בחירה"
+msgstr "בחר"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__sequence
@@ -281,7 +303,7 @@ msgstr "הגדר כמות"
 #. module: barcodes
 #: model_terms:ir.ui.view,arch_db:barcodes.view_barcode_nomenclature_form
 msgid "Tables"
-msgstr "שולחנות"
+msgstr "טבלאות"
 
 #. module: barcodes
 #: model:ir.model.fields,help:barcodes.field_barcode_rule__pattern
@@ -300,26 +322,11 @@ msgstr "התבנית המותאמת תהיה כינוי לברקוד זה"
 
 #. module: barcodes
 #: code:addons/barcodes/models/barcodes.py:0
-#, python-format
-msgid ""
-"There is a syntax error in the barcode pattern %(pattern)s: a rule can only "
-"contain one pair of braces."
-msgstr ""
-
-#. module: barcodes
+#: code:addons/barcodes/models/barcodes.py:0
 #: code:addons/barcodes/models/barcodes.py:0
 #, python-format
-msgid ""
-"There is a syntax error in the barcode pattern %(pattern)s: braces can only "
-"contain N's followed by D's."
-msgstr ""
-
-#. module: barcodes
-#: code:addons/barcodes/models/barcodes.py:0
-#, python-format
-msgid ""
-"There is a syntax error in the barcode pattern %(pattern)s: empty braces."
-msgstr ""
+msgid "There is a syntax error in the barcode pattern "
+msgstr "קיימת שגיאת תחביר בתבנית ברקוד"
 
 #. module: barcodes
 #: model:ir.model.fields,help:barcodes.field_barcode_rule__encoding
@@ -327,6 +334,20 @@ msgid ""
 "This rule will apply only if the barcode is encoded with the specified "
 "encoding"
 msgstr "כלל זה יחול רק אם הברקוד מקודד בקידוד שצוין"
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "To modify this document, please first start edition."
+msgstr "כדי לשנות מסמך זה, אנא התחל מהדורה."
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "To set the quantity please scan a barcode first."
+msgstr "כדי להגדיר את הכמות אנא סרוק תחילה ברקוד."
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__type
@@ -352,19 +373,12 @@ msgstr "UPC-A"
 #. module: barcodes
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_nomenclature__upc_ean_conv__upc2ean
 msgid "UPC-A to EAN-13"
-msgstr "UPC-A ל- EAN-13"
+msgstr "UPC-A עד EAN-13"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__upc_ean_conv
 msgid "UPC/EAN Conversion"
 msgstr "המרה UPC/EAN "
-
-#. module: barcodes
-#. openerp-web
-#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
-#, python-format
-msgid "Undefined barcode command"
-msgstr ""
 
 #. module: barcodes
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_rule__type__product

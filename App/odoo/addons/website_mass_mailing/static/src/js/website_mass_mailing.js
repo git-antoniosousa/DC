@@ -3,17 +3,9 @@ odoo.define('mass_mailing.website_integration', function (require) {
 
 var config = require('web.config');
 var core = require('web.core');
-const dom = require('web.dom');
 var Dialog = require('web.Dialog');
 var utils = require('web.utils');
 var publicWidget = require('web.public.widget');
-const session = require('web.session');
-
-// FIXME the 14.0 was released with this but without the google_recaptcha
-// module being added as a dependency of the website_mass_mailing module. This
-// is to be fixed in master of course but in stable, we'll have to use a
-// workaround.
-// const {ReCaptcha} = require('google_recaptcha.ReCaptchaV3');
 
 var _t = core._t;
 
@@ -25,62 +17,11 @@ publicWidget.registry.subscribe = publicWidget.Widget.extend({
     },
 
     /**
-     * @constructor
-     */
-    init: function () {
-        this._super(...arguments);
-        const ReCaptchaService = odoo.__DEBUG__.services['google_recaptcha.ReCaptchaV3'];
-        this._recaptcha = ReCaptchaService && new ReCaptchaService.ReCaptcha() || null;
-    },
-    /**
-     * @override
-     */
-    willStart: function () {
-        if (this._recaptcha) {
-            this._recaptcha.loadLibs();
-        }
-        return this._super(...arguments);
-    },
-    /**
      * @override
      */
     start: function () {
         var self = this;
         var def = this._super.apply(this, arguments);
-
-        if (!this._recaptcha && this.editableMode && session.is_admin) {
-            this.displayNotification({
-                type: 'info',
-                message: _t("Do you want to install Google reCAPTCHA to secure your newsletter subscriptions?"),
-                sticky: true,
-                buttons: [{text: _t("Install now"), primary: true, click: async () => {
-                    dom.addButtonLoadingEffect($('.o_notification .btn-primary')[0]);
-
-                    const record = await this._rpc({
-                        model: 'ir.module.module',
-                        method: 'search_read',
-                        domain: [['name', '=', 'google_recaptcha']],
-                        fields: ['id'],
-                        limit: 1,
-                    });
-                    await this._rpc({
-                        model: 'ir.module.module',
-                        method: 'button_immediate_install',
-                        args: [[record[0]['id']]],
-                    });
-
-                    this.displayNotification({
-                        type: 'info',
-                        message: _t("Google reCAPTCHA is now installed! You can configure it from your website settings."),
-                        sticky: true,
-                        buttons: [{text: _t("Website settings"), primary: true, click: async () => {
-                            window.open('/web#action=website.action_website_configuration', '_blank');
-                        }}],
-                    });
-                }}],
-            });
-        }
-
         this.$popup = this.$target.closest('.o_newsletter_modal');
         if (this.$popup.length) {
             // No need to check whether the user subscribed or not if the input
@@ -91,9 +32,12 @@ publicWidget.registry.subscribe = publicWidget.Widget.extend({
         var always = function (data) {
             var isSubscriber = data.is_subscriber;
             self.$('.js_subscribe_btn').prop('disabled', isSubscriber);
-            self.$('input.js_subscribe_email')
-                .val(data.email || "")
-                .prop('disabled', isSubscriber);
+            var $input = self.$('input.js_subscribe_email');
+            // Handle removed input (eg. inside sanitized Html field)
+            $input = $input.length ? $input : $(
+                '<input type="email" name="email" class="js_subscribe_email form-control"/>'
+            ).prependTo(self.$el);
+            $input.val(data.email || "").prop('disabled', isSubscriber);
             // Compat: remove d-none for DBs that have the button saved with it.
             self.$target.removeClass('d-none');
             self.$('.js_subscribe_btn').toggleClass('d-none', !!isSubscriber);
@@ -114,7 +58,7 @@ publicWidget.registry.subscribe = publicWidget.Widget.extend({
     /**
      * @private
      */
-    _onSubscribeClick: async function () {
+    _onSubscribeClick: function () {
         var self = this;
         var $email = this.$(".js_subscribe_email:visible");
 
@@ -123,42 +67,22 @@ publicWidget.registry.subscribe = publicWidget.Widget.extend({
             return false;
         }
         this.$target.removeClass('o_has_error').find('.form-control').removeClass('is-invalid');
-        let tokenObj = null;
-        if (this._recaptcha) {
-            tokenObj = await this._recaptcha.getToken('website_mass_mailing_subscribe');
-            if (tokenObj.error) {
-                self.displayNotification({
-                    type: 'danger',
-                    title: _t("Error"),
-                    message: tokenObj.error,
-                    sticky: true,
-                });
-                return false;
-            }
-        }
-        const params = {
-            'list_id': this.$target.data('list-id'),
-            'email': $email.length ? $email.val() : false,
-        };
-        if (this._recaptcha) {
-            params['recaptcha_token_response'] = tokenObj.token;
-        }
         this._rpc({
             route: '/website_mass_mailing/subscribe',
-            params: params,
+            params: {
+                'list_id': this.$target.data('list-id'),
+                'email': $email.length ? $email.val() : false,
+            },
         }).then(function (result) {
-            let toastType = result.toast_type;
-            if (toastType === 'success') {
-                self.$(".js_subscribe_btn").addClass('d-none');
-                self.$(".js_subscribed_btn").removeClass('d-none');
-                self.$('input.js_subscribe_email').prop('disabled', !!result);
-                if (self.$popup.length) {
-                    self.$popup.modal('hide');
-                }
+            self.$(".js_subscribe_btn").addClass('d-none');
+            self.$(".js_subscribed_btn").removeClass('d-none');
+            self.$('input.js_subscribe_email').prop('disabled', !!result);
+            if (self.$popup.length) {
+                self.$popup.modal('hide');
             }
             self.displayNotification({
-                type: toastType,
-                title: toastType === 'success' ? _t('Success') : _t('Error'),
+                type: 'success',
+                title: _t("Success"),
                 message: result.toast_content,
                 sticky: true,
             });

@@ -7,9 +7,7 @@ from odoo.osv.expression import AND
 class MrpBom(models.Model):
     _inherit = 'mrp.bom'
 
-    type = fields.Selection(selection_add=[
-        ('subcontract', 'Subcontracting')
-    ], ondelete={'subcontract': lambda recs: recs.write({'type': 'normal', 'active': False})})
+    type = fields.Selection(selection_add=[('subcontract', 'Subcontracting')])
     subcontractor_ids = fields.Many2many('res.partner', 'mrp_bom_subcontractor', string='Subcontractors', check_company=True)
 
     def _bom_subcontract_find(self, product_tmpl=None, product=None, picking_type=None, company_id=False, bom_type='subcontract', subcontractor=False):

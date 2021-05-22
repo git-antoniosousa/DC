@@ -283,21 +283,21 @@ var inverse_normalize_format_table = _.invert(normalize_format_table);
  * Get date format of the user's language
  */
 function getLangDateFormat() {
-    return strftime_to_moment_format(_t.database.parameters.date_format);
+    return this.strftime_to_moment_format(_t.database.parameters.date_format);
 }
 
 /**
  * Get time format of the user's language
  */
 function getLangTimeFormat() {
-    return strftime_to_moment_format(_t.database.parameters.time_format);
+    return this.strftime_to_moment_format(_t.database.parameters.time_format);
 }
 
 /**
  * Get date time format of the user's language
  */
 function getLangDatetimeFormat() {
-    return strftime_to_moment_format(_t.database.parameters.date_format + " " + _t.database.parameters.time_format);
+    return this.strftime_to_moment_format(_t.database.parameters.date_format + " " + _t.database.parameters.time_format);
 }
 
 

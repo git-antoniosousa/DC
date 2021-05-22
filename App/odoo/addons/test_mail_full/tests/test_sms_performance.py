@@ -9,7 +9,7 @@ from odoo.tools import mute_logger
 
 
 @tagged('mail_performance')
-class TestSMSPerformance(BaseMailPerformance, sms_common.SMSCase):
+class TestSMSPerformance(BaseMailPerformance, sms_common.MockSMS):
 
     def setUp(self):
         super(TestSMSPerformance, self).setUp()
@@ -51,7 +51,7 @@ class TestSMSPerformance(BaseMailPerformance, sms_common.SMSCase):
     def test_message_sms_record_1_partner(self):
         record = self.test_record.with_user(self.env.user)
         pids = self.customer.ids
-        with self.mockSMSGateway(), self.assertQueryCount(employee=23):  # test_mail_enterprise: 25
+        with self.mockSMSGateway(), self.assertQueryCount(employee=22):  # test_mail_enterprise: 22
             messages = record._message_sms(
                 body='Performance Test',
                 partner_ids=pids,
@@ -66,7 +66,7 @@ class TestSMSPerformance(BaseMailPerformance, sms_common.SMSCase):
     def test_message_sms_record_10_partners(self):
         record = self.test_record.with_user(self.env.user)
         pids = self.partners.ids
-        with self.mockSMSGateway(), self.assertQueryCount(employee=41):  # test_mail_enterprise: 43
+        with self.mockSMSGateway(), self.assertQueryCount(employee=40):  # test_mail_enterprise: 40
             messages = record._message_sms(
                 body='Performance Test',
                 partner_ids=pids,
@@ -80,7 +80,7 @@ class TestSMSPerformance(BaseMailPerformance, sms_common.SMSCase):
     @warmup
     def test_message_sms_record_default(self):
         record = self.test_record.with_user(self.env.user)
-        with self.mockSMSGateway(), self.assertQueryCount(employee=26):  # test_mail_enterprise: 28
+        with self.mockSMSGateway(), self.assertQueryCount(employee=26):  # test_mail_enterprise: 26
             messages = record._message_sms(
                 body='Performance Test',
             )
@@ -142,7 +142,7 @@ class TestSMSMassPerformance(BaseMailPerformance, sms_common.MockSMS):
             'mass_keep_log': False,
         })
 
-        with self.mockSMSGateway(), self.assertQueryCount(employee=106):
+        with self.mockSMSGateway(), self.assertQueryCount(employee=108):
                 composer.action_send_sms()
 
     @mute_logger('odoo.addons.sms.models.sms_sms')
@@ -159,5 +159,5 @@ class TestSMSMassPerformance(BaseMailPerformance, sms_common.MockSMS):
             'mass_keep_log': True,
         })
 
-        with self.mockSMSGateway(), self.assertQueryCount(employee=157):
+        with self.mockSMSGateway(), self.assertQueryCount(employee=159):
             composer.action_send_sms()

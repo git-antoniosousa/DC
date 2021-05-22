@@ -6,7 +6,7 @@ var tour = require("web_tour.tour");
 tour.register("backend_dashboard", {
     test: true,
     url: "/web",
-}, [tour.stepUtils.showAppsMenuItem(),
+}, [tour.STEPS.SHOW_APPS_MENU_ITEM,
     {
     trigger: 'a[data-menu-xmlid="website.menu_website_configuration"]',
 }, {

@@ -8,7 +8,7 @@ tour.register('sale_product_configurator_pricelist_tour', {
     test: true,
 },
 [
-tour.stepUtils.showAppsMenuItem(),
+tour.STEPS.SHOW_APPS_MENU_ITEM,
 {
     content: "navigate to the sale app",
     trigger: '.o_app[data-menu-xmlid="sale.sale_menu_root"]',
@@ -31,10 +31,10 @@ tour.stepUtils.showAppsMenuItem(),
 }, {
     content: "search the pricelist",
     trigger: 'div[name="pricelist_id"] input',
-    run: 'text Custom pricelist (TEST)'
+    run: 'text Public Pricelist'
 }, {
     content: "select the pricelist",
-    trigger: 'ul.ui-autocomplete > li > a:contains(Custom pricelist (TEST))',
+    trigger: 'ul.ui-autocomplete > li > a:contains(Public Pricelist)',
 }, {
     trigger: "a:contains('Add a product')"
 }, {
@@ -48,7 +48,7 @@ tour.stepUtils.showAppsMenuItem(),
         $input.trigger(keyDownEvent);
     }
 }, {
-    trigger: 'ul.ui-autocomplete a:contains("Customizable Desk (TEST)")',
+    trigger: 'ul.ui-autocomplete a:contains("Customizable Desk")',
     run: 'click'
 }, {
     content: "check price is correct (USD)",
@@ -66,7 +66,7 @@ tour.stepUtils.showAppsMenuItem(),
     trigger: '.o_sale_product_configurator_add:not(.disabled)'
 }, {
     content: "check we are on the add modal",
-    trigger: '.td-product_name:contains("Customizable Desk (TEST) (Steel, White)")',
+    trigger: '.td-product_name:contains("Customizable Desk (CONFIG) (Steel, White)")',
     extra_trigger: '.oe_optional_products_modal',
     run: 'click'
 }, {

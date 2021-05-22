@@ -3,34 +3,39 @@
 # 	* product
 # 
 # Translators:
-# Shunho Kin <s-kin@shonan-innovation.co.jp>, 2020
-# SHIMIZU Taku <shimizu.taku@gmail.com>, 2020
-# kent_ocean <ke.tanabe@gmail.com>, 2020
-# 城谷 龍弥 <tatsuya.shirotani@pro-spire.co.jp>, 2020
-# Shigekazu N. <shigekazu.noka@gmail.com>, 2020
-# 高木正勝 <masakatsu.takagi@pro-spire.co.jp>, 2020
-# Tim Siu Lai <tl@roomsfor.hk>, 2020
-# NANIWA Masahiro <naniwa.masahiro@gmail.com>, 2020
+# kent_ocean <ke.tanabe@gmail.com>, 2019
+# 城谷 龍弥 <tatsuya.shirotani@pro-spire.co.jp>, 2019
+# Yoon Nankyung <nankyung.yoon@pro-spire.co.jp>, 2019
+# SHIMIZU Taku <shimizu.taku@gmail.com>, 2019
+# Manami Hashi <manami@roomsfor.hk>, 2019
+# NOKA Shigekazu <shigekazu.noka@gmail.com>, 2019
+# 高木正勝 <masakatsu.takagi@pro-spire.co.jp>, 2019
+# Martin Trigaux, 2019
+# Norimichi Sugimoto <norimichi.sugimoto@tls-ltd.co.jp>, 2019
+# Tim Siu Lai <tl@roomsfor.hk>, 2019
+# NANIWA Masahiro <naniwa.masahiro@gmail.com>, 2019
 # Hau Dao <hau@quartile.co>, 2020
-# Martin Trigaux, 2020
-# Norimichi Sugimoto <norimichi.sugimoto@tls-ltd.co.jp>, 2020
 # Yoshi Tashiro <tashiro@roomsfor.hk>, 2020
 # Noma Yuki, 2020
-# Tsuda Ryoko <ryoko04nov@gmail.com>, 2021
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-27 14:12+0000\n"
-"PO-Revision-Date: 2020-09-07 08:16+0000\n"
-"Last-Translator: Tsuda Ryoko <ryoko04nov@gmail.com>, 2021\n"
+"POT-Creation-Date: 2020-04-27 09:22+0000\n"
+"PO-Revision-Date: 2019-08-26 09:13+0000\n"
+"Last-Translator: Noma Yuki, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/odoo/teams/41243/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: product
+#: model:ir.model.fields.selection,name:product.selection__product_pricelist_item__applied_on__2_product_category
+msgid " Product Category"
+msgstr "プロダクトカテゴリ"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__product_variant_count
@@ -46,14 +51,14 @@ msgstr "プロダクト数"
 #. module: product
 #: code:addons/product/models/product_pricelist.py:0
 #, python-format
-msgid "%(percentage)s %% discount and %(price)s surcharge"
-msgstr ""
+msgid "%s %% discount"
+msgstr "%s %% 値引"
 
 #. module: product
 #: code:addons/product/models/product_pricelist.py:0
 #, python-format
-msgid "%s %% discount"
-msgstr "%s %% 値引"
+msgid "%s %% discount and %s surcharge"
+msgstr "%s %% 値引と %s サーチャージ"
 
 #. module: product
 #: code:addons/product/models/product_template.py:0
@@ -97,7 +102,7 @@ msgstr "1 年"
 #: model:product.product,description_sale:product.product_product_4b
 #: model:product.product,description_sale:product.product_product_4c
 #: model:product.product,description_sale:product.product_product_4d
-#: model:product.template,description_sale:product.product_product_4_product_template
+#: model:product.template,description_sale:product.product_product_4b_product_template
 msgid "160x80cm, with large legs."
 msgstr "160x80cm、大きな脚付き。"
 
@@ -156,9 +161,29 @@ msgid "<span>All general settings about this product are managed on</span>"
 msgstr ""
 
 #. module: product
+#: model_terms:ir.ui.view,arch_db:product.report_pricelist
+msgid "<strong>Currency</strong>:<br/>"
+msgstr "<strong>通貨</strong>:<br/>"
+
+#. module: product
+#: model_terms:ir.ui.view,arch_db:product.report_pricelist
+msgid "<strong>Description</strong>"
+msgstr "<strong>説明</strong>"
+
+#. module: product
+#: model_terms:ir.ui.view,arch_db:product.report_pricelist
+msgid "<strong>Price List Name</strong>:<br/>"
+msgstr "<strong>P価格表名</strong>:<br/>"
+
+#. module: product
 #: model_terms:ir.ui.view,arch_db:product.report_simple_label
 msgid "<strong>Price:</strong>"
 msgstr "<strong>価格:</strong>"
+
+#. module: product
+#: model_terms:ir.ui.view,arch_db:product.report_pricelist
+msgid "<strong>Print date</strong>:<br/>"
+msgstr "<strong>印刷日</strong>:<br/>"
 
 #. module: product
 #: model_terms:ir.ui.view,arch_db:product.report_packagingbarcode
@@ -252,19 +277,6 @@ msgid "Activity State"
 msgstr "活動状態"
 
 #. module: product
-#: model:ir.model.fields,field_description:product.field_product_product__activity_type_icon
-#: model:ir.model.fields,field_description:product.field_product_template__activity_type_icon
-msgid "Activity Type Icon"
-msgstr "活動種別アイコン"
-
-#. module: product
-#. openerp-web
-#: code:addons/product/static/src/xml/pricelist_report.xml:0
-#, python-format
-msgid "Add a quantity"
-msgstr ""
-
-#. module: product
 #: model:ir.model.fields,field_description:product.field_res_config_settings__group_sale_pricelist
 #: model:res.groups,name:product.group_sale_pricelist
 msgid "Advanced Pricelists"
@@ -281,12 +293,6 @@ msgstr "高度な価格規則(値引、計算式)"
 #, python-format
 msgid "All Products"
 msgstr "全プロダクト"
-
-#. module: product
-#: model:ir.model.fields,help:product.field_product_attribute_value__is_custom
-#: model:ir.model.fields,help:product.field_product_template_attribute_value__is_custom
-msgid "Allow users to input custom values for this attribute value"
-msgstr ""
 
 #. module: product
 #: model:ir.model.fields,help:product.field_res_config_settings__group_sale_pricelist
@@ -337,15 +343,6 @@ msgid "Assigns the priority to the list of product vendor."
 msgstr "製品ベンダのリストに優先順位を割り当てます。"
 
 #. module: product
-#. openerp-web
-#: code:addons/product/static/src/js/product_pricelist_report.js:0
-#, python-format
-msgid ""
-"At most %d quantities can be displayed simultaneously. Remove a selected "
-"quantity to add others."
-msgstr ""
-
-#. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__message_attachment_count
 #: model:ir.model.fields,field_description:product.field_product_template__message_attachment_count
 msgid "Attachment Count"
@@ -372,7 +369,6 @@ msgstr "属性名"
 
 #. module: product
 #: model:ir.model,name:product.model_product_attribute_value
-#: model:ir.model.fields,field_description:product.field_product_attribute_custom_value__custom_product_template_attribute_value_id
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_exclusion__product_template_attribute_value_id
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_value__product_attribute_value_id
 msgid "Attribute Value"
@@ -446,6 +442,11 @@ msgid "Cabinet with Doors"
 msgstr "ドア付きキャビネット"
 
 #. module: product
+#: model_terms:ir.ui.view,arch_db:product.view_product_price_list
+msgid "Calculate Product Price per Unit Based on Pricelist Version."
+msgstr "価格リストバージョンに基づく単位当りの製品価格の計算"
+
+#. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__can_image_1024_be_zoomed
 #: model:ir.model.fields,field_description:product.field_product_template__can_image_1024_be_zoomed
 msgid "Can Image 1024 be zoomed"
@@ -464,11 +465,22 @@ msgid "Can be Purchased"
 msgstr "購買可"
 
 #. module: product
+#: model:ir.model.fields,field_description:product.field_product_product__rental
+#: model:ir.model.fields,field_description:product.field_product_template__rental
+msgid "Can be Rent"
+msgstr "レンタル可能"
+
+#. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__sale_ok
 #: model:ir.model.fields,field_description:product.field_product_template__sale_ok
 #: model_terms:ir.ui.view,arch_db:product.product_template_search_view
 msgid "Can be Sold"
 msgstr "販売可"
+
+#. module: product
+#: model_terms:ir.ui.view,arch_db:product.view_product_price_list
+msgid "Cancel"
+msgstr "取消"
 
 #. module: product
 #: model_terms:ir.ui.view,arch_db:product.product_category_form_view
@@ -487,13 +499,16 @@ msgid "Child Categories"
 msgstr "子カテゴリ"
 
 #. module: product
+#: model_terms:ir.ui.view,arch_db:product.res_config_settings_view_form
+msgid "Choose the unit to measure weight"
+msgstr "重量単位を選択"
+
+#. module: product
 #: model_terms:ir.ui.view,arch_db:product.product_variant_easy_edit_view
 msgid "Codes"
 msgstr "コード"
 
 #. module: product
-#: model:ir.model.fields,field_description:product.field_product_attribute_value__html_color
-#: model:ir.model.fields.selection,name:product.selection__product_attribute__display_type__color
 #: model:product.attribute,name:product.product_attribute_2
 msgid "Color"
 msgstr "色"
@@ -538,7 +553,7 @@ msgstr "価格計算"
 #. module: product
 #: model:product.product,name:product.product_product_11
 #: model:product.product,name:product.product_product_11b
-#: model:product.template,name:product.product_product_11_product_template
+#: model:product.template,name:product.product_product_11b_product_template
 msgid "Conference Chair (CONFIG)"
 msgstr ""
 
@@ -586,7 +601,7 @@ msgstr "入数"
 #. module: product
 #: model:product.product,name:product.product_product_13
 #: model:product.template,name:product.product_product_13_product_template
-msgid "Corner Desk Left Sit"
+msgid "Corner Desk Black"
 msgstr ""
 
 #. module: product
@@ -638,10 +653,10 @@ msgstr "プロダクトバリアント新規作成"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_attribute__create_uid
-#: model:ir.model.fields,field_description:product.field_product_attribute_custom_value__create_uid
 #: model:ir.model.fields,field_description:product.field_product_attribute_value__create_uid
 #: model:ir.model.fields,field_description:product.field_product_category__create_uid
 #: model:ir.model.fields,field_description:product.field_product_packaging__create_uid
+#: model:ir.model.fields,field_description:product.field_product_price_list__create_uid
 #: model:ir.model.fields,field_description:product.field_product_pricelist__create_uid
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__create_uid
 #: model:ir.model.fields,field_description:product.field_product_product__create_uid
@@ -655,10 +670,10 @@ msgstr "作成者"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_attribute__create_date
-#: model:ir.model.fields,field_description:product.field_product_attribute_custom_value__create_date
 #: model:ir.model.fields,field_description:product.field_product_attribute_value__create_date
 #: model:ir.model.fields,field_description:product.field_product_category__create_date
 #: model:ir.model.fields,field_description:product.field_product_packaging__create_date
+#: model:ir.model.fields,field_description:product.field_product_price_list__create_date
 #: model:ir.model.fields,field_description:product.field_product_pricelist__create_date
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__create_date
 #: model:ir.model.fields,field_description:product.field_product_product__create_date
@@ -686,14 +701,8 @@ msgstr "立方メートル"
 #: model:ir.model.fields,field_description:product.field_product_product__currency_id
 #: model:ir.model.fields,field_description:product.field_product_supplierinfo__currency_id
 #: model:ir.model.fields,field_description:product.field_product_template__currency_id
-#: model:ir.model.fields,field_description:product.field_product_template_attribute_value__currency_id
 msgid "Currency"
 msgstr "通貨"
-
-#. module: product
-#: model:ir.model.fields,field_description:product.field_product_attribute_custom_value__custom_value
-msgid "Custom Value"
-msgstr ""
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__partner_ref
@@ -705,7 +714,7 @@ msgstr "顧客参照番号"
 #: model:product.product,name:product.product_product_4b
 #: model:product.product,name:product.product_product_4c
 #: model:product.product,name:product.product_product_4d
-#: model:product.template,name:product.product_product_4_product_template
+#: model:product.template,name:product.product_product_4b_product_template
 msgid "Customizable Desk (CONFIG)"
 msgstr "カスタマイズ可能なデスク(CONFIG)"
 
@@ -747,16 +756,6 @@ msgstr ""
 #: model:ir.model.fields,help:product.field_product_template__seller_ids
 msgid "Define vendor pricelists."
 msgstr "仕入先価格リストを定義"
-
-#. module: product
-#: model_terms:ir.ui.view,arch_db:product.res_config_settings_view_form
-msgid "Define your volume unit of measure"
-msgstr "使用する容積単位を定義"
-
-#. module: product
-#: model_terms:ir.ui.view,arch_db:product.res_config_settings_view_form
-msgid "Define your weight unit of measure"
-msgstr "使用する重量単位を定義"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_supplierinfo__delay
@@ -815,12 +814,11 @@ msgid "Discounts"
 msgstr "値引"
 
 #. module: product
-#: model:ir.model.fields,field_description:product.field_decimal_precision__display_name
 #: model:ir.model.fields,field_description:product.field_product_attribute__display_name
-#: model:ir.model.fields,field_description:product.field_product_attribute_custom_value__display_name
 #: model:ir.model.fields,field_description:product.field_product_attribute_value__display_name
 #: model:ir.model.fields,field_description:product.field_product_category__display_name
 #: model:ir.model.fields,field_description:product.field_product_packaging__display_name
+#: model:ir.model.fields,field_description:product.field_product_price_list__display_name
 #: model:ir.model.fields,field_description:product.field_product_pricelist__display_name
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__display_name
 #: model:ir.model.fields,field_description:product.field_product_product__display_name
@@ -830,20 +828,8 @@ msgstr "値引"
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_line__display_name
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_value__display_name
 #: model:ir.model.fields,field_description:product.field_report_product_report_pricelist__display_name
-#: model:ir.model.fields,field_description:product.field_res_company__display_name
-#: model:ir.model.fields,field_description:product.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:product.field_res_country_group__display_name
-#: model:ir.model.fields,field_description:product.field_res_partner__display_name
-#: model:ir.model.fields,field_description:product.field_uom_uom__display_name
 msgid "Display Name"
 msgstr "表示名"
-
-#. module: product
-#: model:ir.model.fields,field_description:product.field_product_attribute__display_type
-#: model:ir.model.fields,field_description:product.field_product_attribute_value__display_type
-#: model:ir.model.fields,field_description:product.field_product_template_attribute_value__display_type
-msgid "Display Type"
-msgstr "表示タイプ"
 
 #. module: product
 #: model:product.product,name:product.product_product_27
@@ -891,10 +877,8 @@ msgstr "このベンダー価格の終了日"
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_pricelist_item__date_end
-msgid ""
-"Ending datetime for the pricelist item validation\n"
-"The displayed value depends on the timezone set in your preferences."
-msgstr ""
+msgid "Ending valid for the pricelist item validation"
+msgstr "価格リスト項目の検証のための有効な終了法"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_value__exclude_for
@@ -942,13 +926,7 @@ msgstr "フォロワー (チャネル)"
 #: model:ir.model.fields,field_description:product.field_product_product__message_partner_ids
 #: model:ir.model.fields,field_description:product.field_product_template__message_partner_ids
 msgid "Followers (Partners)"
-msgstr "フォロワー (パートナー)"
-
-#. module: product
-#: model:ir.model.fields,help:product.field_product_product__activity_type_icon
-#: model:ir.model.fields,help:product.field_product_template__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "例えばフォントの素晴らしいアイコンFA-タスク"
+msgstr "フォロワー (取引先)"
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_pricelist_item__min_quantity
@@ -987,12 +965,6 @@ msgid "General Information"
 msgstr "一般情報"
 
 #. module: product
-#: model:ir.actions.server,name:product.action_product_price_list_report
-#: model:ir.actions.server,name:product.action_product_template_price_list_report
-msgid "Generate Pricelist"
-msgstr ""
-
-#. module: product
 #: model:ir.model.fields,help:product.field_product_product__packaging_ids
 #: model:ir.model.fields,help:product.field_product_template__packaging_ids
 msgid "Gives the different ways to package the same product."
@@ -1005,24 +977,17 @@ msgid "Gives the sequence order when displaying a product list"
 msgstr "製品分類のリストを表示する時に並び順を与えます。"
 
 #. module: product
+#: code:addons/product/models/product_template.py:0
+#, python-format
+msgid "Go to Internal Categories"
+msgstr ""
+
+#. module: product
 #: model_terms:ir.ui.view,arch_db:product.product_pricelist_item_view_search
 #: model_terms:ir.ui.view,arch_db:product.product_supplierinfo_search_view
 #: model_terms:ir.ui.view,arch_db:product.product_template_search_view
 msgid "Group By"
 msgstr "グループ化"
-
-#. module: product
-#: model:ir.model.fields,field_description:product.field_product_template_attribute_value__html_color
-msgid "HTML Color Index"
-msgstr "HTMLカラーインデクス"
-
-#. module: product
-#: model:ir.model.fields,help:product.field_product_attribute_value__html_color
-#: model:ir.model.fields,help:product.field_product_template_attribute_value__html_color
-msgid ""
-"Here you can set a specific HTML color index (e.g. #ff0000) to display the "
-"color if the attribute type is 'Color'."
-msgstr ""
 
 #. module: product
 #: model:product.product,name:product.expense_hotel
@@ -1039,12 +1004,11 @@ msgid "Hours"
 msgstr "時間"
 
 #. module: product
-#: model:ir.model.fields,field_description:product.field_decimal_precision__id
 #: model:ir.model.fields,field_description:product.field_product_attribute__id
-#: model:ir.model.fields,field_description:product.field_product_attribute_custom_value__id
 #: model:ir.model.fields,field_description:product.field_product_attribute_value__id
 #: model:ir.model.fields,field_description:product.field_product_category__id
 #: model:ir.model.fields,field_description:product.field_product_packaging__id
+#: model:ir.model.fields,field_description:product.field_product_price_list__id
 #: model:ir.model.fields,field_description:product.field_product_pricelist__id
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__id
 #: model:ir.model.fields,field_description:product.field_product_product__id
@@ -1054,11 +1018,6 @@ msgstr "時間"
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_line__id
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_value__id
 #: model:ir.model.fields,field_description:product.field_report_product_report_pricelist__id
-#: model:ir.model.fields,field_description:product.field_res_company__id
-#: model:ir.model.fields,field_description:product.field_res_config_settings__id
-#: model:ir.model.fields,field_description:product.field_res_country_group__id
-#: model:ir.model.fields,field_description:product.field_res_partner__id
-#: model:ir.model.fields,field_description:product.field_uom_uom__id
 msgid "ID"
 msgstr "ID"
 
@@ -1148,7 +1107,7 @@ msgstr ""
 #: code:addons/product/models/product_template.py:0
 #, python-format
 msgid "Import Template for Products"
-msgstr "プロダクトテンプレートをインポート"
+msgstr "製品テンプレートをインポート"
 
 #. module: product
 #: code:addons/product/models/product.py:0
@@ -1165,6 +1124,11 @@ msgid ""
 "        Used to value the product when the purchase cost is not known (e.g. inventory adjustment).\n"
 "        Used to compute margins on sale orders."
 msgstr ""
+
+#. module: product
+#: model_terms:ir.ui.view,arch_db:product.res_config_settings_view_form
+msgid "In which unit of measure do you manage your volumes"
+msgstr "どちらの単位で体積を測定しますか"
 
 #. module: product
 #: model_terms:ir.ui.view,arch_db:product.product_template_attribute_value_view_search
@@ -1195,6 +1159,7 @@ msgstr "内部参照"
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_product__barcode
+#: model:ir.model.fields,help:product.field_product_template__barcode
 msgid "International Article Number used for product identification."
 msgstr "プロダクト識別に使用する国際物品番号。"
 
@@ -1226,14 +1191,8 @@ msgid "Is a product variant"
 msgstr ""
 
 #. module: product
-#: model:ir.model.fields,field_description:product.field_product_attribute_value__is_custom
-#: model:ir.model.fields,field_description:product.field_product_template_attribute_value__is_custom
-msgid "Is custom value"
-msgstr "カスタム値"
-
-#. module: product
 #: model:ir.model.fields.selection,name:product.selection__res_config_settings__product_weight_in_lbs__0
-msgid "Kilograms"
+msgid "Kilogram"
 msgstr "キログラム"
 
 #. module: product
@@ -1255,12 +1214,11 @@ msgid "Large Meeting Table"
 msgstr ""
 
 #. module: product
-#: model:ir.model.fields,field_description:product.field_decimal_precision____last_update
 #: model:ir.model.fields,field_description:product.field_product_attribute____last_update
-#: model:ir.model.fields,field_description:product.field_product_attribute_custom_value____last_update
 #: model:ir.model.fields,field_description:product.field_product_attribute_value____last_update
 #: model:ir.model.fields,field_description:product.field_product_category____last_update
 #: model:ir.model.fields,field_description:product.field_product_packaging____last_update
+#: model:ir.model.fields,field_description:product.field_product_price_list____last_update
 #: model:ir.model.fields,field_description:product.field_product_pricelist____last_update
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item____last_update
 #: model:ir.model.fields,field_description:product.field_product_product____last_update
@@ -1270,20 +1228,15 @@ msgstr ""
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_line____last_update
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_value____last_update
 #: model:ir.model.fields,field_description:product.field_report_product_report_pricelist____last_update
-#: model:ir.model.fields,field_description:product.field_res_company____last_update
-#: model:ir.model.fields,field_description:product.field_res_config_settings____last_update
-#: model:ir.model.fields,field_description:product.field_res_country_group____last_update
-#: model:ir.model.fields,field_description:product.field_res_partner____last_update
-#: model:ir.model.fields,field_description:product.field_uom_uom____last_update
 msgid "Last Modified on"
 msgstr "最終更新日"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_attribute__write_uid
-#: model:ir.model.fields,field_description:product.field_product_attribute_custom_value__write_uid
 #: model:ir.model.fields,field_description:product.field_product_attribute_value__write_uid
 #: model:ir.model.fields,field_description:product.field_product_category__write_uid
 #: model:ir.model.fields,field_description:product.field_product_packaging__write_uid
+#: model:ir.model.fields,field_description:product.field_product_price_list__write_uid
 #: model:ir.model.fields,field_description:product.field_product_pricelist__write_uid
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__write_uid
 #: model:ir.model.fields,field_description:product.field_product_product__write_uid
@@ -1297,10 +1250,10 @@ msgstr "最終更新者"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_attribute__write_date
-#: model:ir.model.fields,field_description:product.field_product_attribute_custom_value__write_date
 #: model:ir.model.fields,field_description:product.field_product_attribute_value__write_date
 #: model:ir.model.fields,field_description:product.field_product_category__write_date
 #: model:ir.model.fields,field_description:product.field_product_packaging__write_date
+#: model:ir.model.fields,field_description:product.field_product_price_list__write_date
 #: model:ir.model.fields,field_description:product.field_product_pricelist__write_date
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__write_date
 #: model:ir.model.fields,field_description:product.field_product_product__write_date
@@ -1415,7 +1368,6 @@ msgid ""
 msgstr ""
 
 #. module: product
-#: model:ir.model.fields,field_description:product.field_product_attribute_custom_value__name
 #: model:ir.model.fields,field_description:product.field_product_category__name
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__name
 #: model:ir.model.fields,field_description:product.field_product_product__name
@@ -1450,11 +1402,6 @@ msgstr "次の活動サマリ"
 #: model:ir.model.fields,field_description:product.field_product_template__activity_type_id
 msgid "Next Activity Type"
 msgstr "次の活動タイプ"
-
-#. module: product
-#: model_terms:ir.actions.act_window,help:product.product_supplierinfo_type_action
-msgid "No vendor pricelist found"
-msgstr ""
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__message_needaction_counter
@@ -1533,6 +1480,11 @@ msgid ""
 msgstr ""
 
 #. module: product
+#: model_terms:ir.ui.view,arch_db:product.product_supplierinfo_form_view
+msgid "Other Information"
+msgstr "その他情報"
+
+#. module: product
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__base_pricelist_id
 #: model:ir.model.fields.selection,name:product.selection__product_pricelist_item__base__pricelist
 msgid "Other Pricelist"
@@ -1578,13 +1530,6 @@ msgid "Percentage Price"
 msgstr "価格に対するパーセント"
 
 #. module: product
-#. openerp-web
-#: code:addons/product/static/src/js/product_pricelist_report.js:0
-#, python-format
-msgid "Please enter a positive whole number"
-msgstr ""
-
-#. module: product
 #: code:addons/product/models/product_pricelist.py:0
 #, python-format
 msgid "Please specify the category for which this rule should be applied"
@@ -1605,7 +1550,7 @@ msgstr ""
 
 #. module: product
 #: model:ir.model.fields.selection,name:product.selection__res_config_settings__product_weight_in_lbs__1
-msgid "Pounds"
+msgid "Pound"
 msgstr "ポンド"
 
 #. module: product
@@ -1629,6 +1574,14 @@ msgstr "価格計算"
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__price_discount
 msgid "Price Discount"
 msgstr "価格値引"
+
+#. module: product
+#: model:ir.actions.act_window,name:product.action_product_price_list
+#: model_terms:ir.ui.view,arch_db:product.product_supplierinfo_form_view
+#: model_terms:ir.ui.view,arch_db:product.report_pricelist
+#: model_terms:ir.ui.view,arch_db:product.view_product_price_list
+msgid "Price List"
+msgstr "価格リスト"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__price_round
@@ -1664,6 +1617,11 @@ msgid "Price:"
 msgstr "価格:"
 
 #. module: product
+#: model:ir.model.fields,field_description:product.field_product_price_list__price_list
+msgid "PriceList"
+msgstr "価格リスト"
+
+#. module: product
 #: model:ir.actions.report,name:product.action_report_pricelist
 #: model:ir.model,name:product.model_product_pricelist
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__pricelist_id
@@ -1673,7 +1631,6 @@ msgstr "価格:"
 #: model:ir.model.fields,field_description:product.field_res_users__property_product_pricelist
 #: model_terms:ir.ui.view,arch_db:product.product_pricelist_item_tree_view_from_product
 #: model_terms:ir.ui.view,arch_db:product.product_pricelist_item_view_search
-#: model_terms:ir.ui.view,arch_db:product.product_supplierinfo_form_view
 msgid "Pricelist"
 msgstr "価格リスト"
 
@@ -1697,24 +1654,8 @@ msgid "Pricelist Name"
 msgstr "価格リスト名"
 
 #. module: product
-#. openerp-web
-#: code:addons/product/static/src/js/product_pricelist_report.js:0
-#: model:ir.model,name:product.model_report_product_report_pricelist
-#, python-format
-msgid "Pricelist Report"
-msgstr ""
-
-#. module: product
 #: model:ir.model,name:product.model_product_pricelist_item
 msgid "Pricelist Rule"
-msgstr ""
-
-#. module: product
-#. openerp-web
-#: code:addons/product/static/src/xml/pricelist_report.xml:0
-#: model_terms:ir.ui.view,arch_db:product.report_pricelist_page
-#, python-format
-msgid "Pricelist:"
 msgstr ""
 
 #. module: product
@@ -1740,9 +1681,7 @@ msgid "Pricing"
 msgstr "価格設定"
 
 #. module: product
-#. openerp-web
-#: code:addons/product/static/src/js/product_pricelist_report.js:0
-#, python-format
+#: model_terms:ir.ui.view,arch_db:product.view_product_price_list
 msgid "Print"
 msgstr "印刷"
 
@@ -1772,11 +1711,6 @@ msgstr "プロダクト"
 #: model_terms:ir.ui.view,arch_db:product.product_template_attribute_value_view_form
 msgid "Product Attribute"
 msgstr "プロダクト属性"
-
-#. module: product
-#: model:ir.model,name:product.model_product_attribute_custom_value
-msgid "Product Attribute Custom Value"
-msgstr "製品属性カスタム値"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_line__product_template_value_ids
@@ -1812,7 +1746,6 @@ msgstr "プロダクトカテゴリ"
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__categ_id
 #: model:ir.model.fields,field_description:product.field_product_product__categ_id
 #: model:ir.model.fields,field_description:product.field_product_template__categ_id
-#: model:ir.model.fields.selection,name:product.selection__product_pricelist_item__applied_on__2_product_category
 #: model_terms:ir.ui.view,arch_db:product.product_category_list_view
 #: model_terms:ir.ui.view,arch_db:product.product_template_form_view
 #: model_terms:ir.ui.view,arch_db:product.product_template_search_view
@@ -1832,7 +1765,6 @@ msgstr "プロダクトラベル(PDF)"
 
 #. module: product
 #: model_terms:ir.ui.view,arch_db:product.product_template_form_view
-#: model_terms:ir.ui.view,arch_db:product.product_template_tree_view
 #: model_terms:ir.ui.view,arch_db:product.product_variant_easy_edit_view
 msgid "Product Name"
 msgstr "プロダクト名"
@@ -1860,6 +1792,16 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:product.product_packaging_tree_view
 msgid "Product Packagings"
 msgstr "プロダクト梱包"
+
+#. module: product
+#: model:ir.model,name:product.model_report_product_report_pricelist
+msgid "Product Price List Report"
+msgstr ""
+
+#. module: product
+#: model:ir.model,name:product.model_product_price_list
+msgid "Product Price per Unit Based on Pricelist Version"
+msgstr ""
 
 #. module: product
 #: model:ir.model,name:product.model_product_template
@@ -1893,11 +1835,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:product.product_template_search_view
 msgid "Product Type"
 msgstr "プロダクトタイプ"
-
-#. module: product
-#: model:ir.model,name:product.model_uom_uom
-msgid "Product Unit of Measure"
-msgstr "プロダクト単位"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__product_id
@@ -1935,7 +1872,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:product.product_pricelist_view
 #: model_terms:ir.ui.view,arch_db:product.product_template_search_view
 #: model_terms:ir.ui.view,arch_db:product.product_template_view_activity
-#: model_terms:ir.ui.view,arch_db:product.report_pricelist_page
+#: model_terms:ir.ui.view,arch_db:product.res_config_settings_view_form
 msgid "Products"
 msgstr "プロダクト"
 
@@ -1963,8 +1900,8 @@ msgstr "プロダクト価格検索"
 #. module: product
 #: code:addons/product/models/product.py:0
 #, python-format
-msgid "Products: %(category)s"
-msgstr ""
+msgid "Products: "
+msgstr "プロダクト:"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__lst_price
@@ -1995,23 +1932,9 @@ msgid "Purchase Unit of Measure"
 msgstr "購買単位"
 
 #. module: product
-#. openerp-web
-#: code:addons/product/static/src/xml/pricelist_report.xml:0
-#, python-format
-msgid "Quantities:"
-msgstr ""
-
-#. module: product
 #: model:ir.model.fields,field_description:product.field_product_supplierinfo__min_qty
 msgid "Quantity"
 msgstr "数量"
-
-#. module: product
-#. openerp-web
-#: code:addons/product/static/src/js/product_pricelist_report.js:0
-#, python-format
-msgid "Quantity already present (%d)."
-msgstr ""
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_packaging__qty
@@ -2019,21 +1942,34 @@ msgid "Quantity of products contained in the packaging."
 msgstr ""
 
 #. module: product
-#: model:ir.model.fields.selection,name:product.selection__product_attribute__display_type__radio
-msgid "Radio"
-msgstr "ラジオボタン"
+#: model:ir.model.fields,field_description:product.field_product_price_list__qty1
+msgid "Quantity-1"
+msgstr "数量-1"
+
+#. module: product
+#: model:ir.model.fields,field_description:product.field_product_price_list__qty2
+msgid "Quantity-2"
+msgstr "数量-2"
+
+#. module: product
+#: model:ir.model.fields,field_description:product.field_product_price_list__qty3
+msgid "Quantity-3"
+msgstr "数量-3"
+
+#. module: product
+#: model:ir.model.fields,field_description:product.field_product_price_list__qty4
+msgid "Quantity-4"
+msgstr "数量-4"
+
+#. module: product
+#: model:ir.model.fields,field_description:product.field_product_price_list__qty5
+msgid "Quantity-5"
+msgstr "数量-5"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__code
 msgid "Reference"
 msgstr "参照"
-
-#. module: product
-#: model_terms:ir.actions.act_window,help:product.product_supplierinfo_type_action
-msgid ""
-"Register the prices requested by your vendors for each product, based on the"
-" quantity and the period."
-msgstr ""
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_attribute__product_tmpl_ids
@@ -2044,13 +1980,6 @@ msgstr "関連プロダクト"
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_value__ptav_product_variant_ids
 msgid "Related Variants"
-msgstr ""
-
-#. module: product
-#. openerp-web
-#: code:addons/product/static/src/xml/pricelist_report.xml:0
-#, python-format
-msgid "Remove quantity"
 msgstr ""
 
 #. module: product
@@ -2095,11 +2024,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:product.product_template_tree_view
 msgid "Sales Price"
 msgstr "販売価格"
-
-#. module: product
-#: model:ir.model.fields.selection,name:product.selection__product_attribute__display_type__select
-msgid "Select"
-msgstr "選択"
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_product__categ_id
@@ -2201,10 +2125,8 @@ msgstr "このベンダー価格の開始日"
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_pricelist_item__date_start
-msgid ""
-"Starting datetime for the pricelist item validation\n"
-"The displayed value depends on the timezone set in your preferences."
-msgstr ""
+msgid "Starting date for the pricelist item validation"
+msgstr "価格リスト項目の検証のための開始日"
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_product__activity_state
@@ -2277,13 +2199,6 @@ msgstr "価格計算にはプロダクトのデフォルト単位が使用され
 msgid ""
 "The default Unit of Measure and the purchase Unit of Measure must be in the "
 "same category."
-msgstr ""
-
-#. module: product
-#: model:ir.model.fields,help:product.field_product_attribute__display_type
-#: model:ir.model.fields,help:product.field_product_attribute_value__display_type
-#: model:ir.model.fields,help:product.field_product_template_attribute_value__display_type
-msgid "The display type used in the Product Configurator."
 msgstr ""
 
 #. module: product
@@ -2439,11 +2354,6 @@ msgid "Type of the exception activity on record."
 msgstr "記録上の例外アクティビティのタイプ。"
 
 #. module: product
-#: model_terms:ir.ui.view,arch_db:product.product_supplierinfo_form_view
-msgid "Unit Price"
-msgstr "単価"
-
-#. module: product
 #: model:ir.model.fields,field_description:product.field_product_packaging__product_uom_id
 #: model:ir.model.fields,field_description:product.field_product_product__uom_id
 #: model:ir.model.fields,field_description:product.field_product_supplierinfo__product_uom
@@ -2494,7 +2404,7 @@ msgstr ""
 #: model:product.template,uom_name:product.product_delivery_02_product_template
 #: model:product.template,uom_name:product.product_order_01_product_template
 #: model:product.template,uom_name:product.product_product_10_product_template
-#: model:product.template,uom_name:product.product_product_11_product_template
+#: model:product.template,uom_name:product.product_product_11b_product_template
 #: model:product.template,uom_name:product.product_product_12_product_template
 #: model:product.template,uom_name:product.product_product_13_product_template
 #: model:product.template,uom_name:product.product_product_16_product_template
@@ -2504,19 +2414,17 @@ msgstr ""
 #: model:product.template,uom_name:product.product_product_25_product_template
 #: model:product.template,uom_name:product.product_product_27_product_template
 #: model:product.template,uom_name:product.product_product_3_product_template
-#: model:product.template,uom_name:product.product_product_4_product_template
+#: model:product.template,uom_name:product.product_product_4b_product_template
 #: model:product.template,uom_name:product.product_product_5_product_template
 #: model:product.template,uom_name:product.product_product_6_product_template
 #: model:product.template,uom_name:product.product_product_7_product_template
 #: model:product.template,uom_name:product.product_product_8_product_template
 #: model:product.template,uom_name:product.product_product_9_product_template
-#: model_terms:ir.ui.view,arch_db:product.report_pricelist_page
 msgid "Units"
 msgstr "個"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_res_config_settings__group_uom
-#: model_terms:ir.ui.view,arch_db:product.res_config_settings_view_form
 msgid "Units of Measure"
 msgstr "単位"
 
@@ -2553,7 +2461,7 @@ msgstr "有効期間"
 #: model:ir.model.fields,field_description:product.field_product_attribute_value__name
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_value__name
 msgid "Value"
-msgstr "評価額"
+msgstr "値"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_template_attribute_value__price_extra
@@ -2707,11 +2615,6 @@ msgid "Volume"
 msgstr "容積"
 
 #. module: product
-#: model_terms:ir.ui.view,arch_db:product.res_config_settings_view_form
-msgid "Volume UoM"
-msgstr "容積単位"
-
-#. module: product
 #: model:ir.model.fields,field_description:product.field_res_config_settings__product_volume_volume_in_cubic_feet
 msgid "Volume unit of measure"
 msgstr "体積単位"
@@ -2742,7 +2645,7 @@ msgstr "重量"
 
 #. module: product
 #: model_terms:ir.ui.view,arch_db:product.res_config_settings_view_form
-msgid "Weight UoM"
+msgid "Weight Measurement"
 msgstr "重量単位"
 
 #. module: product
@@ -2851,13 +2754,6 @@ msgid ""
 msgstr ""
 
 #. module: product
-#: code:addons/product/models/product.py:0
-#, python-format
-msgid ""
-"You cannot delete this product category, it is the default generic category."
-msgstr ""
-
-#. module: product
 #: code:addons/product/models/product_attribute.py:0
 #, python-format
 msgid ""
@@ -2900,6 +2796,14 @@ msgid ""
 "                price, notes in the quotation, accounting data, procurement methods, etc."
 msgstr ""
 "販売または購買するもの(在庫品、消耗品、サービス品等)は、プロダクトとして登録する必要があります。プロダクトフォームは販売プロセスを容易にするための情報(価格、見積書の備考、会計データ、調達方法等)を含みます。"
+
+#. module: product
+#: code:addons/product/models/product_template.py:0
+#, python-format
+msgid ""
+"You must define at least one product category in order to be able to create "
+"products."
+msgstr ""
 
 #. module: product
 #: model_terms:ir.ui.view,arch_db:product.product_supplierinfo_form_view

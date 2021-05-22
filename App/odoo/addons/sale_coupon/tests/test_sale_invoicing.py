@@ -9,15 +9,13 @@ from odoo.tests import tagged
 class TestSaleInvoicing(TestSaleCouponCommon):
 
     def test_invoicing_order_with_promotions(self):
-        discount_coupon_program = self.env['coupon.program'].create({
+        discount_coupon_program = self.env['sale.coupon.program'].create({
             'name': '10% Discount', # Default behavior
             'program_type': 'coupon_program',
             'reward_type': 'discount',
             'discount_apply_on': 'on_order',
             'promo_code_usage': 'no_code_needed',
         })
-        # Override the default invoice_policy on products
-        discount_coupon_program.discount_line_product_id.invoice_policy = 'order'
         product = self.env['product.product'].create({
             'invoice_policy': 'delivery',
             'name': 'Product invoiced on delivery',

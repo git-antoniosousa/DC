@@ -9,18 +9,15 @@ from odoo.addons.payment_ingenico.controllers.main import OgoneController
 from werkzeug import urls
 
 from odoo.tools import mute_logger
-from odoo.tests import tagged
 
 
-@tagged('post_install', '-at_install', 'external', '-standard')
 class OgonePayment(PaymentAcquirerCommon):
 
-    @classmethod
-    def setUpClass(cls, chart_template_ref=None):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def setUp(self):
+        super(OgonePayment, self).setUp()
 
-        cls.ogone = cls.env.ref('payment.payment_acquirer_ogone')
-        cls.ogone.write({
+        self.ogone = self.env.ref('payment.payment_acquirer_ogone')
+        self.ogone.write({
             'ogone_pspid': 'dummy',
             'ogone_userid': 'dummy',
             'ogone_password': 'dummy',

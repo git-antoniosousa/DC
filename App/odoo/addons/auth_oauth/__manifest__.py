@@ -3,7 +3,7 @@
 
 {
     'name': 'OAuth2 Authentication',
-    'category': 'Hidden/Tools',
+    'category': 'Tools',
     'description': """
 Allow users to login through OAuth2 Provider.
 =============================================

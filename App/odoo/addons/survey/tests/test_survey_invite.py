@@ -11,7 +11,7 @@ from odoo.tests import Form
 from odoo.tests.common import users
 
 
-class TestSurveyInvite(common.TestSurveyCommon):
+class TestSurveyInvite(common.SurveyCase):
 
     def setUp(self):
         res = super(TestSurveyInvite, self).setUp()
@@ -37,7 +37,7 @@ class TestSurveyInvite(common.TestSurveyCommon):
                 'state': 'closed',
                 'question_and_page_ids': [
                     (0, 0, {'is_page': True, 'title': 'P0', 'sequence': 1}),
-                    (0, 0, {'title': 'Q0', 'sequence': 2, 'question_type': 'text_box'})
+                    (0, 0, {'title': 'Q0', 'sequence': 2, 'question_type': 'free_text'})
                 ]
             })
         ]

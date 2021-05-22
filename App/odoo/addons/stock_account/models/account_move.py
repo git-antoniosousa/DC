@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models
+from odoo import fields, models, api, _
 
 
 class AccountMove(models.Model):
@@ -38,22 +38,22 @@ class AccountMove(models.Model):
 
         return res
 
-    def _post(self, soft=True):
+    def post(self):
         # OVERRIDE
 
         # Don't change anything on moves used to cancel another ones.
         if self._context.get('move_reverse_cancel'):
-            return super()._post(soft)
+            return super(AccountMove, self).post()
 
         # Create additional COGS lines for customer invoices.
         self.env['account.move.line'].create(self._stock_account_prepare_anglo_saxon_out_lines_vals())
 
         # Post entries.
-        posted = super()._post(soft)
+        res = super(AccountMove, self).post()
 
         # Reconcile COGS lines in case of anglo-saxon accounting with perpetual valuation.
-        posted._stock_account_anglo_saxon_reconcile_valuation()
-        return posted
+        self._stock_account_anglo_saxon_reconcile_valuation()
+        return res
 
     def button_draft(self):
         res = super(AccountMove, self).button_draft()
@@ -118,16 +118,21 @@ class AccountMove(models.Model):
                 # Retrieve accounts needed to generate the COGS.
                 accounts = (
                     line.product_id.product_tmpl_id
-                    .with_company(line.company_id)
+                    .with_context(force_company=line.company_id.id)
                     .get_product_accounts(fiscal_pos=move.fiscal_position_id)
                 )
                 debit_interim_account = accounts['stock_output']
-                credit_expense_account = accounts['expense'] or self.journal_id.default_account_id
+                credit_expense_account = accounts['expense']
+                if not credit_expense_account:
+                    if self.type == 'out_refund':
+                        credit_expense_account = self.journal_id.default_credit_account_id
+                    else: # out_invoice/out_receipt
+                        credit_expense_account = self.journal_id.default_debit_account_id
                 if not debit_interim_account or not credit_expense_account:
                     continue
 
                 # Compute accounting fields.
-                sign = -1 if move.move_type == 'out_refund' else 1
+                sign = -1 if move.type == 'out_refund' else 1
                 price_unit = line._stock_account_get_anglo_saxon_price_unit()
                 balance = sign * line.quantity * price_unit
 

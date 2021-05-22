@@ -3,17 +3,18 @@
 # 	* maintenance
 # 
 # Translators:
-# 敬雲 林 <chingyun@yuanchih-consult.com>, 2020
-# 李振維, 2021
-# Mandy Choy <mnc@odoo.com>, 2021
+# Ying <acc.tou@gmail.com>, 2019
+# Andy Cheng <andy.cheng@richsoda.com>, 2019
+# Martin Trigaux, 2019
+# 敬雲 林 <chingyun@yuanchih-consult.com>, 2019
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-29 13:45+0000\n"
-"PO-Revision-Date: 2020-09-07 08:14+0000\n"
-"Last-Translator: Mandy Choy <mnc@odoo.com>, 2021\n"
+"POT-Creation-Date: 2019-12-05 12:34+0000\n"
+"PO-Revision-Date: 2019-08-26 09:11+0000\n"
+"Last-Translator: 敬雲 林 <chingyun@yuanchih-consult.com>, 2019\n"
 "Language-Team: Chinese (Taiwan) (https://www.transifex.com/odoo/teams/41243/zh_TW/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -29,7 +30,7 @@ msgstr "<b>類別:</b>"
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_kanban
 msgid "<b>Model Number:</b>"
-msgstr "<b>模型名稱:</b>"
+msgstr "<b>型號:</b>"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_kanban
@@ -40,6 +41,11 @@ msgstr "<b>請求:</b>"
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_kanban
 msgid "<b>Serial Number:</b>"
 msgstr "<b>序列號:</b>"
+
+#. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_kanban
+msgid "<i class=\"fa fa-comments\" role=\"img\" aria-label=\"Unread Messages\"/>"
+msgstr "<i class=\"fa fa-comments\" role=\"img\" aria-label=\"Unread Messages\"/>"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
@@ -63,8 +69,8 @@ msgstr "<span>報表</span>"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
-msgid "<span>Requests</span>"
-msgstr ""
+msgid "<span>View</span>"
+msgstr "<span>視圖</span>"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.view_maintenance_equipment_category_kanban
@@ -119,12 +125,6 @@ msgstr "活動異常圖示"
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__activity_state
 msgid "Activity State"
 msgstr "活動狀態"
-
-#. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__activity_type_icon
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_request__activity_type_icon
-msgid "Activity Type Icon"
-msgstr "活動類型圖標"
 
 #. module: maintenance
 #: model:ir.actions.act_window,name:maintenance.mail_activity_type_action_config_maintenance
@@ -300,7 +300,6 @@ msgstr "電腦"
 
 #. module: maintenance
 #: model:ir.ui.menu,name:maintenance.menu_maintenance_configuration
-#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
 msgid "Configuration"
 msgstr "配置"
 
@@ -348,11 +347,6 @@ msgid "Current Maintenance"
 msgstr "目前維護"
 
 #. module: maintenance
-#: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__alias_bounced_content
-msgid "Custom Bounced Message"
-msgstr "自訂彈跳訊息"
-
-#. module: maintenance
 #: model:ir.ui.menu,name:maintenance.menu_m_dashboard
 msgid "Dashboard"
 msgstr "儀表板"
@@ -384,7 +378,7 @@ msgstr "維護團隊計劃維護的日期。 它應該與請求日期不差太�
 #. module: maintenance
 #: model:ir.model.fields,help:maintenance.field_maintenance_request__close_date
 msgid "Date the maintenance was finished. "
-msgstr "維護完成日期"
+msgstr "維護完成日期。"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__period
@@ -465,7 +459,7 @@ msgstr "此設備類別的電子郵件別名。新電子郵件將自動在此類
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__email_cc
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
 msgid "Email cc"
-msgstr "副本寄送"
+msgstr "電郵cc"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__equipment_count
@@ -554,12 +548,6 @@ msgid "Followers (Partners)"
 msgstr "關注人（業務夥伴）"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment__activity_type_icon
-#: model:ir.model.fields,help:maintenance.field_maintenance_request__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Font awesome 圖標，例如，fa-task"
-
-#. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
 msgid "Future Activities"
@@ -639,16 +627,9 @@ msgid "If checked, some messages have a delivery error."
 msgstr "勾選代表有訊息發生傳送錯誤。"
 
 #. module: maintenance
-#: model:ir.model.fields,help:maintenance.field_maintenance_equipment_category__alias_bounced_content
-msgid ""
-"If set, this content will automatically be sent out to unauthorized users "
-"instead of the default message."
-msgstr "設置後，此內容將自動發送給未經授權的用戶，而不是默認消息。"
-
-#. module: maintenance
 #: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__kanban_state__normal
-#: model:maintenance.stage,name:maintenance.stage_1
 #: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
+#: model:maintenance.stage,name:maintenance.stage_1
 msgid "In Progress"
 msgstr "進行中"
 
@@ -659,15 +640,15 @@ msgstr "內部維護"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
-msgid "Internal Notes"
-msgstr "內部備註"
+msgid "Internal Note ......."
+msgstr "內部提示……"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_is_follower
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_is_follower
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_is_follower
 msgid "Is Follower"
-msgstr "是關注人"
+msgstr "是關注者"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__kanban_state
@@ -778,8 +759,8 @@ msgstr "維護設備類別"
 
 #. module: maintenance
 #: model:ir.model,name:maintenance.model_maintenance_request
-#: model:mail.activity.type,name:maintenance.mail_act_maintenance_request
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_form
+#: model:mail.activity.type,name:maintenance.mail_act_maintenance_request
 msgid "Maintenance Request"
 msgstr "保養請求"
 
@@ -879,7 +860,7 @@ msgstr "計量學"
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__model
 msgid "Model"
-msgstr "模型"
+msgstr "型號"
 
 #. module: maintenance
 #: model:maintenance.equipment.category,name:maintenance.equipment_monitor
@@ -894,7 +875,7 @@ msgstr "我的設備"
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 msgid "My Maintenances"
-msgstr "我的設備維護"
+msgstr "我的維護"
 
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_stage__name
@@ -1040,8 +1021,8 @@ msgid ""
 " necessarily the model given by alias_model_id (example: project "
 "(parent_model) and task (model))"
 msgstr ""
-"上級模型擁有別名。擁有別名的模型不必是alias_model_id給出的模型 (example: project(parent_model) and "
-"task (model))"
+"上級模型擁有別名。擁有別名參照的模型不必是alias_model_id給出的模型 (example: project(parent_model) and"
+" task (model))"
 
 #. module: maintenance
 #: model:maintenance.equipment.category,name:maintenance.equipment_phone
@@ -1090,7 +1071,7 @@ msgstr "優先級"
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_form
 msgid "Product Information"
-msgstr "產品訊息"
+msgstr "產品信息"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
@@ -1234,6 +1215,11 @@ msgstr "序列號"
 msgid ""
 "Set archive to true to hide the maintenance request without deleting it."
 msgstr "將歸檔設定為真以隱藏維護請求，而不是刪除它。"
+
+#. module: maintenance
+#: model_terms:ir.ui.view,arch_db:maintenance.maintenance_team_kanban
+msgid "Settings"
+msgstr "設定"
 
 #. module: maintenance
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
@@ -1403,6 +1389,7 @@ msgstr "維護中"
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__message_unread
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment_category__message_unread
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_request__message_unread
+#: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_kanban
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_request_view_search
 #: model_terms:ir.ui.view,arch_db:maintenance.hr_equipment_view_search
 msgid "Unread Messages"
@@ -1435,7 +1422,7 @@ msgstr "供應商"
 #. module: maintenance
 #: model:ir.model.fields,field_description:maintenance.field_maintenance_equipment__partner_ref
 msgid "Vendor Reference"
-msgstr "供應商編碼"
+msgstr "供應商參考"
 
 #. module: maintenance
 #: model:ir.model.fields.selection,name:maintenance.selection__maintenance_request__priority__0

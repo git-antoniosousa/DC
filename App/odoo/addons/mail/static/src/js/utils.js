@@ -5,15 +5,6 @@ var core = require('web.core');
 
 var _t = core._t;
 
-/**
- * WARNING: this is not enough to unescape potential XSS contained in htmlString, transformFunction
- * should handle it or it should be handled after/before calling parseAndTransform. So if the result
- * of this function is used in a t-raw, be very careful.
- *
- * @param {string} htmlString
- * @param {function} transformFunction
- * @returns {string}
- */
 function parseAndTransform(htmlString, transformFunction) {
     var openToken = "OPEN" + Date.now();
     var string = htmlString.replace(/&lt;/g, openToken);
@@ -26,7 +17,6 @@ function parseAndTransform(htmlString, transformFunction) {
     return _parseAndTransform(children, transformFunction)
                 .replace(new RegExp(openToken, "g"), "&lt;");
 }
-
 /**
  * @param {Node[]} nodes
  * @param {function} transformFunction with:
@@ -96,7 +86,6 @@ function htmlToTextContentInline(htmlString) {
     const fragment = document.createDocumentFragment();
     const div = document.createElement('div');
     fragment.appendChild(div);
-    htmlString = htmlString.replace(/<br\s*\/?>/gi,' ');
     try {
         div.innerHTML = htmlString;
     } catch (e) {
@@ -139,23 +128,6 @@ function parseEmail(text) {
     }
 }
 
-/**
- * Returns an escaped conversion of a content.
- *
- * @param {string} content
- * @returns {string}
- */
-function escapeAndCompactTextContent(content) {
-    //Removing unwanted extra spaces from message
-    let value = owl.utils.escape(content).trim();
-    value = value.replace(/(\r|\n){2,}/g, '<br/><br/>');
-    value = value.replace(/(\r|\n)/g, '<br/>');
-
-    // prevent html space collapsing
-    value = value.replace(/ /g, '&nbsp;').replace(/([^>])&nbsp;([^<])/g, '$1 $2');
-    return value;
-}
-
 // Replaces textarea text into html text (add <p>, <a>)
 // TDE note : should be done server-side, in Python -> use mail.compose.message ?
 function getTextToHTML(text) {
@@ -171,6 +143,14 @@ function timeFromNow(date) {
     return date.fromNow();
 }
 
+function o_clearTimeout(id) {
+    return clearTimeout(id);
+}
+
+function o_setTimeout(func, delay) {
+    return setTimeout(func, delay);
+}
+
 return {
     addLink: addLink,
     getTextToHTML: getTextToHTML,
@@ -181,7 +161,8 @@ return {
     parseEmail: parseEmail,
     stripHTML: stripHTML,
     timeFromNow: timeFromNow,
-    escapeAndCompactTextContent,
+    clearTimeout: o_clearTimeout,
+    setTimeout: o_setTimeout,
 };
 
 });

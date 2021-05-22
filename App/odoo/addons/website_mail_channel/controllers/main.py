@@ -39,7 +39,7 @@ class MailGroup(http.Controller):
             .date() # may be unnecessary?
             .strftime(tools.DEFAULT_SERVER_DATE_FORMAT))
 
-    @http.route("/groups", type='http', auth="public", website=True, sitemap=True)
+    @http.route("/groups", type='http', auth="public", website=True)
     def view(self, **post):
         groups = request.env['mail.channel'].search([('alias_id.alias_name', '!=', False)])
 
@@ -96,9 +96,6 @@ class MailGroup(http.Controller):
         """
         unsubscribe = subscription == 'on'
         channel = request.env['mail.channel'].browse(int(channel_id))
-        if not channel.exists():
-            return False
-
         partner_ids = []
 
         # search partner_id
@@ -130,7 +127,7 @@ class MailGroup(http.Controller):
     @http.route([
         '''/groups/<model('mail.channel', "[('channel_type', '=', 'channel')]"):group>''',
         '''/groups/<model('mail.channel'):group>/page/<int:page>'''
-    ], type='http', auth="public", website=True, sitemap=True)
+    ], type='http', auth="public", website=True)
     def thread_headers(self, group, page=1, mode='thread', date_begin=None, date_end=None, **post):
         if group.channel_type != 'channel':
             raise werkzeug.exceptions.NotFound()
@@ -164,8 +161,8 @@ class MailGroup(http.Controller):
         return request.render('website_mail_channel.group_messages', values)
 
     @http.route([
-        '''/groups/<model('mail.channel', "[('channel_type', '=', 'channel')]"):group>/<model('mail.message', "[('model','=','mail.channel'), ('res_id','=',group.id)]"):message>''',
-    ], type='http', auth="public", website=True, sitemap=True)
+        '''/groups/<model('mail.channel', "[('channel_type', '=', 'channel')]"):group>/<model('mail.message', "[('model','=','mail.channel'), ('res_id','=',group[0])]"):message>''',
+    ], type='http', auth="public", website=True)
     def thread_discussion(self, group, message, mode='thread', date_begin=None, date_end=None, **post):
         if group.channel_type != 'channel':
             raise werkzeug.exceptions.NotFound()
@@ -191,7 +188,7 @@ class MailGroup(http.Controller):
         return request.render('website_mail_channel.group_message', values)
 
     @http.route(
-        '''/groups/<model('mail.channel', "[('channel_type', '=', 'channel')]"):group>/<model('mail.message', "[('model','=','mail.channel'), ('res_id','=',group.id)]"):message>/get_replies''',
+        '''/groups/<model('mail.channel', "[('channel_type', '=', 'channel')]"):group>/<model('mail.message', "[('model','=','mail.channel'), ('res_id','=',group[0])]"):message>/get_replies''',
         type='json', auth="public", methods=['POST'], website=True)
     def render_messages(self, group, message, **post):
         if group.channel_type != 'channel':
@@ -211,14 +208,10 @@ class MailGroup(http.Controller):
             'msg_more_count': message_count - self._replies_per_page,
             'replies_per_page': self._replies_per_page,
         }
-        return request.env.ref('website_mail_channel.messages_short')._render(values, engine='ir.qweb')
+        return request.env.ref('website_mail_channel.messages_short').render(values, engine='ir.qweb')
 
-    @http.route("/groups/<int:group_id>/get_alias_info", type='json', auth='public', website=True)
-    def get_alias_info(self, group_id, **post):
-        group = request.env['mail.channel'].search([('id', '=', group_id)])
-        if not group:  # doesn't exist or doesn't have the right to access it
-            return {}
-
+    @http.route("/groups/<model('mail.channel'):group>/get_alias_info", type='json', auth='public', website=True)
+    def get_alias_info(self, group, **post):
         return {
             'alias_name': group.alias_id and group.alias_id.alias_name and group.alias_id.alias_domain and '%s@%s' % (group.alias_id.alias_name, group.alias_id.alias_domain) or False
         }

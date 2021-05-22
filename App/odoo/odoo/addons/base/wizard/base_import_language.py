@@ -30,29 +30,27 @@ class BaseLanguageImport(models.TransientModel):
 
     def import_lang(self):
         this = self[0]
+        this = this.with_context(overwrite=this.overwrite)
+
+        self.env['res.lang'].load_lang(lang=self.code, lang_name=self.name)
+
         with TemporaryFile('wb+') as buf:
             try:
-                buf.write(base64.decodebytes(this.data))
+                buf.write(base64.decodestring(this.data))
 
                 # now we determine the file format
                 buf.seek(0)
                 fileformat = os.path.splitext(this.filename)[-1][1:].lower()
 
-                Lang = self.env["res.lang"]
-                lang = Lang._activate_lang(self.code) or Lang._create_lang(
-                    self.code, lang_name=self.name
-                )
-
-                tools.trans_load_data(
-                    this._cr, buf, fileformat, this.code, overwrite=self.overwrite
-                )
+                tools.trans_load_data(this._cr, buf, fileformat, this.code,
+                                      lang_name=this.name, context=this._context)
             except ProgrammingError as e:
                 _logger.exception('File unsuccessfully imported, due to a malformed file.')
 
                 with closing(sql_db.db_connect(self._cr.dbname).cursor()) as cr:
-                    raise UserError(_('File %r not imported due to a malformed file.\n\n'
-                                      'This issue can be caused by duplicates entries who are referring to the same field. '
-                                      'Please check the content of the file you are trying to import.\n\n'
+                    raise UserError(_('File %r not imported due to a malformed file.\n\n' +
+                                      'This issue can be caused by duplicates entries who are referring to the same field. ' +
+                                      'Please check the content of the file you are trying to import.\n\n' +
                                       'Technical Details:\n%s') % (self.filename, tools.ustr(e)))
             except Exception as e:
                 _logger.exception('File unsuccessfully imported, due to format mismatch.')

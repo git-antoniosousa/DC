@@ -3,15 +3,9 @@
 
 {
     'name': 'Lead Generation From Website Visits',
-    'summary': 'Generate Leads/Opportunities from your website\'s traffic',
-    'version': '1.1',
+    'summary': 'Create Leads/Opportunities from your website\'s traffic',
     'category': 'Sales/CRM',
-    'depends': [
-        'iap_crm',
-        'iap_mail',
-        'crm_iap_lead',
-        'website_form'
-    ],
+    'depends': ['iap', 'crm', 'website_form', 'crm_iap_lead'],
     'data': [
         'data/reveal_data.xml',
         'security/ir.model.access.csv',

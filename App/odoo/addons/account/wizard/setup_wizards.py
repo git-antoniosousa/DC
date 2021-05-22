@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from datetime import date, timedelta
+from datetime import date
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -16,7 +16,8 @@ class FinancialYearOpeningWizard(models.TransientModel):
     opening_date = fields.Date(string='Opening Date', required=True, related='company_id.account_opening_date', help="Date from which the accounting is managed in Odoo. It is the date of the opening entry.", readonly=False)
     fiscalyear_last_day = fields.Integer(related="company_id.fiscalyear_last_day", required=True, readonly=False,
                                          help="The last day of the month will be used if the chosen day doesn't exist.")
-    fiscalyear_last_month = fields.Selection(related="company_id.fiscalyear_last_month", readonly=False,
+    fiscalyear_last_month = fields.Selection(selection=[(1, 'January'), (2, 'February'), (3, 'March'), (4, 'April'), (5, 'May'), (6, 'June'), (7, 'July'), (8, 'August'), (9, 'September'), (10, 'October'), (11, 'November'), (12, 'December')],
+                                             related="company_id.fiscalyear_last_month", readonly=False,
                                              required=True,
                                              help="The last day of the month will be used if the chosen day doesn't exist.")
 
@@ -46,14 +47,10 @@ class FinancialYearOpeningWizard(models.TransientModel):
         # one value at a time... so it is likely to fail.
         for wiz in self:
             wiz.company_id.write({
+                'account_opening_date': vals.get('opening_date') or wiz.company_id.account_opening_date,
                 'fiscalyear_last_day': vals.get('fiscalyear_last_day') or wiz.company_id.fiscalyear_last_day,
                 'fiscalyear_last_month': vals.get('fiscalyear_last_month') or wiz.company_id.fiscalyear_last_month,
-                'account_opening_date': vals.get('opening_date') or wiz.company_id.account_opening_date,
             })
-            wiz.company_id.account_opening_move_id.write({
-                'date': fields.Date.from_string(vals.get('opening_date') or wiz.company_id.account_opening_date) - timedelta(days=1),
-            })
-
         vals.pop('opening_date', None)
         vals.pop('fiscalyear_last_day', None)
         vals.pop('fiscalyear_last_month', None)
@@ -67,25 +64,31 @@ class SetupBarBankConfigWizard(models.TransientModel):
     _inherits = {'res.partner.bank': 'res_partner_bank_id'}
     _name = 'account.setup.bank.manual.config'
     _description = 'Bank setup manual config'
-    _check_company_auto = True
 
     res_partner_bank_id = fields.Many2one(comodel_name='res.partner.bank', ondelete='cascade', required=True)
     new_journal_name = fields.Char(default=lambda self: self.linked_journal_id.name, inverse='set_linked_journal_id', required=True, help='Will be used to name the Journal related to this bank account')
-    linked_journal_id = fields.Many2one(string="Journal",
-        comodel_name='account.journal', inverse='set_linked_journal_id',
-        compute="_compute_linked_journal_id", check_company=True,
-        domain="[('type','=','bank'), ('bank_account_id', '=', False), ('company_id', '=', company_id)]")
-    bank_bic = fields.Char(related='bank_id.bic', readonly=False, string="Bic")
+    linked_journal_id = fields.Many2one(string="Journal", comodel_name='account.journal', inverse='set_linked_journal_id', compute="_compute_linked_journal_id")
+    new_journal_code = fields.Char(string="Code", required=True, default=lambda self: self._onchange_new_journal_code())
     num_journals_without_account = fields.Integer(default=lambda self: self._number_unlinked_journal())
+    # field computing the type of the res.patrner.bank. It's behaves the same as a related res_part_bank_id.acc_type
+    # except we want to display  this information while the record isn't yet saved.
+    related_acc_type = fields.Selection(string="Account Type", selection=lambda x: x.env['res.partner.bank'].get_supported_account_types(), compute='_compute_related_acc_type')
+
+    @api.depends('acc_number')
+    def _compute_related_acc_type(self):
+        for record in self:
+            record.related_acc_type = self.env['res.partner.bank'].retrieve_acc_type(record.acc_number)
 
     def _number_unlinked_journal(self):
-        return self.env['account.journal'].search([('type', '=', 'bank'), ('bank_account_id', '=', False),
-                                                   ('id', '!=', self.default_linked_journal_id())], count=True)
+        return self.env['account.journal'].search([('type', '=', 'bank'), ('bank_account_id', '=', False)], count=True)
 
-    @api.onchange('acc_number')
-    def _onchange_acc_number(self):
+    @api.onchange('linked_journal_id')
+    def _onchange_new_journal_code(self):
         for record in self:
-            record.new_journal_name = record.acc_number
+            if not record.linked_journal_id:
+                record.new_journal_code = self.env['account.journal'].get_next_bank_cash_default_code('bank', self.env.company.id)
+            else:
+                record.new_journal_code = self.linked_journal_id.code
 
     @api.model
     def create(self, vals):
@@ -94,13 +97,6 @@ class SetupBarBankConfigWizard(models.TransientModel):
         the model.
         """
         vals['partner_id'] = self.env.company.partner_id.id
-        vals['new_journal_name'] = vals['acc_number']
-
-        # If no bank has been selected, but we have a bic, we are using it to find or create the bank
-        if not vals['bank_id'] and vals['bank_bic']:
-            vals['bank_id'] = self.env['res.bank'].search([('bic', '=', vals['bank_bic'])], limit=1).id \
-                              or self.env['res.bank'].create({'name': vals['bank_bic'], 'bic': vals['bank_bic']}).id
-
         return super(SetupBarBankConfigWizard, self).create(vals)
 
     @api.onchange('linked_journal_id')
@@ -116,19 +112,18 @@ class SetupBarBankConfigWizard(models.TransientModel):
 
     def default_linked_journal_id(self):
         default = self.env['account.journal'].search([('type', '=', 'bank'), ('bank_account_id', '=', False)], limit=1)
-        return default[:1].id
+        return default and default[0].id
 
     def set_linked_journal_id(self):
         """ Called when saving the wizard.
         """
         for record in self:
             selected_journal = record.linked_journal_id
-            if not selected_journal:
-                new_journal_code = self.env['account.journal'].get_next_bank_cash_default_code('bank', self.env.company)
+            if record.num_journals_without_account == 0:
                 company = self.env.company
                 selected_journal = self.env['account.journal'].create({
                     'name': record.new_journal_name,
-                    'code': new_journal_code,
+                    'code': record.new_journal_code,
                     'type': 'bank',
                     'company_id': company.id,
                     'bank_account_id': record.res_partner_bank_id.id,
@@ -136,6 +131,7 @@ class SetupBarBankConfigWizard(models.TransientModel):
             else:
                 selected_journal.bank_account_id = record.res_partner_bank_id.id
                 selected_journal.name = record.new_journal_name
+                selected_journal.code = record.new_journal_code
 
     def validate(self):
         """ Called by the validation button of this wizard. Serves as an

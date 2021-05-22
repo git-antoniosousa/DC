@@ -6,6 +6,7 @@ odoo.define('web.kanban_column_quick_create', function (require) {
  * create kanban columns directly from the Kanban view.
  */
 
+var config = require('web.config');
 var core = require('web.core');
 var Dialog = require('web.Dialog');
 var Widget = require('web.Widget');
@@ -32,10 +33,9 @@ var ColumnQuickCreate = Widget.extend({
      */
     init: function (parent, options) {
         this._super.apply(this, arguments);
-        this.applyExamplesText = options.applyExampleText || _t("Use This For My Kanban");
         this.examples = options.examples;
         this.folded = true;
-        this.isMobile = false;
+        this.isMobile = config.device.isMobile;
     },
     /**
      * @override
@@ -104,8 +104,10 @@ var ColumnQuickCreate = Widget.extend({
     _cancel: function () {
         if (!this.folded) {
             this.$input.val('');
-            this.folded = true;
-            this._update();
+            if (!this.isMobile) {
+                this.folded = true;
+                this._update();
+            }
         }
     },
     /**
@@ -187,18 +189,8 @@ var ColumnQuickCreate = Widget.extend({
             })),
             buttons: [{
                 classes: 'btn-primary float-right',
-                text: this.applyExamplesText,
                 close: true,
-                click: function () {
-                    const activeExample = self.examples[this.$('.nav-link.active').data("exampleIndex")];
-                    activeExample.columns.forEach(column => {
-                        self.trigger_up('quick_create_add_column', { value: column.toString(), foldQuickCreate: true });
-                    });
-                }
-            }, {
-                classes: 'btn-secondary float-right',
-                close: true,
-                text: _t('Close'),
+                text: _t('Got it'),
             }],
             size: "large",
             title: "Kanban Examples",

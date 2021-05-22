@@ -3,19 +3,19 @@
 # 	* barcodes
 # 
 # Translators:
-# Martin Trigaux, 2020
+# Martin Trigaux, 2019
+# Link Up링크업 <linkup.way@gmail.com>, 2019
+# Linkup <link-up@naver.com>, 2019
+# Mark Lee <odoos@soti.33mail.com>, 2019
 # JH CHOI <hwangtog@gmail.com>, 2020
-# Link Up링크업 <linkup.way@gmail.com>, 2020
-# Linkup <link-up@naver.com>, 2020
-# Mark Lee <odoos@soti.33mail.com>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.5\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 07:28+0000\n"
-"PO-Revision-Date: 2020-09-07 08:10+0000\n"
-"Last-Translator: Mark Lee <odoos@soti.33mail.com>, 2020\n"
+"POT-Creation-Date: 2019-08-26 08:16+0000\n"
+"PO-Revision-Date: 2019-08-26 09:09+0000\n"
+"Last-Translator: JH CHOI <hwangtog@gmail.com>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/odoo/teams/41243/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,6 +28,24 @@ msgstr ""
 #, python-format
 msgid " '*' is not a valid Regex Barcode Pattern. Did you mean '.*' ?"
 msgstr "'*'는 유효한 일반 바코드 패턴이 아닙니다. '.*'을 의미합니까?"
+
+#. module: barcodes
+#: code:addons/barcodes/models/barcodes.py:0
+#, python-format
+msgid ": a rule can only contain one pair of braces."
+msgstr ": 규칙에는 한 쌍의 중괄호만 포함할 수 있습니다."
+
+#. module: barcodes
+#: code:addons/barcodes/models/barcodes.py:0
+#, python-format
+msgid ": braces can only contain N's followed by D's."
+msgstr ": 중괄호는 N 개의 시퀀스와 D 개의 시퀀스만 포함 할 수 있습니다."
+
+#. module: barcodes
+#: code:addons/barcodes/models/barcodes.py:0
+#, python-format
+msgid ": empty braces."
+msgstr ": 빈 괄호."
 
 #. module: barcodes
 #: model_terms:ir.ui.view,arch_db:barcodes.view_barcode_nomenclature_form
@@ -97,7 +115,7 @@ msgstr "바코드 명칭"
 #: model:ir.actions.act_window,name:barcodes.action_barcode_nomenclature_form
 #: model_terms:ir.ui.view,arch_db:barcodes.view_barcode_nomenclature_tree
 msgid "Barcode Nomenclatures"
-msgstr "바코드 명명법"
+msgstr "바코트 명칭"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__pattern
@@ -118,13 +136,13 @@ msgstr "바코드 스캔됨"
 #. module: barcodes
 #: model:ir.model,name:barcodes.model_res_company
 msgid "Companies"
-msgstr "회사들"
+msgstr "회사"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__create_uid
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__create_uid
 msgid "Created by"
-msgstr "작성자"
+msgstr "작성인"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__create_date
@@ -137,16 +155,14 @@ msgstr "작성일"
 #: code:addons/barcodes/static/src/js/barcode_form_view.js:0
 #, python-format
 msgid "Discard"
-msgstr "작성취소"
+msgstr "작성 취소"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__display_name
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__display_name
 #: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin__display_name
-#: model:ir.model.fields,field_description:barcodes.field_ir_http__display_name
-#: model:ir.model.fields,field_description:barcodes.field_res_company__display_name
 msgid "Display Name"
-msgstr "이름 표시"
+msgstr "표시 이름"
 
 #. module: barcodes
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_rule__encoding__ean13
@@ -164,16 +180,40 @@ msgid "EAN-8"
 msgstr "EAN-8"
 
 #. module: barcodes
-#. openerp-web
-#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
-#, python-format
-msgid "Enable edit mode to modify this document"
-msgstr ""
-
-#. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__encoding
 msgid "Encoding"
 msgstr "인코딩"
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "Error: Barcode command is undefined"
+msgstr "오류 : 바코드 명령이 정의되지 않았습니다."
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "Error: Document not editable"
+msgstr "오류 : 문서를 편집할 수 없습니다."
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "Error: No last scanned barcode"
+msgstr "오류 : 최근 스캔된 바코드가 없습니다."
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "Error: Pager not available"
+msgstr "오류 : 호출기를 사용할 수 없습니다."
 
 #. module: barcodes
 #: model:ir.model,name:barcodes.model_ir_http
@@ -184,8 +224,6 @@ msgstr "HTTP 라우팅"
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__id
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__id
 #: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin__id
-#: model:ir.model.fields,field_description:barcodes.field_ir_http__id
-#: model:ir.model.fields,field_description:barcodes.field_res_company__id
 msgid "ID"
 msgstr "ID"
 
@@ -193,10 +231,8 @@ msgstr "ID"
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature____last_update
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule____last_update
 #: model:ir.model.fields,field_description:barcodes.field_barcodes_barcode_events_mixin____last_update
-#: model:ir.model.fields,field_description:barcodes.field_ir_http____last_update
-#: model:ir.model.fields,field_description:barcodes.field_res_company____last_update
 msgid "Last Modified on"
-msgstr "최근 수정"
+msgstr "최근 수정일"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__write_uid
@@ -208,7 +244,7 @@ msgstr "최근 갱신한 사람"
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__write_date
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__write_date
 msgid "Last Updated on"
-msgstr "최근 갱신 날짜"
+msgstr "최근 갱신일"
 
 #. module: barcodes
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_nomenclature__upc_ean_conv__none
@@ -219,13 +255,6 @@ msgstr "하지않음"
 #: model:ir.model.fields,field_description:barcodes.field_res_company__nomenclature_id
 msgid "Nomenclature"
 msgstr "명명법"
-
-#. module: barcodes
-#. openerp-web
-#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
-#, python-format
-msgid "Pager unavailable"
-msgstr ""
 
 #. module: barcodes
 #: model_terms:ir.ui.view,arch_db:barcodes.view_barcode_nomenclature_form
@@ -257,20 +286,13 @@ msgstr "규칙"
 #. openerp-web
 #: code:addons/barcodes/static/src/js/barcode_form_view.js:0
 #, python-format
-msgid "Scan a barcode to set the quantity"
-msgstr ""
-
-#. module: barcodes
-#. openerp-web
-#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
-#, python-format
 msgid "Select"
 msgstr "선택하기"
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__sequence
 msgid "Sequence"
-msgstr "순차적"
+msgstr "순서"
 
 #. module: barcodes
 #. openerp-web
@@ -301,26 +323,11 @@ msgstr "일치하는 패턴이 이 바코드의 별칭이 됩니다."
 
 #. module: barcodes
 #: code:addons/barcodes/models/barcodes.py:0
-#, python-format
-msgid ""
-"There is a syntax error in the barcode pattern %(pattern)s: a rule can only "
-"contain one pair of braces."
-msgstr ""
-
-#. module: barcodes
+#: code:addons/barcodes/models/barcodes.py:0
 #: code:addons/barcodes/models/barcodes.py:0
 #, python-format
-msgid ""
-"There is a syntax error in the barcode pattern %(pattern)s: braces can only "
-"contain N's followed by D's."
-msgstr ""
-
-#. module: barcodes
-#: code:addons/barcodes/models/barcodes.py:0
-#, python-format
-msgid ""
-"There is a syntax error in the barcode pattern %(pattern)s: empty braces."
-msgstr ""
+msgid "There is a syntax error in the barcode pattern "
+msgstr "바코드 패턴에 구문 오류가 있습니다."
 
 #. module: barcodes
 #: model:ir.model.fields,help:barcodes.field_barcode_rule__encoding
@@ -328,6 +335,20 @@ msgid ""
 "This rule will apply only if the barcode is encoded with the specified "
 "encoding"
 msgstr "이 규칙은 바코드가 지정된 인코딩으로 인코딩된 경우에만 적용됩니다."
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "To modify this document, please first start edition."
+msgstr "이 문서를 수정하려면 먼저 편집본을 만들어야 합니다."
+
+#. module: barcodes
+#. openerp-web
+#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
+#, python-format
+msgid "To set the quantity please scan a barcode first."
+msgstr "수량을 설정하려면 먼저 바코드를 스캔하세요."
 
 #. module: barcodes
 #: model:ir.model.fields,field_description:barcodes.field_barcode_rule__type
@@ -358,13 +379,6 @@ msgstr "UPC-A에서 EAN-13으로"
 #: model:ir.model.fields,field_description:barcodes.field_barcode_nomenclature__upc_ean_conv
 msgid "UPC/EAN Conversion"
 msgstr "UPC/EAN 변환"
-
-#. module: barcodes
-#. openerp-web
-#: code:addons/barcodes/static/src/js/barcode_form_view.js:0
-#, python-format
-msgid "Undefined barcode command"
-msgstr ""
 
 #. module: barcodes
 #: model:ir.model.fields.selection,name:barcodes.selection__barcode_rule__type__product

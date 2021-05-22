@@ -10,7 +10,7 @@ class AccountMove(models.Model):
         if self.env.su:
             # sending mail in sudo was meant for it being sent from superuser
             self = self.with_user(SUPERUSER_ID)
-        for invoice in self.filtered(lambda x: x.move_type == 'out_invoice'):
+        for invoice in self.filtered(lambda x: x.type == 'out_invoice'):
             # send template only on customer invoice
             # subscribe the partner to the invoice
             if invoice.partner_id not in invoice.message_partner_ids:
@@ -24,8 +24,8 @@ class AccountMove(models.Model):
                     )
         return True
 
-    def _post(self, soft=True):
+    def post(self):
         # OVERRIDE
-        posted = super()._post(soft)
-        posted.invoice_validate_send_email()
-        return posted
+        res = super(AccountMove, self).post()
+        self.invoice_validate_send_email()
+        return res

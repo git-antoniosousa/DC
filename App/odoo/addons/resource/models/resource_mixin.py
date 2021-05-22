@@ -2,7 +2,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from collections import defaultdict
-from dateutil.relativedelta import relativedelta
 from pytz import utc
 
 from odoo import api, fields, models
@@ -89,10 +88,6 @@ class ResourceMixin(models.AbstractModel):
             mapped_resources[calendar or record.resource_calendar_id] |= record.resource_id
 
         for calendar, calendar_resources in mapped_resources.items():
-            if not calendar:
-                for calendar_resource in calendar_resources:
-                    result[calendar_resource.id] = {'days': 0, 'hours': 0}
-                continue
             day_total = calendar._get_resources_day_total(from_datetime, to_datetime, calendar_resources)
 
             # actual hours per day
@@ -155,14 +150,6 @@ class ResourceMixin(models.AbstractModel):
 
         # convert "resource: result" into "employee: result"
         return {mapped_employees[r.id]: result[r.id] for r in resources}
-
-    def _adjust_to_calendar(self, start, end):
-        resource_results = self.resource_id._adjust_to_calendar(start, end)
-        # change dict keys from resources to associated records.
-        return {
-            record: resource_results[record.resource_id]
-            for record in self
-        }
 
     def list_work_time_per_day(self, from_datetime, to_datetime, calendar=None, domain=None):
         """

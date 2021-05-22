@@ -5,7 +5,7 @@ from datetime import datetime
 from uuid import uuid4
 import pytz
 
-from odoo import api, fields, models, tools, _
+from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, UserError
 
 
@@ -28,8 +28,8 @@ class AccountBankStmtCashWizard(models.Model):
     @api.model
     def default_get(self, fields):
         vals = super(AccountBankStmtCashWizard, self).default_get(fields)
-        if 'cashbox_lines_ids' not in fields:
-            return vals
+        if "is_a_template" in fields and self.env.context.get('default_is_a_template'):
+            vals['is_a_template'] = True
         config_id = self.env.context.get('default_pos_id')
         if config_id:
             config = self.env['pos.config'].browse(config_id)
@@ -99,7 +99,7 @@ class PosConfig(models.Model):
 
     def _compute_customer_html(self):
         for config in self:
-            config.customer_facing_display_html = self.env['ir.qweb']._render('point_of_sale.customer_facing_display_html')
+            config.customer_facing_display_html = self.env['ir.qweb'].render('point_of_sale.customer_facing_display_html')
 
     name = fields.Char(string='Point of Sale', index=True, required=True, help="An internal identification of the point of sale.")
     is_installed_account_accountant = fields.Boolean(string="Is the Full Accounting Installed",
@@ -108,9 +108,9 @@ class PosConfig(models.Model):
         'stock.picking.type',
         string='Operation Type',
         default=_default_picking_type_id,
-        required=True,
         domain="[('code', '=', 'outgoing'), ('warehouse_id.company_id', '=', company_id)]",
         ondelete='restrict')
+    use_existing_lots = fields.Boolean(related='picking_type_id.use_existing_lots', readonly=False)
     journal_id = fields.Many2one(
         'account.journal', string='Sales Journal',
         domain=[('type', '=', 'sale')],
@@ -128,12 +128,14 @@ class PosConfig(models.Model):
     iface_vkeyboard = fields.Boolean(string='Virtual KeyBoard', help=u"Don’t turn this option on if you take orders on smartphones or tablets. \n Such devices already benefit from a native keyboard.")
     iface_customer_facing_display = fields.Boolean(string='Customer Facing Display', help="Show checkout to customers with a remotely-connected screen.")
     iface_print_via_proxy = fields.Boolean(string='Print via Proxy', help="Bypass browser printing and prints via the hardware proxy.")
-    iface_scan_via_proxy = fields.Boolean(string='Scan via Proxy', help="Enable barcode scanning with a remotely connected barcode scanner and card swiping with a Vantiv card reader.")
+    iface_scan_via_proxy = fields.Boolean(string='Scan via Proxy', help="Enable barcode scanning with a remotely connected barcode scanner.")
     iface_big_scrollbars = fields.Boolean('Large Scrollbars', help='For imprecise industrial touchscreens.')
     iface_print_auto = fields.Boolean(string='Automatic Receipt Printing', default=False,
         help='The receipt will automatically be printed at the end of each order.')
     iface_print_skip_screen = fields.Boolean(string='Skip Preview Screen', default=True,
         help='The receipt screen will be skipped if the receipt can be printed automatically.')
+    iface_precompute_cash = fields.Boolean(string='Prefill Cash Payment',
+        help='The payment input will behave similarily to bank payment input, and will be prefilled with the exact due amount.')
     iface_tax_included = fields.Selection([('subtotal', 'Tax-Excluded Price'), ('total', 'Tax-Included Price')], string="Tax Display", default='subtotal', required=True)
     iface_start_categ_id = fields.Many2one('pos.category', string='Initial Category',
         help='The point of sale will display this product category by default. If no category is specified, all available products will be shown.')
@@ -144,13 +146,13 @@ class PosConfig(models.Model):
         help="The product categories will be displayed with pictures.")
     restrict_price_control = fields.Boolean(string='Restrict Price Modifications to Managers',
         help="Only users with Manager access rights for PoS app can modify the product prices on orders.")
-    cash_control = fields.Boolean(string='Advanced Cash Control', help="Check the amount of the cashbox at opening and closing.")
+    cash_control = fields.Boolean(string='Cash Control', help="Check the amount of the cashbox at opening and closing.")
     receipt_header = fields.Text(string='Receipt Header', help="A short text that will be inserted as a header in the printed receipt.")
     receipt_footer = fields.Text(string='Receipt Footer', help="A short text that will be inserted as a footer in the printed receipt.")
     proxy_ip = fields.Char(string='IP Address', size=45,
         help='The hostname or ip address of the hardware proxy, Will be autodetected if left empty.')
     active = fields.Boolean(default=True)
-    uuid = fields.Char(readonly=True, default=lambda self: str(uuid4()),
+    uuid = fields.Char(readonly=True, default=lambda self: str(uuid4()), copy=False,
         help='A globally unique identifier for this pos configuration, used to prevent conflicts in client-generated data.')
     sequence_id = fields.Many2one('ir.sequence', string='Order IDs Sequence', readonly=True,
         help="This sequence is automatically created by Odoo but you can change it "
@@ -195,15 +197,14 @@ class PosConfig(models.Model):
     use_pricelist = fields.Boolean("Use a pricelist.")
     tax_regime = fields.Boolean("Tax Regime")
     tax_regime_selection = fields.Boolean("Tax Regime Selection value")
-    start_category = fields.Boolean("Start Category", default=False)
-    limit_categories = fields.Boolean("Restrict Product Categories")
-    module_account = fields.Boolean(string='Invoicing', default=True, help='Enables invoice generation from the Point of Sale.')
+    start_category = fields.Boolean("Set Start Category", default=False)
+    limit_categories = fields.Boolean("Restrict Available Product Categories")
+    module_account = fields.Boolean(string='Invoicing', help='Enables invoice generation from the Point of Sale.')
     module_pos_restaurant = fields.Boolean("Is a Bar/Restaurant")
     module_pos_discount = fields.Boolean("Global Discounts")
     module_pos_loyalty = fields.Boolean("Loyalty Program")
     module_pos_mercury = fields.Boolean(string="Integrated Card Payments")
-    manage_orders = fields.Boolean(string="Manage Orders")
-    product_configurator = fields.Boolean(string="Product Configurator")
+    module_pos_reprint = fields.Boolean(string="Reprint Receipt")
     is_posbox = fields.Boolean("PosBox")
     is_header_or_footer = fields.Boolean("Header & Footer")
     module_pos_hr = fields.Boolean(help="Show employee login screen")
@@ -215,12 +216,6 @@ class PosConfig(models.Model):
     company_has_template = fields.Boolean(string="Company has chart of accounts", compute="_compute_company_has_template")
     current_user_id = fields.Many2one('res.users', string='Current Session Responsible', compute='_compute_current_session_user')
     other_devices = fields.Boolean(string="Other Devices", help="Connect devices to your PoS without an IoT Box.")
-    rounding_method = fields.Many2one('account.cash.rounding', string="Cash rounding")
-    cash_rounding = fields.Boolean(string="Cash Rounding")
-    only_round_cash_method = fields.Boolean(string="Only apply rounding on cash")
-    has_active_session = fields.Boolean(compute='_compute_current_session')
-    show_allow_invoicing_alert = fields.Boolean(compute="_compute_show_allow_invoicing_alert")
-    manual_discount = fields.Boolean(string="Manual Discounts", default=True)
 
     @api.depends('use_pricelist', 'available_pricelist_ids')
     def _compute_allowed_pricelist_ids(self):
@@ -256,21 +251,11 @@ class PosConfig(models.Model):
         """If there is an open session, store it to current_session_id / current_session_State.
         """
         for pos_config in self:
-            opened_sessions = pos_config.session_ids.filtered(lambda s: not s.state == 'closed')
             session = pos_config.session_ids.filtered(lambda s: s.user_id.id == self.env.uid and \
                     not s.state == 'closed' and not s.rescue)
             # sessions ordered by id desc
-            pos_config.has_active_session = opened_sessions and True or False
             pos_config.current_session_id = session and session[0].id or False
             pos_config.current_session_state = session and session[0].state or False
-
-    @api.depends('module_account', 'manage_orders')
-    def _compute_show_allow_invoicing_alert(self):
-        for pos_config in self:
-            if not pos_config.manage_orders:
-                pos_config.show_allow_invoicing_alert = False
-            else:
-                pos_config.show_allow_invoicing_alert = not pos_config.module_account
 
     @api.depends('session_ids')
     def _compute_last_session(self):
@@ -297,7 +282,7 @@ class PosConfig(models.Model):
     @api.depends('session_ids')
     def _compute_current_session_user(self):
         for pos_config in self:
-            session = pos_config.session_ids.filtered(lambda s: s.state in ['opening_control', 'opened', 'closing_control'] and not s.rescue)
+            session = pos_config.session_ids.filtered(lambda s: s.state in ['new_session', 'opening_control', 'opened', 'closing_control'] and not s.rescue)
             if session:
                 pos_config.pos_session_username = session[0].user_id.sudo().name
                 pos_config.pos_session_state = session[0].state
@@ -325,21 +310,10 @@ class PosConfig(models.Model):
         if open_session:
             raise ValidationError(_("You are not allowed to change the cash control status while a session is already opened."))
 
-    @api.constrains('rounding_method')
-    def _check_rounding_method_strategy(self):
-        if self.cash_rounding and self.rounding_method.strategy != 'add_invoice_line':
-            raise ValidationError(_("Cash rounding strategy must be: 'Add a rounding line'"))
-
     @api.constrains('company_id', 'journal_id')
     def _check_company_journal(self):
         if self.journal_id and self.journal_id.company_id.id != self.company_id.id:
             raise ValidationError(_("The sales journal and the point of sale must belong to the same company."))
-
-    def _check_profit_loss_cash_journal(self):
-        if self.cash_control and self.payment_method_ids:
-            for method in self.payment_method_ids:
-                if method.is_cash_count and (not method.cash_journal_id.loss_account_id or not method.cash_journal_id.profit_account_id):
-                    raise ValidationError(_("You need a loss and profit account on your cash journal."))
 
     @api.constrains('company_id', 'invoice_journal_id')
     def _check_company_invoice_journal(self):
@@ -349,7 +323,7 @@ class PosConfig(models.Model):
     @api.constrains('company_id', 'payment_method_ids')
     def _check_company_payment(self):
         if self.env['pos.payment.method'].search_count([('id', 'in', self.payment_method_ids.ids), ('company_id', '!=', self.company_id.id)]):
-            raise ValidationError(_("The payment methods and the point of sale must belong to the same company."))
+            raise ValidationError(_("The method payments and the point of sale must belong to the same company."))
 
     @api.constrains('pricelist_id', 'use_pricelist', 'available_pricelist_ids', 'journal_id', 'invoice_journal_id', 'payment_method_ids')
     def _check_currencies(self):
@@ -381,13 +355,6 @@ class PosConfig(models.Model):
             method_names = ", ".join(method.name for method in invalid_payment_methods)
             raise ValidationError(
                 _("You must configure an intermediary account for the payment methods: %s.") % method_names
-            )
-
-    def _check_payment_method_ids(self):
-        self.ensure_one()
-        if not self.payment_method_ids:
-            raise ValidationError(
-                _("You must have at least one payment method configured to launch a session.")
             )
 
     @api.constrains('company_id', 'available_pricelist_ids')
@@ -472,16 +439,16 @@ class PosConfig(models.Model):
         for config in self:
             last_session = self.env['pos.session'].search([('config_id', '=', config.id)], limit=1)
             if (not last_session) or (last_session.state == 'closed'):
-                result.append((config.id, _("%(pos_name)s (not used)", pos_name=config.name)))
-            else:
-                result.append((config.id, "%s (%s)" % (config.name, last_session.user_id.name)))
+                result.append((config.id, config.name + ' (' + _('not used') + ')'))
+                continue
+            result.append((config.id, config.name + ' (' + last_session.user_id.name + ')'))
         return result
 
     @api.model
     def create(self, values):
         IrSequence = self.env['ir.sequence'].sudo()
         val = {
-            'name': _('POS Order %s', values['name']),
+            'name': _('POS Order %s') % values['name'],
             'padding': 4,
             'prefix': "%s/" % values['name'],
             'code': "pos.order",
@@ -490,7 +457,7 @@ class PosConfig(models.Model):
         # force sequence_id field to new pos.order sequence
         values['sequence_id'] = IrSequence.create(val).id
 
-        val.update(name=_('POS order line %s', values['name']), code='pos.order.line')
+        val.update(name=_('POS order line %s') % values['name'], code='pos.order.line')
         values['sequence_line_id'] = IrSequence.create(val).id
         pos_config = super(PosConfig, self).create(values)
         pos_config.sudo()._check_modules_to_install()
@@ -501,28 +468,13 @@ class PosConfig(models.Model):
     def write(self, vals):
         opened_session = self.mapped('session_ids').filtered(lambda s: s.state != 'closed')
         if opened_session:
-            forbidden_fields = []
-            for key in self._get_forbidden_change_fields():
-                if key in vals.keys():
-                    field_name = self._fields[key].get_description(self.env)["string"]
-                    forbidden_fields.append(field_name)
-            if len(forbidden_fields) > 0:
-                raise UserError(_(
-                    "Unable to modify this PoS Configuration because you can't modify %s while a session is open.",
-                    ", ".join(forbidden_fields)
-                ))
+            raise UserError(_('Unable to modify this PoS Configuration because there is an open PoS Session based on it.'))
         result = super(PosConfig, self).write(vals)
 
         self.sudo()._set_fiscal_position()
         self.sudo()._check_modules_to_install()
         self.sudo()._check_groups_implied()
         return result
-
-    def _get_forbidden_change_fields(self):
-        forbidden_keys = ['module_pos_hr', 'cash_control', 'module_pos_restaurant', 'available_pricelist_ids',
-                          'limit_categories', 'iface_available_categ_ids', 'use_pricelist', 'module_pos_discount',
-                          'payment_method_ids', 'iface_tipproduc']
-        return forbidden_keys
 
     def unlink(self):
         # Delete the pos.config records first then delete the sequences linked to them
@@ -573,19 +525,13 @@ class PosConfig(models.Model):
              'params': {'wait': True}
          }
 
-    def _force_http(self):
-        return False
-
-    def _get_pos_base_url(self):
-        return '/pos/web' if self._force_http() else '/pos/ui'
-
     # Methods to open the POS
     def open_ui(self):
         """Open the pos interface with config_id as an extra argument.
-
+    
         In vanilla PoS each user can only have one active session, therefore it was not needed to pass the config_id
         on opening a session. It is also possible to login to sessions created by other users.
-
+        
         :returns: dict
         """
         self.ensure_one()
@@ -593,11 +539,11 @@ class PosConfig(models.Model):
         self._validate_fields(set(self._fields) - {"cash_control"})
         return {
             'type': 'ir.actions.act_url',
-            'url': self._get_pos_base_url() + '?config_id=%d' % self.id,
+            'url':   '/pos/web?config_id=%d' % self.id,
             'target': 'self',
         }
 
-    def open_session_cb(self, check_coa=True):
+    def open_session_cb(self):
         """ new session button
 
         create one if none exist
@@ -609,14 +555,14 @@ class PosConfig(models.Model):
             self._check_company_invoice_journal()
             self._check_company_payment()
             self._check_currencies()
-            self._check_profit_loss_cash_journal()
-            self._check_payment_method_ids()
             self._check_payment_method_receivable_accounts()
             self.env['pos.session'].create({
                 'user_id': self.env.uid,
                 'config_id': self.id
             })
-        return self.open_ui()
+            if self.current_session_id.state == 'opened':
+                return self.open_ui()
+        return self._open_session(self.current_session_id.id)
 
     def open_existing_session_cb(self):
         """ close session button
@@ -640,54 +586,45 @@ class PosConfig(models.Model):
     # is installed, or if POS is installed on database having companies that already have
     # a localisation installed
     @api.model
-    def post_install_pos_localisation(self, companies=False):
+    def post_install_pos_localisation(self):
+        self.assign_payment_journals()
+        self.generate_pos_journal()
+
+    @api.model
+    def assign_payment_journals(self, companies=False):
         self = self.sudo()
         if not companies:
             companies = self.env['res.company'].search([])
-        for company in companies.filtered('chart_template_id'):
-            pos_configs = self.search([('company_id', '=', company.id)])
-            pos_configs.setup_defaults(company)
-
-    def setup_defaults(self, company):
-        """Extend this method to customize the existing pos.config of the company during the installation
-        of a localisation.
-
-        :param self pos.config: pos.config records present in the company during the installation of localisation.
-        :param company res.company: the single company where the pos.config defaults will be setup.
-        """
-        self.assign_payment_journals(company)
-        self.generate_pos_journal(company)
-        self.setup_invoice_journal(company)
-
-    def assign_payment_journals(self, company):
-        for pos_config in self:
-            if pos_config.payment_method_ids or pos_config.has_active_session:
-                continue
-            cash_journal = self.env['account.journal'].search([('company_id', '=', company.id), ('type', '=', 'cash')], limit=1)
-            pos_receivable_account = company.account_default_pos_receivable_account_id
-            payment_methods = self.env['pos.payment.method']
-            if cash_journal:
+        for company in companies:
+            if company.chart_template_id:
+                cash_journal = self.env['account.journal'].search([('company_id', '=', company.id), ('type', '=', 'cash')], limit=1)
+                pos_receivable_account = company.account_default_pos_receivable_account_id
+                payment_methods = self.env['pos.payment.method']
+                if cash_journal:
+                    payment_methods |= payment_methods.create({
+                        'name': _('Cash'),
+                        'receivable_account_id': pos_receivable_account.id,
+                        'is_cash_count': True,
+                        'cash_journal_id': cash_journal.id,
+                        'company_id': company.id,
+                    })
                 payment_methods |= payment_methods.create({
-                    'name': _('Cash'),
+                    'name': _('Bank'),
                     'receivable_account_id': pos_receivable_account.id,
-                    'is_cash_count': True,
-                    'cash_journal_id': cash_journal.id,
+                    'is_cash_count': False,
                     'company_id': company.id,
                 })
-            payment_methods |= payment_methods.create({
-                'name': _('Bank'),
-                'receivable_account_id': pos_receivable_account.id,
-                'is_cash_count': False,
-                'company_id': company.id,
-            })
-            pos_config.write({'payment_method_ids': [(6, 0, payment_methods.ids)]})
+                existing_pos_config = self.env['pos.config'].search([('company_id', '=', company.id), ('payment_method_ids', '=', False)])
+                existing_pos_config.write({'payment_method_ids': [(6, 0, payment_methods.ids)]})
 
-    def generate_pos_journal(self, company):
-        for pos_config in self:
-            if pos_config.journal_id:
-                continue
+    @api.model
+    def generate_pos_journal(self, companies=False):
+        self = self.sudo()
+        if not companies:
+            companies = self.env['res.company'].search([])
+        for company in companies:
             pos_journal = self.env['account.journal'].search([('company_id', '=', company.id), ('code', '=', 'POSS')])
-            if not pos_journal:
+            if company.chart_template_id and not pos_journal:
                 pos_journal = self.env['account.journal'].create({
                     'type': 'sale',
                     'name': 'Point of Sale',
@@ -695,12 +632,5 @@ class PosConfig(models.Model):
                     'company_id': company.id,
                     'sequence': 20
                 })
-            pos_config.write({'journal_id': pos_journal.id})
-
-    def setup_invoice_journal(self, company):
-        for pos_config in self:
-            invoice_journal_id = pos_config.invoice_journal_id or self.env['account.journal'].search([('type', '=', 'sale'), ('company_id', '=', company.id)], limit=1)
-            if invoice_journal_id:
-                pos_config.write({'invoice_journal_id': invoice_journal_id.id})
-            else:
-                pos_config.write({'module_account': False})
+                existing_pos_config = self.env['pos.config'].search([('company_id', '=', company.id), ('journal_id', '=', False)])
+                existing_pos_config.write({'journal_id': pos_journal.id})

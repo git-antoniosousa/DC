@@ -190,7 +190,6 @@ class TestDateRangeFunction(BaseCase):
 
 class TestFormatLangDate(TransactionCase):
     def test_00_accepted_types(self):
-        self.env.user.tz = 'Europe/Brussels'
         datetime_str = '2017-01-31 12:00:00'
         date_datetime = datetime.datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
         date_date = date_datetime.date()
@@ -220,8 +219,7 @@ class TestFormatLangDate(TransactionCase):
         lang = self.env['res.lang']
 
         # Activate French and Simplified Chinese (test with non-ASCII characters)
-        lang._activate_lang('fr_FR')
-        lang._activate_lang('zh_CN')
+        lang.search([('active', '=', False), ('code', 'in', ['fr_FR', 'zh_CN'])]).write({'active': True})
 
         # -- test `date`
         # Change a single parameter
@@ -270,78 +268,6 @@ class TestFormatLangDate(TransactionCase):
         # Check given `lang_code` overwites context lang
         self.assertEqual(misc.format_time(lang.with_context(lang='fr_FR').env, time_part, time_format='short', lang_code='zh_CN'), '\u4e0b\u53484:30')
         self.assertEqual(misc.format_time(lang.with_context(lang='zh_CN').env, time_part, time_format='medium', lang_code='fr_FR'), '16:30:22')
-
-
-class TestCallbacks(BaseCase):
-    def test_callback(self):
-        log = []
-        callbacks = misc.Callbacks()
-
-        # add foo
-        def foo():
-            log.append("foo")
-
-        callbacks.add(foo)
-
-        # add bar
-        @callbacks.add
-        def bar():
-            log.append("bar")
-
-        # add foo again
-        callbacks.add(foo)
-
-        # this should call foo(), bar(), foo()
-        callbacks.run()
-        self.assertEqual(log, ["foo", "bar", "foo"])
-
-        # this should do nothing
-        callbacks.run()
-        self.assertEqual(log, ["foo", "bar", "foo"])
-
-    def test_aggregate(self):
-        log = []
-        callbacks = misc.Callbacks()
-
-        # register foo once
-        @callbacks.add
-        def foo():
-            log.append(callbacks.data["foo"])
-
-        # aggregate data
-        callbacks.data.setdefault("foo", []).append(1)
-        callbacks.data.setdefault("foo", []).append(2)
-        callbacks.data.setdefault("foo", []).append(3)
-
-        # foo() is called once
-        callbacks.run()
-        self.assertEqual(log, [[1, 2, 3]])
-        self.assertFalse(callbacks.data)
-
-        callbacks.run()
-        self.assertEqual(log, [[1, 2, 3]])
-
-    def test_reentrant(self):
-        log = []
-        callbacks = misc.Callbacks()
-
-        # register foo that runs callbacks
-        @callbacks.add
-        def foo():
-            log.append("foo1")
-            callbacks.run()
-            log.append("foo2")
-
-        @callbacks.add
-        def bar():
-            log.append("bar")
-
-        # both foo() and bar() are called once
-        callbacks.run()
-        self.assertEqual(log, ["foo1", "bar", "foo2"])
-
-        callbacks.run()
-        self.assertEqual(log, ["foo1", "bar", "foo2"])
 
 
 class TestRemoveAccents(BaseCase):

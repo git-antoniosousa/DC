@@ -10,19 +10,19 @@ class CrmTeam(models.Model):
     _inherit = 'crm.team'
 
     use_quotations = fields.Boolean(string='Quotations', help="Check this box if you send quotations to your customers rather than confirming orders straight away.")
-    invoiced = fields.Float(
+    invoiced = fields.Integer(
         compute='_compute_invoiced',
         string='Invoiced This Month', readonly=True,
         help="Invoice revenue for the current month. This is the amount the sales "
                 "channel has invoiced this month. It is used to compute the progression ratio "
                 "of the current and target revenue on the kanban view.")
-    invoiced_target = fields.Float(
+    invoiced_target = fields.Integer(
         string='Invoicing Target',
         help="Revenue target for the current month (untaxed total of confirmed invoices).")
     quotations_count = fields.Integer(
         compute='_compute_quotations_to_invoice',
         string='Number of quotations to invoice', readonly=True)
-    quotations_amount = fields.Float(
+    quotations_amount = fields.Integer(
         compute='_compute_quotations_to_invoice',
         string='Amount of quotations to invoice', readonly=True)
     sales_to_invoice_count = fields.Integer(
@@ -78,16 +78,15 @@ class CrmTeam(models.Model):
                 move.team_id         AS team_id,
                 SUM(-line.balance)   AS amount_untaxed_signed
             FROM account_move move
-            JOIN account_move_line line ON line.move_id = move.id
-            JOIN account_account account ON account.id = line.account_id
-            WHERE move.move_type IN ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')
-            AND move.payment_state IN ('in_payment', 'paid', 'reversed')
+            LEFT JOIN account_move_line line ON line.move_id = move.id
+            WHERE move.type IN ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')
+            AND move.invoice_payment_state IN ('in_payment', 'paid')
             AND move.state = 'posted'
             AND move.team_id IN %s
             AND move.date BETWEEN %s AND %s
             AND line.tax_line_id IS NULL
             AND line.display_type IS NULL
-            AND account.internal_type NOT IN ('receivable', 'payable')
+            AND line.account_internal_type NOT IN ('receivable', 'payable')
             GROUP BY move.team_id
         '''
         today = fields.Date.today()
@@ -97,7 +96,7 @@ class CrmTeam(models.Model):
         data_map = dict((v[0], v[1]) for v in self._cr.fetchall())
         for team in self:
             team.invoiced = data_map.get(team.id, 0.0)
-
+    
     def _graph_get_model(self):
         if self._context.get('in_sales_app'):
             return 'sale.report'
@@ -130,7 +129,7 @@ class CrmTeam(models.Model):
 
     def action_primary_channel_button(self):
         if self._context.get('in_sales_app'):
-            return self.env["ir.actions.actions"]._for_xml_id("sale.action_order_report_so_salesteam")
+            return self.env.ref('sale.action_order_report_so_salesteam').read()[0]
         return super(CrmTeam, self).action_primary_channel_button()
 
     def update_invoiced_target(self, value):

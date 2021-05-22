@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.addons.test_mail_full.tests.common import TestMailFullCommon, TestRecipients
+from odoo.addons.sms.tests import common as sms_common
+from odoo.addons.test_mail_full.tests import common as test_mail_full_common
 
 
-class TestSMSComposerComment(TestMailFullCommon, TestRecipients):
+class TestSMSComposerComment(test_mail_full_common.BaseFunctionalTest, sms_common.MockSMS, test_mail_full_common.TestRecipients):
     """ TODO LIST
 
      * add test for default_res_model / default_res_id and stuff like that;
@@ -33,7 +34,7 @@ class TestSMSComposerComment(TestMailFullCommon, TestRecipients):
         })
 
     def test_composer_comment_not_mail_thread(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             record = self.env['test_performance.base'].create({'name': 'TestBase'})
             composer = self.env['sms.composer'].with_context(
                 active_model='test_performance.base', active_id=record.id
@@ -48,7 +49,7 @@ class TestSMSComposerComment(TestMailFullCommon, TestRecipients):
         self.assertSMSSent(self.random_numbers_san, self._test_body)
 
     def test_composer_comment_default(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 active_model='mail.test.sms', active_id=self.test_record.id
             ).create({
@@ -61,7 +62,7 @@ class TestSMSComposerComment(TestMailFullCommon, TestRecipients):
         self.assertSMSNotification([{'partner': self.test_record.customer_id, 'number': self.test_numbers_san[1]}], self._test_body, messages)
 
     def test_composer_comment_field_1(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 active_model='mail.test.sms', active_id=self.test_record.id,
             ).create({
@@ -75,7 +76,7 @@ class TestSMSComposerComment(TestMailFullCommon, TestRecipients):
         self.assertSMSNotification([{'partner': self.test_record.customer_id, 'number': self.test_numbers_san[0]}], self._test_body, messages)
 
     def test_composer_comment_field_2(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 active_model='mail.test.sms', active_id=self.test_record.id,
             ).create({
@@ -89,7 +90,7 @@ class TestSMSComposerComment(TestMailFullCommon, TestRecipients):
         self.assertSMSNotification([{'partner': self.test_record.customer_id, 'number': self.test_numbers_san[1]}], self._test_body, messages)
 
     def test_composer_comment_field_w_numbers(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 active_model='mail.test.sms', active_id=self.test_record.id,
                 default_number_field_name='mobile_nbr',
@@ -106,7 +107,7 @@ class TestSMSComposerComment(TestMailFullCommon, TestRecipients):
             {'number': self.random_numbers_san[0]}, {'number': self.random_numbers_san[1]}], self._test_body, messages)
 
     def test_composer_comment_field_w_template(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 active_model='mail.test.sms', active_id=self.test_record.id,
                 default_template_id=self.sms_template.id,
@@ -118,77 +119,8 @@ class TestSMSComposerComment(TestMailFullCommon, TestRecipients):
 
         self.assertSMSNotification([{'partner': self.test_record.customer_id, 'number': self.test_record.mobile_nbr}], 'Dear %s this is an SMS.' % self.test_record.display_name, messages)
 
-    def test_composer_internals(self):
-        with self.with_user('employee'):
-            composer = self.env['sms.composer'].with_context(
-                default_res_model='mail.test.sms', default_res_id=self.test_record.id,
-            ).create({
-                'body': self._test_body,
-                'number_field_name': 'phone_nbr',
-            })
-
-        self.assertEqual(composer.res_model, self.test_record._name)
-        self.assertEqual(composer.res_id, self.test_record.id)
-        self.assertEqual(composer.number_field_name, 'phone_nbr')
-        self.assertTrue(composer.comment_single_recipient)
-        self.assertEqual(composer.recipient_single_description, self.test_record.customer_id.display_name)
-        self.assertEqual(composer.recipient_single_number, self.test_numbers[1])
-        self.assertEqual(composer.recipient_single_number_itf, self.test_numbers[1])
-        self.assertTrue(composer.recipient_single_valid)
-        self.assertEqual(composer.recipient_valid_count, 1)
-        self.assertEqual(composer.recipient_invalid_count, 0)
-
-        with self.with_user('employee'):
-            composer.update({'recipient_single_number_itf': '0123456789'})
-
-        self.assertFalse(composer.recipient_single_valid)
-
-        with self.with_user('employee'):
-            composer.update({'recipient_single_number_itf': self.random_numbers[0]})
-
-        self.assertTrue(composer.recipient_single_valid)
-
-        with self.with_user('employee'):
-            with self.mockSMSGateway():
-                composer.action_send_sms()
-
-        self.test_record.flush()
-        self.assertEqual(self.test_record.phone_nbr, self.random_numbers[0])
-
-    def test_composer_comment_wo_partner_wo_value_update(self):
-        """ Test record without partner and without phone values: should allow updating first found phone field """
-        self.test_record.write({
-            'customer_id': False,
-            'phone_nbr': False,
-            'mobile_nbr': False,
-        })
-        default_field_name = self.env['mail.test.sms']._sms_get_number_fields()[0]
-
-        with self.with_user('employee'):
-            composer = self.env['sms.composer'].with_context(
-                active_model='mail.test.sms', active_id=self.test_record.id,
-                default_composition_mode='comment',
-            ).create({
-                'body': self._test_body,
-            })
-            self.assertFalse(composer.recipient_single_number_itf)
-            self.assertFalse(composer.recipient_single_number)
-            self.assertEqual(composer.number_field_name, default_field_name)
-
-            composer.write({
-                'recipient_single_number_itf': self.random_numbers_san[0],
-            })
-            self.assertEqual(composer.recipient_single_number_itf, self.random_numbers_san[0])
-            self.assertFalse(composer.recipient_single_number)
-
-            with self.mockSMSGateway():
-                messages = composer._action_send_sms()
-
-        self.assertEqual(self.test_record[default_field_name], self.random_numbers_san[0])
-        self.assertSMSNotification([{'partner': self.env['res.partner'], 'number': self.random_numbers_san[0]}], self._test_body, messages)
-
     def test_composer_numbers_no_model(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='numbers'
             ).create({
@@ -201,7 +133,7 @@ class TestSMSComposerComment(TestMailFullCommon, TestRecipients):
         self.assertSMSSent(self.random_numbers_san, self._test_body)
 
 
-class TestSMSComposerBatch(TestMailFullCommon):
+class TestSMSComposerBatch(test_mail_full_common.BaseFunctionalTest, sms_common.MockSMS):
     @classmethod
     def setUpClass(cls):
         super(TestSMSComposerBatch, cls).setUpClass()
@@ -211,7 +143,7 @@ class TestSMSComposerBatch(TestMailFullCommon):
         cls.sms_template = cls._create_sms_template('mail.test.sms')
 
     def test_composer_batch_active_domain(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='comment',
                 default_res_model='mail.test.sms',
@@ -228,7 +160,7 @@ class TestSMSComposerBatch(TestMailFullCommon):
             self.assertSMSNotification([{'partner': r.customer_id} for r in self.records], 'Zizisse an SMS.', messages)
 
     def test_composer_batch_active_ids(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='comment',
                 default_res_model='mail.test.sms',
@@ -244,7 +176,7 @@ class TestSMSComposerBatch(TestMailFullCommon):
             self.assertSMSNotification([{'partner': r.customer_id} for r in self.records], 'Zizisse an SMS.', messages)
 
     def test_composer_batch_domain(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='comment',
                 default_res_model='mail.test.sms',
@@ -261,7 +193,7 @@ class TestSMSComposerBatch(TestMailFullCommon):
             self.assertSMSNotification([{'partner': r.customer_id} for r in self.records], 'Zizisse an SMS.', messages)
 
     def test_composer_batch_res_ids(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='comment',
                 default_res_model='mail.test.sms',
@@ -277,7 +209,7 @@ class TestSMSComposerBatch(TestMailFullCommon):
             self.assertSMSNotification([{'partner': r.customer_id} for r in self.records], 'Zizisse an SMS.', messages)
 
 
-class TestSMSComposerMass(TestMailFullCommon):
+class TestSMSComposerMass(test_mail_full_common.BaseFunctionalTest, sms_common.MockSMS):
 
     @classmethod
     def setUpClass(cls):
@@ -288,7 +220,7 @@ class TestSMSComposerMass(TestMailFullCommon):
         cls.sms_template = cls._create_sms_template('mail.test.sms')
 
     def test_composer_mass_active_domain(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='mass',
                 default_res_model='mail.test.sms',
@@ -306,7 +238,7 @@ class TestSMSComposerMass(TestMailFullCommon):
             self.assertSMSOutgoing(record.customer_id, None, self._test_body)
 
     def test_composer_mass_active_domain_w_template(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='mass',
                 default_res_model='mail.test.sms',
@@ -324,7 +256,7 @@ class TestSMSComposerMass(TestMailFullCommon):
             self.assertSMSOutgoing(record.customer_id, None, 'Dear %s this is an SMS.' % record.display_name)
 
     def test_composer_mass_active_ids(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='mass',
                 default_res_model='mail.test.sms',
@@ -346,7 +278,7 @@ class TestSMSComposerMass(TestMailFullCommon):
             'active': True,
         } for p in self.partners[:5]])
 
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='mass',
                 default_res_model='mail.test.sms',
@@ -371,7 +303,7 @@ class TestSMSComposerMass(TestMailFullCommon):
             'active': True,
         } for p in self.partners[:5]])
 
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='mass',
                 default_res_model='mail.test.sms',
@@ -397,7 +329,7 @@ class TestSMSComposerMass(TestMailFullCommon):
             p.mobile = self.partners[8].mobile
             self.assertEqual(p.phone_sanitized, self.partners[8].phone_sanitized)
 
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='mass',
                 default_res_model='mail.test.sms',
@@ -419,7 +351,7 @@ class TestSMSComposerMass(TestMailFullCommon):
             self.assertSMSCanceled(partner, partner.phone_sanitized, 'sms_blacklist', content=self._test_body)
 
     def test_composer_mass_active_ids_w_template(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='mass',
                 default_res_model='mail.test.sms',
@@ -436,7 +368,7 @@ class TestSMSComposerMass(TestMailFullCommon):
             self.assertSMSOutgoing(record.customer_id, None, 'Dear %s this is an SMS.' % record.display_name)
 
     def test_composer_mass_active_ids_w_template_and_lang(self):
-        self.env['res.lang']._activate_lang('fr_FR')
+        self.env.ref('base.lang_fr').write({'active': True})
         self.env['ir.translation'].create({
             'type': 'model',
             'name': 'sms.template,body',
@@ -452,7 +384,7 @@ class TestSMSComposerMass(TestMailFullCommon):
         # set one customer as french speaking
         self.partners[2].write({'lang': 'fr_FR'})
 
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='mass',
                 default_res_model='mail.test.sms',
@@ -472,7 +404,7 @@ class TestSMSComposerMass(TestMailFullCommon):
                 self.assertSMSOutgoing(record.customer_id, None, 'Dear %s this is an SMS.' % record.display_name)
 
     def test_composer_mass_active_ids_w_template_and_log(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
                 default_composition_mode='mass',
                 default_res_model='mail.test.sms',
@@ -493,7 +425,7 @@ class TestSMSComposerMass(TestMailFullCommon):
         """ Test the context action from a SMS template (Add context action button)
         and the usage with the sms composer """
         # Create the lang info
-        self.env['res.lang']._activate_lang('fr_FR')
+        self.env.ref('base.lang_fr').write({'active': True})
         self.env['ir.translation'].create({
             'type': 'model',
             'name': 'sms.template,body',
@@ -517,9 +449,9 @@ class TestSMSComposerMass(TestMailFullCommon):
             'customer_id': self.partners[1].id,
         })
         # Composer creation with context from a template context action (simulate) - comment (single recipient)
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
-                sms_composition_mode='guess',
+                default_composition_mode='guess',
                 default_res_ids=[test_record_2.id],
                 default_res_id=test_record_2.id,
                 active_ids=[test_record_2.id],
@@ -529,8 +461,10 @@ class TestSMSComposerMass(TestMailFullCommon):
             ).create({
                 'mass_keep_log': False,
             })
-            self.assertEqual(composer.composition_mode, "comment")
-            self.assertEqual(composer.body, "Hello %s ceci est en français." % test_record_2.display_name)
+            # Call manually the onchange
+            composer._onchange_template_id()
+            self.assertEquals(composer.composition_mode, "comment")
+            self.assertEquals(composer.body, "Hello %s ceci est en français." % test_record_2.display_name)
 
             with self.mockSMSGateway():
                 messages = composer._action_send_sms()
@@ -539,9 +473,9 @@ class TestSMSComposerMass(TestMailFullCommon):
         self.assertSMSNotification([{'partner': test_record_2.customer_id, 'number': number}], "Hello %s ceci est en français." % test_record_2.display_name, messages)
 
         # Composer creation with context from a template context action (simulate) - mass (multiple recipient)
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             composer = self.env['sms.composer'].with_context(
-                sms_composition_mode='guess',
+                default_composition_mode='guess',
                 default_res_ids=[test_record_1.id, test_record_2.id],
                 default_res_id=test_record_1.id,
                 active_ids=[test_record_1.id, test_record_2.id],
@@ -551,9 +485,11 @@ class TestSMSComposerMass(TestMailFullCommon):
             ).create({
                 'mass_keep_log': True,
             })
-            self.assertEqual(composer.composition_mode, "mass")
+            # Call manually the onchange
+            composer._onchange_template_id()
+            self.assertEquals(composer.composition_mode, "mass")
             # In english because by default but when sinding depending of record
-            self.assertEqual(composer.body, "Dear ${object.display_name} this is an SMS.")
+            self.assertEquals(composer.body, "Dear ${object.display_name} this is an SMS.")
 
             with self.mockSMSGateway():
                 composer.action_send_sms()

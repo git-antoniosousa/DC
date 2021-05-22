@@ -7,9 +7,7 @@ from odoo import api, fields, models
 class Channel(models.Model):
     _inherit = 'slide.channel'
 
-    enroll = fields.Selection(selection_add=[
-        ('payment', 'On payment')
-    ], ondelete={'payment': lambda recs: recs.write({'enroll': 'invite'})})
+    enroll = fields.Selection(selection_add=[('payment', 'On payment')])
     product_id = fields.Many2one('product.product', 'Product', index=True)
     product_sale_revenues = fields.Monetary(
         string='Total revenues', compute='_compute_product_sale_revenues',
@@ -51,7 +49,7 @@ class Channel(models.Model):
         self.filtered(lambda channel: not channel.is_published and channel.product_id.is_published).sudo().product_id.write({'is_published': False})
 
     def action_view_sales(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("website_sale_slides.sale_report_action_slides")
+        action = self.env.ref('website_sale_slides.sale_report_action_slides').read()[0]
         action['domain'] = [('product_id', 'in', self.product_id.ids)]
         return action
 

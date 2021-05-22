@@ -3,14 +3,15 @@
 
 from psycopg2 import IntegrityError
 
-from odoo.addons.test_mail.tests.common import TestMailCommon
 from odoo.tests import tagged
-from odoo.tests import users
+from odoo.addons.test_mail.tests import common
+from odoo.addons.test_mail.tests.common import mail_new_test_user
+from odoo.tests import tagged
 from odoo.tools.misc import mute_logger
 
 
 @tagged('mail_followers')
-class BaseFollowersTest(TestMailCommon):
+class BaseFollowersTest(common.BaseFunctionalTest):
 
     @classmethod
     def setUpClass(cls):
@@ -19,20 +20,13 @@ class BaseFollowersTest(TestMailCommon):
         cls._create_portal_user()
         cls._create_channel_listener()
 
-        # allow employee to update partners
-        cls.user_employee.write({'groups_id': [(4, cls.env.ref('base.group_partner_manager').id)]})
-
         Subtype = cls.env['mail.message.subtype']
-        # global
-        cls.mt_al_def = Subtype.create({'name': 'mt_al_def', 'default': True, 'res_model': False})
-        cls.mt_al_nodef = Subtype.create({'name': 'mt_al_nodef', 'default': False, 'res_model': False})
-        # mail.test.simple
         cls.mt_mg_def = Subtype.create({'name': 'mt_mg_def', 'default': True, 'res_model': 'mail.test.simple'})
+        cls.mt_cl_def = Subtype.create({'name': 'mt_cl_def', 'default': True, 'res_model': 'mail.test'})
+        cls.mt_al_def = Subtype.create({'name': 'mt_al_def', 'default': True, 'res_model': False})
         cls.mt_mg_nodef = Subtype.create({'name': 'mt_mg_nodef', 'default': False, 'res_model': 'mail.test.simple'})
-        cls.mt_mg_def_int = Subtype.create({'name': 'mt_mg_def', 'default': True, 'res_model': 'mail.test.simple', 'internal': True})
-        # mail.test.container
-        cls.mt_cl_def = Subtype.create({'name': 'mt_cl_def', 'default': True, 'res_model': 'mail.test.container'})
-
+        cls.mt_al_nodef = Subtype.create({'name': 'mt_al_nodef', 'default': False, 'res_model': False})
+        cls.mt_mg_def_int = cls.env['mail.message.subtype'].create({'name': 'mt_mg_def', 'default': True, 'res_model': 'mail.test.simple', 'internal': True})
         cls.default_group_subtypes = Subtype.search([('default', '=', True), '|', ('res_model', '=', 'mail.test.simple'), ('res_model', '=', False)])
         cls.default_group_subtypes_portal = Subtype.search([('internal', '=', False), ('default', '=', True), '|', ('res_model', '=', 'mail.test.simple'), ('res_model', '=', False)])
 
@@ -153,45 +147,9 @@ class BaseFollowersTest(TestMailCommon):
             channel_ids=[self.channel_listen.id]
         )
 
-    @users('employee')
-    def test_followers_inactive(self):
-        """ Test standard API does not subscribe inactive partners """
-        customer = self.env['res.partner'].create({
-            'name': 'Valid Lelitre',
-            'email': 'valid.lelitre@agrolait.com',
-            'country_id': self.env.ref('base.be').id,
-            'mobile': '0456001122',
-            'active': False,
-        })
-        document = self.env['mail.test.simple'].browse(self.test_record.id)
-        self.assertEqual(document.message_partner_ids, self.env['res.partner'])
-        document.message_subscribe(partner_ids=(self.partner_portal | customer).ids)
-        self.assertEqual(document.message_partner_ids, self.partner_portal)
-        self.assertEqual(document.message_follower_ids.partner_id, self.partner_portal)
-
-        # works through low-level API
-        document._message_subscribe(partner_ids=(self.partner_portal | customer).ids)
-        self.assertEqual(document.message_partner_ids, self.partner_portal, 'No active test: customer not visible')
-        self.assertEqual(document.message_follower_ids.partner_id, self.partner_portal | customer)
-
-    @users('employee')
-    def test_followers_private_address(self):
-        """ Test standard API does not subscribe private addresses """
-        private_address = self.env['res.partner'].sudo().create({
-            'name': 'Private Address',
-            'type': 'private',
-        })
-        document = self.env['mail.test.simple'].browse(self.test_record.id)
-        document.message_subscribe(partner_ids=(self.partner_portal | private_address).ids)
-        self.assertEqual(document.message_follower_ids.partner_id, self.partner_portal)
-
-        # works through low-level API
-        document._message_subscribe(partner_ids=(self.partner_portal | private_address).ids)
-        self.assertEqual(document.message_follower_ids.partner_id, self.partner_portal | private_address)
-
 
 @tagged('mail_followers')
-class AdvancedFollowersTest(TestMailCommon):
+class AdvancedFollowersTest(common.BaseFunctionalTest):
 
     @classmethod
     def setUpClass(cls):
@@ -205,7 +163,7 @@ class AdvancedFollowersTest(TestMailCommon):
         Subtype = cls.env['mail.message.subtype']
 
         # clean demo data to avoid interferences
-        Subtype.search([('res_model', 'in', ['mail.test.container', 'mail.test.track'])]).unlink()
+        Subtype.search([('res_model', 'in', ['mail.test', 'mail.test.track'])]).unlink()
 
         # mail.test.track subtypes (aka: task records)
         cls.sub_track_1 = Subtype.create({
@@ -225,27 +183,27 @@ class AdvancedFollowersTest(TestMailCommon):
             'res_model': 'mail.test.track'
         })
 
-        # mail.test.container subtypes (aka: project records)
+        # mail.test subtypes (aka: project records)
         cls.umb_nodef = Subtype.create({
-            'name': 'Container NoDefault', 'default': False,
-            'res_model': 'mail.test.container'
+            'name': 'Umbrella NoDefault', 'default': False,
+            'res_model': 'mail.test'
         })
         cls.umb_def = Subtype.create({
-            'name': 'Container Default', 'default': True,
-            'res_model': 'mail.test.container'
+            'name': 'Umbrella Default', 'default': True,
+            'res_model': 'mail.test'
         })
         cls.umb_def_int = Subtype.create({
-            'name': 'Container Default', 'default': True, 'internal': True,
-            'res_model': 'mail.test.container'
+            'name': 'Umbrella Default', 'default': True, 'internal': True,
+            'res_model': 'mail.test'
         })
-        # -> subtypes for auto subscription from container to sub records
+        # -> subtypes for auto subscription from umbrella to sub records
         cls.umb_autosub_def = Subtype.create({
-            'name': 'Container AutoSub (default)', 'default': True, 'res_model': 'mail.test.container',
-            'parent_id': cls.sub_track_1.id, 'relation_field': 'container_id'
+            'name': 'Umbrella AutoSub (default)', 'default': True, 'res_model': 'mail.test',
+            'parent_id': cls.sub_track_1.id, 'relation_field': 'umbrella_id'
         })
         cls.umb_autosub_nodef = Subtype.create({
-            'name': 'Container AutoSub 2', 'default': False, 'res_model': 'mail.test.container',
-            'parent_id': cls.sub_track_2.id, 'relation_field': 'container_id'
+            'name': 'Umbrella AutoSub 2', 'default': False, 'res_model': 'mail.test',
+            'parent_id': cls.sub_track_2.id, 'relation_field': 'umbrella_id'
         })
 
         # generic subtypes
@@ -264,22 +222,6 @@ class AdvancedFollowersTest(TestMailCommon):
     def test_auto_subscribe_create(self):
         """ Creator of records are automatically added as followers """
         self.assertEqual(self.test_track.message_partner_ids, self.user_employee.partner_id)
-
-    def test_auto_subscribe_inactive(self):
-        """ Test inactive are not added as followers in automated subscription """
-        self.test_track.user_id = False
-        self.user_admin.active = False
-        self.user_admin.flush()
-        self.partner_admin.active = False
-        self.partner_admin.flush()
-
-        self.test_track.with_user(self.user_admin).message_post(body='Coucou hibou', message_type='comment')
-        self.assertEqual(self.test_track.message_partner_ids, self.user_employee.partner_id)
-        self.assertEqual(self.test_track.message_follower_ids.partner_id, self.user_employee.partner_id)
-
-        self.test_track.write({'user_id': self.user_admin.id})
-        self.assertEqual(self.test_track.message_partner_ids, self.user_employee.partner_id)
-        self.assertEqual(self.test_track.message_follower_ids.partner_id, self.user_employee.partner_id)
 
     def test_auto_subscribe_post(self):
         """ People posting a message are automatically added as followers """
@@ -305,33 +247,26 @@ class AdvancedFollowersTest(TestMailCommon):
         self.assertEqual(sub.message_partner_ids, (self.user_employee.partner_id | self.user_admin.partner_id))
 
     def test_auto_subscribe_defaults(self):
-        """ Test auto subscription based on an container record. This mimics
+        """ Test auto subscription based on an umbrella record. This mimics
         the behavior of addons like project and task where subscribing to
         some project's subtypes automatically subscribe the follower to its tasks.
 
         Functional rules applied here
 
-         * subscribing to an container subtype with parent_id / relation_field set
+         * subscribing to an umbrella subtype with parent_id / relation_field set
            automatically create subscription with matching subtypes
          * subscribing to a sub-record as creator applies default subtype values
          * portal user should not have access to internal subtypes
-
-        Inactive partners should not be auto subscribed.
         """
-        container = self.env['mail.test.container'].with_context(self._test_context).create({
+        umbrella = self.env['mail.test'].with_context(self._test_context).create({
             'name': 'Project-Like',
         })
 
-        # have an inactive partner to check auto subscribe does not subscribe it
-        user_root = self.env.ref('base.user_root')
-        self.assertFalse(user_root.active)
-        self.assertFalse(user_root.partner_id.active)
-
-        container.message_subscribe(partner_ids=(self.partner_portal | user_root.partner_id).ids)
-        container.message_subscribe(partner_ids=self.partner_admin.ids, subtype_ids=(self.sub_comment | self.umb_autosub_nodef | self.sub_generic_int_nodef).ids)
-        self.assertEqual(container.message_partner_ids, self.partner_portal | self.partner_admin)
-        follower_por = container.message_follower_ids.filtered(lambda f: f.partner_id == self.partner_portal)
-        follower_adm = container.message_follower_ids.filtered(lambda f: f.partner_id == self.partner_admin)
+        umbrella.message_subscribe(partner_ids=self.partner_portal.ids)
+        umbrella.message_subscribe(partner_ids=self.partner_admin.ids, subtype_ids=(self.sub_comment | self.umb_autosub_nodef | self.sub_generic_int_nodef).ids)
+        self.assertEqual(umbrella.message_partner_ids, self.partner_portal | self.partner_admin)
+        follower_por = umbrella.message_follower_ids.filtered(lambda f: f.partner_id == self.partner_portal)
+        follower_adm = umbrella.message_follower_ids.filtered(lambda f: f.partner_id == self.partner_admin)
         self.assertEqual(
             follower_por.subtype_ids,
             self.sub_comment | self.umb_def | self.umb_autosub_def,
@@ -343,7 +278,7 @@ class AdvancedFollowersTest(TestMailCommon):
 
         sub1 = self.env['mail.test.track'].with_user(self.user_employee).create({
             'name': 'Task-Like Test',
-            'container_id': container.id,
+            'umbrella_id': umbrella.id,
         })
 
         self.assertEqual(
@@ -369,19 +304,18 @@ class AdvancedFollowersTest(TestMailCommon):
         sub1.message_unsubscribe(partner_ids=self.partner_portal.ids)
         sub1.message_subscribe(partner_ids=self.partner_portal.ids)
         follower_por = sub1.message_follower_ids.filtered(lambda fol: fol.partner_id == self.partner_portal)
-
         self.assertEqual(
             follower_por.subtype_ids, self.sub_comment | self.sub_track_def,
             'AutoSubscribe: only default one as no subscription on parent (no internal as portal)'
         )
 
         # check auto subscribe as creator + auto subscribe as parent follower takes both subtypes
-        container.message_subscribe(
+        umbrella.message_subscribe(
             partner_ids=self.user_employee.partner_id.ids,
             subtype_ids=(self.sub_comment | self.sub_generic_int_nodef | self.umb_autosub_nodef).ids)
         sub2 = self.env['mail.test.track'].with_user(self.user_employee).create({
             'name': 'Task-Like Test',
-            'container_id': container.id,
+            'umbrella_id': umbrella.id,
         })
         follower_emp = sub2.message_follower_ids.filtered(lambda fol: fol.partner_id == self.user_employee.partner_id)
         defaults = self.sub_comment | self.sub_track_def | self.sub_generic_int_def
@@ -392,7 +326,7 @@ class AdvancedFollowersTest(TestMailCommon):
         )
 
 
-class AdvancedResponsibleNotifiedTest(TestMailCommon):
+class AdvancedResponsibleNotifiedTest(common.BaseFunctionalTest):
     def setUp(self):
         super(AdvancedResponsibleNotifiedTest, self).setUp()
 
@@ -438,7 +372,7 @@ class AdvancedResponsibleNotifiedTest(TestMailCommon):
 
 
 @tagged('post_install', '-at_install')
-class DuplicateNotificationTest(TestMailCommon):
+class DuplicateNotificationTest(common.BaseFunctionalTest):
     def test_no_duplicate_notification(self):
         """
         Check that we only create one mail.notification per partner
@@ -471,7 +405,7 @@ class DuplicateNotificationTest(TestMailCommon):
         self.assertEqual(partner_notif[0][5], 'email')
 
 @tagged('post_install', '-at_install')
-class UnlinkedNotificationTest(TestMailCommon):
+class UnlinkedNotificationTest(common.BaseFunctionalTest):
     def test_unlinked_notification(self):
         """
         Check that we unlink the created user_notification after unlinked the related document

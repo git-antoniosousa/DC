@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-
 from datetime import datetime, date
 from odoo.exceptions import ValidationError
-from odoo.addons.hr_contract.tests.common import TestContractCommon
+from dateutil.relativedelta import relativedelta
+from odoo.addons.hr_contract.tests.common import TestContractBase
 
 
-class TestHrContracts(TestContractCommon):
+class TestHrContracts(TestContractBase):
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestHrContracts, cls).setUpClass()
-        cls.contracts = cls.env['hr.contract'].with_context(tracking_disable=True)
+    def setUp(self):
+        super(TestHrContracts, self).setUp()
+        self.contracts = self.env['hr.contract'].with_context(tracking_disable=True)
 
     def create_contract(self, state, kanban_state, start, end=None):
         return self.env['hr.contract'].create({

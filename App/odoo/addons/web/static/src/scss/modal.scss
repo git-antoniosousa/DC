@@ -7,10 +7,6 @@
             margin-left: 10px;
         }
 
-        .modal-header .modal-title {
-            word-break: break-word;
-        }
-
         .modal-body {
             &.o_act_window {
                 padding: 0;
@@ -28,7 +24,7 @@
                 }
             }
 
-            > :not(.o_view_sample_data) .o_view_nocontent {
+            .o_view_nocontent {
                 position: unset;
             }
 
@@ -58,9 +54,10 @@
             footer {
                 > :not(:first-child) { margin-left: .25rem; }
                 > :not(:last-child) { margin-right: .25rem; }
-                button {
-                    margin-bottom: .5rem;
-                }
+            }
+
+            button {
+                margin-bottom: .5rem;
             }
         }
     }
@@ -107,17 +104,6 @@
                 }
             }
         }
-    }
-}
-
-.modal.o_inactive_modal {
-    z-index: $zindex-modal-backdrop - 1;
-}
-
-.o_dialog {
-
-    > .modal {
-        display: block;
     }
 }
 

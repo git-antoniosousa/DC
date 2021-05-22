@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from functools import partial
 
 import odoo
 from odoo.sql_db import TestCursor
@@ -119,57 +118,33 @@ class TestTestCursor(common.TransactionCase):
 
 
 class TestCursorHooks(common.TransactionCase):
-    def setUp(self):
-        super().setUp()
-        self.log = []
-
-    def prepare_hooks(self, cr, precommit_msg, postcommit_msg, prerollback_msg, postrollback_msg):
-        cr.precommit.add(partial(self.log.append, precommit_msg))
-        cr.postcommit.add(partial(self.log.append, postcommit_msg))
-        cr.prerollback.add(partial(self.log.append, prerollback_msg))
-        cr.postrollback.add(partial(self.log.append, postrollback_msg))
-
     def test_hooks(self):
+        log = []
+
+        def make_hook(msg):
+            def hook():
+                log.append(msg)
+            return hook
+
         cr = self.registry.cursor()
 
         # check hook on commit()
-        self.prepare_hooks(cr, 'C1a', 'C1b', 'R1a', 'R1b')
-        self.assertEqual(self.log, [])
+        cr.after('commit', make_hook('C1'))
+        cr.after('rollback', make_hook('R1'))
+        self.assertEqual(log, [])
         cr.commit()
-        self.assertEqual(self.log, ['C1a', 'C1b'])
+        self.assertEqual(log, ['C1'])
 
         # check hook on rollback()
-        self.prepare_hooks(cr, 'C2a', 'C2b', 'R2a', 'R2b')
-        self.assertEqual(self.log, ['C1a', 'C1b'])
+        cr.after('commit', make_hook('C2'))
+        cr.after('rollback', make_hook('R2'))
+        self.assertEqual(log, ['C1'])
         cr.rollback()
-        self.assertEqual(self.log, ['C1a', 'C1b', 'R2a', 'R2b'])
+        self.assertEqual(log, ['C1', 'R2'])
 
         # check hook on close()
-        self.prepare_hooks(cr, 'C3a', 'C3b', 'R3a', 'R3b')
-        self.assertEqual(self.log, ['C1a', 'C1b', 'R2a', 'R2b'])
+        cr.after('commit', make_hook('C3'))
+        cr.after('rollback', make_hook('R3'))
+        self.assertEqual(log, ['C1', 'R2'])
         cr.close()
-        self.assertEqual(self.log, ['C1a', 'C1b', 'R2a', 'R2b', 'R3a', 'R3b'])
-
-    def test_hooks_on_testcursor(self):
-        self.registry.enter_test_mode(self.cr)
-        self.addCleanup(self.registry.leave_test_mode)
-
-        cr = self.registry.cursor()
-
-        # check hook on commit(); post-commit hooks are ignored
-        self.prepare_hooks(cr, 'C1a', 'C1b', 'R1a', 'R1b')
-        self.assertEqual(self.log, [])
-        cr.commit()
-        self.assertEqual(self.log, ['C1a'])
-
-        # check hook on rollback()
-        self.prepare_hooks(cr, 'C2a', 'C2b', 'R2a', 'R2b')
-        self.assertEqual(self.log, ['C1a'])
-        cr.rollback()
-        self.assertEqual(self.log, ['C1a', 'R2a', 'R2b'])
-
-        # check hook on close()
-        self.prepare_hooks(cr, 'C3a', 'C3b', 'R3a', 'R3b')
-        self.assertEqual(self.log, ['C1a', 'R2a', 'R2b'])
-        cr.close()
-        self.assertEqual(self.log, ['C1a', 'R2a', 'R2b', 'R3a', 'R3b'])
+        self.assertEqual(log, ['C1', 'R2', 'R3'])

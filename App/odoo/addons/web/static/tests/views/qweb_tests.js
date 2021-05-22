@@ -1,6 +1,7 @@
 odoo.define('web.qweb_view_tests', function (require) {
 "use strict";
 
+var qweb = require('web.qweb');
 var utils = require('web.test_utils');
 
 QUnit.module("Views", {

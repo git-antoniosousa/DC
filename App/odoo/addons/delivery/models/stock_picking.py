@@ -63,11 +63,10 @@ class StockPicking(models.Model):
                     weight += move_line.product_uom_id._compute_quantity(move_line.qty_done, move_line.product_id.uom_id) * move_line.product_id.weight
             picking.weight_bulk = weight
 
-    @api.depends('move_line_ids.result_package_id', 'move_line_ids.result_package_id.shipping_weight', 'weight_bulk')
+    @api.depends('package_ids', 'weight_bulk')
     def _compute_shipping_weight(self):
         for picking in self:
-            # if shipping weight is not assigned => default to calculated product weight
-            picking.shipping_weight = picking.weight_bulk + sum([pack.shipping_weight or pack.weight for pack in picking.package_ids])
+            picking.shipping_weight = picking.weight_bulk + sum([pack.shipping_weight for pack in picking.package_ids])
 
     def _get_default_weight_uom(self):
         return self.env['product.template']._get_weight_uom_name_from_ir_config_parameter()
@@ -79,14 +78,14 @@ class StockPicking(models.Model):
     carrier_price = fields.Float(string="Shipping Cost")
     delivery_type = fields.Selection(related='carrier_id.delivery_type', readonly=True)
     carrier_id = fields.Many2one("delivery.carrier", string="Carrier", check_company=True)
+    volume = fields.Float(copy=False, digits='Volume')
     weight = fields.Float(compute='_cal_weight', digits='Stock Weight', store=True, help="Total weight of the products in the picking.", compute_sudo=True)
     carrier_tracking_ref = fields.Char(string='Tracking Reference', copy=False)
     carrier_tracking_url = fields.Char(string='Tracking URL', compute='_compute_carrier_tracking_url')
     weight_uom_name = fields.Char(string='Weight unit of measure label', compute='_compute_weight_uom_name', readonly=True, default=_get_default_weight_uom)
     package_ids = fields.Many2many('stock.quant.package', compute='_compute_packages', string='Packages')
-    weight_bulk = fields.Float('Bulk Weight', compute='_compute_bulk_weight', help="Total weight of products which are not in a package.")
-    shipping_weight = fields.Float("Weight for Shipping", compute='_compute_shipping_weight',
-        help="Total weight of packages and products not in a package. Packages with no shipping weight specified will default to their products' total weight. This is the weight used to compute the cost of the shipping.")
+    weight_bulk = fields.Float('Bulk Weight', compute='_compute_bulk_weight')
+    shipping_weight = fields.Float("Weight for Shipping", compute='_compute_shipping_weight', help="Total weight of the packages and products which are not in a package. That's the weight used to compute the cost of the shipping.")
     is_return_picking = fields.Boolean(compute='_compute_return_picking')
     return_label_ids = fields.One2many('ir.attachment', compute='_compute_return_label')
 
@@ -174,19 +173,13 @@ class StockPicking(models.Model):
         if res['tracking_number']:
             self.carrier_tracking_ref = res['tracking_number']
         order_currency = self.sale_id.currency_id or self.company_id.currency_id
-        msg = _(
-            "Shipment sent to carrier %(carrier_name)s for shipping with tracking number %(ref)s<br/>Cost: %(price).2f %(currency)s",
-            carrier_name=self.carrier_id.name,
-            ref=self.carrier_tracking_ref,
-            price=self.carrier_price,
-            currency=order_currency.name
-        )
+        msg = _("Shipment sent to carrier %s for shipping with tracking number %s<br/>Cost: %.2f %s") % (self.carrier_id.name, self.carrier_tracking_ref, self.carrier_price, order_currency.name)
         self.message_post(body=msg)
         self._add_delivery_cost_to_so()
 
     def print_return_label(self):
         self.ensure_one()
-        self.carrier_id.get_return_label(self)
+        res = self.carrier_id.get_return_label(self)
 
     def _add_delivery_cost_to_so(self):
         self.ensure_one()
@@ -219,7 +212,7 @@ class StockPicking(models.Model):
             for tracker in carrier_trackers:
                 msg += '<a href=' + tracker[1] + '>' + tracker[0] + '</a><br/>'
             self.message_post(body=msg)
-            return self.env["ir.actions.actions"]._for_xml_id("delivery.act_delivery_trackers_url")
+            return self.env.ref('delivery.act_delivery_trackers_url').read()[0]
 
         client_action = {
             'type': 'ir.actions.act_url',
@@ -236,12 +229,15 @@ class StockPicking(models.Model):
             picking.message_post(body=msg)
             picking.carrier_tracking_ref = False
 
-    def _get_estimated_weight(self):
+    def check_packages_are_identical(self):
+        '''Some shippers require identical packages in the same shipment. This utility checks it.'''
         self.ensure_one()
-        weight = 0.0
-        for move in self.move_lines:
-            weight += move.product_qty * move.product_id.weight
-        return weight
+        if self.package_ids:
+            packages = [p.packaging_id for p in self.package_ids]
+            if len(set(packages)) != 1:
+                package_names = ', '.join([str(p.name) for p in packages])
+                raise UserError(_('You are shipping different packaging types in the same shipment.\nPackaging Types: %s' % package_names))
+        return True
 
 
 class StockReturnPicking(models.TransientModel):

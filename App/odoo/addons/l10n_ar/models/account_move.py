@@ -35,23 +35,23 @@ class AccountMove(models.Model):
     l10n_ar_afip_service_start = fields.Date(string='AFIP Service Start Date', readonly=True, states={'draft': [('readonly', False)]})
     l10n_ar_afip_service_end = fields.Date(string='AFIP Service End Date', readonly=True, states={'draft': [('readonly', False)]})
 
-    @api.constrains('move_type', 'journal_id')
+    @api.constrains('type', 'journal_id')
     def _check_moves_use_documents(self):
         """ Do not let to create not invoices entries in journals that use documents """
-        not_invoices = self.filtered(lambda x: x.company_id.country_id.code == "AR" and x.journal_id.type in ['sale', 'purchase'] and x.l10n_latam_use_documents and not x.is_invoice())
+        not_invoices = self.filtered(lambda x: x.company_id.country_id == self.env.ref('base.ar') and x.journal_id.type in ['sale', 'purchase'] and x.l10n_latam_use_documents and not x.is_invoice())
         if not_invoices:
             raise ValidationError(_("The selected Journal can't be used in this transaction, please select one that doesn't use documents as these are just for Invoices."))
 
-    @api.constrains('move_type', 'l10n_latam_document_type_id')
+    @api.constrains('type', 'l10n_latam_document_type_id')
     def _check_invoice_type_document_type(self):
         """ LATAM module define that we are not able to use debit_note or invoice document types in an invoice refunds,
         However for Argentinian Document Type's 99 (internal type = invoice) we are able to used in a refund invoices.
 
         In this method we exclude the argentinian document type 99 from the generic constraint """
         ar_doctype_99 = self.filtered(
-            lambda x: x.country_code == 'AR' and
+            lambda x: x.l10n_latam_country_code == 'AR' and
             x.l10n_latam_document_type_id.code == '99' and
-            x.move_type in ['out_refund', 'in_refund'])
+            x.type in ['out_refund', 'in_refund'])
 
         super(AccountMove, self - ar_doctype_99)._check_invoice_type_document_type()
 
@@ -62,7 +62,7 @@ class AccountMove(models.Model):
 
     @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'invoice_line_ids.product_id.type', 'journal_id')
     def _compute_l10n_ar_afip_concept(self):
-        recs_afip = self.filtered(lambda x: x.company_id.country_id.code == "AR" and x.l10n_latam_use_documents)
+        recs_afip = self.filtered(lambda x: x.company_id.country_id == self.env.ref('base.ar') and x.l10n_latam_use_documents)
         for rec in recs_afip:
             rec.l10n_ar_afip_concept = rec._get_concept()
         remaining = self - recs_afip
@@ -90,13 +90,13 @@ class AccountMove(models.Model):
     def _get_l10n_latam_documents_domain(self):
         self.ensure_one()
         domain = super()._get_l10n_latam_documents_domain()
-        if self.journal_id.company_id.country_id.code == "AR":
+        if self.journal_id.company_id.country_id == self.env.ref('base.ar'):
             letters = self.journal_id._get_journal_letter(counterpart_partner=self.partner_id.commercial_partner_id)
             domain += ['|', ('l10n_ar_letter', '=', False), ('l10n_ar_letter', 'in', letters)]
             codes = self.journal_id._get_journal_codes()
             if codes:
                 domain.append(('code', 'in', codes))
-            if self.move_type == 'in_refund':
+            if self.type == 'in_refund':
                 domain = ['|', ('code', 'in', ['99'])] + domain
         return domain
 
@@ -106,12 +106,12 @@ class AccountMove(models.Model):
         for inv in self.filtered(lambda x: x.company_id.l10n_ar_company_requires_vat):
             purchase_aliquots = 'not_zero'
             # we require a single vat on each invoice line except from some purchase documents
-            if inv.move_type in ['in_invoice', 'in_refund'] and inv.l10n_latam_document_type_id.purchase_aliquots == 'zero':
+            if inv.type in ['in_invoice', 'in_refund'] and inv.l10n_latam_document_type_id.purchase_aliquots == 'zero':
                 purchase_aliquots = 'zero'
             for line in inv.mapped('invoice_line_ids').filtered(lambda x: x.display_type not in ('line_section', 'line_note')):
                 vat_taxes = line.tax_ids.filtered(lambda x: x.tax_group_id.l10n_ar_vat_afip_code)
                 if len(vat_taxes) != 1:
-                    raise UserError(_('There must be one and only one VAT tax per line. Check line "%s"', line.name))
+                    raise UserError(_('There must be one and only one VAT tax per line. Check line "%s"') % line.name)
                 elif purchase_aliquots == 'zero' and vat_taxes.tax_group_id.l10n_ar_vat_afip_code != '0':
                     raise UserError(_('On invoice id "%s" you must use VAT Not Applicable on every line.')  % inv.id)
                 elif purchase_aliquots == 'not_zero' and vat_taxes.tax_group_id.l10n_ar_vat_afip_code == '0':
@@ -126,40 +126,54 @@ class AccountMove(models.Model):
 
     @api.onchange('partner_id')
     def _onchange_afip_responsibility(self):
-        if self.company_id.country_id.code == 'AR' and self.l10n_latam_use_documents and self.partner_id \
+        if self.company_id.country_id == self.env.ref('base.ar') and self.l10n_latam_use_documents and self.partner_id \
            and not self.partner_id.l10n_ar_afip_responsibility_type_id:
             return {'warning': {
                 'title': _('Missing Partner Configuration'),
                 'message': _('Please configure the AFIP Responsibility for "%s" in order to continue') % (
                     self.partner_id.name)}}
 
+    def _get_document_type_sequence(self):
+        """ Return the match sequences for the given journal and invoice """
+        self.ensure_one()
+        if self.journal_id.l10n_latam_use_documents and self.l10n_latam_country_code == 'AR':
+            if self.journal_id.l10n_ar_share_sequences:
+                return self.journal_id.l10n_ar_sequence_ids.filtered(
+                    lambda x: x.l10n_ar_letter == self.l10n_latam_document_type_id.l10n_ar_letter)
+            res = self.journal_id.l10n_ar_sequence_ids.filtered(
+                lambda x: x.l10n_latam_document_type_id == self.l10n_latam_document_type_id)
+            return res
+        return super()._get_document_type_sequence()
+
     @api.onchange('partner_id')
     def _onchange_partner_journal(self):
         """ This method is used when the invoice is created from the sale or subscription """
         expo_journals = ['FEERCEL', 'FEEWS', 'FEERCELP']
-        for rec in self.filtered(lambda x: x.company_id.country_id.code == "AR" and x.journal_id.type == 'sale'
+        for rec in self.filtered(lambda x: x.company_id.country_id == self.env.ref('base.ar') and x.journal_id.type == 'sale'
                                  and x.l10n_latam_use_documents and x.partner_id.l10n_ar_afip_responsibility_type_id):
             res_code = rec.partner_id.l10n_ar_afip_responsibility_type_id.code
             domain = [('company_id', '=', rec.company_id.id), ('l10n_latam_use_documents', '=', True), ('type', '=', 'sale')]
             journal = self.env['account.journal']
-            msg = False
+            partner_type = journal_type = False
             if res_code in ['9', '10'] and rec.journal_id.l10n_ar_afip_pos_system not in expo_journals:
                 # if partner is foregin and journal is not of expo, we try to change to expo journal
                 journal = journal.search(domain + [('l10n_ar_afip_pos_system', 'in', expo_journals)], limit=1)
-                msg = _('You are trying to create an invoice for foreign partner but you don\'t have an exportation journal')
+                partner_type, journal_type = (_('foreign partner'), _('exportation'))
             elif res_code not in ['9', '10'] and rec.journal_id.l10n_ar_afip_pos_system in expo_journals:
                 # if partner is NOT foregin and journal is for expo, we try to change to local journal
                 journal = journal.search(domain + [('l10n_ar_afip_pos_system', 'not in', expo_journals)], limit=1)
-                msg = _('You are trying to create an invoice for domestic partner but you don\'t have a domestic market journal')
+                partner_type, journal_type = (_('domestic partner'), _('domestic market'))
             if journal:
                 rec.journal_id = journal.id
-            elif msg:
+            elif partner_type and journal_type:
                 # Throw an error to user in order to proper configure the journal for the type of operation
                 action = self.env.ref('account.action_account_journal_form')
+                msg = _('You are trying to create an invoice for %s but you dont have an %s journal') % (
+                    partner_type, journal_type)
                 raise RedirectWarning(msg, action.id, _('Go to Journals'))
 
-    def _post(self, soft=True):
-        ar_invoices = self.filtered(lambda x: x.company_id.country_id.code == "AR" and x.l10n_latam_use_documents)
+    def post(self):
+        ar_invoices = self.filtered(lambda x: x.company_id.country_id == self.env.ref('base.ar') and x.l10n_latam_use_documents)
         for rec in ar_invoices:
             rec.l10n_ar_afip_responsibility_type_id = rec.commercial_partner_id.l10n_ar_afip_responsibility_type_id.id
             if rec.company_id.currency_id == rec.currency_id:
@@ -172,9 +186,9 @@ class AccountMove(models.Model):
         # We make validations here and not with a constraint because we want validation before sending electronic
         # data on l10n_ar_edi
         ar_invoices._check_argentinian_invoice_taxes()
-        posted = super()._post(soft)
-        posted._set_afip_service_dates()
-        return posted
+        res = super().post()
+        self._set_afip_service_dates()
+        return res
 
     def _reverse_moves(self, default_values_list=None, cancel=False):
         if not default_values_list:
@@ -185,51 +199,6 @@ class AccountMove(models.Model):
                 'l10n_ar_afip_service_end': move.l10n_ar_afip_service_end,
             })
         return super()._reverse_moves(default_values_list=default_values_list, cancel=cancel)
-
-    @api.onchange('l10n_latam_document_type_id', 'l10n_latam_document_number')
-    def _inverse_l10n_latam_document_number(self):
-        super()._inverse_l10n_latam_document_number()
-
-        to_review = self.filtered(
-            lambda x: x.journal_id.type == 'sale' and x.l10n_latam_document_type_id and x.l10n_latam_document_number and
-            (x.l10n_latam_manual_document_number or not x.highest_name))
-        for rec in to_review:
-            number = rec.l10n_latam_document_type_id._format_document_number(rec.l10n_latam_document_number)
-            current_pos = int(number.split("-")[0])
-            if current_pos != rec.journal_id.l10n_ar_afip_pos_number:
-                invoices = self.search([('journal_id', '=', rec.journal_id.id), ('posted_before', '=', True)], limit=1)
-                # If there is no posted before invoices the user can change the POS number (x.l10n_latam_document_number)
-                if (not invoices):
-                    rec.journal_id.l10n_ar_afip_pos_number = current_pos
-                    rec.journal_id._onchange_set_short_name()
-                # If not, avoid that the user change the POS number
-                else:
-                    raise UserError(_('The document number can not be changed for this journal, you can only modify'
-                                      ' the POS number if there is not posted (or posted before) invoices'))
-
-    def _get_formatted_sequence(self, number=0):
-        return "%s %05d-%08d" % (self.l10n_latam_document_type_id.doc_code_prefix,
-                                 self.journal_id.l10n_ar_afip_pos_number, number)
-
-    def _get_starting_sequence(self):
-        """ If use documents then will create a new starting sequence using the document type code prefix and the
-        journal document number with a 8 padding number """
-        if self.journal_id.l10n_latam_use_documents and self.env.company.country_id.code == "AR":
-            if self.l10n_latam_document_type_id:
-                return self._get_formatted_sequence()
-        return super()._get_starting_sequence()
-
-    def _get_last_sequence_domain(self, relaxed=False):
-        where_string, param = super(AccountMove, self)._get_last_sequence_domain(relaxed)
-        if self.company_id.country_id.code == "AR" and self.l10n_latam_use_documents:
-            if not self.journal_id.l10n_ar_share_sequences:
-                where_string += " AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s"
-                param['l10n_latam_document_type_id'] = self.l10n_latam_document_type_id.id or 0
-            elif self.journal_id.l10n_ar_share_sequences:
-                where_string += " AND l10n_latam_document_type_id in %(l10n_latam_document_type_ids)s"
-                param['l10n_latam_document_type_ids'] = tuple(self.l10n_latam_document_type_id.search(
-                    [('l10n_ar_letter', '=', self.l10n_latam_document_type_id.l10n_ar_letter)]).ids)
-        return where_string, param
 
     def _l10n_ar_get_amounts(self, company_currency=False):
         """ Method used to prepare data to present amounts and taxes related amounts when creating an
@@ -288,8 +257,12 @@ class AccountMove(models.Model):
 
         return res if res else []
 
-    def _get_name_invoice_report(self):
+    def _get_name_invoice_report(self, report_xml_id):
         self.ensure_one()
         if self.l10n_latam_use_documents and self.company_id.country_id.code == 'AR':
-            return 'l10n_ar.report_invoice_document'
-        return super()._get_name_invoice_report()
+            custom_report = {
+                'account.report_invoice_document_with_payments': 'l10n_ar.report_invoice_document_with_payments',
+                'account.report_invoice_document': 'l10n_ar.report_invoice_document',
+            }
+            return custom_report.get(report_xml_id) or report_xml_id
+        return super()._get_name_invoice_report(report_xml_id)

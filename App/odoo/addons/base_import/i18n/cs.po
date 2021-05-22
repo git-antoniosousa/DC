@@ -3,34 +3,26 @@
 # 	* base_import
 # 
 # Translators:
-# Martin Trigaux, 2020
-# Chris <krystof.reklamy13@gmail.com>, 2020
-# Jan Horzinka <jan.horzinka@centrum.cz>, 2020
-# trendspotter, 2020
+# Martin Trigaux, 2019
+# Chris <krystof.reklamy13@gmail.com>, 2019
+# Jan Horzinka <jan.horzinka@centrum.cz>, 2019
 # Damian Brencic <brencicdamian12313@gmail.com>, 2020
 # karolína schusterová <karolina.schusterova@vdp.sk>, 2021
-# Rastislav Brencic <rastislav.brencic@azet.sk>, 2021
+# trendspotter, 2021
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-29 13:45+0000\n"
-"PO-Revision-Date: 2020-09-07 08:10+0000\n"
-"Last-Translator: Rastislav Brencic <rastislav.brencic@azet.sk>, 2021\n"
+"POT-Creation-Date: 2019-09-23 11:32+0000\n"
+"PO-Revision-Date: 2019-08-26 09:09+0000\n"
+"Last-Translator: trendspotter, 2021\n"
 "Language-Team: Czech (https://www.transifex.com/odoo/teams/41243/cs/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Language: cs\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-
-#. module: base_import
-#. openerp-web
-#: code:addons/base_import/static/src/js/import_action.js:0
-#, python-format
-msgid "%d records successfully imported"
-msgstr "%dzáznamy úspěšně importovány"
 
 #. module: base_import
 #. openerp-web
@@ -45,6 +37,13 @@ msgstr "%dzáznamy úspěšně importovány ..."
 #, python-format
 msgid "%d records tested..."
 msgstr "%d záznamy testovány ..."
+
+#. module: base_import
+#. openerp-web
+#: code:addons/base_import/static/src/js/import_action.js:0
+#, python-format
+msgid "%d records were successfully imported"
+msgstr "%d záznamů bylo úspěšně importováno"
 
 #. module: base_import
 #. openerp-web
@@ -273,7 +272,6 @@ msgstr "Oddělovač desetinných míst:"
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m__display_name
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m_child__display_name
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_preview__display_name
-#: model:ir.model.fields,field_description:base_import.field_res_users__display_name
 msgid "Display Name"
 msgstr "Zobrazované jméno"
 
@@ -293,7 +291,6 @@ msgstr "Tečka"
 
 #. module: base_import
 #. openerp-web
-#: code:addons/base_import/static/src/xml/base_import.xml:0
 #: code:addons/base_import/static/src/xml/base_import.xml:0
 #, python-format
 msgid "Download"
@@ -390,7 +387,7 @@ msgstr "U souborů CSV bude možná nutné vybrat správný oddělovač."
 #: code:addons/base_import/static/src/xml/base_import.xml:0
 #, python-format
 msgid "Formatting Options…"
-msgstr "Možnosti formátování..."
+msgstr "Možnosti formátování ..."
 
 #. module: base_import
 #: code:addons/base_import/models/base_import.py:0
@@ -427,7 +424,6 @@ msgstr "Zde je začátek souboru, který jsme nemohli importovat:"
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m__id
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m_child__id
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_preview__id
-#: model:ir.model.fields,field_description:base_import.field_res_users__id
 msgid "ID"
 msgstr "ID"
 
@@ -441,6 +437,9 @@ msgid ""
 "                field corresponding to the column. This makes imports\n"
 "                simpler especially when the file has many columns."
 msgstr ""
+"Pokud soubor obsahuje názvy sloupců, může Odoo zkusit automatickou detekci "
+"pole odpovídajícího sloupci. Díky tomu je import jednodušší, zejména pokud "
+"má soubor mnoho sloupců."
 
 #. module: base_import
 #. openerp-web
@@ -456,6 +455,7 @@ msgstr ""
 #. module: base_import
 #. openerp-web
 #: code:addons/base_import/static/src/xml/base_import.xml:0
+#: code:addons/base_import/static/src/xml/base_import.xml:0
 #, python-format
 msgid "Import"
 msgstr "Import"
@@ -465,7 +465,14 @@ msgstr "Import"
 #: code:addons/base_import/static/src/xml/base_import.xml:0
 #, python-format
 msgid "Import FAQ"
-msgstr "Časté dotazy k importu"
+msgstr ""
+"Časté dotazy k importu\n"
+" \n"
+"\n"
+" \n"
+" \n"
+" \n"
+" "
 
 #. module: base_import
 #. openerp-web
@@ -476,17 +483,17 @@ msgstr "Importujte soubor"
 
 #. module: base_import
 #. openerp-web
-#: code:addons/base_import/static/src/xml/base_import.xml:0
+#: code:addons/base_import/static/src/js/import_action.js:0
 #, python-format
-msgid "Import preview failed due to:"
-msgstr "Náhled importu se nezdařil z důvodu:"
+msgid "Import completed"
+msgstr "Import byl dokončen"
 
 #. module: base_import
 #. openerp-web
 #: code:addons/base_import/static/src/xml/base_import.xml:0
 #, python-format
-msgid "Import records"
-msgstr "Importujte záznamy"
+msgid "Import preview failed due to:"
+msgstr "Náhled importu se nezdařil z důvodu:"
 
 #. module: base_import
 #. openerp-web
@@ -526,7 +533,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m____last_update
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m_child____last_update
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_preview____last_update
-#: model:ir.model.fields,field_description:base_import.field_res_users____last_update
 msgid "Last Modified on"
 msgstr "Naposled změněno"
 
@@ -643,6 +649,13 @@ msgid "Relation Fields"
 msgstr "Vztahová pole"
 
 #. module: base_import
+#. openerp-web
+#: code:addons/base_import/static/src/xml/base_import.xml:0
+#, python-format
+msgid "Reload File"
+msgstr ""
+
+#. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__res_model
 msgid "Res Model"
 msgstr "Res model"
@@ -675,14 +688,6 @@ msgstr "Podívejte se na možné hodnoty"
 #, python-format
 msgid "Select a CSV or Excel file to import."
 msgstr "Vyberte soubor CSV nebo Excel, který chcete importovat."
-
-#. module: base_import
-#. openerp-web
-#: code:addons/base_import/static/src/js/import_action.js:0
-#: code:addons/base_import/static/src/xml/base_import.xml:0
-#, python-format
-msgid "Selected Sheet:"
-msgstr "Vybraný list:"
 
 #. module: base_import
 #. openerp-web
@@ -840,13 +845,6 @@ msgstr "Tento soubor byl úspěšně importován až po řádek %d."
 
 #. module: base_import
 #. openerp-web
-#: code:addons/base_import/static/src/xml/base_import.xml:0
-#, python-format
-msgid "This is a preview of the first 10 rows of your file"
-msgstr "Toto je náhled prvních 10 řádků vašeho souboru"
-
-#. module: base_import
-#. openerp-web
 #: code:addons/base_import/static/src/js/import_action.js:0
 #, python-format
 msgid "Thousands Separator:"
@@ -899,7 +897,14 @@ msgstr "Hodnota"
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_float__value2
 msgid "Value2"
-msgstr "Hodnota2"
+msgstr ""
+"Hodnota2\n"
+" \n"
+"\n"
+" \n"
+" \n"
+" \n"
+" "
 
 #. module: base_import
 #. openerp-web

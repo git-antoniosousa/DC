@@ -15,7 +15,6 @@
                     <field name="value"/>
                     <field name="name" filter_domain="('|', ('name', '=', self), ('name', 'ilike', self + ','))" string="Model"/>
                     <field name="res_id" filter_domain="('&amp;', ('name', '=', 'ir.ui.view,arch_db'), ('res_id', '=', self))" string="View ID"/>
-                    <field name="module"/>
                 </search>
             </field>
         </record>
@@ -34,7 +33,7 @@
                             <field name="lang"/>
                         </group>
                         <group>
-                            <field name="module"/>
+                            <field name="module" groups="base.group_no_one"/>
                             <field name="type"/>
                             <field name="res_id"/>
                         </group>
@@ -60,7 +59,6 @@
                     <field name="value"/>
                     <field name="name"/>
                     <field name="lang"/>
-                    <field name="module"/>
                     <field name="type"/>
                     <field name="state"/>
                 </tree>

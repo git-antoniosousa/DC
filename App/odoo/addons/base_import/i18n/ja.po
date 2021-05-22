@@ -3,20 +3,20 @@
 # 	* base_import
 # 
 # Translators:
-# Shunho Kin <s-kin@shonan-innovation.co.jp>, 2020
-# Martin Trigaux, 2020
-# Yoshi Tashiro <tashiro@roomsfor.hk>, 2020
-# Norimichi Sugimoto <norimichi.sugimoto@tls-ltd.co.jp>, 2020
-# Tim Siu Lai <tl@roomsfor.hk>, 2020
+# Martin Trigaux, 2019
+# Manami Hashi <manami@roomsfor.hk>, 2019
+# Norimichi Sugimoto <norimichi.sugimoto@tls-ltd.co.jp>, 2019
+# Tim Siu Lai <tl@roomsfor.hk>, 2019
 # Hau Dao <hau@quartile.co>, 2020
+# Yoshi Tashiro <tashiro@roomsfor.hk>, 2020
 # Noma Yuki, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server saas~12.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-29 13:45+0000\n"
-"PO-Revision-Date: 2020-09-07 08:10+0000\n"
+"POT-Creation-Date: 2019-09-23 11:32+0000\n"
+"PO-Revision-Date: 2019-08-26 09:09+0000\n"
 "Last-Translator: Noma Yuki, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/odoo/teams/41243/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -24,13 +24,6 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-
-#. module: base_import
-#. openerp-web
-#: code:addons/base_import/static/src/js/import_action.js:0
-#, python-format
-msgid "%d records successfully imported"
-msgstr "%d レコードがインポートされました"
 
 #. module: base_import
 #. openerp-web
@@ -45,6 +38,13 @@ msgstr "%d レコードがインポートされました..."
 #, python-format
 msgid "%d records tested..."
 msgstr "%d レコードがテストされました..."
+
+#. module: base_import
+#. openerp-web
+#: code:addons/base_import/static/src/js/import_action.js:0
+#, python-format
+msgid "%d records were successfully imported"
+msgstr "%d レコードがインポートされました。"
 
 #. module: base_import
 #. openerp-web
@@ -87,7 +87,7 @@ msgstr "基盤インポート"
 #. module: base_import
 #: model:ir.model,name:base_import.model_base_import_mapping
 msgid "Base Import Mapping"
-msgstr "基本インポート時のマッピング"
+msgstr "ベースインポート時のマッピング"
 
 #. module: base_import
 #. openerp-web
@@ -262,7 +262,6 @@ msgstr "小数点記号:"
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m__display_name
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m_child__display_name
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_preview__display_name
-#: model:ir.model.fields,field_description:base_import.field_res_users__display_name
 msgid "Display Name"
 msgstr "表示名"
 
@@ -282,7 +281,6 @@ msgstr "ドット"
 
 #. module: base_import
 #. openerp-web
-#: code:addons/base_import/static/src/xml/base_import.xml:0
 #: code:addons/base_import/static/src/xml/base_import.xml:0
 #, python-format
 msgid "Download"
@@ -413,7 +411,6 @@ msgstr "インポートできなかった最初のファイルです:"
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m__id
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m_child__id
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_preview__id
-#: model:ir.model.fields,field_description:base_import.field_res_users__id
 msgid "ID"
 msgstr "ID"
 
@@ -445,6 +442,7 @@ msgstr ""
 #. module: base_import
 #. openerp-web
 #: code:addons/base_import/static/src/xml/base_import.xml:0
+#: code:addons/base_import/static/src/xml/base_import.xml:0
 #, python-format
 msgid "Import"
 msgstr "インポート"
@@ -465,17 +463,17 @@ msgstr "ファイルのインポート"
 
 #. module: base_import
 #. openerp-web
-#: code:addons/base_import/static/src/xml/base_import.xml:0
+#: code:addons/base_import/static/src/js/import_action.js:0
 #, python-format
-msgid "Import preview failed due to:"
-msgstr "インポートプレビューが失敗しました　理由:"
+msgid "Import completed"
+msgstr ""
 
 #. module: base_import
 #. openerp-web
 #: code:addons/base_import/static/src/xml/base_import.xml:0
 #, python-format
-msgid "Import records"
-msgstr "レコードをインポート"
+msgid "Import preview failed due to:"
+msgstr "インポートプレビューが失敗しました　理由:"
 
 #. module: base_import
 #. openerp-web
@@ -513,7 +511,6 @@ msgstr "異常値あり 行 %(row)s, 列%(col)s: %(cell_value)s"
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m____last_update
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m_child____last_update
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_preview____last_update
-#: model:ir.model.fields,field_description:base_import.field_res_users____last_update
 msgid "Last Modified on"
 msgstr "最終更新日"
 
@@ -630,6 +627,13 @@ msgid "Relation Fields"
 msgstr "関連項目"
 
 #. module: base_import
+#. openerp-web
+#: code:addons/base_import/static/src/xml/base_import.xml:0
+#, python-format
+msgid "Reload File"
+msgstr "ファイル再読込"
+
+#. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_mapping__res_model
 msgid "Res Model"
 msgstr "Resモデル"
@@ -654,7 +658,7 @@ msgstr "行 %d%s"
 #: code:addons/base_import/static/src/js/import_action.js:0
 #, python-format
 msgid "See possible values"
-msgstr "利用可能な値を見る"
+msgstr "利用可能なすべての値を見る"
 
 #. module: base_import
 #. openerp-web
@@ -662,14 +666,6 @@ msgstr "利用可能な値を見る"
 #, python-format
 msgid "Select a CSV or Excel file to import."
 msgstr "インポート用にCSVまたはExcelのファイルを選択してください。"
-
-#. module: base_import
-#. openerp-web
-#: code:addons/base_import/static/src/js/import_action.js:0
-#: code:addons/base_import/static/src/xml/base_import.xml:0
-#, python-format
-msgid "Selected Sheet:"
-msgstr "選択されたシート:"
 
 #. module: base_import
 #. openerp-web
@@ -743,12 +739,12 @@ msgstr "テスト:基本インポートモデル, 文字不可読み取りのみ
 #. module: base_import
 #: model:ir.model,name:base_import.model_base_import_tests_models_char_readonly
 msgid "Tests : Base Import Model, Character readonly"
-msgstr "テスト:基本インポートモデル, 文字読み取りのみ"
+msgstr "テスト:基本インポートモデル, 文字読み取り飲み"
 
 #. module: base_import
 #: model:ir.model,name:base_import.model_base_import_tests_models_char_required
 msgid "Tests : Base Import Model, Character required"
-msgstr "テスト:基本インポートモデル, 文字必須"
+msgstr "テスト:基本インポートモデル, 文字が必要"
 
 #. module: base_import
 #: model:ir.model,name:base_import.model_base_import_tests_models_char_states
@@ -825,13 +821,6 @@ msgstr "このファイルは%d行まで正常にインポートされました"
 
 #. module: base_import
 #. openerp-web
-#: code:addons/base_import/static/src/xml/base_import.xml:0
-#, python-format
-msgid "This is a preview of the first 10 rows of your file"
-msgstr "これは、ファイルの最初の10行のプレビューです。"
-
-#. module: base_import
-#. openerp-web
 #: code:addons/base_import/static/src/js/import_action.js:0
 #, python-format
 msgid "Thousands Separator:"
@@ -877,7 +866,7 @@ msgstr "ユーザ"
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m__value
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_o2m_child__value
 msgid "Value"
-msgstr "評価額"
+msgstr "値"
 
 #. module: base_import
 #: model:ir.model.fields,field_description:base_import.field_base_import_tests_models_float__value2

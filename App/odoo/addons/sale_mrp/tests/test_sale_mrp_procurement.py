@@ -10,7 +10,6 @@ from odoo.tools import mute_logger
 class TestSaleMrpProcurement(TransactionCase):
 
     def test_sale_mrp(self):
-        self.env.ref('stock.route_warehouse0_mto').active = True
         warehouse0 = self.env.ref('stock.warehouse0')
         # In order to test the sale_mrp module in OpenERP, I start by creating a new product 'Slider Mobile'
         # I define product category Mobile Products Sellable.
@@ -40,7 +39,9 @@ class TestSaleMrpProcurement(TransactionCase):
         product.route_ids.add(warehouse0.mto_pull_id.route_id)
         product_template_slidermobile0 = product.save()
 
-        product_template_slidermobile0.standard_price = 189
+        std_price_wiz = Form(self.env['stock.change.standard.price'].with_context(active_id=product_template_slidermobile0.id, active_model='product.template'))
+        std_price_wiz.new_price = 189
+        std_price_wiz.save()
 
         product_component = Form(self.env['product.product'])
         product_component.name = 'Battery'
@@ -54,7 +55,7 @@ class TestSaleMrpProcurement(TransactionCase):
 
         # I create a sale order for product Slider mobile
         so_form = Form(self.env['sale.order'])
-        so_form.partner_id = self.env['res.partner'].create({'name': 'Another Test Partner'})
+        so_form.partner_id = self.env.ref('base.res_partner_4')
         with so_form.order_line.new() as line:
             line.product_id = product_template_slidermobile0.product_variant_ids
             line.price_unit = 200
@@ -74,13 +75,13 @@ class TestSaleMrpProcurement(TransactionCase):
         to avoid generating multiple deliveries
         to the customer location
         """
-        self.env.ref('stock.route_warehouse0_mto').active = True
+
         # Create warehouse
         self.customer_location = self.env['ir.model.data'].xmlid_to_res_id('stock.stock_location_customers')
-        self.warehouse = self.env['stock.warehouse'].create({
-            'name': 'Test Warehouse',
-            'code': 'TWH'
-        })
+        warehouse_form = Form(self.env['stock.warehouse'])
+        warehouse_form.name = 'Test Warehouse'
+        warehouse_form.code = 'TWH'
+        self.warehouse = warehouse_form.save()
 
         self.uom_unit = self.env.ref('uom.product_uom_unit')
 
@@ -149,7 +150,7 @@ class TestSaleMrpProcurement(TransactionCase):
             warehouse.manufacture_steps = 'pbm_sam'
 
         so_form = Form(self.env['sale.order'])
-        so_form.partner_id = self.env['res.partner'].create({'name': 'Another Test Partner'})
+        so_form.partner_id = self.env.ref('base.res_partner_4')
         with so_form.order_line.new() as line:
             line.product_id = self.complex_product
             line.price_unit = 1

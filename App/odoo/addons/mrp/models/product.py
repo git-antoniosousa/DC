@@ -30,16 +30,9 @@ class ProductTemplate(models.Model):
             template.used_in_bom_count = self.env['mrp.bom'].search_count(
                 [('bom_line_ids.product_id', 'in', template.product_variant_ids.ids)])
 
-    def write(self, values):
-        if 'active' in values:
-            self.filtered(lambda p: p.active != values['active']).with_context(active_test=False).bom_ids.write({
-                'active': values['active']
-            })
-        return super().write(values)
-
     def action_used_in_bom(self):
         self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id("mrp.mrp_bom_form_action")
+        action = self.env.ref('mrp.mrp_bom_form_action').read()[0]
         action['domain'] = [('bom_line_ids.product_id', 'in', self.product_variant_ids.ids)]
         return action
 
@@ -48,14 +41,13 @@ class ProductTemplate(models.Model):
             template.mrp_product_qty = float_round(sum(template.mapped('product_variant_ids').mapped('mrp_product_qty')), precision_rounding=template.uom_id.rounding)
 
     def action_view_mos(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("mrp.mrp_production_report")
+        action = self.env.ref('mrp.mrp_production_report').read()[0]
         action['domain'] = [('state', '=', 'done'), ('product_tmpl_id', 'in', self.ids)]
         action['context'] = {
             'graph_measure': 'product_uom_qty',
             'time_ranges': {'field': 'date_planned_start', 'range': 'last_365_days'}
         }
         return action
-
 
 class ProductProduct(models.Model):
     _inherit = "product.product"
@@ -77,13 +69,6 @@ class ProductProduct(models.Model):
         for product in self:
             product.used_in_bom_count = self.env['mrp.bom'].search_count([('bom_line_ids.product_id', '=', product.id)])
 
-    def write(self, values):
-        if 'active' in values:
-            self.filtered(lambda p: p.active != values['active']).with_context(active_test=False).variant_bom_ids.write({
-                'active': values['active']
-            })
-        return super().write(values)
-
     def get_components(self):
         """ Return the components list ids in case of kit product.
         Return the product itself otherwise"""
@@ -97,7 +82,7 @@ class ProductProduct(models.Model):
 
     def action_used_in_bom(self):
         self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id("mrp.mrp_bom_form_action")
+        action = self.env.ref('mrp.mrp_bom_form_action').read()[0]
         action['domain'] = [('bom_line_ids.product_id', '=', self.id)]
         return action
 
@@ -177,7 +162,7 @@ class ProductProduct(models.Model):
         return res
 
     def action_view_bom(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("mrp.product_open_bom")
+        action = self.env.ref('mrp.product_open_bom').read()[0]
         template_ids = self.mapped('product_tmpl_id').ids
         # bom specific to this variant or global to template
         action['context'] = {

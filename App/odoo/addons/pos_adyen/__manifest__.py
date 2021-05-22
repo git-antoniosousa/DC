@@ -3,19 +3,17 @@
 {
     'name': 'POS Adyen',
     'version': '1.0',
-    'category': 'Sales/Point of Sale',
+    'category': 'Sales/Point Of Sale',
     'sequence': 6,
     'summary': 'Integrate your POS with an Adyen payment terminal',
     'description': '',
     'data': [
-        'security/ir.model.access.csv',
-        'views/adyen_account_views.xml',
         'views/pos_config_views.xml',
         'views/pos_payment_method_views.xml',
         'views/point_of_sale_assets.xml',
-        'views/res_config_settings_views.xml',
     ],
-    'depends': ['adyen_platforms', 'point_of_sale'],
+    'depends': ['point_of_sale'],
     'qweb': ['static/src/xml/pos.xml'],
     'installable': True,
+    'license': 'OEEL-1',
 }

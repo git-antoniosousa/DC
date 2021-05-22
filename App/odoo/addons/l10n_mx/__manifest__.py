@@ -10,7 +10,7 @@
     "name": "Mexico - Accounting",
     "version": "2.0",
     "author": "Vauxoo",
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     "description": """
 Minimal accounting configuration for Mexico.
 ============================================
@@ -47,8 +47,5 @@ With this module you will have:
         "views/res_bank_view.xml",
         "views/res_config_settings_views.xml",
         "views/account_views.xml",
-    ],
-    'demo': [
-        'demo/demo_company.xml',
     ],
 }

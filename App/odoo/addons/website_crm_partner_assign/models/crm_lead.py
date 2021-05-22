@@ -11,7 +11,6 @@ from odoo.tools import html_escape
 
 class CrmLead(models.Model):
     _inherit = "crm.lead"
-
     partner_latitude = fields.Float('Geo Latitude', digits=(16, 5))
     partner_longitude = fields.Float('Geo Longitude', digits=(16, 5))
     partner_assigned_id = fields.Many2one('res.partner', 'Assigned Partner', tracking=True, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", help="Partner this case has been forwarded/assigned to.", index=True)
@@ -21,27 +20,27 @@ class CrmLead(models.Model):
         'lead_id',
         'partner_id',
         string='Partner not interested')
-    date_partner_assign = fields.Date(
-        'Partner Assignment Date', compute='_compute_date_partner_assign',
-        copy=True, readonly=False, store=True,
-        help="Last date this case was forwarded/assigned to a partner")
+    date_assign = fields.Date('Partner Assignation Date', help="Last date this case was forwarded/assigned to a partner")
 
     def _merge_data(self, fields):
-        fields += ['partner_latitude', 'partner_longitude', 'partner_assigned_id', 'date_partner_assign']
+        fields += ['partner_latitude', 'partner_longitude', 'partner_assigned_id', 'date_assign']
         return super(CrmLead, self)._merge_data(fields)
 
-    @api.depends("partner_assigned_id")
-    def _compute_date_partner_assign(self):
-        for lead in self:
-            if not lead.partner_assigned_id:
-                lead.date_partner_assign = False
-            else:
-                lead.date_partner_assign = fields.Date.context_today(lead)
+    @api.onchange("partner_assigned_id")
+    def onchange_assign_id(self):
+        """This function updates the "assignation date" automatically, when manually assign a partner in the geo assign tab
+        """
+        partner_assigned = self.partner_assigned_id
+        if not partner_assigned:
+            self.date_assign = False
+        else:
+            self.date_assign = fields.Date.context_today(self)
+            self.user_id = partner_assigned.user_id
 
     def assign_salesman_of_assigned_partner(self):
         salesmans_leads = {}
         for lead in self:
-            if lead.active and lead.probability < 100:
+            if (lead.probability > 0 and lead.probability < 100) or lead.stage_id.sequence == 1:
                 if lead.partner_assigned_id and lead.partner_assigned_id.user_id != lead.user_id:
                     salesmans_leads.setdefault(lead.partner_assigned_id.user_id.id, []).append(lead.id)
 
@@ -62,14 +61,14 @@ class CrmLead(models.Model):
                 partner_id = partner_dict.get(lead.id, False)
             if not partner_id:
                 tag_to_add = self.env.ref('website_crm_partner_assign.tag_portal_lead_partner_unavailable', False)
-                if tag_to_add:
-                    lead.write({'tag_ids': [(4, tag_to_add.id, False)]})
+                lead.write({'tag_ids': [(4, tag_to_add.id, False)]})
                 continue
             lead.assign_geo_localize(lead.partner_latitude, lead.partner_longitude)
             partner = self.env['res.partner'].browse(partner_id)
             if partner.user_id:
-                lead.handle_salesmen_assignment(partner.user_id.ids, team_id=partner.team_id.id)
-            lead.write({'partner_assigned_id': partner_id})
+                lead.allocate_salesman(partner.user_id.ids, team_id=partner.team_id.id)
+            values = {'date_assign': fields.Date.context_today(lead), 'partner_assigned_id': partner_id}
+            lead.write(values)
         return res
 
     def assign_geo_localize(self, latitude=False, longitude=False):
@@ -209,7 +208,7 @@ class CrmLead(models.Model):
         self.check_access_rights('write')
         for lead in self:
             lead_values = {
-                'expected_revenue': values['expected_revenue'],
+                'planned_revenue': values['planned_revenue'],
                 'probability': values['probability'],
                 'priority': values['priority'],
                 'date_deadline': values['date_deadline'] or False,

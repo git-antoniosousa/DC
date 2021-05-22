@@ -18,7 +18,6 @@ var EditorMenuBar = Widget.extend({
         'click button[data-action=cancel]': '_onCancelClick',
     },
     custom_events: {
-        request_editable: '_onRequestEditable',
         request_history_undo_record: '_onHistoryUndoRecordRequest',
         request_save: '_onSaveRequest',
     },
@@ -143,7 +142,7 @@ var EditorMenuBar = Widget.extend({
             if (!rte.history.getEditableHasUndo().length) {
                 resolve();
             } else {
-                var confirm = Dialog.confirm(this, _t("If you discard the current edits, all unsaved changes will be lost. You can cancel to return to edit mode."), {
+                var confirm = Dialog.confirm(this, _t("If you discard the current edition, all unsaved changes will be lost. You can cancel to return to the edition mode."), {
                     confirm_callback: resolve,
                 });
                 confirm.on('closed', self, reject);
@@ -163,20 +162,22 @@ var EditorMenuBar = Widget.extend({
      *        true if the page has to be reloaded after the save
      * @returns {Promise}
      */
-    save: async function (reload) {
+    save: function (reload) {
+        var self = this;
         var defs = [];
         this.trigger_up('ready_to_save', {defs: defs});
-        await Promise.all(defs);
-
-        if (this.snippetsMenu) {
-            await this.snippetsMenu.cleanForSave();
-        }
-        await this.getParent().saveModifiedImages(this.rte.editable());
-        await this.rte.save();
-
-        if (reload !== false) {
-            return this._reload();
-        }
+        return Promise.all(defs).then(function () {
+            if (self.snippetsMenu) {
+                self.snippetsMenu.cleanForSave();
+            }
+            return self._saveCroppedImages();
+        }).then(function () {
+            return self.rte.save();
+        }).then(function () {
+            if (reload !== false) {
+                return self._reload();
+            }
+        });
     },
 
     //--------------------------------------------------------------------------
@@ -223,6 +224,12 @@ var EditorMenuBar = Widget.extend({
             window.location.reload(true);
         }
         return new Promise(function(){});
+    },
+    /**
+     * @private
+     */
+    _saveCroppedImages: function () {
+        return this.rte.saveCroppedImages(this.rte.editable());
     },
 
     //--------------------------------------------------------------------------
@@ -273,13 +280,6 @@ var EditorMenuBar = Widget.extend({
     _onSaveRequest: function (ev) {
         ev.stopPropagation();
         this.save(ev.data.reload).then(ev.data.onSuccess, ev.data.onFailure);
-    },
-    /**
-     * @private
-     * @param {OdooEvent} ev
-     */
-    _onRequestEditable: function (ev) {
-        ev.data.callback(this.rte.editable());
     },
 });
 

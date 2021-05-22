@@ -3,11 +3,10 @@
 
 import logging
 
-from odoo import api, fields, models, tools, SUPERUSER_ID, _
+from odoo import api, fields, models, tools, SUPERUSER_ID
 
 from odoo.http import request
 from odoo.addons.website.models import ir_http
-from odoo.addons.http_routing.models.ir_http import url_for
 
 _logger = logging.getLogger(__name__)
 
@@ -47,8 +46,6 @@ class Website(models.Model):
 
     shop_ppg = fields.Integer(default=20, string="Number of products in the grid on the shop")
     shop_ppr = fields.Integer(default=4, string="Number of grid columns on the shop")
-
-    shop_extra_field_ids = fields.One2many('website.sale.extra.field', 'website_id', string='E-Commerce Extra Fields')
 
     @api.depends('all_pricelist_ids')
     def _compute_pricelist_ids(self):
@@ -137,7 +134,7 @@ class Website(models.Model):
         isocountry = req and req.session.geoip and req.session.geoip.get('country_code') or False
         partner = self.env.user.partner_id
         last_order_pl = partner.last_website_so_id.pricelist_id
-        partner_pl = partner.property_product_pricelist
+        partner_pl = partner.with_user(self.env.user).property_product_pricelist
         pricelists = website._get_pl_partner_order(isocountry, show_visible,
                                                    website.user_id.sudo().partner_id.property_product_pricelist.id,
                                                    req and req.session.get('website_sale_current_pl') or None,
@@ -200,12 +197,9 @@ class Website(models.Model):
 
     @api.model
     def sale_get_payment_term(self, partner):
-        pt = self.env.ref('account.account_payment_term_immediate', False).sudo()
-        if pt:
-            pt = (not pt.company_id.id or self.company_id.id == pt.company_id.id) and pt
         return (
             partner.property_payment_term_id or
-            pt or
+            self.env.ref('account.account_payment_term_immediate', False) or
             self.env['account.payment.term'].sudo().search([('company_id', '=', self.company_id.id)], limit=1)
         ).id
 
@@ -259,15 +253,15 @@ class Website(models.Model):
                 check_fpos = True
 
         # Test validity of the sale_order_id
-        sale_order = self.env['sale.order'].with_company(request.website.company_id.id).sudo().browse(sale_order_id).exists() if sale_order_id else None
+        sale_order = self.env['sale.order'].with_context(force_company=request.website.company_id.id).sudo().browse(sale_order_id).exists() if sale_order_id else None
 
         # Do not reload the cart of this user last visit if the Fiscal Position has changed.
         if check_fpos and sale_order:
             fpos_id = (
                 self.env['account.fiscal.position'].sudo()
-                .with_company(sale_order.company_id.id)
+                .with_context(force_company=sale_order.company_id.id)
                 .get_fiscal_position(sale_order.partner_id.id, delivery_id=sale_order.partner_shipping_id.id)
-            ).id
+            )
             if sale_order.fiscal_position_id.id != fpos_id:
                 sale_order = None
 
@@ -291,7 +285,7 @@ class Website(models.Model):
             # TODO cache partner_id session
             pricelist = self.env['product.pricelist'].browse(pricelist_id).sudo()
             so_data = self._prepare_sale_order_values(partner, pricelist)
-            sale_order = self.env['sale.order'].with_company(request.website.company_id.id).with_user(SUPERUSER_ID).create(so_data)
+            sale_order = self.env['sale.order'].with_context(force_company=request.website.company_id.id).with_user(SUPERUSER_ID).create(so_data)
 
             # set fiscal position
             if request.website.partner_id.id != partner.id:
@@ -300,7 +294,8 @@ class Website(models.Model):
                 country_code = request.session['geoip'].get('country_code')
                 if country_code:
                     country_id = request.env['res.country'].search([('code', '=', country_code)], limit=1).id
-                    sale_order.fiscal_position_id = request.env['account.fiscal.position'].sudo().with_company(request.website.company_id.id)._get_fpos_by_region(country_id)
+                    fp_id = request.env['account.fiscal.position'].sudo().with_context(force_company=request.website.company_id.id)._get_fpos_by_region(country_id)
+                    sale_order.fiscal_position_id = fp_id
                 else:
                     # if no geolocation, use the public user fp
                     sale_order.onchange_partner_shipping_id()
@@ -379,37 +374,5 @@ class Website(models.Model):
     @api.model
     def action_dashboard_redirect(self):
         if self.env.user.has_group('sales_team.group_sale_salesman'):
-            return self.env["ir.actions.actions"]._for_xml_id("website.backend_dashboard")
+            return self.env.ref('website.backend_dashboard').read()[0]
         return super(Website, self).action_dashboard_redirect()
-
-    def get_suggested_controllers(self):
-        suggested_controllers = super(Website, self).get_suggested_controllers()
-        suggested_controllers.append((_('eCommerce'), url_for('/shop'), 'website_sale'))
-        return suggested_controllers
-
-    def _bootstrap_snippet_filters(self):
-        super(Website, self)._bootstrap_snippet_filters()
-        action = self.env.ref('website_sale.dynamic_snippet_products_action', raise_if_not_found=False)
-        if action:
-            self.env['website.snippet.filter'].create({
-                'action_server_id': action.id,
-                'field_names': 'display_name,description_sale,image_512,list_price',
-                'limit': 16,
-                'name': _('Products'),
-                'website_id': self.id,
-            })
-
-
-class WebsiteSaleExtraField(models.Model):
-    _name = 'website.sale.extra.field'
-    _description = 'E-Commerce Extra Info Shown on product page'
-    _order = 'sequence'
-
-    website_id = fields.Many2one('website')
-    sequence = fields.Integer(default=10)
-    field_id = fields.Many2one(
-        'ir.model.fields',
-        domain=[('model_id.model', '=', 'product.template'), ('ttype', 'in', ['char', 'binary'])]
-    )
-    label = fields.Char(related='field_id.field_description')
-    name = fields.Char(related='field_id.name')

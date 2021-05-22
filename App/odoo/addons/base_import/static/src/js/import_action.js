@@ -82,9 +82,6 @@ var DataImport = AbstractAction.extend({
         {name: 'separator', label: _lt("Separator:"), value: ''},
         {name: 'quoting', label: _lt("Text Delimiter:"), value: '"'}
     ],
-    spreadsheet_opts: [
-        {name: 'sheet', label: _lt("Selected Sheet:"), value: ''},
-    ],
     parse_opts_formats: [
         {name: 'date_format', label: _lt("Date Format:"), value: ''},
         {name: 'datetime_format', label: _lt("Datetime Format:"), value: ''},
@@ -149,7 +146,6 @@ var DataImport = AbstractAction.extend({
         this.session = session;
         this._title = _t('Import a File'); // Displayed in the breadcrumbs
         this.do_not_change_match = false;
-        this.sheets = [];
     },
     /**
      * @override
@@ -172,7 +168,6 @@ var DataImport = AbstractAction.extend({
         this.setup_separator_picker();
         this.setup_float_format_picker();
         this.setup_date_format_picker();
-        this.setup_sheets_picker();
 
         return Promise.all([
             this._super(),
@@ -289,18 +284,6 @@ var DataImport = AbstractAction.extend({
             }
         })
     },
-    setup_sheets_picker: function () {
-        var data = this.sheets.map(_make_option);
-        this.$('input.oe_import_sheet').select2({
-            width: '50%',
-            data: data,
-            query: dataFilteredQuery,
-            initSelection: function ($e, c) {
-                c(_from_data(data, $e.val()) || _make_option($e.val()))
-            },
-            minimumResultsForSearch: 10,
-        });
-    },
 
     import_options: function () {
         var self = this;
@@ -313,7 +296,7 @@ var DataImport = AbstractAction.extend({
             skip: Number(this.$('#oe_import_row_start').val()) - 1 || 0,
             limit: Number(this.$('#oe_import_batch_limit').val()) || null,
         };
-        _.each(_.union(this.opts, this.spreadsheet_opts), function (opt) {
+        _(this.opts).each(function (opt) {
             options[opt.name] =
                 self.$('input.oe_import_' + opt.name).val();
         });
@@ -350,7 +333,6 @@ var DataImport = AbstractAction.extend({
         if (!this.$('input.oe_import_file').val()) { return this['settings_changed'](); }
         this.$('.oe_import_date_format').select2('val', '');
         this.$('.oe_import_datetime_format').val('');
-        this.$('.oe_import_sheet').val('');
 
         this.$form.removeClass('oe_import_preview oe_import_error');
         var import_toggle = false;
@@ -421,16 +403,8 @@ var DataImport = AbstractAction.extend({
             this.onresults(null, null, null, {'messages': messages});
         }
 
-        if (!_.isEqual(this.sheets, result.options.sheets)) {
-            this.sheets = result.options.sheets || [];
-            this.setup_sheets_picker();
-        }
-        this.$('div.oe_import_has_multiple_sheets').toggle(
-            this.sheets.length > 1
-        );
-
         // merge option values back in case they were updated/guessed
-        _.each(['encoding', 'separator', 'float_thousand_separator', 'float_decimal_separator', 'sheet'], function (id) {
+        _.each(['encoding', 'separator', 'float_thousand_separator', 'float_decimal_separator'], function (id) {
             self.$('.oe_import_' + id).select2('val', result.options[id])
         });
         this.$('.oe_import_date_format').select2('val', time.strftime_to_moment_format(result.options.date_format));
@@ -743,10 +717,7 @@ var DataImport = AbstractAction.extend({
         return prom;
     },
     onimported: function (event, from, to, results) {
-        this.do_notify(false, _.str.sprintf(
-            _t("%d records successfully imported"),
-            results.ids.length
-        ));
+        this.do_notify(_t("Import completed"), _.str.sprintf(_t("%d records were successfully imported"), results.ids.length));
         this.exit();
     },
     exit: function () {

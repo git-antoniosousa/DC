@@ -1,3 +1,14 @@
+odoo.define('partner_autocomplete.tests.dependencies', function (require) {
+'use strict';
+
+var ajax = require('web.ajax');
+
+// TODO remove in master
+// The following file is added here as a stable fix but they are already
+// added in the test assets bundles directly in master
+return ajax.loadJS('/partner_autocomplete/static/lib/jsvat.js');
+});
+
 odoo.define('partner_autocomplete.tests', function (require) {
     "use strict";
 
@@ -7,6 +18,7 @@ odoo.define('partner_autocomplete.tests', function (require) {
     var AutocompleteField = require('partner.autocomplete.fieldchar');
     var PartnerField = require('partner.autocomplete.many2one');
     var NotificationService = require('web.NotificationService');
+    require('partner_autocomplete.tests.dependencies');
 
     var createView = testUtils.createView;
 
@@ -107,6 +119,7 @@ odoo.define('partner_autocomplete.tests', function (require) {
                 city: "Ramillies",
                 zip: "1367",
                 phone: "+1 650-691-3277",
+                email: "info@odoo.com",
                 vat: "BE0477472701",
             };
 
@@ -123,6 +136,7 @@ odoo.define('partner_autocomplete.tests', function (require) {
                         parent_id: {string: "Company", type: "many2one", relation: "res.partner"},
                         website: {string: "Website", type: "char", searchable: true},
                         image_1920: {string: "Image", type: "binary", searchable: true},
+                        email: {string: "Email", type: "char", searchable: true},
                         phone: {string: "Phone", type: "char", searchable: true},
                         street: {string: "Street", type: "char", searchable: true},
                         city: {string: "City", type: "char", searchable: true},
@@ -185,7 +199,7 @@ odoo.define('partner_autocomplete.tests', function (require) {
 
 
     QUnit.test("Partner autocomplete : Company type = Company / Name search", async function (assert) {
-        assert.expect(17);
+        assert.expect(18);
         var fields = this.data['res.partner'].fields;
         var form = await createView({
             View: FormView,
@@ -197,6 +211,7 @@ odoo.define('partner_autocomplete.tests', function (require) {
                 '<field name="name" widget="field_partner_autocomplete"/>' +
                 '<field name="website"/>' +
                 '<field name="image_1920" widget="image"/>' +
+                '<field name="email"/>' +
                 '<field name="phone"/>' +
                 '<field name="street"/>' +
                 '<field name="city"/>' +
@@ -258,7 +273,7 @@ odoo.define('partner_autocomplete.tests', function (require) {
     });
 
     QUnit.test("Partner autocomplete : Company type = Company / VAT search", async function (assert) {
-        assert.expect(27);
+        assert.expect(29);
         var fields = this.data['res.partner'].fields;
         var form = await createView({
             View: FormView,
@@ -270,6 +285,7 @@ odoo.define('partner_autocomplete.tests', function (require) {
                 '<field name="name" widget="field_partner_autocomplete"/>' +
                 '<field name="website"/>' +
                 '<field name="image_1920" widget="image"/>' +
+                '<field name="email"/>' +
                 '<field name="phone"/>' +
                 '<field name="street"/>' +
                 '<field name="city"/>' +

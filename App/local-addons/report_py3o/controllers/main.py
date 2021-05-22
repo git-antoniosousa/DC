@@ -3,8 +3,7 @@
 import json
 import mimetypes
 
-from werkzeug import exceptions
-from werkzeug.urls import url_decode
+from werkzeug import exceptions, url_decode
 
 from odoo.http import request, route
 from odoo.tools import html_escape
@@ -44,7 +43,7 @@ class ReportController(main.ReportController):
                 description="Py3o action report not found for report_name "
                 "%s" % reportname
             )
-        res, filetype = action_py3o_report._render(docids, data)
+        res, filetype = action_py3o_report.render(docids, data)
         filename = action_py3o_report.gen_report_download_filename(docids, data)
         if not filename.endswith(filetype):
             filename = "{}.{}".format(filename, filetype)
@@ -57,7 +56,7 @@ class ReportController(main.ReportController):
         return request.make_response(res, headers=http_headers)
 
     @route()
-    def report_download(self, data, token):
+    def report_download(self, data, token, context=None):
         """This function is used by 'qwebactionmanager.js' in order to trigger
         the download of a py3o/controller report.
 
@@ -68,7 +67,7 @@ class ReportController(main.ReportController):
         requestcontent = json.loads(data)
         url, report_type = requestcontent[0], requestcontent[1]
         if "py3o" not in report_type:
-            return super(ReportController, self).report_download(data, token)
+            return super(ReportController, self).report_download(data, token, context)
         try:
             reportname = url.split("/report/py3o/")[1].split("?")[0]
             docids = None

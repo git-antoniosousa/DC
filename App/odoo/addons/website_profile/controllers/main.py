@@ -8,10 +8,7 @@ import werkzeug.urls
 import werkzeug.wrappers
 import math
 
-from dateutil.relativedelta import relativedelta
-from operator import itemgetter
-
-from odoo import fields, http, modules, tools
+from odoo import http, modules, tools
 from odoo.http import request
 from odoo.osv import expression
 
@@ -178,10 +175,11 @@ class WebsiteProfile(http.Controller):
         """
         domain = [('website_published', '=', True)]
         if 'badge_category' in kwargs:
-            domain = expression.AND([[('challenge_ids.challenge_category', '=', kwargs.get('badge_category'))], domain])
+            domain = expression.AND([[('challenge_ids.category', '=', kwargs.get('badge_category'))], domain])
         return domain
 
-    def _prepare_ranks_badges_values(self, **kwargs):
+    @http.route('/profile/ranks_badges', type='http', auth="public", website=True)
+    def view_ranks_badges(self, **kwargs):
         ranks = []
         if 'badge_category' not in kwargs:
             Rank = request.env['gamification.karma.rank']
@@ -189,7 +187,7 @@ class WebsiteProfile(http.Controller):
 
         Badge = request.env['gamification.badge']
         badges = Badge.sudo().search(self._prepare_badges_domain(**kwargs))
-        badges = badges.sorted("granted_users_count", reverse=True)
+        badges = sorted(badges, key=lambda b: b.stat_count_distinct, reverse=True)
         values = self._prepare_user_values(searches={'badges': True})
 
         values.update({
@@ -197,11 +195,6 @@ class WebsiteProfile(http.Controller):
             'badges': badges,
             'user': request.env.user,
         })
-        return values
-
-    @http.route('/profile/ranks_badges', type='http', auth="public", website=True, sitemap=True)
-    def view_ranks_badges(self, **kwargs):
-        values = self._prepare_ranks_badges_values(**kwargs)
         return request.render("website_profile.rank_badge_main", values)
 
     # All Users Page
@@ -221,24 +214,18 @@ class WebsiteProfile(http.Controller):
         return user_values
 
     @http.route(['/profile/users',
-                 '/profile/users/page/<int:page>'], type='http', auth="public", website=True, sitemap=True)
-    def view_all_users_page(self, page=1, **kwargs):
+                 '/profile/users/page/<int:page>'], type='http', auth="public", website=True)
+    def view_all_users_page(self, page=1, **searches):
         User = request.env['res.users']
         dom = [('karma', '>', 1), ('website_published', '=', True)]
 
         # Searches
-        search_term = kwargs.get('search')
-        group_by = kwargs.get('group_by', False)
-        render_values = {
-            'search': search_term,
-            'group_by': group_by or 'all',
-        }
+        search_term = searches.get('search')
         if search_term:
-            dom = expression.AND([['|', ('name', 'ilike', search_term), ('partner_id.commercial_company_name', 'ilike', search_term)], dom])
+            dom = expression.AND([['|', ('name', 'ilike', search_term), ('company_id.name', 'ilike', search_term)], dom])
 
         user_count = User.sudo().search_count(dom)
-        my_user = request.env.user
-        current_user_values = False
+
         if user_count:
             page_count = math.ceil(user_count / self._users_per_page)
             pager = request.website.pager(url="/profile/users", total=user_count, page=page, step=self._users_per_page,
@@ -249,56 +236,43 @@ class WebsiteProfile(http.Controller):
 
             # Get karma position for users (only website_published)
             position_domain = [('karma', '>', 1), ('website_published', '=', True)]
-            position_map = self._get_position_map(position_domain, users, group_by)
-
-            max_position = max([user_data['karma_position'] for user_data in position_map.values()], default=1)
+            position_map = self._get_users_karma_position(position_domain, users.ids)
             for user in user_values:
-                user_data = position_map.get(user['id'], dict())
-                user['position'] = user_data.get('karma_position', max_position + 1)
-                user['karma_gain'] = user_data.get('karma_gain_total', 0)
-            user_values.sort(key=itemgetter('position'))
+                user['position'] = position_map.get(user['id'], 0)
 
-            if my_user.website_published and my_user.karma and my_user.id not in users.ids:
-                # Need to keep the dom to search only for users that appear in the ranking page
-                current_user = User.sudo().search(expression.AND([[('id', '=', my_user.id)], dom]))
-                if current_user:
-                    current_user_values = self._prepare_all_users_values(current_user)[0]
-
-                    user_data = self._get_position_map(position_domain, current_user, group_by).get(current_user.id, {})
-                    current_user_values['position'] = user_data.get('karma_position', 0)
-                    current_user_values['karma_gain'] = user_data.get('karma_gain_total', 0)
-
+            values = {
+                'top3_users': user_values[:3] if not search_term and page == 1 else None,
+                'users': user_values[3:] if not search_term and page == 1 else user_values,
+                'pager': pager
+            }
         else:
-            user_values = []
-            pager = {'page_count': 0}
-        render_values.update({
-            'top3_users': user_values[:3] if not search_term and page == 1 else [],
-            'users': user_values,
-            'my_user': current_user_values,
-            'pager': pager,
-        })
-        return request.render("website_profile.users_page_main", render_values)
+            values = {'top3_users': [], 'users': [], 'search': search_term, 'pager': dict(page_count=0)}
 
-    def _get_position_map(self, position_domain, users, group_by):
-        if group_by:
-            position_map = self._get_user_tracking_karma_gain_position(position_domain, users.ids, group_by)
-        else:
-            position_results = users._get_karma_position(position_domain)
-            position_map = dict((user_data['user_id'], dict(user_data)) for user_data in position_results)
-        return position_map
+        return request.render("website_profile.users_page_main", values)
 
-    def _get_user_tracking_karma_gain_position(self, domain, user_ids, group_by):
-        """ Helper method computing boundaries to give to _get_tracking_karma_gain_position.
-        See that method for more details. """
-        to_date = fields.Date.today()
-        if group_by == 'week':
-            from_date = to_date - relativedelta(weeks=1)
-        elif group_by == 'month':
-            from_date = to_date - relativedelta(months=1)
-        else:
-            from_date = None
-        results = request.env['res.users'].browse(user_ids)._get_tracking_karma_gain_position(domain, from_date=from_date, to_date=to_date)
-        return dict((item['user_id'], dict(item)) for item in results)
+    def _get_users_karma_position(self, domain, user_ids):
+        if not user_ids:
+            return {}
+
+        Users = request.env['res.users']
+        where_query = Users._where_calc(domain)
+        from_clause, where_clause, where_clause_params = where_query.get_sql()
+
+        # we search on every user in the DB to get the real positioning (not the one inside the subset)
+        # then, we filter to get only the subset.
+        query = """
+            SELECT sub.id, sub.karma_position
+            FROM (
+                SELECT "res_users"."id", row_number() OVER (ORDER BY res_users.karma DESC) AS karma_position
+                FROM {from_clause}
+                WHERE {where_clause}
+            ) sub
+            WHERE sub.id IN %s
+            """.format(from_clause=from_clause, where_clause=where_clause)
+
+        request.env.cr.execute(query, where_clause_params + [tuple(user_ids)])
+
+        return {item['id']: item['karma_position'] for item in request.env.cr.dictfetchall()}
 
     # User and validation
     # --------------------------------------------------

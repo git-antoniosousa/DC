@@ -6,12 +6,11 @@ import os
 import re
 import subprocess
 from unittest import skipIf
+from odoo.tests.common import TransactionCase
 from odoo import tools
 from odoo.modules import get_modules, get_module_path
 
-from . import lint_case
-
-MAX_ES_VERSION = 'es10'
+MAX_ES_VERSION = 'es8'
 
 _logger = logging.getLogger(__name__)
 
@@ -22,7 +21,7 @@ except IOError:
 
 
 @skipIf(es_check is None, "es-check tool not found on this system")
-class TestECMAScriptVersion(lint_case.LintCase):
+class TestECMAScriptVersion(TransactionCase):
 
     longMessage = True
 
@@ -31,12 +30,16 @@ class TestECMAScriptVersion(lint_case.LintCase):
 
         black_re = re.compile(r'summernote.+(intro\.js|outro.js)$')
 
-        files_to_check = [
-            p for p in self.iter_module_files('*.js')
-            if not 'static/test' in p
-            if not 'static/src/tests' in p
-            if not black_re.search(p)
-        ]
+        mod_paths = [get_module_path(m) for m in get_modules()]
+        files_to_check = []
+        for p in mod_paths:
+            for dp, _, file_names in os.walk(p):
+                if 'static/test' in dp or "static/src/tests" in dp:
+                    continue
+                for fn in file_names:
+                    fullpath_name = os.path.join(dp, fn)
+                    if fullpath_name.endswith('.js') and not black_re.search(fullpath_name):
+                        files_to_check.append(fullpath_name)
 
         _logger.info('Testing %s js files', len(files_to_check))
         cmd = [es_check, MAX_ES_VERSION] + files_to_check

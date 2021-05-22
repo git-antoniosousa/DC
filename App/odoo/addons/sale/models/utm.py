@@ -22,13 +22,13 @@ class UtmCampaign(models.Model):
 
     def _compute_sale_invoiced_amount(self):
         self.env['account.move.line'].flush(['balance', 'move_id', 'account_id', 'exclude_from_invoice_tab'])
-        self.env['account.move'].flush(['state', 'campaign_id', 'move_type'])
+        self.env['account.move'].flush(['state', 'campaign_id', 'type'])
         query = """SELECT move.campaign_id, -SUM(line.balance) as price_subtotal
                     FROM account_move_line line
                     INNER JOIN account_move move ON line.move_id = move.id
                     WHERE move.state not in ('draft', 'cancel')
                         AND move.campaign_id IN %s
-                        AND move.move_type IN ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
+                        AND move.type IN ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
                         AND line.account_id IS NOT NULL
                         AND NOT line.exclude_from_invoice_tab
                     GROUP BY move.campaign_id
@@ -46,17 +46,13 @@ class UtmCampaign(models.Model):
             campaign.invoiced_amount = 0
 
     def action_redirect_to_quotations(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("sale.action_quotations_with_onboarding")
+        action = self.env.ref('sale.action_quotations_with_onboarding').read()[0]
         action['domain'] = [('campaign_id', '=', self.id)]
-        action['context'] = {
-            'create': False,
-            'edit': False,
-            'default_campaign_id': self.id
-        }
+        action['context'] = {'default_campaign_id': self.id}
         return action
 
     def action_redirect_to_invoiced(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("account.action_move_journal_line")
+        action = self.env.ref('account.action_move_journal_line').read()[0]
         invoices = self.env['account.move'].search([('campaign_id', '=', self.id)])
         action['context'] = {
             'create': False,
@@ -65,7 +61,7 @@ class UtmCampaign(models.Model):
         }
         action['domain'] = [
             ('id', 'in', invoices.ids),
-            ('move_type', 'in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')),
+            ('type', 'in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')),
             ('state', 'not in', ['draft', 'cancel'])
         ]
         return action

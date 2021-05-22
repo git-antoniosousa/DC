@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.account.tests.account_test_savepoint import AccountTestInvoicingCommon
 from odoo.tests import tagged
 from odoo import fields
 from odoo.tests.common import Form
@@ -67,7 +67,7 @@ class TestAccountInvoiceRounding(AccountTestInvoicingCommon):
             ],
         })
 
-        cls.invoice = cls.init_invoice('out_refund', products=cls.product_a+cls.product_b)
+        cls.invoice = cls.init_invoice('out_refund')
 
     def assertPaymentTerm(self, pay_term, invoice_date, dates):
         with Form(self.invoice) as move_form:

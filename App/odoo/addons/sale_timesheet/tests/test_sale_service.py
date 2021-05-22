@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.addons.sale_timesheet.tests.common import TestCommonSaleTimesheet
+from odoo.addons.sale_timesheet.tests.common import TestCommonSaleTimesheetNoChart
 from odoo.exceptions import UserError, ValidationError
-from odoo.tests import tagged
 
 
-@tagged('-at_install', 'post_install')
-class TestSaleService(TestCommonSaleTimesheet):
+class TestSaleService(TestCommonSaleTimesheetNoChart):
     """ This test suite provide checks for miscellaneous small things. """
 
     @classmethod
-    def setUpClass(cls, chart_template_ref=None):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def setUpClass(cls):
+        super(TestSaleService, cls).setUpClass()
+        # set up
+        cls.setUpEmployees()
+        cls.setUpServiceProducts()
 
         cls.sale_order = cls.env['sale.order'].with_context(mail_notrack=True, mail_create_nolog=True).create({
-            'partner_id': cls.partner_a.id,
-            'partner_invoice_id': cls.partner_a.id,
-            'partner_shipping_id': cls.partner_a.id,
+            'partner_id': cls.partner_customer_usd.id,
+            'partner_invoice_id': cls.partner_customer_usd.id,
+            'partner_shipping_id': cls.partner_customer_usd.id,
         })
 
     def test_sale_service(self):
@@ -161,14 +162,14 @@ class TestSaleService(TestCommonSaleTimesheet):
         self.assertTrue(all([billing_type == 'billable_time' for billing_type in timesheets.mapped('timesheet_invoice_type')]), "All timesheets linked to the task should be on 'billable time'")
         self.assertEqual(so_line_deliver_global_project.qty_to_invoice, 5, "Quantity to invoice should have been increased when logging timesheet on delivered quantities task")
 
-        # invoice SO, and validate invoice
-        invoice = self.sale_order._create_invoices()[0]
-        invoice.action_post()
-
         # make task non billable
         task_serv2.write({'sale_line_id': False})
         self.assertTrue(all([billing_type == 'billable_time' for billing_type in timesheets.mapped('timesheet_invoice_type')]), "billable type of timesheet should not change when tranfering task into another project")
-        self.assertEqual(task_serv2.timesheet_ids.mapped('so_line'), so_line_deliver_global_project, "Old invoiced timesheet are not modified when changing the task SO line")
+        self.assertEqual(task_serv2.timesheet_ids.mapped('so_line'), so_line_deliver_global_project, "Old timesheet are not modified when changing the task SO line")
+
+        # invoice SO, and validate invoice
+        invoice = self.sale_order._create_invoices()[0]
+        invoice.post()
 
         # try to update timesheets, catch error 'You cannot modify invoiced timesheet'
         with self.assertRaises(UserError):
@@ -528,14 +529,14 @@ class TestSaleService(TestCommonSaleTimesheet):
             'name': '%s: substask1' % (task.name,)
         })
 
-        self.assertEqual(subtask.sale_line_id, task.sale_line_id, "By, default, a child task should have the same SO line as its mother")
-        self.assertEqual(task2.sale_line_id, project.sale_line_id, "A new task in a billable project should have the same SO line as its project")
-        self.assertEqual(task2.partner_id, so_line_deliver_new_task_project.order_partner_id, "A new task in a billable project should have the same SO line as its project")
+        self.assertEqual(subtask.sale_line_id, task.sale_line_id, "By, default, a child task should have the same SO line than its mother")
+        self.assertEqual(task2.sale_line_id, project.sale_line_id, "A new task in a billable project should have the same SO line than its project")
+        self.assertEqual(task2.partner_id, so_line_deliver_new_task_project.order_partner_id, "A new task in a billable project should have the same SO line than its project")
 
         # moving subtask in another project
         subtask.write({'project_id': self.project_global.id})
 
-        self.assertEqual(subtask.sale_line_id, task.sale_line_id, "A child task should always have the same SO line as its mother, even when changing project")
+        self.assertEqual(subtask.sale_line_id, task.sale_line_id, "A child task should always have the same SO line than its mother, even when changing project")
         self.assertEqual(subtask.sale_line_id, so_line_deliver_new_task_project)
 
         # changing the SO line of the mother task
@@ -589,11 +590,12 @@ class TestSaleService(TestCommonSaleTimesheet):
 
         # copy the project
         project_copy = project.copy()
-        self.assertFalse(project_copy.sale_line_id, "Duplicating project should erase its Sale line")
-        self.assertFalse(project_copy.sale_order_id, "Duplicating project should erase its Sale order")
+        self.assertFalse(project_copy.sale_line_id, "Duplicatinga project should erase its Sale line")
+        self.assertFalse(project_copy.sale_order_id, "Duplicatinga project should erase its Sale order")
+        self.assertEqual(project_copy.billable_type, 'no', "Duplicatinga project should reset its billable type to none billable")
         self.assertEqual(len(project.tasks), len(project_copy.tasks), "Copied project must have the same number of tasks")
         self.assertFalse(project_copy.tasks.mapped('sale_line_id'), "The tasks of the duplicated project should not have a Sale Line set.")
 
         # copy the task
         task_copy = task.copy()
-        self.assertEqual(task_copy.sale_line_id, task.sale_line_id, "Duplicating task should keep its Sale line")
+        self.assertEqual(task.sale_line_id, task_copy.sale_line_id, "Duplicatinga task should keep its Sale line")

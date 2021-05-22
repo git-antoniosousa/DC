@@ -1,29 +1,36 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+import odoo
 from odoo.exceptions import UserError, AccessError
-from odoo.tests import Form, tagged
+from odoo.tests import Form
 from odoo.tools import float_compare
 
-from .common import TestSaleCommon
+from .test_sale_common import TestCommonSaleNoChart
 
 
-@tagged('post_install', '-at_install')
-class TestSaleOrder(TestSaleCommon):
+class TestSaleOrder(TestCommonSaleNoChart):
 
     @classmethod
-    def setUpClass(cls, chart_template_ref=None):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def setUpClass(cls):
+        super(TestSaleOrder, cls).setUpClass()
 
         SaleOrder = cls.env['sale.order'].with_context(tracking_disable=True)
 
         # set up users
+        cls.setUpUsers()
+        group_salemanager = cls.env.ref('sales_team.group_sale_manager')
+        group_salesman = cls.env.ref('sales_team.group_sale_salesman')
+        group_employee = cls.env.ref('base.group_user')
+        cls.user_manager.write({'groups_id': [(6, 0, [group_salemanager.id, group_employee.id])]})
+        cls.user_employee.write({'groups_id': [(6, 0, [group_salesman.id, group_employee.id])]})
         cls.crm_team0 = cls.env['crm.team'].create({
             'name': 'crm team 0',
-            'company_id': cls.company_data['company'].id
+            'company_id': cls.env.user.company_id.id,
         })
         cls.crm_team1 = cls.env['crm.team'].create({
             'name': 'crm team 1',
-            'company_id': cls.company_data['company'].id
+            'company_id': cls.env.user.company_id.id,
         })
         cls.user_in_team = cls.env['res.users'].create({
             'email': 'team0user@example.com',
@@ -37,46 +44,51 @@ class TestSaleOrder(TestSaleCommon):
             'name': 'User Not In Team',
         })
 
+        # set up accounts and products and journals
+        cls.setUpAdditionalAccounts()
+        cls.setUpClassicProducts()
+        cls.setUpAccountJournal()
+
         # create a generic Sale Order with all classical products and empty pricelist
         cls.sale_order = SaleOrder.create({
-            'partner_id': cls.partner_a.id,
-            'partner_invoice_id': cls.partner_a.id,
-            'partner_shipping_id': cls.partner_a.id,
-            'pricelist_id': cls.company_data['default_pricelist'].id,
+            'partner_id': cls.partner_customer_usd.id,
+            'partner_invoice_id': cls.partner_customer_usd.id,
+            'partner_shipping_id': cls.partner_customer_usd.id,
+            'pricelist_id': cls.pricelist_usd.id,
         })
         cls.sol_product_order = cls.env['sale.order.line'].create({
-            'name': cls.company_data['product_order_no'].name,
-            'product_id': cls.company_data['product_order_no'].id,
+            'name': cls.product_order.name,
+            'product_id': cls.product_order.id,
             'product_uom_qty': 2,
-            'product_uom': cls.company_data['product_order_no'].uom_id.id,
-            'price_unit': cls.company_data['product_order_no'].list_price,
+            'product_uom': cls.product_order.uom_id.id,
+            'price_unit': cls.product_order.list_price,
             'order_id': cls.sale_order.id,
             'tax_id': False,
         })
         cls.sol_serv_deliver = cls.env['sale.order.line'].create({
-            'name': cls.company_data['product_service_delivery'].name,
-            'product_id': cls.company_data['product_service_delivery'].id,
+            'name': cls.service_deliver.name,
+            'product_id': cls.service_deliver.id,
             'product_uom_qty': 2,
-            'product_uom': cls.company_data['product_service_delivery'].uom_id.id,
-            'price_unit': cls.company_data['product_service_delivery'].list_price,
+            'product_uom': cls.service_deliver.uom_id.id,
+            'price_unit': cls.service_deliver.list_price,
             'order_id': cls.sale_order.id,
             'tax_id': False,
         })
         cls.sol_serv_order = cls.env['sale.order.line'].create({
-            'name': cls.company_data['product_service_order'].name,
-            'product_id': cls.company_data['product_service_order'].id,
+            'name': cls.service_order.name,
+            'product_id': cls.service_order.id,
             'product_uom_qty': 2,
-            'product_uom': cls.company_data['product_service_order'].uom_id.id,
-            'price_unit': cls.company_data['product_service_order'].list_price,
+            'product_uom': cls.service_order.uom_id.id,
+            'price_unit': cls.service_order.list_price,
             'order_id': cls.sale_order.id,
             'tax_id': False,
         })
         cls.sol_product_deliver = cls.env['sale.order.line'].create({
-            'name': cls.company_data['product_delivery_no'].name,
-            'product_id': cls.company_data['product_delivery_no'].id,
+            'name': cls.product_deliver.name,
+            'product_id': cls.product_deliver.id,
             'product_uom_qty': 2,
-            'product_uom': cls.company_data['product_delivery_no'].uom_id.id,
-            'price_unit': cls.company_data['product_delivery_no'].list_price,
+            'product_uom': cls.product_deliver.uom_id.id,
+            'price_unit': cls.product_deliver.list_price,
             'order_id': cls.sale_order.id,
             'tax_id': False,
         })
@@ -85,10 +97,10 @@ class TestSaleOrder(TestSaleCommon):
         """ Test the sales order flow (invoicing and quantity updates)
             - Invoice repeatedly while varrying delivered quantities and check that invoice are always what we expect
         """
-        # TODO?: validate invoice and register payments
+        # DBO TODO: validate invoice and register payments
         self.sale_order.order_line.read(['name', 'price_unit', 'product_uom_qty', 'price_total'])
 
-        self.assertEqual(self.sale_order.amount_total, 1240.0, 'Sale: total amount is wrong')
+        self.assertEqual(self.sale_order.amount_total, sum([2 * p.list_price for p in self.product_map.values()]), 'Sale: total amount is wrong')
         self.sale_order.order_line._compute_product_updatable()
         self.assertTrue(self.sale_order.order_line[0].product_updatable)
         # send quotation
@@ -107,7 +119,7 @@ class TestSaleOrder(TestSaleCommon):
         # create invoice: only 'invoice on order' products are invoiced
         invoice = self.sale_order._create_invoices()
         self.assertEqual(len(invoice.invoice_line_ids), 2, 'Sale: invoice is missing lines')
-        self.assertEqual(invoice.amount_total, 740.0, 'Sale: invoice total amount is wrong')
+        self.assertEqual(invoice.amount_total, sum([2 * p.list_price if p.invoice_policy == 'order' else 0 for p in self.product_map.values()]), 'Sale: invoice total amount is wrong')
         self.assertTrue(self.sale_order.invoice_status == 'no', 'Sale: SO status after invoicing should be "nothing to invoice"')
         self.assertTrue(len(self.sale_order.invoice_ids) == 1, 'Sale: invoice is missing')
         self.sale_order.order_line._compute_product_updatable()
@@ -119,7 +131,7 @@ class TestSaleOrder(TestSaleCommon):
         self.assertTrue(self.sale_order.invoice_status == 'to invoice', 'Sale: SO status after delivery should be "to invoice"')
         invoice2 = self.sale_order._create_invoices()
         self.assertEqual(len(invoice2.invoice_line_ids), 2, 'Sale: second invoice is missing lines')
-        self.assertEqual(invoice2.amount_total, 500.0, 'Sale: second invoice total amount is wrong')
+        self.assertEqual(invoice2.amount_total, sum([2 * p.list_price if p.invoice_policy == 'delivery' else 0 for p in self.product_map.values()]), 'Sale: second invoice total amount is wrong')
         self.assertTrue(self.sale_order.invoice_status == 'invoiced', 'Sale: SO status after invoicing everything should be "invoiced"')
         self.assertTrue(len(self.sale_order.invoice_ids) == 2, 'Sale: invoice is missing')
 
@@ -144,33 +156,8 @@ class TestSaleOrder(TestSaleCommon):
 
         invoice3 = self.sale_order._create_invoices()
         self.assertEqual(len(invoice3.invoice_line_ids), 1, 'Sale: third invoice is missing lines')
-        self.assertEqual(invoice3.amount_total, 720.0, 'Sale: second invoice total amount is wrong')
+        self.assertEqual(invoice3.amount_total, 8 * self.product_map['serv_order'].list_price, 'Sale: second invoice total amount is wrong')
         self.assertTrue(self.sale_order.invoice_status == 'invoiced', 'Sale: SO status after invoicing everything (including the upsel) should be "invoiced"')
-
-    def test_sale_order_send_to_self(self):
-        # when sender(logged in user) is also present in recipients of the mail composer,
-        # user should receive mail.
-        sale_order = self.env['sale.order'].with_user(self.company_data['default_user_salesman']).create({
-            'partner_id': self.company_data['default_user_salesman'].partner_id.id,
-            'order_line': [[0, 0, {
-                'name':  self.company_data['product_order_no'].name,
-                'product_id': self.company_data['product_order_no'].id,
-                'product_uom_qty': 1,
-                'price_unit': self.company_data['product_order_no'].list_price,
-            }]]
-        })
-        email_ctx = sale_order.action_quotation_send().get('context', {})
-        # We need to prevent auto mail deletion, and so we copy the template and send the mail with
-        # added configuration in copied template. It will allow us to check whether mail is being
-        # sent to to author or not (in case author is present in 'Recipients' of composer).
-        mail_template = self.env['mail.template'].browse(email_ctx.get('default_template_id')).copy({'auto_delete': False})
-        # send the mail with same user as customer
-        sale_order.with_context(**email_ctx).with_user(self.company_data['default_user_salesman']).message_post_with_template(mail_template.id)
-        self.assertTrue(sale_order.state == 'sent', 'Sale : state should be changed to sent')
-        mail_message = sale_order.message_ids[0]
-        self.assertEqual(mail_message.author_id, sale_order.partner_id, 'Sale: author should be same as customer')
-        self.assertEqual(mail_message.author_id, mail_message.partner_ids, 'Sale: author should be in composer recipients thanks to "partner_to" field set on template')
-        self.assertEqual(mail_message.partner_ids, mail_message.sudo().mail_ids.recipient_ids, 'Sale: author should receive mail due to presence in composer recipients')
 
     def test_sale_sequence(self):
         self.env['ir.sequence'].search([
@@ -191,8 +178,8 @@ class TestSaleOrder(TestSaleCommon):
         # SO in state 'draft' can be deleted
         so_copy = self.sale_order.copy()
         with self.assertRaises(AccessError):
-            so_copy.with_user(self.company_data['default_user_employee']).unlink()
-        self.assertTrue(so_copy.unlink(), 'Sale: deleting a quotation should be possible')
+            so_copy.with_user(self.user_employee).unlink()
+        self.assertTrue(so_copy.with_user(self.user_manager).unlink(), 'Sale: deleting a quotation should be possible')
 
         # SO in state 'cancel' can be deleted
         so_copy = self.sale_order.copy()
@@ -201,22 +188,25 @@ class TestSaleOrder(TestSaleCommon):
         so_copy.action_cancel()
         self.assertTrue(so_copy.state == 'cancel', 'Sale: SO should be in state "cancel"')
         with self.assertRaises(AccessError):
-            so_copy.with_user(self.company_data['default_user_employee']).unlink()
-        self.assertTrue(so_copy.unlink(), 'Sale: deleting a cancelled SO should be possible')
+            so_copy.with_user(self.user_employee).unlink()
+        self.assertTrue(so_copy.with_user(self.user_manager).unlink(), 'Sale: deleting a cancelled SO should be possible')
 
         # SO in state 'sale' or 'done' cannot be deleted
         self.sale_order.action_confirm()
         self.assertTrue(self.sale_order.state == 'sale', 'Sale: SO should be in state "sale"')
         with self.assertRaises(UserError):
-            self.sale_order.unlink()
+            self.sale_order.with_user(self.user_manager).unlink()
 
         self.sale_order.action_done()
         self.assertTrue(self.sale_order.state == 'done', 'Sale: SO should be in state "done"')
         with self.assertRaises(UserError):
-            self.sale_order.unlink()
+            self.sale_order.with_user(self.user_manager).unlink()
 
     def test_cost_invoicing(self):
         """ Test confirming a vendor invoice to reinvoice cost on the so """
+        # force the pricelist to have the same currency as the company
+        self.pricelist_usd.currency_id = self.env.ref('base.main_company').currency_id
+
         serv_cost = self.env['product.product'].create({
             'name': "Ordered at cost",
             'standard_price': 160,
@@ -227,19 +217,19 @@ class TestSaleOrder(TestSaleCommon):
             'default_code': 'PROD_COST',
             'service_type': 'manual',
         })
-        prod_gap = self.company_data['product_service_order']
+        prod_gap = self.service_order
         so = self.env['sale.order'].create({
-            'partner_id': self.partner_a.id,
-            'partner_invoice_id': self.partner_a.id,
-            'partner_shipping_id': self.partner_a.id,
+            'partner_id': self.partner_customer_usd.id,
+            'partner_invoice_id': self.partner_customer_usd.id,
+            'partner_shipping_id': self.partner_customer_usd.id,
             'order_line': [(0, 0, {'name': prod_gap.name, 'product_id': prod_gap.id, 'product_uom_qty': 2, 'product_uom': prod_gap.uom_id.id, 'price_unit': prod_gap.list_price})],
-            'pricelist_id': self.company_data['default_pricelist'].id,
+            'pricelist_id': self.pricelist_usd.id,
         })
         so.action_confirm()
         so._create_analytic_account()
 
-        inv = self.env['account.move'].with_context(default_move_type='in_invoice').create({
-            'partner_id': self.partner_a.id,
+        inv = self.env['account.move'].with_context(default_type='in_invoice').create({
+            'partner_id': self.partner_customer_usd.id,
             'invoice_line_ids': [
                 (0, 0, {
                     'name': serv_cost.name,
@@ -251,10 +241,10 @@ class TestSaleOrder(TestSaleCommon):
                 }),
             ],
         })
-        inv.action_post()
+        inv.post()
         sol = so.order_line.filtered(lambda l: l.product_id == serv_cost)
         self.assertTrue(sol, 'Sale: cost invoicing does not add lines when confirming vendor invoice')
-        self.assertEqual((sol.price_unit, sol.qty_delivered, sol.product_uom_qty, sol.qty_invoiced), (160, 2, 0, 0), 'Sale: line is wrong after confirming vendor invoice')
+        self.assertEquals((sol.price_unit, sol.qty_delivered, sol.product_uom_qty, sol.qty_invoiced), (160, 2, 0, 0), 'Sale: line is wrong after confirming vendor invoice')
 
     def test_sale_with_taxes(self):
         """ Test SO with taxes applied on its lines and check subtotal applied on its lines and total applied on the SO """
@@ -287,42 +277,113 @@ class TestSaleOrder(TestSaleCommon):
             else:
                 price = line.price_unit * line.product_uom_qty
 
-            self.assertEqual(float_compare(line.price_subtotal, price, precision_digits=2), 0)
+            self.assertEquals(float_compare(line.price_subtotal, price, precision_digits=2), 0)
 
-        self.assertEqual(self.sale_order.amount_total,
+        self.assertEquals(self.sale_order.amount_total,
                           self.sale_order.amount_untaxed + self.sale_order.amount_tax,
                           'Taxes should be applied')
 
     def test_so_create_multicompany(self):
         """Check that only taxes of the right company are applied on the lines."""
+        user_demo = self.env.ref('base.user_demo')
+        company_1 = self.env.ref('base.main_company')
+        company_2 = self.env['res.company'].create({
+            'name': 'company 2',
+            'parent_id': company_1.id,
+        })
+        user_demo.company_ids = (company_1 | company_2).ids
 
-        # Preparing test Data
-        product_shared = self.env['product.template'].create({
-            'name': 'shared product',
-            'invoice_policy': 'order',
-            'taxes_id': [(6, False, (self.company_data['default_tax_sale'] + self.company_data_2['default_tax_sale']).ids)],
-            'property_account_income_id': self.company_data['default_account_revenue'].id,
+        tax_company_1 = self.env['account.tax'].create({
+            'name': 'T1',
+            'amount': 90,
+            'company_id': company_1.id,
         })
 
-        so_1 = self.env['sale.order'].with_user(self.company_data['default_user_salesman']).create({
-            'partner_id': self.env['res.partner'].create({'name': 'A partner'}).id,
-            'company_id': self.company_data['company'].id,
+        tax_company_2 = self.env['account.tax'].create({
+            'name': 'T2',
+            'amount': 90,
+            'company_id': company_2.id,
+        })
+
+        product_shared = self.env['product.template'].create({
+            'name': 'shared product',
+            'taxes_id': [(6, False, [tax_company_1.id, tax_company_2.id])],
+            'property_account_income_id': self.account_receivable.id,
+        })
+
+        so_1 = self.env['sale.order'].with_user(user_demo.id).create({
+            'partner_id': self.env.ref('base.res_partner_2').id,
+            'company_id': company_1.id,
         })
         so_1.write({
             'order_line': [(0, False, {'product_id': product_shared.product_variant_id.id, 'order_id': so_1.id})],
         })
 
-        self.assertEqual(so_1.order_line.tax_id, self.company_data['default_tax_sale'],
+        self.assertEqual(set(so_1.order_line.tax_id.ids), set([tax_company_1.id]),
             'Only taxes from the right company are put by default')
         so_1.action_confirm()
         # i'm not interested in groups/acls, but in the multi-company flow only
         # the sudo is there for that and does not impact the invoice that gets created
         # the goal here is to invoice in company 1 (because the order is in company 1) while being
         # 'mainly' in company 2 (through the context), the invoice should be in company 1
-        inv=so_1.sudo()\
-            .with_context(allowed_company_ids=(self.company_data['company'] + self.company_data_2['company']).ids)\
-            ._create_invoices()
-        self.assertEqual(inv.company_id, self.company_data['company'], 'invoices should be created in the company of the SO, not the main company of the context')
+        inv=so_1.sudo().with_context(allowed_company_ids=[company_2.id, company_1.id])._create_invoices()
+        self.assertEqual(inv.company_id, company_1, 'invoices should be created in the company of the SO, not the main company of the context')
+
+
+    def test_reconciliation_with_so(self):
+        # create SO
+        so = self.env['sale.order'].create({
+            'name': 'SO/01/01',
+            'reference': 'Petit suisse',
+            'partner_id': self.partner_customer_usd.id,
+            'partner_invoice_id': self.partner_customer_usd.id,
+            'partner_shipping_id': self.partner_customer_usd.id,
+            'pricelist_id': self.pricelist_usd.id,
+        })
+        self.env['sale.order.line'].create({
+            'name': self.product_order.name,
+            'product_id': self.product_order.id,
+            'product_uom_qty': 2,
+            'product_uom': self.product_order.uom_id.id,
+            'price_unit': self.product_order.list_price,
+            'order_id': so.id,
+            'tax_id': False,
+        })
+        # Mark SO as sent otherwise we won't find any match
+        so.write({'state': 'sent'})
+        # Create bank statement
+        statement = self.env['account.bank.statement'].create({
+            'name': 'Test',
+            'journal_id': self.journal_purchase.id,
+            'user_id': self.user_employee.id,
+        })
+        st_line1 = self.env['account.bank.statement.line'].create({
+            'name': 'should not find anything',
+            'amount': 15,
+            'statement_id': statement.id
+        })
+        st_line2 = self.env['account.bank.statement.line'].create({
+            'name': 'Payment for SO/01/01',
+            'amount': 15,
+            'statement_id': statement.id
+        })
+        st_line3 = self.env['account.bank.statement.line'].create({
+            'name': 'Payment for Petit suisse',
+            'amount': 15,
+            'statement_id': statement.id
+        })
+        # Call get_bank_statement_line_data for st_line_1, should not find any sale order
+        res = self.env['account.reconciliation.widget'].get_bank_statement_line_data([st_line1.id])
+        line = res.get('lines', [{}])[0]
+        self.assertFalse(line.get('sale_order_ids', False))
+        # Call again for st_line_2, it should find sale_order
+        res = self.env['account.reconciliation.widget'].get_bank_statement_line_data([st_line2.id])
+        line = res.get('lines', [{}])[0]
+        self.assertEquals(line.get('sale_order_ids', []), [so.id])
+        # Call again for st_line_3, it should find sale_order based on reference
+        res = self.env['account.reconciliation.widget'].get_bank_statement_line_data([st_line3.id])
+        line = res.get('lines', [{}])[0]
+        self.assertEquals(line.get('sale_order_ids', []), [so.id])
 
     def test_group_invoice(self):
         """ Test that invoicing multiple sales order for the same customer works. """
@@ -341,29 +402,6 @@ class TestSaleOrder(TestSaleCommon):
         res = wiz.create_invoices()
         # Check that exactly 2 invoices are generated
         self.assertEqual(len(res['domain'][0][2]),2, "Grouping invoicing 3 orders for the same partner with 2 currencies should create exactly 2 invoices")
-
-    def test_so_note_to_invoice(self):
-        """Test that notes from SO are pushed into invoices"""
-
-        sol_note = self.env['sale.order.line'].create({
-            'name': 'This is a note',
-            'display_type': 'line_note',
-            'product_id': False,
-            'product_uom_qty': 0,
-            'product_uom': False,
-            'price_unit': 0,
-            'order_id': self.sale_order.id,
-            'tax_id': False,
-        })
-
-        # confirm quotation
-        self.sale_order.action_confirm()
-
-        # create invoice
-        invoice = self.sale_order._create_invoices()
-
-        # check note from SO has been pushed in invoice
-        self.assertEqual(len(invoice.invoice_line_ids.filtered(lambda line: line.display_type == 'line_note')), 1, 'Note SO line should have been pushed to the invoice')
 
     def test_multi_currency_discount(self):
         """Verify the currency used for pricelist price & discount computation."""
@@ -403,8 +441,8 @@ class TestSaleOrder(TestSaleCommon):
         self.assertEqual(product_1.cost_currency_id, main_curr)
         self.assertEqual(product_2.cost_currency_id, main_curr)
 
-        product_1_ctxt = product_1.with_user(user_in_other_company)
-        product_2_ctxt = product_2.with_user(user_in_other_company)
+        product_1_ctxt = product_1.with_env(self.env(user=user_in_other_company.id))
+        product_2_ctxt = product_2.with_env(self.env(user=user_in_other_company.id))
         self.assertEqual(product_1_ctxt.currency_id, main_curr)
         self.assertEqual(product_2_ctxt.currency_id, main_curr)
         self.assertEqual(product_1_ctxt.cost_currency_id, other_curr)
@@ -526,7 +564,7 @@ class TestSaleOrder(TestSaleCommon):
         """When we assign a sales person, change the team on the sales order to their team"""
         sale_order = self.env['sale.order'].create({
             'user_id': self.user_not_in_team.id,
-            'partner_id': self.partner_a.id,
+            'partner_id': self.partner_customer_usd.id,
             'team_id': self.crm_team1.id
         })
         sale_order.user_id = self.user_in_team
@@ -536,7 +574,7 @@ class TestSaleOrder(TestSaleCommon):
     def test_keep_sales_team_when_changing_user_with_no_team(self):
         """When we assign a sales person that has no team, do not reset the team to default"""
         sale_order = self.env['sale.order'].create({
-            'partner_id': self.partner_a.id,
+            'partner_id': self.partner_customer_usd.id,
             'team_id': self.crm_team1.id
         })
         sale_order.user_id = self.user_not_in_team

@@ -10,12 +10,20 @@ class UoMCategory(models.Model):
     _description = 'Product UoM Categories'
 
     name = fields.Char('Unit of Measure Category', required=True, translate=True)
+    measure_type = fields.Selection([
+        ('unit', 'Default Units'),
+        ('weight', 'Default Weight'),
+        ('working_time', 'Default Working Time'),
+        ('length', 'Default Length'),
+        ('volume', 'Default Volume'),
+    ], string="Type of Measure")
+
+    _sql_constraints = [
+        ('uom_category_unique_type', 'UNIQUE(measure_type)', 'You can have only one category per measurement type.'),
+    ]
 
     def unlink(self):
-        uom_categ_unit = self.env.ref('uom.product_uom_categ_unit')
-        uom_categ_wtime = self.env.ref('uom.uom_categ_wtime')
-        uom_categ_kg = self.env.ref('uom.product_uom_categ_kgm')
-        if any(categ.id in (uom_categ_unit + uom_categ_wtime + uom_categ_kg).ids for categ in self):
+        if self.filtered(lambda categ: categ.measure_type == 'working_time'):
             raise UserError(_("You cannot delete this UoM Category as it is used by the system."))
         return super(UoMCategory, self).unlink()
 
@@ -46,6 +54,7 @@ class UoM(models.Model):
         ('reference', 'Reference Unit of Measure for this category'),
         ('smaller', 'Smaller than the reference Unit of Measure')], 'Type',
         default='reference', required=1)
+    measure_type = fields.Selection(string="Type of measurement category", related='category_id.measure_type', store=True, readonly=True)
 
     _sql_constraints = [
         ('factor_gt_zero', 'CHECK (factor!=0)', 'The conversion ratio for a unit of measure cannot be 0!'),
@@ -84,15 +93,6 @@ class UoM(models.Model):
             if uom_data['uom_count'] > 1:
                 raise ValidationError(_("UoM category %s should only have one reference unit of measure.") % (self.env['uom.category'].browse(uom_data['category_id']).name,))
 
-    @api.constrains('category_id')
-    def _validate_uom_category(self):
-        for uom in self:
-            reference_uoms = self.env['uom.uom'].search([
-                ('category_id', '=', uom.category_id.id),
-                ('uom_type', '=', 'reference')])
-            if len(reference_uoms) > 1:
-                raise ValidationError(_("UoM category %s should only have one reference unit of measure.") % (self.category_id.name))
-
     @api.model_create_multi
     def create(self, vals_list):
         for values in vals_list:
@@ -108,15 +108,7 @@ class UoM(models.Model):
         return super(UoM, self).write(values)
 
     def unlink(self):
-        uom_categ_unit = self.env.ref('uom.product_uom_categ_unit')
-        uom_categ_wtime = self.env.ref('uom.uom_categ_wtime')
-        uom_categ_kg = self.env.ref('uom.product_uom_categ_kgm')
-        if any(uom.category_id.id in (uom_categ_unit + uom_categ_wtime + uom_categ_kg).ids and uom.uom_type == 'reference' for uom in self):
-            raise UserError(_("You cannot delete this UoM as it is used by the system. You should rather archive it."))
-        # UoM with external IDs shouldn't be deleted since they will most probably break the app somewhere else.
-        # For example, in addons/product/models/product_template.py, cubic meters are used in `_get_volume_uom_id_from_ir_config_parameter()`,
-        # meters in `_get_length_uom_id_from_ir_config_parameter()`, and so on.
-        if self.env['ir.model.data'].search_count([('model', '=', self._name), ('res_id', 'in', self.ids)]):
+        if self.filtered(lambda uom: uom.measure_type == 'working_time'):
             raise UserError(_("You cannot delete this UoM as it is used by the system. You should rather archive it."))
         return super(UoM, self).unlink()
 
@@ -153,7 +145,7 @@ class UoM(models.Model):
         self.ensure_one()
         if self.category_id.id != to_unit.category_id.id:
             if raise_if_failure:
-                raise UserError(_('The unit of measure %s defined on the order line doesn\'t belong to the same category as the unit of measure %s defined on the product. Please correct the unit of measure defined on the order line or on the product, they should belong to the same category.') % (self.name, to_unit.name))
+                raise UserError(_('The unit of measure %s defined on the order line doesn\'t belong to the same category than the unit of measure %s defined on the product. Please correct the unit of measure defined on the order line or on the product, they should belong to the same category.') % (self.name, to_unit.name))
             else:
                 return qty
         amount = qty / self.factor

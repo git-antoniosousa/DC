@@ -23,8 +23,8 @@ class StockPicking(models.Model):
     l10n_it_country_code = fields.Char(related="company_id.country_id.code")
     l10n_it_ddt_number = fields.Char('DDT Number', readonly=True)
 
-    def _action_done(self):
-        super(StockPicking, self)._action_done()
+    def action_done(self):
+        super(StockPicking, self).action_done()
         for picking in self.filtered(lambda p: p.picking_type_id.l10n_it_ddt_sequence_id):
             picking.l10n_it_ddt_number = picking.picking_type_id.l10n_it_ddt_sequence_id.next_by_id()
 

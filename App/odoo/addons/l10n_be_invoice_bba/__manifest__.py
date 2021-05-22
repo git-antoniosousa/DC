@@ -3,16 +3,11 @@
 
 # Copyright (c) 2011 Noviat nv/sa (www.noviat.be). All rights reserved.
 
-
-# This module is empty. It is merged whith l10n_be version 14.1. This behaviour was backported in 14.0
-# but the module can not removed in a stable version.
-
-
 {
     'name': 'Belgium - Structured Communication',
     'version': '1.2',
     'author': 'Noviat',
-    'category': 'Accounting/Localizations',
+    'category': 'Accounting/Accounting',
     'description': """
 
 Add Structured Communication to customer invoices.
@@ -29,6 +24,7 @@ Two algorithms are suggested:
     """,
     'depends': ['account', 'l10n_be'],
     'data': [
+        'data/mail_template_data.xml',
     ],
     'auto_install': True,
 }

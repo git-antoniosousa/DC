@@ -5,7 +5,6 @@ var core = require('web.core');
 var ajax = require('web.ajax');
 var Widget = require('web.Widget');
 var disableCrashManager = require('web.CrashManager').disable;
-const {sprintf} = require('web.utils')
 
 var _t = core._t;
 
@@ -184,15 +183,7 @@ core.action_registry.add("logout", logout);
  * @see ServiceMixin.displayNotification
  */
 function displayNotification(parent, action) {
-    let {title='', message='', links=[], type='info', sticky=false, next} = action.params || {};
-    links = links.map(({url, label}) => `<a href="${_.escape(url)}" target="_blank">${_.escape(label)}</a>`)
-    parent.displayNotification({
-        title: _.escape(title),
-        message: sprintf(_.escape(message), ...links),
-        type,
-        sticky
-    });
-    return next;
+    parent.displayNotification(action.params);
 }
 core.action_registry.add("display_notification", displayNotification);
 

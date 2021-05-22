@@ -15,7 +15,7 @@ class TestSaleCouponMultiCompany(TestSaleCouponCommon):
         self.company_a = self.env.company
         self.company_b = self.env['res.company'].create(dict(name="TEST"))
 
-        self.immediate_promotion_program_c2 = self.env['coupon.program'].create({
+        self.immediate_promotion_program_c2 = self.env['sale.coupon.program'].create({
             'name': 'Buy A + 1 B, 1 B are free',
             'promo_code_usage': 'no_code_needed',
             'reward_type': 'product',

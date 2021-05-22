@@ -48,7 +48,7 @@ class TestReportStockQuantity(tests.TransactionCase):
             'product_uom_qty': 120.0,
             'state': 'partially_available',
             'date': fields.Datetime.add(fields.Datetime.now(), days=3),
-            'date_deadline': fields.Datetime.add(fields.Datetime.now(), days=3),
+            'date_expected': fields.Datetime.add(fields.Datetime.now(), days=3),
         })
         self.env['base'].flush()
 

@@ -1,7 +1,6 @@
 odoo.define('account.AccountPortalSidebar', function (require) {
 'use strict';
 
-const dom = require('web.dom');
 var publicWidget = require('web.public.widget');
 var PortalSidebar = require('portal.PortalSidebar');
 var utils = require('web.utils');
@@ -58,7 +57,7 @@ publicWidget.registry.AccountPortalSidebar = PortalSidebar.extend({
         if (!$target.length) {
             return;
         }
-        dom.scrollTo($target[0], {duration: 0});
+        $('html, body').scrollTop($target.offset().top);
     },
     /**
      * @private

@@ -2,11 +2,12 @@
 # Copyright 2018 ACSONE SA/NV
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 import logging
+import time
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.tools.misc import find_in_path
-from odoo.tools.safe_eval import safe_eval, time
+from odoo.tools.safe_eval import safe_eval
 
 logger = logging.getLogger(__name__)
 
@@ -46,13 +47,7 @@ class IrActionsReport(models.Model):
             selections.append((name, description))
         return selections
 
-    report_type = fields.Selection(
-        selection_add=[("py3o", "py3o")],
-        ondelete={
-            'py3o': 'cascade',
-        },
-    )
-
+    report_type = fields.Selection(selection_add=[("py3o", "py3o")])
     py3o_filetype = fields.Selection(
         selection="_get_py3o_filetypes", string="Output Format"
     )
@@ -70,6 +65,7 @@ class IrActionsReport(models.Model):
             "or an absolute path on your server."
         ),
     )
+    report_type = fields.Selection(selection_add=[("py3o", "Py3o")])
     py3o_multi_in_one = fields.Boolean(
         string="Multiple Records in a Single Report",
         help="If you execute a report on several records, "
@@ -159,7 +155,7 @@ class IrActionsReport(models.Model):
             [("report_name", "=", report_name), ("report_type", "=", report_type)]
         )
 
-    def _render_py3o(self, res_ids, data):
+    def render_py3o(self, res_ids, data):
         self.ensure_one()
         if self.report_type != "py3o":
             raise RuntimeError(

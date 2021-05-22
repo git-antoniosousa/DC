@@ -8,11 +8,8 @@ var testUtils = require('web.test_utils');
 var ListRenderer = require('web.ListRenderer');
 var pyUtils = require('web.py_utils');
 
-const cpHelpers = testUtils.controlPanel;
 var createActionManager = testUtils.createActionManager;
 var createView = testUtils.createView;
-
-const patchDate = testUtils.mock.patchDate;
 
 QUnit.module('Dashboard', {
     beforeEach: function () {
@@ -704,7 +701,7 @@ QUnit.test('save actions to dashboard', async function (assert) {
             var result = this._super.apply(this, arguments);
             result.context = {
                 'fire': 'on the bayou',
-            };
+            }
             return result;
         }
     });
@@ -736,7 +733,7 @@ QUnit.test('save actions to dashboard', async function (assert) {
                 return Promise.resolve(true);
             }
             return this._super.apply(this, arguments);
-        }
+        },
     });
 
     await actionManager.doAction({
@@ -753,16 +750,15 @@ QUnit.test('save actions to dashboard', async function (assert) {
     await testUtils.dom.click($('.o_column_sortable'));
 
     // Group It
-    await cpHelpers.toggleGroupByMenu(actionManager);
-    await cpHelpers.toggleAddCustomGroup(actionManager);
-    await cpHelpers.applyGroup(actionManager);
+    await testUtils.dom.click($('.o_search_options .o_dropdown button:contains(Group By)'));
+    await testUtils.dom.click($('.o_search_options .o_group_by_menu button'));
+    await testUtils.dom.click($('.o_search_options .o_group_by_menu button.o_apply_group'));
 
     // add this action to dashboard
-    await cpHelpers.toggleFavoriteMenu(actionManager);
-
-    await testUtils.dom.click($('.o_add_to_board > button'));
-    await testUtils.fields.editInput($('.o_add_to_board input'), 'a name');
-    await testUtils.dom.click($('.o_add_to_board div button'));
+    await testUtils.dom.click($('.o_search_options .o_dropdown button:contains(Favorites)'));
+    await testUtils.dom.click($('.o_add_to_board.o_menu_header'));
+    testUtils.fields.editInput($('input.o_add_to_board_input'), 'a name');
+    await testUtils.dom.click($('.o_add_to_board_confirm_button'));
 
     testUtils.unpatch(ListController);
 
@@ -806,28 +802,38 @@ QUnit.test('save two searches to dashboard', async function (assert) {
 
     var filter_count = 0;
     // Add a first filter
-    await cpHelpers.toggleFilterMenu(actionManager);
-    await cpHelpers.toggleAddCustomFilter(actionManager);
-    await testUtils.fields.editInput(actionManager.el.querySelector('.o_generator_menu_value .o_input'), 'a');
-    await cpHelpers.applyFilter(actionManager);
-
+    await testUtils.dom.click(actionManager.$('.o_filters_menu_button'));
+    await testUtils.dom.click(actionManager.$('.o_add_custom_filter'));
+    actionManager.$('.o_searchview_extended_prop_value .o_input').val('a');
+    await testUtils.dom.click(actionManager.$('.o_apply_filter'));
     // Add it to dashboard
-    await cpHelpers.toggleFavoriteMenu(actionManager);
-    await testUtils.dom.click($('.o_add_to_board > button'));
-    await testUtils.dom.click($('.o_add_to_board div button'));
-
+    await testUtils.dom.click(actionManager.$('.o_favorites_menu_button'));
+    $('.o_search_options .dropdown-menu.o_favorites_menu').one('click', function (ev) {
+        // This handler is on the webClient
+        // But since the test suite doesn't have one
+        // We manually set it here
+        ev.stopPropagation();
+    });
+    await testUtils.dom.click(actionManager.$('.o_add_to_board'));
+    await testUtils.dom.click(actionManager.$('.o_add_to_board_confirm_button'));
     // Remove it
-    await testUtils.dom.click(actionManager.el.querySelector('.o_facet_remove'));
+    await testUtils.dom.click(actionManager.$('.o_facet_remove'));
 
     // Add the second filter
-    await cpHelpers.toggleFilterMenu(actionManager);
-    await cpHelpers.toggleAddCustomFilter(actionManager);
-    await testUtils.fields.editInput(actionManager.el.querySelector('.o_generator_menu_value .o_input'), "b");
-    await cpHelpers.applyFilter(actionManager);
+    await testUtils.dom.click(actionManager.$('.o_filters_menu_button'));
+    await testUtils.dom.click(actionManager.$('.o_add_custom_filter'));
+    actionManager.$('.o_searchview_extended_prop_value .o_input').val('b');
+    await testUtils.dom.click(actionManager.$('.o_apply_filter'));
     // Add it to dashboard
-    await cpHelpers.toggleFavoriteMenu(actionManager);
-    await testUtils.dom.click(actionManager.el.querySelector('.o_add_to_board > button'));
-    await testUtils.dom.click(actionManager.el.querySelector('.o_add_to_board div button'));
+    await testUtils.dom.click(actionManager.$('.o_favorites_menu_button'));
+    $('.o_search_options .dropdown-menu.o_favorites_menu').one('click', function (ev) {
+        // This handler is on the webClient
+        // But since the test suite doesn't have one
+        // We manually set it here
+        ev.stopPropagation();
+    });
+    await testUtils.dom.click(actionManager.$('.o_add_to_board'));
+    await testUtils.dom.click(actionManager.$('.o_add_to_board_confirm_button'));
 
     actionManager.destroy();
 });
@@ -840,7 +846,7 @@ QUnit.test('save a action domain to dashboard', async function (assert) {
     var filter_domain = ["display_name", "ilike", "b"];
 
     // The filter domain already contains the view domain, but is always added by dashboard..,
-    var expected_domain = ['&', view_domain, '&', view_domain, filter_domain];
+    var expected_domain = ['&', '&', view_domain, view_domain, filter_domain]
 
     var actionManager = await createActionManager({
         data: this.data,
@@ -867,18 +873,14 @@ QUnit.test('save a action domain to dashboard', async function (assert) {
     });
 
     // Add a filter
-    await cpHelpers.toggleFilterMenu(actionManager);
-    await cpHelpers.toggleAddCustomFilter(actionManager);
-    await testUtils.fields.editInput(
-        actionManager.el.querySelector('.o_generator_menu_value .o_input'),
-        "b"
-    );
-    await cpHelpers.applyFilter(actionManager);
+    await testUtils.dom.click(actionManager.$('.o_filters_menu_button'));
+    await testUtils.dom.click(actionManager.$('.o_add_custom_filter'));
+    actionManager.$('.o_searchview_extended_prop_value .o_input').val('b');
+    await testUtils.dom.click(actionManager.$('.o_apply_filter'));
     // Add it to dashboard
-    await cpHelpers.toggleFavoriteMenu(actionManager);
-    await testUtils.dom.click(actionManager.el.querySelector('.o_add_to_board > button'));
-    // add
-    await testUtils.dom.click(actionManager.el.querySelector('.o_add_to_board div button'));
+    await testUtils.dom.click(actionManager.$('.o_favorites_menu_button'));
+    await testUtils.dom.click(actionManager.$('.o_add_to_board'));
+    await testUtils.dom.click(actionManager.$('.o_add_to_board_confirm_button'));
 
     actionManager.destroy();
 });
@@ -1041,113 +1043,4 @@ QUnit.test('click on a cell of pivot view inside dashboard', async function (ass
     form.destroy();
 });
 
-QUnit.test('correctly save the time ranges of a reporting view in comparison mode', async function (assert) {
-    assert.expect(1);
-
-    const unpatchDate = patchDate(2020, 6, 1, 11, 0, 0);
-
-    this.data.partner.fields.date = { string: 'Date', type: 'date', sortable: true };
-
-    const actionManager = await createActionManager({
-        data: this.data,
-        archs: {
-            'partner,false,pivot': '<pivot><field name="foo"/></pivot>',
-            'partner,false,search': '<search><filter name="Date" date="date"/></search>',
-        },
-        mockRPC: function (route, args) {
-            if (route === '/board/add_to_dashboard') {
-                assert.deepEqual(args.context_to_save.comparison, {
-                    comparisonId: "previous_period",
-                    fieldName: "date",
-                    fieldDescription: "Date",
-                    rangeDescription: "July 2020",
-                    range: ["&",["date", ">=", "2020-07-01"], ["date", "<=", "2020-07-31"]],
-                    comparisonRange: ["&", ["date", ">=", "2020-06-01"], ["date", "<=", "2020-06-30"]],
-                    comparisonRangeDescription: "June 2020",
-                });
-                return Promise.resolve(true);
-            }
-            return this._super.apply(this, arguments);
-        },
-    });
-
-    await actionManager.doAction({
-        id: 1,
-        res_model: 'partner',
-        type: 'ir.actions.act_window',
-        views: [[false, 'pivot']],
-    });
-
-    // filter on July 2020
-    await cpHelpers.toggleFilterMenu(actionManager);
-    await cpHelpers.toggleMenuItem(actionManager, 'Date');
-    await cpHelpers.toggleMenuItemOption(actionManager, 'Date', 'July');
-
-    // compare July 2020 to June 2020
-    await cpHelpers.toggleComparisonMenu(actionManager);
-    await cpHelpers.toggleMenuItem(actionManager, 0);
-
-    // add the view to the dashboard
-    await cpHelpers.toggleFavoriteMenu(actionManager);
-
-    await testUtils.dom.click($('.o_add_to_board > button'));
-    await testUtils.fields.editInput($('.o_add_to_board input'), 'a name');
-    await testUtils.dom.click($('.o_add_to_board div button'));
-
-    unpatchDate();
-    actionManager.destroy();
-});
-
-QUnit.test('correctly display the time range descriptions of a reporting view in comparison mode', async function (assert) {
-    assert.expect(1);
-
-    this.data.partner.fields.date = { string: 'Date', type: 'date', sortable: true };
-    this.data.partner.records[0].date = '2020-07-15';
-
-    const form = await createView({
-        View: BoardView,
-        model: 'board',
-        data: this.data,
-        arch: `<form string="My Dashboard">
-                <board style="2-1">
-                    <column>
-                        <action string="ABC" name="51"></action>
-                    </column>
-                </board>
-            </form>`,
-        archs: {
-            'partner,1,pivot':
-                '<pivot string="Partner"></pivot>',
-        },
-        mockRPC: function (route, args) {
-            if (route === '/board/static/src/img/layout_1-1-1.png') {
-                return Promise.resolve();
-            }
-            if (route === '/web/action/load') {
-                return Promise.resolve({
-                    context: JSON.stringify({ comparison: {
-                        comparisonId: "previous_period",
-                        fieldName: "date",
-                        fieldDescription: "Date",
-                        rangeDescription: "July 2020",
-                        range: ["&",["date", ">=", "2020-07-01"], ["date", "<=", "2020-07-31"]],
-                        comparisonRange: ["&", ["date", ">=", "2020-06-01"], ["date", "<=", "2020-06-30"]],
-                        comparisonRangeDescription: "June 2020",
-                    }}),
-                    domain: '[]',
-                    res_model: 'partner',
-                    views: [[1, 'pivot']],
-                });
-            }
-            return this._super.apply(this, arguments);
-        },
-    });
-
-    assert.deepEqual(
-        [...form.el.querySelectorAll('div.o_pivot th.o_pivot_origin_row')].map(el => el.innerText),
-        ['June 2020', 'July 2020', 'Variation']
-    );
-
-    form.destroy();
-});
 });

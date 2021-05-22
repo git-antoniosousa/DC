@@ -13,7 +13,7 @@ from odoo import SUPERUSER_ID, _
 from odoo.exceptions import ValidationError, UserError
 from odoo.tools import mute_logger
 
-_logger = logging.getLogger('odoo.addons.base.partner.merge')
+_logger = logging.getLogger('base.partner.merge')
 
 class MergePartnerLine(models.TransientModel):
 
@@ -41,12 +41,9 @@ class MergePartnerAutomatic(models.TransientModel):
         res = super(MergePartnerAutomatic, self).default_get(fields)
         active_ids = self.env.context.get('active_ids')
         if self.env.context.get('active_model') == 'res.partner' and active_ids:
-            if 'state' in fields:
-                res['state'] = 'selection'
-            if 'partner_ids' in fields:
-                res['partner_ids'] = [(6, 0, active_ids)]
-            if 'dst_partner_id' in fields:
-                res['dst_partner_id'] = self._get_ordered_partner(active_ids)[-1].id
+            res['state'] = 'selection'
+            res['partner_ids'] = [(6, 0, active_ids)]
+            res['dst_partner_id'] = self._get_ordered_partner(active_ids)[-1].id
         return res
 
     # Group by
@@ -204,6 +201,7 @@ class MergePartnerAutomatic(models.TransientModel):
             update_records('calendar', src=partner, field_model='model_id.model')
             update_records('ir.attachment', src=partner, field_model='res_model')
             update_records('mail.followers', src=partner, field_model='res_model')
+            update_records('mail.activity', src=partner, field_model='res_model')
             update_records('mail.message', src=partner)
             update_records('ir.model.data', src=partner)
 

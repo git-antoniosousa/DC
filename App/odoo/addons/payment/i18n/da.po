@@ -3,27 +3,26 @@
 # 	* payment
 # 
 # Translators:
-# jonas jensen <j.jensen@tcomp.dk>, 2020
+# Hans Henrik Gabelgaard <hhg@gabelgaard.org>, 2019
+# jonas jensen <j.jensen@tcomp.dk>, 2019
+# Jesper Carstensen <jc@danodoo.dk>, 2019
+# Martin Trigaux, 2019
+# Morten Schou <ms@msteknik.dk>, 2019
+# Jesper Carstensen <info@danodoo.dk>, 2019
+# Ejner Sønniksen <ejner@vkdata.dk>, 2019
+# lhmflexerp <lhm@flexerp.dk>, 2019
+# Pernille Kristensen <pernillekristensen1994@gmail.com>, 2019
 # JonathanStein <jstein@image.dk>, 2020
-# Jesper Carstensen <jc@danodoo.dk>, 2020
-# Martin Trigaux, 2020
-# Hans Henrik Gabelgaard <hhg@gabelgaard.org>, 2020
-# Morten Schou <ms@msteknik.dk>, 2020
-# Jesper Carstensen <info@danodoo.dk>, 2020
-# Ejner Sønniksen <ejner@vkdata.dk>, 2020
-# lhmflexerp <lhm@flexerp.dk>, 2020
-# Mads Søndergaard, 2020
-# Pernille Kristensen <pernillekristensen1994@gmail.com>, 2020
 # Sanne Kristensen <sanne@vkdata.dk>, 2020
-# Mads Søndergaard <mads@vkdata.dk>, 2020
+# Mads Søndergaard, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-27 14:12+0000\n"
-"PO-Revision-Date: 2020-09-07 08:15+0000\n"
-"Last-Translator: Mads Søndergaard <mads@vkdata.dk>, 2020\n"
+"POT-Creation-Date: 2020-04-27 09:22+0000\n"
+"PO-Revision-Date: 2019-08-26 09:12+0000\n"
+"Last-Translator: Mads Søndergaard, 2020\n"
 "Language-Team: Danish (https://www.transifex.com/odoo/teams/41243/da/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -32,14 +31,14 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard___data_fetched
-msgid " Data Fetched"
-msgstr "Data Hentet"
-
-#. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__invoice_ids_nbr
 msgid "# of Invoices"
 msgstr "# fakturaer"
+
+#. module: payment
+#: model_terms:ir.ui.view,arch_db:payment.payment_confirmation_status
+msgid "&amp;times;"
+msgstr "&amp;times;"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__html_3ds
@@ -116,6 +115,13 @@ msgid "<i class=\"fa fa-trash\"/> Delete"
 msgstr "<i class=\"fa fa-trash\"/> Slet"
 
 #. module: payment
+#. openerp-web
+#: code:addons/payment/static/src/js/payment_form.js:0
+#, python-format
+msgid "<p>This card is currently linked to the following records:<p/>"
+msgstr "<p>Dette kort er i øjebliket forbundet med følgende datasæt:<p/>"
+
+#. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_tokens_list
 msgid "<small class=\"text-muted\">(Some fees may apply)</small>"
 msgstr "<small class=\"text-muted\">(Visse gebyrer kan forekommer)</small>"
@@ -160,8 +166,8 @@ msgstr ""
 #. module: payment
 #: code:addons/payment/models/account_invoice.py:0
 #, python-format
-msgid "A journal must be specified for the acquirer %s."
-msgstr "En journal skal være specificeret for modtageren %s."
+msgid "A journal must be specified of the acquirer %s."
+msgstr "En journal skal være specificeret af modtager %s."
 
 #. module: payment
 #: code:addons/payment/models/account_invoice.py:0
@@ -209,6 +215,12 @@ msgstr "En transaktion kan ikke linkes til faktura som har en andre partnere."
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__access_token
 msgid "Access Token"
 msgstr "Adgangstoken"
+
+#. module: payment
+#: code:addons/payment/wizards/payment_acquirer_onboarding_wizard.py:0
+#, python-format
+msgid "Account"
+msgstr "Konto"
 
 #. module: payment
 #: model:ir.model,name:payment.model_account_chart_template
@@ -364,9 +376,7 @@ msgid "Authorized"
 msgstr "Autoriseret"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_bank_statement_line__authorized_transaction_ids
 #: model:ir.model.fields,field_description:payment.field_account_move__authorized_transaction_ids
-#: model:ir.model.fields,field_description:payment.field_account_payment__authorized_transaction_ids
 msgid "Authorized Transactions"
 msgstr "Autoriserede transaktioner"
 
@@ -374,6 +384,12 @@ msgstr "Autoriserede transaktioner"
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_form
 msgid "Availability"
 msgstr "Til rådighed"
+
+#. module: payment
+#: code:addons/payment/wizards/payment_acquirer_onboarding_wizard.py:0
+#, python-format
+msgid "Bank"
+msgstr "Bank"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__journal_name
@@ -511,7 +527,6 @@ msgstr "Virksomheder"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__company_id
-#: model:ir.model.fields,field_description:payment.field_payment_link_wizard__company_id
 #: model:ir.model.fields,field_description:payment.field_payment_token__company_id
 msgid "Company"
 msgstr "Virksomhed"
@@ -631,11 +646,6 @@ msgid "Credit Card (powered by Ingenico)"
 msgstr "Kreditkort (i kraft af Ingenico)"
 
 #. module: payment
-#: model:payment.acquirer,display_as:payment.payment_acquirer_odoo_by_adyen
-msgid "Credit Card (powered by Odoo Payments)"
-msgstr "Kreditkort (I kræft af Odoo Payments)"
-
-#. module: payment
 #: model:payment.acquirer,display_as:payment.payment_acquirer_payulatam
 msgid "Credit Card (powered by PayU Latam)"
 msgstr "Kreditkort (i kraft af PayU Latam)"
@@ -703,18 +713,12 @@ msgid "Dismiss"
 msgstr "Afvis"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_chart_template__display_name
-#: model:ir.model.fields,field_description:payment.field_account_move__display_name
-#: model:ir.model.fields,field_description:payment.field_account_payment__display_name
-#: model:ir.model.fields,field_description:payment.field_ir_http__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_icon__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_token__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__display_name
-#: model:ir.model.fields,field_description:payment.field_res_company__display_name
-#: model:ir.model.fields,field_description:payment.field_res_partner__display_name
 msgid "Display Name"
 msgstr "Vis navn"
 
@@ -751,21 +755,10 @@ msgstr "Elektronisk"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__paypal_email_account
-#: model:ir.model.fields,field_description:payment.field_payment_link_wizard__partner_email
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__partner_email
 #: model_terms:ir.ui.view,arch_db:payment.payment_acquirer_onboarding_wizard_form
 msgid "Email"
 msgstr "E-mail"
-
-#. module: payment
-#: model:ir.model.fields,field_description:payment.field_payment_acquirer__qr_code
-msgid "Enable QR Codes"
-msgstr "Aktiver QR Koder"
-
-#. module: payment
-#: model:ir.model.fields,help:payment.field_payment_acquirer__qr_code
-msgid "Enable the use of QR-codes for payments made on this provider."
-msgstr "Aktiver brugen af QR-koder til betalinger foretaget af denne udbyder."
 
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_acquirer__state__enabled
@@ -820,6 +813,11 @@ msgstr "Faste indenlandsgebyrer"
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__fees_int_fixed
 msgid "Fixed international fees"
 msgstr "Faste internationale gebyrer"
+
+#. module: payment
+#: model:ir.model.fields,field_description:payment.field_payment_acquirer__inbound_payment_method_ids
+msgid "For Incoming Payments"
+msgstr "Til indkommende betalinger"
 
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_transaction__type__form
@@ -892,18 +890,12 @@ msgid "I have a Paypal account"
 msgstr "Jeg har en Paypal konto"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_chart_template__id
-#: model:ir.model.fields,field_description:payment.field_account_move__id
-#: model:ir.model.fields,field_description:payment.field_account_payment__id
-#: model:ir.model.fields,field_description:payment.field_ir_http__id
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__id
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__id
 #: model:ir.model.fields,field_description:payment.field_payment_icon__id
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__id
 #: model:ir.model.fields,field_description:payment.field_payment_token__id
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__id
-#: model:ir.model.fields,field_description:payment.field_res_company__id
-#: model:ir.model.fields,field_description:payment.field_res_partner__id
 msgid "ID"
 msgstr "ID"
 
@@ -941,11 +933,6 @@ msgstr ""
 "I test tilstand vil en falsk betaling blive behandlet gennem et test\n"
 "              betalings brugerflade. Denne tilstand tilrådes ved opsætning af \n"
 "              modtageren. Pas dog på, test og produktion tilstande kræver forskellige legitimationsoplysninger."
-
-#. module: payment
-#: model:ir.model.fields,field_description:payment.field_payment_acquirer__inbound_payment_method_ids
-msgid "Inbound Payment Methods"
-msgstr "Indgående Betalingsmetoder"
 
 #. module: payment
 #: model:payment.acquirer,name:payment.payment_acquirer_ingenico
@@ -1006,8 +993,8 @@ msgstr "Fakturaer"
 
 #. module: payment
 #: model:ir.model,name:payment.model_account_move
-msgid "Journal Entry"
-msgstr "Postering"
+msgid "Journal Entries"
+msgstr "Journalposter"
 
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_acquirer__journal_id
@@ -1025,18 +1012,12 @@ msgid "Language"
 msgstr "Sprog"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_chart_template____last_update
-#: model:ir.model.fields,field_description:payment.field_account_move____last_update
-#: model:ir.model.fields,field_description:payment.field_account_payment____last_update
-#: model:ir.model.fields,field_description:payment.field_ir_http____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_icon____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_token____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_transaction____last_update
-#: model:ir.model.fields,field_description:payment.field_res_company____last_update
-#: model:ir.model.fields,field_description:payment.field_res_partner____last_update
 msgid "Last Modified on"
 msgstr "Sidst ændret den"
 
@@ -1098,8 +1079,8 @@ msgid ""
 "Batch Deposit: Encase several customer checks at once by generating a batch deposit to submit to your bank. When encoding the bank statement in Odoo,you are suggested to reconcile the transaction with the batch deposit. Enable this option from the settings."
 msgstr ""
 "Manuel: Bliv betalt kontant, via check, eller en anden metode udenfor Odoo.\n"
-"Elektronisk: Bliv betalt automatisk gennem en betalingsopkræver ved at anmode om en transaktion på et kort gemt af kunden, når de køber eller abonnerer online (bealingstoken)\n"
-"Batch-indbetaling: Indkapsl flere kundecheck på én gang ved at generere et batch-indskud, der skal indsendes til din bank. Når du indkoder kontoudtoget i Odoo, foreslås du at afstemme transaktionen med batch-indskuddet. Aktivér denne indstilling fra Indstillinger."
+"Elektronisk: Bliv betalt automatisk gennem en betalingsopkræver ved at anmode om en transaktion på et kort gemt af kunden, når de køber eller abonnerer online (btalingstoken)\n"
+"Batch-indbetaling: Indkapsl flere kundecheck på én gang ved at generere et batchindskud, der skal indsendes til din bank. Når du indkoder kontoudtoget i Odoo, foreslås du at afstemme transaktionen med batch-indskuddet. Aktivér denne indstilling fra Indstillinger."
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__paypal_seller_account
@@ -1182,6 +1163,15 @@ msgid "Never"
 msgstr "Aldrig"
 
 #. module: payment
+#: model_terms:ir.ui.view,arch_db:payment.payment_link_wizard_view_form
+msgid ""
+"This partner has no email, which may cause issues with some payment "
+"acquirers. Setting an email for this partner is advised."
+msgstr ""
+"Denne partner har ikke nogen email, hvilket kan forårsage problemer med "
+"visse betalingsmodtagere. Angivelse af en email for denne partner tilrådes."
+
+#. module: payment
 #: code:addons/payment/wizards/payment_acquirer_onboarding_wizard.py:0
 #, python-format
 msgid ""
@@ -1240,11 +1230,6 @@ msgid "Odoo Enterprise Module"
 msgstr "Odoo Enterprise Modul"
 
 #. module: payment
-#: model:payment.acquirer,name:payment.payment_acquirer_odoo_by_adyen
-msgid "Odoo Payments by Adyen"
-msgstr "Odoo Betalinger af Adyen"
-
-#. module: payment
 #. openerp-web
 #: code:addons/payment/static/src/js/payment_form.js:0
 #, python-format
@@ -1260,8 +1245,8 @@ msgstr "Kun administratorer kan tilgå dette data."
 #. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
 #, python-format
-msgid "Only transactions having the authorized status can be captured."
-msgstr "Kun transaktioner som har autoriseret statussen kan hæves."
+msgid "Only transactions having the capture status can be captured."
+msgstr "Kun transaktion som har indfang status kan indfanges."
 
 #. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
@@ -1582,11 +1567,6 @@ msgid "Related Document Model"
 msgstr "Relateret dokument model"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_payment__related_partner_ids
-msgid "Related Partner"
-msgstr "Relateret partner"
-
-#. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
 #, python-format
 msgid "Required fields not filled: %s"
@@ -1752,6 +1732,12 @@ msgstr ""
 "%s betalingsmodtageren har ikke tilladelse til manuel indfangnings tilstand!"
 
 #. module: payment
+#: model_terms:ir.ui.view,arch_db:payment.confirm
+#: model_terms:ir.ui.view,arch_db:payment.payment_confirmation_status
+msgid "The SEPA QR Code informations are not set correctly."
+msgstr "SEPA QR Kode informationerne er ikke angivet korrekt."
+
+#. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
 #, python-format
 msgid "The customer has selected %s to pay this document."
@@ -1826,13 +1812,6 @@ msgstr ""
 "nyt kreditkort."
 
 #. module: payment
-#. openerp-web
-#: code:addons/payment/static/src/js/payment_form.js:0
-#, python-format
-msgid "This card is currently linked to the following records:"
-msgstr "Dette kort er i øjeblikket forbundet til følgende datasæt:"
-
-#. module: payment
 #: model:ir.model.fields,help:payment.field_payment_icon__image
 msgid ""
 "This field holds the image used for this payment icon, limited to "
@@ -1853,15 +1832,6 @@ msgstr ""
 "oplysninger, som en betalings token, og genbruge den ved et senere køb. Hvis"
 " du administrere abonnementer (gentagende fakturering), behøver du den for "
 "automatisk at påregne kunden når du udsteder fakturaen."
-
-#. module: payment
-#: model_terms:ir.ui.view,arch_db:payment.payment_link_wizard_view_form
-msgid ""
-"This partner has no email, which may cause issues with some payment "
-"acquirers. Setting an email for this partner is advised."
-msgstr ""
-"Denne partner har ikke nogen email, hvilket kan forårsage problemer med "
-"visse betalingsmodtagere. Angivelse af en email for denne partner tilrådes."
 
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_acquirer__country_ids
@@ -1909,9 +1879,7 @@ msgid "This transaction has been cancelled."
 msgstr "Denne overførsel er annulleret."
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_bank_statement_line__transaction_ids
 #: model:ir.model.fields,field_description:payment.field_account_move__transaction_ids
-#: model:ir.model.fields,field_description:payment.field_account_payment__transaction_ids
 msgid "Transactions"
 msgstr "Transaktioner"
 
@@ -1941,6 +1909,11 @@ msgstr "Kan ikke kontakte Odoo-serveren."
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_kanban
 msgid "Upgrade"
 msgstr "Opgrader"
+
+#. module: payment
+#: model:ir.model.fields,field_description:payment.field_payment_acquirer__qr_code
+msgid "Use SEPA QR Code"
+msgstr "Brug SEPA QR Kode"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__date
@@ -2001,10 +1974,17 @@ msgstr "Advarsel!"
 #. module: payment
 #. openerp-web
 #: code:addons/payment/static/src/js/payment_form.js:0
-#: code:addons/payment/static/src/js/payment_form.js:0
 #, python-format
 msgid "We are not able to add your payment method at the moment."
 msgstr "Vi er i øjeblikket ikke i stand til at tilføje din betalingsmetode."
+
+#. module: payment
+#. openerp-web
+#: code:addons/payment/static/src/js/payment_form.js:0
+#, python-format
+msgid "We are not able to add your payment method at the moment.</p>"
+msgstr ""
+"Vi er i øjeblikket ikke i stand til at tilføje din betalingsmetode.</p>"
 
 #. module: payment
 #. openerp-web
@@ -2110,7 +2090,6 @@ msgstr "Din ordre behandles, vent venligst ..."
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_payulatam
@@ -2129,7 +2108,6 @@ msgstr "Din betaling er blevet godkendt."
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_payulatam
@@ -2155,7 +2133,6 @@ msgstr "Din betaling er modtaget, men skal bekræftes manuelt."
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_payulatam
@@ -2174,7 +2151,6 @@ msgstr "Din betaling er behandlet, men venter på godkendelse."
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_payulatam

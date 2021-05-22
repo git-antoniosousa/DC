@@ -9,20 +9,24 @@ from unittest.mock import DEFAULT
 import pytz
 
 from odoo import exceptions, tests
-from odoo.addons.test_mail.tests.common import TestMailCommon
+from odoo.addons.test_mail.tests.common import BaseFunctionalTest
 from odoo.addons.test_mail.models.test_mail_models import MailTestActivity
 from odoo.tools import mute_logger
 from odoo.tests.common import Form
 
 
-class TestActivityCommon(TestMailCommon):
+class TestActivityCommon(BaseFunctionalTest):
 
     @classmethod
     def setUpClass(cls):
         super(TestActivityCommon, cls).setUpClass()
         cls.test_record = cls.env['mail.test.activity'].with_context(cls._test_context).create({'name': 'Test'})
         # reset ctx
-        cls._reset_mail_context(cls.test_record)
+        cls.test_record = cls.test_record.with_context(
+            mail_create_nolog=False,
+            mail_create_nosubscribe=False,
+            mail_notrack=False
+        )
 
 
 @tests.tagged('mail_activity')
@@ -90,7 +94,7 @@ class TestActivityRights(TestActivityCommon):
 class TestActivityFlow(TestActivityCommon):
 
     def test_activity_flow_employee(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             test_record = self.env['mail.test.activity'].browse(self.test_record.id)
             self.assertEqual(test_record.activity_ids, self.env['mail.activity'])
 
@@ -122,9 +126,7 @@ class TestActivityFlow(TestActivityCommon):
     def test_activity_notify_other_user(self):
         self.user_admin.notification_type = 'email'
         rec = self.test_record.with_user(self.user_employee)
-        with self.assertSinglePostNotifications(
-                [{'partner': self.partner_admin, 'type': 'email'}],
-                message_info={'content': 'assigned you an activity', 'subtype': 'mail.mt_note', 'message_type': 'user_notification'}):
+        with self.assertNotifications(partner_admin=(1, 'email', 'read')):
             activity = rec.activity_schedule(
                 'test_mail.mail_act_test_todo',
                 user_id=self.user_admin.id)
@@ -134,7 +136,7 @@ class TestActivityFlow(TestActivityCommon):
     def test_activity_notify_same_user(self):
         self.user_employee.notification_type = 'email'
         rec = self.test_record.with_user(self.user_employee)
-        with self.assertNoNotifications():
+        with self.assertNotifications(partner_employee=(0, 'email', 'read')):
             activity = rec.activity_schedule(
                 'test_mail.mail_act_test_todo',
                 user_id=self.user_employee.id)
@@ -145,7 +147,7 @@ class TestActivityFlow(TestActivityCommon):
     def test_activity_dont_notify_no_user_change(self):
         self.user_employee.notification_type = 'email'
         activity = self.test_record.activity_schedule('test_mail.mail_act_test_todo', user_id=self.user_employee.id)
-        with self.assertNoNotifications():
+        with self.assertNotifications(partner_employee=(0, 'email', 'read')):
             activity.with_user(self.user_admin).write({'user_id': self.user_employee.id})
         self.assertEqual(activity.user_id, self.user_employee)
 
@@ -206,6 +208,9 @@ class TestActivityFlow(TestActivityCommon):
             'datas': 'testtest',
         })
 
+        # Adding the attachments to the activity
+        activity.attachment_ids = attachments
+
         # Checking if the attachment has been forwarded to the message
         # when marking an activity as "Done"
         activity.action_feedback()
@@ -221,7 +226,7 @@ class TestActivityMixin(TestActivityCommon):
     @mute_logger('odoo.addons.mail.models.mail_mail')
     def test_activity_mixin(self):
         self.user_employee.tz = self.user_admin.tz
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             self.test_record = self.env['mail.test.activity'].browse(self.test_record.id)
             self.assertEqual(self.test_record.env.user, self.user_employee)
 

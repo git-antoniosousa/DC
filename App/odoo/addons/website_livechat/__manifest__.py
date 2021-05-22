@@ -12,7 +12,6 @@ Allow website visitors to chat with the collaborators. This module also brings a
     'application': False,
     'auto_install': True,
     'data': [
-        'views/assets.xml',
         'views/website_livechat.xml',
         'views/res_config_settings_views.xml',
         'views/website_livechat_view.xml',
@@ -22,9 +21,6 @@ Allow website visitors to chat with the collaborators. This module also brings a
         'data/website_livechat_data.xml',
     ],
     'qweb': [
-        'static/src/bugfix/bugfix.xml',
-        'static/src/bugfix/public_bugfix.xml',
-        'static/src/components/discuss/discuss.xml',
-        'static/src/components/visitor_banner/visitor_banner.xml',
+        'static/src/xml/thread.xml',
     ],
 }

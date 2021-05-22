@@ -3,25 +3,51 @@
 # 	* mrp_subcontracting
 # 
 # Translators:
-# Martin Trigaux, 2020
+# Martin Trigaux, 2019
+# Link Up링크업 <linkup.way@gmail.com>, 2019
+# Linkup <link-up@naver.com>, 2019
+# Mark Lee <odoos@soti.33mail.com>, 2019
 # JH CHOI <hwangtog@gmail.com>, 2020
-# Link Up링크업 <linkup.way@gmail.com>, 2020
-# Linkup <link-up@naver.com>, 2020
-# Mark Lee <odoos@soti.33mail.com>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.5\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 07:29+0000\n"
-"PO-Revision-Date: 2020-09-07 08:15+0000\n"
-"Last-Translator: Mark Lee <odoos@soti.33mail.com>, 2020\n"
+"POT-Creation-Date: 2020-04-27 09:22+0000\n"
+"PO-Revision-Date: 2019-08-26 09:12+0000\n"
+"Last-Translator: JH CHOI <hwangtog@gmail.com>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/odoo/teams/41243/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/models/stock_move.py:0
+#, python-format
+msgid ""
+"\n"
+"You have to use 'Records Components' button in order to register quantity for a\n"
+"subcontracted product(s) with tracked component(s):\n"
+" %s.\n"
+"If you want to process more than initially planned, you\n"
+"can use the edit + unlock buttons in order to adapt the initial demand on the\n"
+"operations."
+msgstr ""
+"\n"
+"추적된 부품과 함께 하도급된 제품의 수량을 등록하려면 \n"
+"'부품 기록' 버튼을 사용해야 합니다:\n"
+" %s.\n"
+"처음에 계획한 것보다 더 많이 처리하려면 \n"
+"편집 + 잠금 해제 버튼을 사용하여 작업의 초기 요구 사항을 \n"
+"조정할 수 있습니다."
+
+#. module: mrp_subcontracting
+#: code:addons/mrp_subcontracting/models/res_company.py:0
+#, python-format
+msgid "%s: Subcontracting Location"
+msgstr "%s: 하도급 위치"
 
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_mrp_bom
@@ -34,11 +60,6 @@ msgid "BoM Type"
 msgstr "BoM 유형"
 
 #. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_subcontracting_product_template_search_view
-msgid "Can be Subcontracted"
-msgstr ""
-
-#. module: mrp_subcontracting
 #: model:ir.model.fields,help:mrp_subcontracting.field_product_supplierinfo__is_subcontractor
 msgid ""
 "Choose a vendor of type subcontractor if you want to subcontract the product"
@@ -47,12 +68,7 @@ msgstr "상품을 하청하려면 하도급 유형의 공급업체를 선택하�
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_res_company
 msgid "Companies"
-msgstr "회사들"
-
-#. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_subcontracting_move_tree_view
-msgid "Consumed"
-msgstr "사용됨"
+msgstr "회사"
 
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_res_partner
@@ -60,69 +76,9 @@ msgid "Contact"
 msgstr "연락처"
 
 #. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_production_subcontracting_form_view
-msgid "Continue"
-msgstr "계속"
-
-#. module: mrp_subcontracting
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_production__move_line_raw_ids
-msgid "Detail Component"
-msgstr ""
-
-#. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_production_subcontracting_form_view
-msgid "Discard"
-msgstr "작성취소"
-
-#. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_picking__display_action_record_components
 msgid "Display Action Record Components"
 msgstr "부품 기록 작업 표시"
-
-#. module: mrp_subcontracting
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_bom__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_production__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_product_supplierinfo__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_res_company__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_res_partner__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_move__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_move_line__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_picking__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_return_picking__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_rule__display_name
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_warehouse__display_name
-msgid "Display Name"
-msgstr "이름 표시"
-
-#. module: mrp_subcontracting
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_bom__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_production__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_product_supplierinfo__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_res_company__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_res_partner__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_move__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_move_line__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_picking__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_return_picking__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_rule__id
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_warehouse__id
-msgid "ID"
-msgstr "ID"
-
-#. module: mrp_subcontracting
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_bom____last_update
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_production____last_update
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_product_supplierinfo____last_update
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_res_company____last_update
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_res_partner____last_update
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_move____last_update
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_move_line____last_update
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_picking____last_update
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_return_picking____last_update
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_rule____last_update
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_warehouse____last_update
-msgid "Last Modified on"
-msgstr "최근 수정"
 
 #. module: mrp_subcontracting
 #: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
@@ -136,18 +92,13 @@ msgid "Product Moves (Stock Move Line)"
 msgstr "상품 이동 (재고 이동 명세)"
 
 #. module: mrp_subcontracting
-#: model:ir.model,name:mrp_subcontracting.model_mrp_production
-msgid "Production Order"
-msgstr "생산 주문"
-
-#. module: mrp_subcontracting
 #: code:addons/mrp_subcontracting/models/stock_move.py:0
 #, python-format
 msgid "Raw Materials for %s"
 msgstr "%s에 대한 원자재"
 
 #. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_production_subcontracting_form_view
+#: model:ir.model,name:mrp_subcontracting.model_mrp_product_produce
 msgid "Record Production"
 msgstr "생산 기록"
 
@@ -160,11 +111,6 @@ msgstr "부품 기록"
 #: model_terms:ir.ui.view,arch_db:mrp_subcontracting.stock_picking_form_view
 msgid "Register components for subcontracted product"
 msgstr "하도급 상품의 부품 등록"
-
-#. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_subcontracting_move_tree_view
-msgid "Reserved"
-msgstr "예약됨"
 
 #. module: mrp_subcontracting
 #: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
@@ -193,7 +139,7 @@ msgstr "부품과 함께 하청업체 재 공급"
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_stock_return_picking
 msgid "Return Picking"
-msgstr "반품 선별"
+msgstr "출고 반품"
 
 #. module: mrp_subcontracting
 #: code:addons/mrp_subcontracting/models/stock_warehouse.py:0
@@ -217,17 +163,6 @@ msgid "Stock Rule"
 msgstr "재고 규칙"
 
 #. module: mrp_subcontracting
-#: code:addons/mrp_subcontracting/models/stock_move.py:0
-#, python-format
-msgid "Subcontract"
-msgstr ""
-
-#. module: mrp_subcontracting
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_return_picking__subcontract_location_id
-msgid "Subcontract Location"
-msgstr ""
-
-#. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_product_supplierinfo__is_subcontractor
 msgid "Subcontracted"
 msgstr "하도급함"
@@ -240,9 +175,7 @@ msgid "Subcontracting"
 msgstr "하도급 중"
 
 #. module: mrp_subcontracting
-#: code:addons/mrp_subcontracting/models/res_company.py:0
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_company__subcontracting_location_id
-#, python-format
 msgid "Subcontracting Location"
 msgstr "하도급 위치"
 
@@ -262,12 +195,6 @@ msgid "Subcontracting Operation Type"
 msgstr "하도급 생산 유형"
 
 #. module: mrp_subcontracting
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_res_partner__is_subcontractor
-#: model:ir.model.fields,field_description:mrp_subcontracting.field_res_users__is_subcontractor
-msgid "Subcontractor"
-msgstr "외부업체"
-
-#. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_partner__property_stock_subcontractor
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_res_users__property_stock_subcontractor
 msgid "Subcontractor Location"
@@ -275,14 +202,13 @@ msgstr "하청업체 위치"
 
 #. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_bom__subcontractor_ids
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.view_partner_mrp_subcontracting_filter
 msgid "Subcontractors"
 msgstr "하청업체"
 
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_product_supplierinfo
 msgid "Supplier Pricelist"
-msgstr "공급업체 가격표"
+msgstr "공급자 가격리스트"
 
 #. module: mrp_subcontracting
 #: model:ir.model.fields,field_description:mrp_subcontracting.field_stock_move__is_subcontract
@@ -304,14 +230,9 @@ msgid "To subcontract, use a planned transfer."
 msgstr "하도급을 하려면 계획된 이전을 사용하십시오."
 
 #. module: mrp_subcontracting
-#: model_terms:ir.ui.view,arch_db:mrp_subcontracting.mrp_subcontracting_move_form_view
-msgid "Total Consumed"
-msgstr ""
-
-#. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_stock_picking
 msgid "Transfer"
-msgstr "전송"
+msgstr "이동"
 
 #. module: mrp_subcontracting
 #: model:ir.model,name:mrp_subcontracting.model_stock_warehouse
@@ -319,7 +240,6 @@ msgid "Warehouse"
 msgstr "창고"
 
 #. module: mrp_subcontracting
-#: code:addons/mrp_subcontracting/models/mrp_production.py:0
-#, python-format
-msgid "You must enter a serial number for each line of %s"
-msgstr ""
+#: model:ir.model.fields,field_description:mrp_subcontracting.field_mrp_product_produce__subcontract_move_id
+msgid "stock move from the subcontract picking"
+msgstr "하도급 출하에서 재고 이동"

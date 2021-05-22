@@ -11,7 +11,7 @@
         <field name="name">hr.job.kanban</field>
         <field name="model">hr.job</field>
         <field name="arch" type="xml">
-            <kanban class="oe_background_grey o_kanban_dashboard o_hr_recruitment_kanban" on_create="hr_recruitment.create_job_simple" sample="1">
+            <kanban class="oe_background_grey o_kanban_dashboard o_hr_recruitment_kanban" on_create="hr_recruitment.create_job_simple">
                 <field name="name"/>
                 <field name="alias_name"/>
                 <field name="alias_domain"/>
@@ -68,10 +68,8 @@
                                 <div name="kanban_boxes" class="row o_recruitment_kanban_boxes">
                                     <div class="o_recruitment_kanban_box o_kanban_primary_bottom bottom_block" style="padding-left:8px;">
                                         <div class="col-6"></div>
-                                        <div class="col-6 o_link_trackers">
-                                            <a role="button" name="%(hr_recruitment.action_hr_job_sources)d" type="action" class="btn btn-sm ">
-                                                <span title="Link Trackers"><i class="fa fa-lg fa-envelope" role="img" aria-label="Link Trackers"/></span> 
-                                            </a>
+                                        <div class="col-6">
+                                            <a type="action" name="%(action_hr_job_sources)d">Share Trackers</a>
                                         </div>
                                     </div>
                                 </div>
@@ -103,6 +101,12 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='department_id']" position="after">
                 <filter string="My Job Positions" name="my_positions" domain="[('user_id', '=', uid)]"/>
+            </xpath>
+            <xpath expr="//group" position="after">
+                <searchpanel>
+                    <field name="company_id" groups="base.group_multi_company" icon="fa-building"/>
+                    <field name="user_id" icon="fa-users"/>
+                </searchpanel>
             </xpath>
         </field>
     </record>

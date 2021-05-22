@@ -8,7 +8,6 @@ var RamStorage = require('web.RamStorage');
 var relationalFields = require('web.relational_fields');
 var testUtils = require('web.test_utils');
 
-const cpHelpers = testUtils.controlPanel;
 var createView = testUtils.createView;
 
 QUnit.module('fields', {}, function () {
@@ -154,10 +153,24 @@ QUnit.module('relational_fields', {
 
     QUnit.test('search more pager is reset when doing a new search', async function (assert) {
         assert.expect(6);
+        for(var i = 10; i < 180; i++) {
+            this.data.partner.records.push({
+                id: i,
+                display_name: "Partner " + i,
+            });
+        }
 
-        this.data.partner.records.push(
-            ...new Array(170).fill().map((_, i) => ({ id: i + 10, name: "Partner " + i }))
-        );
+        async function stringToEvent ($element, string) {
+            for (var i = 0; i < string.length; i++) {
+                var keyAscii = string.charCodeAt(i);
+                $element.val($element.val()+string[i]);
+                $element.trigger($.Event('keyup', {which: keyAscii, keyCode:keyAscii}));
+                await testUtils.nextTick();
+            }
+            $element.trigger($.Event('keyup', {which: $.ui.keyCode.ENTER, keyCode:$.ui.keyCode.ENTER}));
+            await testUtils.nextTick();
+        }
+
         this.data.partner.fields.datetime.searchable = true;
         var form = await createView({
             View: FormView,
@@ -179,6 +192,7 @@ QUnit.module('relational_fields', {
 
         await testUtils.form.clickEdit(form);
 
+
         await testUtils.fields.many2one.clickOpenDropdown('trululu');
         await testUtils.fields.many2one.clickItem('trululu','Search');
         await testUtils.dom.click($('.modal .o_pager_next'));
@@ -187,8 +201,7 @@ QUnit.module('relational_fields', {
         assert.strictEqual($('.o_pager_value').text(), "181-160", "should display the second page");
         assert.strictEqual($('tr.o_data_row').length, 80, "should display 80 record");
 
-        await cpHelpers.editSearch('.modal', "first");
-        await cpHelpers.validateSearch('.modal');
+        await stringToEvent($('.modal .o_searchview_input'), 'first');
 
         assert.strictEqual($('.o_pager_limit').text(), "11", "there should be 1 record");
         assert.strictEqual($('.o_pager_value').text(), "11-1", "should display the first page");
@@ -197,12 +210,16 @@ QUnit.module('relational_fields', {
     });
 
     QUnit.test('do not call name_get if display_name already known', async function (assert) {
-        assert.expect(4);
+        // default_get only returns the id for many2one fields
+        // onchange returns an array with the id and the display_name
+        // thus, when an onchange is performed, there is no need to call
+        // name_get as the display_name is alreay available
+        assert.expect(6);
 
         this.data.partner.fields.product_id.default = 37;
         this.data.partner.onchanges = {
             trululu: function (obj) {
-                obj.trululu = 1;
+                obj.trululu = [1, 'first record'];
             },
         };
 
@@ -219,7 +236,11 @@ QUnit.module('relational_fields', {
 
         assert.strictEqual(form.$('.o_field_widget[name=trululu] input').val(), 'first record');
         assert.strictEqual(form.$('.o_field_widget[name=product_id] input').val(), 'xphone');
-        assert.verifySteps(['onchange on partner']);
+        assert.verifySteps([
+            'default_get on partner',
+            'onchange on partner',
+            'name_get on product',
+        ]);
 
         form.destroy();
     });
@@ -474,11 +495,9 @@ QUnit.module('relational_fields', {
         await testUtils.form.clickEdit(form);
         // add a line (virtual record)
         await testUtils.dom.click(form.$('.o_field_x2many_list_row_add a'));
-        await testUtils.owlCompatibilityNextTick();
         await testUtils.fields.editInput(form.$('.o_input'), 'pi');
         // delete the line above it
         await testUtils.dom.click(form.$('.o_list_record_remove').first());
-        await testUtils.owlCompatibilityNextTick();
         // the next line should be displayed below the newly added one
         assert.strictEqual(form.$('.o_data_row').length, 2, "should have 2 records");
         assert.strictEqual(form.$('.o_data_row .o_data_cell:first-child').text(), 'pikawa',
@@ -524,9 +543,9 @@ QUnit.module('relational_fields', {
         assert.verifySteps([
             'read partner',
             'read turtle',
-            'onchange turtle',
+            'default_get turtle',
             'onchange partner',
-            'onchange turtle',
+            'default_get turtle',
             'onchange partner',
         ]);
         form.destroy();
@@ -796,65 +815,20 @@ QUnit.module('relational_fields', {
         assert.expect(2);
 
         this.data.product.records = [];
-        const form = await createView({
+        var form = await createView({
             View: FormView,
             model: 'partner',
             data: this.data,
-            arch: `<form string="Partners">
-                    <header><field name="product_id" widget="statusbar"/></header>
-                </form>`,
+            arch:'<form string="Partners">' +
+                    '<header><field name="product_id" widget="statusbar"/></header>' +
+                '</form>',
             res_id: 1,
             config: {device: {isMobile: false}},
         });
 
-        assert.doesNotHaveClass(form.$('.o_statusbar_status'), 'o_field_empty');
+        assert.hasClass(form.$('.o_statusbar_status'), 'o_field_empty');
         assert.strictEqual(form.$('.o_statusbar_status').children().length, 0,
             'statusbar widget should be empty');
-        form.destroy();
-    });
-
-    QUnit.test('statusbar with required modifier', async function (assert) {
-        assert.expect(2);
-
-        const form = await createView({
-            View: FormView,
-            model: 'partner',
-            data: this.data,
-            arch: `<form string="Partners">
-                    <header><field name="product_id" widget="statusbar" required="1"/></header>
-                </form>`,
-            config: {device: {isMobile: false}},
-        });
-        testUtils.intercept(form, 'call_service', function (ev) {
-            assert.strictEqual(ev.data.service, 'notification',
-                "should display an 'invalid fields' notification");
-        }, true);
-
-        testUtils.form.clickSave(form);
-
-        assert.containsOnce(form, '.o_form_editable', 'view should still be in edit');
-
-        form.destroy();
-    });
-
-    QUnit.test('statusbar with no value in readonly', async function (assert) {
-        assert.expect(2);
-
-        const form = await createView({
-            View: FormView,
-            model: 'partner',
-            data: this.data,
-            arch: `
-                <form>
-                    <header><field name="product_id" widget="statusbar"/></header>
-                </form>`,
-            res_id: 1,
-            config: {device: {isMobile: false}},
-        });
-
-        assert.doesNotHaveClass(form.$('.o_statusbar_status'), 'o_field_empty');
-        assert.containsN(form, '.o_statusbar_status button:visible', 2);
-
         form.destroy();
     });
 
@@ -999,7 +973,7 @@ QUnit.module('relational_fields', {
     });
 
     QUnit.test('widget selection, edition and on many2one field', async function (assert) {
-        assert.expect(21);
+        assert.expect(19);
 
         this.data.partner.onchanges = {product_id: function () {}};
         this.data.partner.records[0].product_id = 37;
@@ -1026,14 +1000,10 @@ QUnit.module('relational_fields', {
         assert.containsNone(form.$('.o_form_view'), 'select');
         assert.strictEqual(form.$('.o_field_widget[name=product_id]').text(), 'xphone',
             "should have rendered the many2one field correctly");
-        assert.strictEqual(form.$('.o_field_widget[name=product_id]').attr('raw-value'), '37',
-            "should have set the raw-value attr for many2one field correctly");
         assert.strictEqual(form.$('.o_field_widget[name=trululu]').text(), '',
             "should have rendered the unset many2one field correctly");
         assert.strictEqual(form.$('.o_field_widget[name=color]').text(), 'Red',
             "should have rendered the selection field correctly");
-        assert.strictEqual(form.$('.o_field_widget[name=color]').attr('raw-value'), 'red',
-            "should have set the raw-value attr for selection field correctly");
 
         await testUtils.form.clickEdit(form);
 
@@ -1368,8 +1338,8 @@ QUnit.module('relational_fields', {
         // add an other existing tag
         var $input = form.$('.o_field_many2manytags input');
         await testUtils.fields.many2one.clickOpenDropdown('timmy');
-        assert.strictEqual($input.autocomplete('widget').find('li').length, 2,
-            "autocomplete dropdown should have 2 entry");
+        assert.strictEqual($input.autocomplete('widget').find('li').length, 1,
+            "autocomplete dropdown should have 1 entry");
         assert.strictEqual($input.autocomplete('widget').find('li a:contains("red")').length, 1,
             "autocomplete dropdown should contain 'red'");
         await testUtils.fields.many2one.clickHighlightedItem('timmy');
@@ -1477,8 +1447,8 @@ QUnit.module('relational_fields', {
         // add an other existing tag
         var $input = form.$('.o_field_many2manytags input');
         await testUtils.fields.many2one.clickOpenDropdown('timmy');
-        assert.strictEqual($input.autocomplete('widget').find('li').length, 2,
-        "autocomplete dropdown should have 2 entry");
+        assert.strictEqual($input.autocomplete('widget').find('li').length, 1,
+        "autocomplete dropdown should have 1 entry");
         assert.strictEqual($input.autocomplete('widget').find('li a:contains("silver")').length, 1,
         "autocomplete dropdown should contain 'silver'");
         await testUtils.fields.many2one.clickHighlightedItem('timmy');
@@ -1693,8 +1663,8 @@ QUnit.module('relational_fields', {
         });
         await testUtils.fields.many2one.clickOpenDropdown('trululu');
         await testUtils.fields.many2one.clickItem('trululu', 'Search');
-        await cpHelpers.toggleGroupByMenu('.modal');
-        await cpHelpers.toggleMenuItem('.modal', "Bar");
+        await testUtils.dom.click($('.modal .o_search_options .fa-bars'));
+        await testUtils.dom.click($('.modal .o_search_options .o_group_by_menu a:contains(Bar)'));
 
         await testUtils.dom.click($('.modal .o_group_header:first'));
 
@@ -1966,29 +1936,6 @@ QUnit.module('relational_fields', {
         assert.containsN(form, '.o_field_many2manytags.avatar.o_field_widget .badge', 2, "should have 2 records");
         assert.strictEqual(form.$('.o_field_many2manytags.avatar.o_field_widget .badge:first img').data('src'), '/web/image/partner/2/image_128',
             "should have correct avatar image");
-
-        form.destroy();
-    });
-
-    QUnit.test('fieldmany2many tags: quick create a new record', async function (assert) {
-        assert.expect(3);
-
-        const form = await createView({
-            View: FormView,
-            model: 'partner',
-            data: this.data,
-            arch: `<form><field name="timmy" widget="many2many_tags"/></form>`,
-        });
-
-        assert.containsNone(form, '.o_field_many2manytags .badge');
-
-        await testUtils.fields.many2one.searchAndClickItem('timmy', {search: 'new value'});
-
-        assert.containsOnce(form, '.o_field_many2manytags .badge');
-
-        await testUtils.form.clickSave(form);
-
-        assert.strictEqual(form.el.querySelector('.o_field_many2manytags').innerText.trim(), "new value");
 
         form.destroy();
     });
@@ -2531,7 +2478,7 @@ QUnit.module('relational_fields', {
     QUnit.module('FieldMany2ManyBinaryMultiFiles');
 
     QUnit.test('widget many2many_binary', async function (assert) {
-        assert.expect(16);
+        assert.expect(15);
         this.data['ir.attachment'] = {
             fields: {
                 name: {string:"Name", type: "char"},
@@ -2555,7 +2502,7 @@ QUnit.module('relational_fields', {
             model: 'turtle',
             data: this.data,
             arch:'<form string="Turtles">' +
-                    '<group><field name="picture_ids" widget="many2many_binary" options="{\'accepted_file_extensions\': \'image/*\'}"/></group>' +
+                    '<group><field name="picture_ids" widget="many2many_binary"/></group>' +
                 '</form>',
             archs: {
                 'ir.attachment,false,list': '<tree string="Pictures"><field name="name"/></tree>',
@@ -2587,9 +2534,6 @@ QUnit.module('relational_fields', {
             "the button should be correctly named");
         assert.containsOnce(form, 'div.o_field_widget.oe_fileupload .o_hidden_input_file form',
             "there should be a hidden form to upload attachments");
-
-        assert.strictEqual(form.$('input.o_input_file').attr('accept'), 'image/*',
-            "there should be an attribute \"accept\" on the input")
 
         // TODO: add an attachment
         // no idea how to test this
@@ -2643,7 +2587,6 @@ QUnit.module('relational_fields', {
         });
 
         await testUtils.dom.click(form.$('.o_field_x2many_list_row_add a'));
-        await testUtils.owlCompatibilityNextTick();
         await testUtils.fields.many2one.searchAndClickItem('product_id',
             {selector: '.modal', search: 'new record'});
 
@@ -2653,37 +2596,6 @@ QUnit.module('relational_fields', {
     });
 
     QUnit.module('FieldReference');
-
-    QUnit.test('Reference field can quick create models', async function (assert) {
-        assert.expect(8);
-
-        const form = await createView({
-            View: FormView,
-            model: 'partner',
-            data: this.data,
-            arch: `<form><field name="reference"/></form>`,
-            mockRPC(route, args) {
-                assert.step(args.method || route);
-                return this._super(...arguments);
-            },
-        });
-
-        await testUtils.fields.editSelect(form.$('select'), 'partner');
-        await testUtils.fields.many2one.searchAndClickItem('reference', {search: 'new partner'});
-        await testUtils.form.clickSave(form);
-
-        assert.verifySteps([
-            'onchange',
-            'name_search', // for the select
-            'name_search', // for the spawned many2one
-            'name_create',
-            'create',
-            'read',
-            'name_get'
-        ], "The name_create method should have been called");
-
-        form.destroy();
-    });
 
     QUnit.test('Reference field in modal readonly mode', async function (assert) {
         assert.expect(4);
@@ -2920,7 +2832,7 @@ QUnit.module('relational_fields', {
         this.data.partner.fields.reference.default = 'product,37';
         this.data.partner.onchanges = {
             int_field: function (obj) {
-                if (obj.int_field) {
+                if (obj.int_field !== 0) {
                     obj.reference = 'partner_type,' + obj.int_field;
                 }
             },
@@ -3179,16 +3091,13 @@ QUnit.module('relational_fields', {
         await testUtils.form.clickEdit(form);
         await testUtils.fields.many2one.clickOpenDropdown("product_id");
         await testUtils.fields.many2one.clickHighlightedItem("product_id");
-        await testUtils.owlCompatibilityNextTick();
         assert.containsOnce(form, 'th:not(.o_list_record_remove_header)',
             "should be 1 column when the product_id is set");
         await testUtils.fields.editAndTrigger(form.$('.o_field_many2one[name="product_id"] input'),
             '', 'keyup');
-        await testUtils.owlCompatibilityNextTick();
         assert.containsN(form, 'th:not(.o_list_record_remove_header)', 2,
             "should be 2 columns in the one2many when product_id is not set");
         await testUtils.dom.click(form.$('.o_field_boolean[name="bar"] input'));
-        await testUtils.owlCompatibilityNextTick();
         assert.containsOnce(form, 'th:not(.o_list_record_remove_header)',
             "should be 1 column after the value change");
         form.destroy();
@@ -3276,16 +3185,13 @@ QUnit.module('relational_fields', {
         await testUtils.form.clickEdit(form);
         await testUtils.dom.click(form.$('.o_field_many2one[name="product_id"] input'));
         await testUtils.fields.many2one.clickHighlightedItem("product_id");
-        await testUtils.owlCompatibilityNextTick();
         assert.containsOnce(form, 'th:not(.o_list_record_remove_header)',
             "should be 1 column when the product_id is set");
         await testUtils.fields.editAndTrigger(form.$('.o_field_many2one[name="product_id"] input'),
             '', 'keyup');
-        await testUtils.owlCompatibilityNextTick();
         assert.containsN(form, 'th:not(.o_list_record_remove_header)', 2,
             "should be 2 columns in the one2many when product_id is not set");
         await testUtils.dom.click(form.$('.o_field_boolean[name="bar"] input'));
-        await testUtils.owlCompatibilityNextTick();
         assert.containsOnce(form, 'th:not(.o_list_record_remove_header)',
             "should be 1 column after the value change");
         form.destroy();
@@ -3345,13 +3251,6 @@ QUnit.module('relational_fields', {
         assert.containsN(form.$('.o_field_one2many'), 'div.o_optional_columns div.dropdown-item:visible', 2,
             "dropdown is still open");
         await testUtils.dom.click(form.$('.o_field_x2many_list_row_add a'));
-        // use of owlCompatibilityNextTick because the x2many field is reset, meaning that
-        // 1) its list renderer is updated (updateState is called): this is async and as it
-        // contains a FieldBoolean, which is written in Owl, it completes in the nextAnimationFrame
-        // 2) when this is done, the control panel is updated: as it is written in owl, this is
-        // done in the nextAnimationFrame
-        // -> we need to wait for 2 nextAnimationFrame to ensure that everything is fine
-        await testUtils.owlCompatibilityNextTick();
         assert.containsN(form.$('.o_field_one2many'), 'div.o_optional_columns div.dropdown-item:visible', 0,
             "dropdown is closed");
         var $selectedRow = form.$('.o_field_one2many tr.o_selected_row');
@@ -3451,7 +3350,6 @@ QUnit.module('relational_fields', {
            which: $.ui.keyCode.TAB,
            keyCode: $.ui.keyCode.TAB,
        }));
-       await testUtils.owlCompatibilityNextTick();
        await testUtils.dom.click(document.activeElement);
        assert.strictEqual(assert.strictEqual(form.$el.find('input[name="turtle_foo"]')[0],
                            document.activeElement,
@@ -3602,7 +3500,6 @@ QUnit.module('relational_fields', {
         relationalFields.FieldMany2One.prototype.AUTOCOMPLETE_DELAY = 0;
         await testUtils.dom.click(form.$el.find('.o_input_dropdown>input'));
 
-        await testUtils.fields.editInput(form.$('.o_field_many2one input'), 'ABC');
         // click create and edit
         await testUtils.dom.click($('.ui-autocomplete .ui-menu-item a:contains(Create and)').trigger('mouseenter'));
 

@@ -13,7 +13,7 @@ class ResPartner(models.Model):
     @api.depends('is_company')
     def _compute_certifications_count(self):
         read_group_res = self.env['survey.user_input'].sudo().read_group(
-            [('partner_id', 'in', self.ids), ('scoring_success', '=', True)],
+            [('partner_id', 'in', self.ids), ('quizz_passed', '=', True)],
             ['partner_id'], 'partner_id'
         )
         data = dict((res['partner_id'][0], res['partner_id_count']) for res in read_group_res)
@@ -25,7 +25,7 @@ class ResPartner(models.Model):
         self.certifications_company_count = sum(child.certifications_count for child in self.child_ids)
 
     def action_view_certifications(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("survey.res_partner_action_certifications")
+        action = self.env.ref('survey.res_partner_action_certifications').read()[0]
         action['view_mode'] = 'tree'
         action['domain'] = ['|', ('partner_id', 'in', self.ids), ('partner_id', 'in', self.child_ids.ids)]
 

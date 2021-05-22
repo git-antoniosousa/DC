@@ -86,7 +86,7 @@ def _message_post_helper(res_model, res_id, message, token='', _hash=False, pid=
     message_post_args = dict(
         body=message,
         message_type=kw.pop('message_type', "comment"),
-        subtype_xmlid=kw.pop('subtype_xmlid', "mail.mt_comment"),
+        subtype=kw.pop('subtype', "mt_comment"),
         author_id=author_id,
         **kw
     )
@@ -111,7 +111,7 @@ class PortalChatter(http.Controller):
             try:
                 CustomerPortal._document_check_access(self, 'ir.attachment', attachment_id, access_token)
             except (AccessError, MissingError):
-                raise UserError(_("The attachment %s does not exist or you do not have the rights to access it.", attachment_id))
+                raise UserError(_("The attachment %s does not exist or you do not have the rights to access it.") % attachment_id)
 
     @http.route(['/mail/chatter_post'], type='http', methods=['POST'], auth='public', website=True)
     def portal_chatter_post(self, res_model, res_id, message, redirect=None, attachment_ids='', attachment_tokens='', **kw):
@@ -139,20 +139,10 @@ class PortalChatter(http.Controller):
                 'res_id': res_id,
                 'message': message,
                 'send_after_commit': False,
-                'attachment_ids': False,  # will be added afterward
+                'attachment_ids': attachment_ids,
             }
             post_values.update((fname, kw.get(fname)) for fname in self._portal_post_filter_params())
             message = _message_post_helper(**post_values)
-
-            if attachment_ids:
-                # sudo write the attachment to bypass the read access
-                # verification in mail message
-                record = request.env[res_model].browse(res_id)
-                message_values = {'res_id': res_id, 'model': res_model}
-                attachments = record._message_post_process_attachments([], attachment_ids, message_values)
-
-                if attachments.get('attachment_ids'):
-                    message.sudo().write(attachments)
 
         return request.redirect(url)
 
@@ -168,7 +158,6 @@ class PortalChatter(http.Controller):
             'options': {
                 'message_count': message_data['message_count'],
                 'is_user_public': is_user_public,
-                'is_user_employee': request.env.user.has_group('base.group_user'),
                 'is_user_publisher': request.env.user.has_group('website.group_website_publisher'),
                 'display_composer': display_composer,
                 'partner_id': request.env.user.partner_id.id
@@ -194,18 +183,12 @@ class PortalChatter(http.Controller):
                 raise Forbidden()
             # Non-employee see only messages with not internal subtype (aka, no internal logs)
             if not request.env['res.users'].has_group('base.group_user'):
-                domain = expression.AND([Message._get_search_domain_share(), domain])
+                domain = expression.AND([Message._non_employee_message_domain(), domain])
             Message = request.env['mail.message'].sudo()
         return {
             'messages': Message.search(domain, limit=limit, offset=offset).portal_message_format(),
             'message_count': Message.search_count(domain)
         }
-
-    @http.route(['/mail/update_is_internal'], type='json', auth="user", website=True)
-    def portal_message_update_is_internal(self, message_id, is_internal):
-        message = request.env['mail.message'].browse(int(message_id))
-        message.write({'is_internal': is_internal})
-        return message.is_internal
 
 
 class MailController(MailController):

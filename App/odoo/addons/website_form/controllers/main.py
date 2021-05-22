@@ -9,11 +9,11 @@ from datetime import datetime
 from psycopg2 import IntegrityError
 from werkzeug.exceptions import BadRequest
 
-from odoo import http, SUPERUSER_ID, _
+from odoo import http, SUPERUSER_ID
 from odoo.http import request
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
 from odoo.tools.translate import _
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import ValidationError
 from odoo.addons.base.models.ir_qweb_fields import nl2br
 
 
@@ -35,22 +35,9 @@ class WebsiteForm(http.Controller):
         if request.session.uid and not request.validate_csrf(csrf_token):
             raise BadRequest('Session expired (invalid CSRF token)')
 
-        try:
-            if request.env['ir.http']._verify_request_recaptcha_token('website_form'):
-                return self._handle_website_form(model_name, **kwargs)
-            error = _("Suspicious activity detected by Google reCaptcha.")
-        except (ValidationError, UserError) as e:
-            error = e.args[0]
-        return json.dumps({
-            'error': error,
-        })
-
-    def _handle_website_form(self, model_name, **kwargs):
         model_record = request.env['ir.model'].sudo().search([('model', '=', model_name), ('website_form_access', '=', True)])
         if not model_record:
-            return json.dumps({
-                'error': _("The form's specified model does not exist")
-            })
+            return json.dumps(False)
 
         try:
             data = self.extract_data(model_record, request.params)
@@ -98,6 +85,24 @@ class WebsiteForm(http.Controller):
     def boolean(self, field_label, field_input):
         return bool(field_input)
 
+    def date(self, field_label, field_input):
+        try:
+            lang = request.env['ir.qweb.field'].user_lang()
+            dt = datetime.strptime(field_input, lang.date_format)
+        except ValueError:
+            dt = datetime.strptime(field_input, DEFAULT_SERVER_DATE_FORMAT)
+        return dt.strftime(DEFAULT_SERVER_DATE_FORMAT)
+
+    def datetime(self, field_label, field_input):
+        lang = request.env['ir.qweb.field'].user_lang()
+        strftime_format = (u"%s %s" % (lang.date_format, lang.time_format))
+        user_tz = pytz.timezone(request.context.get('tz') or request.env.user.tz or 'UTC')
+        try:
+            dt = user_tz.localize(datetime.strptime(field_input, strftime_format)).astimezone(pytz.utc)
+        except ValueError:
+            dt = datetime.strptime(field_input, DEFAULT_SERVER_DATETIME_FORMAT)
+        return dt.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+
     def binary(self, field_label, field_input):
         return base64.b64encode(field_input.read())
 
@@ -111,8 +116,8 @@ class WebsiteForm(http.Controller):
         'char': identity,
         'text': identity,
         'html': identity,
-        'date': identity,
-        'datetime': identity,
+        'date': date,
+        'datetime': datetime,
         'many2one': integer,
         'one2many': one2many,
         'many2many':many2many,
@@ -171,9 +176,9 @@ class WebsiteForm(http.Controller):
 
         data['custom'] = "\n".join([u"%s : %s" % v for v in custom_fields])
 
-        # Add metadata if enabled  # ICP for retrocompatibility
-        if request.env['ir.config_parameter'].sudo().get_param('website_form_enable_metadata'):
-            environ = request.httprequest.headers.environ
+        # Add metadata if enabled
+        environ = request.httprequest.headers.environ
+        if(request.website.website_form_enable_metadata):
             data['meta'] += "%s : %s\n%s : %s\n%s : %s\n%s : %s\n" % (
                 "IP"                , environ.get("REMOTE_ADDR"),
                 "USER_AGENT"        , environ.get("HTTP_USER_AGENT"),
@@ -240,7 +245,7 @@ class WebsiteForm(http.Controller):
             custom_field = file.field_name not in authorized_fields
             attachment_value = {
                 'name': file.filename,
-                'datas': base64.encodebytes(file.read()),
+                'datas': base64.encodestring(file.read()),
                 'res_model': model_name,
                 'res_id': record.id,
             }

@@ -4,6 +4,7 @@
 import base64
 import logging
 import re
+
 from uuid import uuid4
 
 from odoo import _, api, fields, models, modules, tools
@@ -35,23 +36,24 @@ class ChannelPartner(models.Model):
 
     @api.model
     def create(self, vals):
-        """Similar access rule as the access rule of the mail channel.
-
-        It can not be implemented in XML, because when the record will be created, the
-        partner will be added in the channel and the security rule will always authorize
-        the creation.
-        """
         if 'channel_id' in vals and not self.env.is_admin():
             channel_id = self.env['mail.channel'].browse(vals['channel_id'])
             if not channel_id._can_invite(vals.get('partner_id')):
-                raise AccessError(_('This user can not be added in this channel'))
+                raise AccessError(_('The partner can not join this channel'))
         return super(ChannelPartner, self).create(vals)
 
     def write(self, vals):
         if not self.env.is_admin():
             if {'channel_id', 'partner_id', 'partner_email'} & set(vals):
                 raise AccessError(_('You can not write on this field'))
+            elif self.mapped('partner_id') != self.env.user.partner_id:
+                raise AccessError(_('You can not write on the record of other users'))
         return super(ChannelPartner, self).write(vals)
+
+    def unlink(self):
+        if not self.env.is_admin() and not all(record.channel_id.is_member for record in self):
+            raise AccessError(_('You can not remove this partner from this channel'))
+        return super(ChannelPartner, self).unlink()
 
 
 class Moderation(models.Model):
@@ -81,6 +83,10 @@ class Channel(models.Model):
 
     MAX_BOUNCE_LIMIT = 10
 
+    def _get_default_image(self):
+        image_path = modules.get_module_resource('mail', 'static/src/img', 'groupdefault.png')
+        return base64.b64encode(open(image_path, 'rb').read())
+
     @api.model
     def default_get(self, fields):
         res = super(Channel, self).default_get(fields)
@@ -88,12 +94,7 @@ class Channel(models.Model):
             res['alias_contact'] = 'everyone' if res.get('public', 'private') == 'public' else 'followers'
         return res
 
-    def _get_default_image(self):
-        image_path = modules.get_module_resource('mail', 'static/src/img', 'groupdefault.png')
-        return base64.b64encode(open(image_path, 'rb').read())
-
     name = fields.Char('Name', required=True, translate=True)
-    active = fields.Boolean(default=True, help="Set active to false to hide the channel without removing it.")
     channel_type = fields.Selection([
         ('chat', 'Chat Discussion'),
         ('channel', 'Channel')],
@@ -229,29 +230,14 @@ class Channel(models.Model):
             defaults = self.default_get(['image_128'])
             vals['image_128'] = defaults['image_128']
 
-        current_partner = self.env.user.partner_id.id
-        # always add current user to new channel, go through
-        # channel_last_seen_partner_ids otherwise in v14 the channel is not
-        # visible for the user (because is_pinned is false and taken in account)
-        if 'channel_partner_ids' in vals:
-            vals['channel_partner_ids'] = [
-                entry
-                for entry in vals['channel_partner_ids']
-                if entry[0] != 4 or entry[1] != current_partner
-            ]
-        membership = vals.setdefault('channel_last_seen_partner_ids', [])
-        if all(entry[0] != 0 or entry[2].get('partner_id') != current_partner for entry in membership):
-            membership.append((0, False, {'partner_id': current_partner}))
+        # always add the current user to the channel
+        vals['channel_partner_ids'] = vals.get('channel_partner_ids', []) + [(4, self.env.user.partner_id.id)]
 
-        visibility_default = self._fields['public'].default(self)
-        visibility = vals.pop('public', visibility_default)
-        vals['public'] = 'public'
         # Create channel and alias
         channel = super(Channel, self.with_context(
-            mail_create_nolog=True, mail_create_nosubscribe=True)
+            alias_model_name=self._name, alias_parent_model_name=self._name, mail_create_nolog=True, mail_create_nosubscribe=True)
         ).create(vals)
-        if visibility != 'public':
-            channel.sudo().public = visibility
+        channel.alias_id.write({"alias_force_thread_id": channel.id, 'alias_parent_thread_id': channel.id})
 
         if vals.get('group_ids'):
             channel._subscribe_users()
@@ -263,6 +249,8 @@ class Channel(models.Model):
         return channel
 
     def unlink(self):
+        aliases = self.mapped('alias_id')
+
         # Delete mail.channel
         try:
             all_emp_group = self.env.ref('mail.channel_all_employees')
@@ -270,7 +258,10 @@ class Channel(models.Model):
             all_emp_group = None
         if all_emp_group and all_emp_group in self and not self._context.get(MODULE_UNINSTALL_FLAG):
             raise UserError(_('You cannot delete those groups, as the Whole Company group is required by other modules.'))
-        return super(Channel, self).unlink()
+        res = super(Channel, self).unlink()
+        # Cascade-delete mail aliases as well, as they should not exist without the mail.channel.
+        aliases.sudo().unlink()
+        return res
 
     def write(self, vals):
         # First checks if user tries to modify moderation fields and has not the right to do it.
@@ -293,23 +284,12 @@ class Channel(models.Model):
 
         return result
 
-    def _alias_get_creation_values(self):
-        values = super(Channel, self)._alias_get_creation_values()
-        values['alias_model_id'] = self.env['ir.model']._get('mail.channel').id
-        if self.id:
-            values['alias_force_thread_id'] = self.id
-        return values
+    def get_alias_model_name(self, vals):
+        return vals.get('alias_model', 'mail.channel')
 
     def _subscribe_users(self):
-        to_create = []
         for mail_channel in self:
-            partners_to_add = mail_channel.group_ids.users.partner_id - mail_channel.channel_partner_ids
-            to_create += [{
-                'channel_id': mail_channel.id,
-                'partner_id': partner.id,
-            } for partner in partners_to_add]
-
-        self.env['mail.channel.partner'].create(to_create)
+            mail_channel.write({'channel_partner_ids': [(4, pid) for pid in mail_channel.mapped('group_ids').mapped('users').mapped('partner_id').ids]})
 
     def action_follow(self):
         self.ensure_one()
@@ -322,19 +302,13 @@ class Channel(models.Model):
         return self._action_unfollow(self.env.user.partner_id)
 
     def _action_unfollow(self, partner):
-        self.message_unsubscribe(partner.ids)
-        if partner not in self.with_context(active_test=False).channel_partner_ids:
-            return True
         channel_info = self.channel_info('unsubscribe')[0]  # must be computed before leaving the channel (access rights)
         result = self.write({'channel_partner_ids': [(3, partner.id)]})
-        # side effect of unsubscribe that wasn't taken into account because
-        # channel_info is called before actually unpinning the channel
-        channel_info['is_pinned'] = False
         self.env['bus.bus'].sendone((self._cr.dbname, 'res.partner', partner.id), channel_info)
         if not self.email_send:
-            notification = _('<div class="o_mail_notification">left <a href="#" class="o_channel_redirect" data-oe-id="%s">#%s</a></div>', self.id, self.name)
+            notification = _('<div class="o_mail_notification">left <a href="#" class="o_channel_redirect" data-oe-id="%s">#%s</a></div>') % (self.id, self.name,)
             # post 'channel left' message as root since the partner just unsubscribed from the channel
-            self.sudo().message_post(body=notification, subtype_xmlid="mail.mt_comment", author_id=partner.id)
+            self.sudo().message_post(body=notification, subtype="mail.mt_comment", author_id=partner.id)
         return result
 
     def _notify_get_groups(self, msg_vals=None):
@@ -416,21 +390,12 @@ class Channel(models.Model):
 
         self.filtered(lambda channel: channel.is_chat).mapped('channel_last_seen_partner_ids').sudo().write({'is_pinned': True})
 
-        # mail_post_autofollow=False is necessary to prevent adding followers
-        # when using mentions in channels. Followers should not be added to
-        # channels, and especially not automatically (because channel membership
-        # should be managed with channel.partner instead).
-        # The current client code might be setting the key to True on sending
-        # message but it is only useful when targeting customers in chatter.
-        # This value should simply be set to False in channels no matter what.
-        message = super(Channel, self.with_context(mail_create_nosubscribe=True, mail_post_autofollow=False)).message_post(message_type=message_type, moderation_status=moderation_status, **kwargs)
+        message = super(Channel, self.with_context(mail_create_nosubscribe=True)).message_post(message_type=message_type, moderation_status=moderation_status, **kwargs)
 
         # Notifies the message author when his message is pending moderation if required on channel.
         # The fields "email_from" and "reply_to" are filled in automatically by method create in model mail.message.
         if self.moderation_notify and self.moderation_notify_msg and message_type in ['email','comment'] and moderation_status == 'pending_moderation':
-            self.env['mail.mail'].sudo().create({
-                'author_id': self.env.user.partner_id.id,
-                'email_from': self.env.user.company_id.catchall_formatted or self.env.user.company_id.email_formatted,
+            self.env['mail.mail'].create({
                 'body_html': self.moderation_notify_msg,
                 'subject': 'Re: %s' % (kwargs.get('subject', '')),
                 'email_to': email,
@@ -439,20 +404,15 @@ class Channel(models.Model):
             })
         return message
 
-    def _message_post_after_hook(self, message, msg_vals):
-        """
-        Automatically set the message posted by the current user as seen for himself.
-        """
-        self._set_last_seen_message(message)
-        return super()._message_post_after_hook(message=message, msg_vals=msg_vals)
-
-    def _alias_get_error_message(self, message, message_dict, alias):
+    def _alias_check_contact(self, message, message_dict, alias):
         if alias.alias_contact == 'followers' and self.ids:
             author = self.env['res.partner'].browse(message_dict.get('author_id', False))
             if not author or author not in self.channel_partner_ids:
-                return _('restricted to channel members')
-            return False
-        return super(Channel, self)._alias_get_error_message(message, message_dict, alias)
+                return {
+                    'error_message': _('restricted to channel members'),
+                }
+            return True
+        return super(Channel, self)._alias_check_contact(message, message_dict, alias)
 
     def init(self):
         self._cr.execute('SELECT indexname FROM pg_indexes WHERE indexname = %s', ('mail_channel_partner_seen_message_id_idx',))
@@ -487,13 +447,12 @@ class Channel(models.Model):
         for partner in partners.filtered(lambda p: p.email and not (p.email in banned_emails)):
             company = partner.company_id or self.env.company
             create_values = {
-                'email_from': company.catchall_formatted or company.email_formatted,
-                'author_id': self.env.user.partner_id.id,
-                'body_html': view._render({'channel': self, 'partner': partner}, engine='ir.qweb', minimal_qcontext=True),
-                'subject': _("Guidelines of channel %s", self.name),
+                'body_html': view.render({'channel': self, 'partner': partner}, engine='ir.qweb', minimal_qcontext=True),
+                'subject': _("Guidelines of channel %s") % self.name,
+                'email_from': company.catchall or company.email,
                 'recipient_ids': [(4, partner.id)]
             }
-            mail = self.env['mail.mail'].sudo().create(create_values)
+            mail = self.env['mail.mail'].create(create_values)
         return True
 
     def _update_moderation_email(self, emails, status):
@@ -573,16 +532,18 @@ class Channel(models.Model):
         Return the information needed by channel to display channel members
             :param all_partners: list of res.parner():
             :param direct_partners: list of res.parner():
-            :returns: a list of {'id', 'name', 'email'} for each partner and adds {im_status} for direct_partners.
+            :returns: a list of {'id', 'name', 'email'} for each partner and adds {im_status, out_of_office_message} for direct_partners.
             :rtype : list(dict)
         """
         partner_infos = {partner['id']: partner for partner in all_partners.sudo().read(['id', 'name', 'email'])}
-        # add im _status for direct_partners
+        # add im _status and out_of_office_message for direct_partners
         direct_partners_im_status = {partner['id']: partner for partner in direct_partners.sudo().read(['im_status'])}
 
         for i in direct_partners_im_status.keys():
             partner_infos[i].update(direct_partners_im_status[i])
 
+        for user in self.env['res.users'].search([('partner_id', 'in', direct_partners.ids), ('out_of_office_message', '!=', False)]):
+            partner_infos[user.partner_id.id]['out_of_office_message'] = user.out_of_office_message
         return partner_infos
 
     def channel_info(self, extra_info=False):
@@ -602,7 +563,11 @@ class Channel(models.Model):
         direct_channel_partners = all_partner_channel.filtered(lambda pc: channel_dict[pc.channel_id.id].channel_type == 'chat')
         direct_partners = direct_channel_partners.mapped('partner_id')
         partner_infos = self.partner_info(all_partners, direct_partners)
-        channel_last_message_ids = dict((r['id'], r['message_id']) for r in self._channel_last_message_ids())
+
+        # add last message preview (only used in mobile)
+        addPreview = self._context.get('isMobile', False)
+        if addPreview:
+            channel_previews = {channel_preview['id']: channel_preview for channel_preview in self.channel_fetch_preview()}
 
         for channel in self:
             info = {
@@ -623,12 +588,22 @@ class Channel(models.Model):
                 info['info'] = extra_info
 
             # add last message preview (only used in mobile)
-            info['last_message_id'] = channel_last_message_ids.get(channel.id, False)
+            if addPreview:
+                if channel in channel_previews:
+                    info['last_message'] = channel_previews[channel]
+
             # listeners of the channel
             channel_partners = all_partner_channel.filtered(lambda pc: channel.id == pc.channel_id.id)
 
             # find the channel partner state, if logged user
             if self.env.user and self.env.user.partner_id:
+                # add the partner for 'direct mesage' channel
+                if channel.channel_type == 'chat':
+                    # direct_partner should be removed from channel info since we can find it from members and channel_type
+                    # we keep it know to avoid change tests and javascript
+                    direct_partner = channel_partners.filtered(lambda pc: pc.partner_id.id != self.env.user.partner_id.id)
+                    if direct_partner:
+                        info['direct_partner'] = [partner_infos[direct_partner[0].partner_id.id]]
                 # add needaction and unread counter, since the user is logged
                 info['message_needaction_counter'] = channel.message_needaction_counter
                 info['message_unread_counter'] = channel.message_unread_counter
@@ -641,22 +616,15 @@ class Channel(models.Model):
                     info['is_minimized'] = partner_channel.is_minimized
                     info['seen_message_id'] = partner_channel.seen_message_id.id
                     info['custom_channel_name'] = partner_channel.custom_channel_name
-                    info['is_pinned'] = partner_channel.is_pinned
 
             # add members infos
-            if channel.channel_type != 'channel':
-                # avoid sending potentially a lot of members for big channels
-                # exclude chat and other small channels from this optimization because they are
-                # assumed to be smaller and it's important to know the member list for them
-                partner_ids = channel_partners.mapped('partner_id').ids
-                info['members'] = [partner_infos[partner] for partner in partner_ids]
-            if channel.channel_type != 'channel':
-                info['seen_partners_info'] = [{
-                    'id': cp.id,
-                    'partner_id': cp.partner_id.id,
-                    'fetched_message_id': cp.fetched_message_id.id,
-                    'seen_message_id': cp.seen_message_id.id,
-                } for cp in channel_partners]
+            partner_ids = channel_partners.mapped('partner_id').ids
+            info['members'] = [partner_infos[partner] for partner in partner_ids]
+            info['seen_partners_info'] = [{
+                'partner_id': cp.partner_id.id,
+                'fetched_message_id': cp.fetched_message_id.id,
+                'seen_message_id': cp.seen_message_id.id,
+            } for cp in channel_partners]
 
             channel_infos.append(info)
         return channel_infos
@@ -682,49 +650,42 @@ class Channel(models.Model):
             only the given partners.
             :param partners_to : list of res.partner ids to add to the conversation
             :param pin : True if getting the channel should pin it for the current user
-            :returns: channel_info of the created or existing channel
-            :rtype: dict
+            :returns a channel header, or False if the users_to was False
+            :rtype : dict
         """
-        if self.env.user.partner_id.id not in partners_to:
+        if partners_to:
             partners_to.append(self.env.user.partner_id.id)
-        # determine type according to the number of partner in the channel
-        self.flush()
-        self.env.cr.execute("""
-            SELECT P.channel_id
-            FROM mail_channel C, mail_channel_partner P
-            WHERE P.channel_id = C.id
-                AND C.public LIKE 'private'
-                AND P.partner_id IN %s
-                AND C.channel_type LIKE 'chat'
-                AND NOT EXISTS (
-                    SELECT *
-                    FROM mail_channel_partner P2
-                    WHERE P2.channel_id = C.id
-                        AND P2.partner_id NOT IN %s
-                )
-            GROUP BY P.channel_id
-            HAVING ARRAY_AGG(DISTINCT P.partner_id ORDER BY P.partner_id) = %s
-            LIMIT 1
-        """, (tuple(partners_to), tuple(partners_to), sorted(list(partners_to)),))
-        result = self.env.cr.dictfetchall()
-        if result:
-            # get the existing channel between the given partners
-            channel = self.browse(result[0].get('channel_id'))
-            # pin up the channel for the current partner
-            if pin:
-                self.env['mail.channel.partner'].search([('partner_id', '=', self.env.user.partner_id.id), ('channel_id', '=', channel.id)]).write({'is_pinned': True})
-            channel._broadcast(self.env.user.partner_id.ids)
-        else:
-            # create a new one
-            channel = self.create({
-                'channel_partner_ids': [(4, partner_id) for partner_id in partners_to],
-                'public': 'private',
-                'channel_type': 'chat',
-                'email_send': False,
-                'name': ', '.join(self.env['res.partner'].sudo().browse(partners_to).mapped('name')),
-            })
-            channel._broadcast(partners_to)
-        return channel.channel_info()[0]
+            # determine type according to the number of partner in the channel
+            self.env.cr.execute("""
+                SELECT P.channel_id as channel_id
+                FROM mail_channel C, mail_channel_partner P
+                WHERE P.channel_id = C.id
+                    AND C.public LIKE 'private'
+                    AND P.partner_id IN %s
+                    AND channel_type LIKE 'chat'
+                GROUP BY P.channel_id
+                HAVING array_agg(P.partner_id ORDER BY P.partner_id) = %s
+            """, (tuple(partners_to), sorted(list(partners_to)),))
+            result = self.env.cr.dictfetchall()
+            if result:
+                # get the existing channel between the given partners
+                channel = self.browse(result[0].get('channel_id'))
+                # pin up the channel for the current partner
+                if pin:
+                    self.env['mail.channel.partner'].search([('partner_id', '=', self.env.user.partner_id.id), ('channel_id', '=', channel.id)]).write({'is_pinned': True})
+            else:
+                # create a new one
+                channel = self.create({
+                    'channel_partner_ids': [(4, partner_id) for partner_id in partners_to],
+                    'public': 'private',
+                    'channel_type': 'chat',
+                    'email_send': False,
+                    'name': ', '.join(self.env['res.partner'].sudo().browse(partners_to).mapped('name')),
+                })
+                # broadcast the channel header to the other partner (not me)
+                channel._broadcast(partners_to)
+            return channel.channel_info()[0]
+        return False
 
     @api.model
     def channel_get_and_minimize(self, partners_to):
@@ -776,57 +737,34 @@ class Channel(models.Model):
         self.ensure_one()
         channel_partners = self.env['mail.channel.partner'].search(
             [('partner_id', '=', self.env.user.partner_id.id), ('channel_id', '=', self.id)])
-        self.env['bus.bus'].sendone((self._cr.dbname, 'res.partner', self.env.user.partner_id.id), self.channel_info('unsubscribe' if not pinned else False)[0])
+        if not pinned:
+            self.env['bus.bus'].sendone((self._cr.dbname, 'res.partner', self.env.user.partner_id.id), self.channel_info('unsubscribe')[0])
         if channel_partners:
             channel_partners.write({'is_pinned': pinned})
 
-    def channel_seen(self, last_message_id=None):
-        """
-        Mark channel as seen by updating seen message id of the current logged partner
-        :param last_message_id: the id of the message to be marked as seen, last message of the
-        thread by default. This param SHOULD be required, the default behaviour is DEPRECATED and
-        kept only for compatibility reasons.
-        """
+    def channel_seen(self):
         self.ensure_one()
-        domain = [('channel_ids', 'in', self.ids)]
-        if last_message_id:
-            domain = expression.AND([domain, [('id', '<=', last_message_id)]])
-        last_message = self.env['mail.message'].search(domain, order="id DESC", limit=1)
-        if not last_message:
-            return
-
-        self._set_last_seen_message(last_message)
-
-        data = {
-            'info': 'channel_seen',
-            'last_message_id': last_message.id,
-            'partner_id': self.env.user.partner_id.id,
-        }
-        if self.channel_type == 'chat':
-            self.env['bus.bus'].sendmany([[(self._cr.dbname, 'mail.channel', self.id), data]])
-        else:
-            data['channel_id'] = self.id
-            self.env['bus.bus'].sendone((self._cr.dbname, 'res.partner', self.env.user.partner_id.id), data)
-        return last_message.id
-
-    def _set_last_seen_message(self, last_message):
-        """
-        Set last seen message of `self` channels for the current user.
-        :param last_message: the message to set as last seen message
-        """
-        channel_partner_domain = expression.AND([
-            [('channel_id', 'in', self.ids)],
-            [('partner_id', '=', self.env.user.partner_id.id)],
-            expression.OR([
-                [('seen_message_id', '=', False)],
-                [('seen_message_id', '<', last_message.id)]
-            ])
-        ])
-        channel_partner = self.env['mail.channel.partner'].search(channel_partner_domain)
-        channel_partner.write({
-            'fetched_message_id': last_message.id,
-            'seen_message_id': last_message.id,
-        })
+        if self.channel_message_ids.ids:
+            last_message_id = self.channel_message_ids.ids[0] # zero is the index of the last message
+            channel_partner = self.env['mail.channel.partner'].search([('channel_id', 'in', self.ids), ('partner_id', '=', self.env.user.partner_id.id)], limit=1)
+            if channel_partner.seen_message_id.id == last_message_id:
+                # last message seen by user is already up-to-date
+                return
+            channel_partner.write({
+                'seen_message_id': last_message_id,
+                'fetched_message_id': last_message_id,
+            })
+            data = {
+                'info': 'channel_seen',
+                'last_message_id': last_message_id,
+                'partner_id': self.env.user.partner_id.id,
+            }
+            if self.channel_type == 'chat':
+                self.env['bus.bus'].sendmany([[(self._cr.dbname, 'mail.channel', self.id), data]])
+            else:
+                data['channel_id'] = self.id
+                self.env['bus.bus'].sendone((self._cr.dbname, 'res.partner', self.env.user.partner_id.id), data)
+            return last_message_id
 
     def channel_fetched(self):
         """ Broadcast the channel_fetched notification to channel members
@@ -846,7 +784,6 @@ class Channel(models.Model):
                 'fetched_message_id': last_message_id,
             })
             data = {
-                'id': channel_partner.id,
                 'info': 'channel_fetched',
                 'last_message_id': last_message_id,
                 'partner_id': self.env.user.partner_id.id,
@@ -866,15 +803,15 @@ class Channel(models.Model):
             channel.write({'channel_last_seen_partner_ids': [(0, 0, {'partner_id': partner_id}) for partner_id in partners_to_add.ids]})
             for partner in partners_to_add:
                 if partner.id != self.env.user.partner_id.id:
-                    notification = _('<div class="o_mail_notification">%(author)s invited %(new_partner)s to <a href="#" class="o_channel_redirect" data-oe-id="%(channel_id)s">#%(channel_name)s</a></div>',
-                        author=self.env.user.display_name,
-                        new_partner=partner.display_name,
-                        channel_id=channel.id,
-                        channel_name=channel.name,
-                    )
+                    notification = _('<div class="o_mail_notification">%(author)s invited %(new_partner)s to <a href="#" class="o_channel_redirect" data-oe-id="%(channel_id)s">#%(channel_name)s</a></div>') % {
+                        'author': self.env.user.display_name,
+                        'new_partner': partner.display_name,
+                        'channel_id': channel.id,
+                        'channel_name': channel.name,
+                    }
                 else:
-                    notification = _('<div class="o_mail_notification">joined <a href="#" class="o_channel_redirect" data-oe-id="%s">#%s</a></div>', channel.id, channel.name)
-                self.message_post(body=notification, message_type="notification", subtype_xmlid="mail.mt_comment", author_id=partner.id, notify_by_email=False)
+                    notification = _('<div class="o_mail_notification">joined <a href="#" class="o_channel_redirect" data-oe-id="%s">#%s</a></div>') % (channel.id, channel.name,)
+                self.message_post(body=notification, message_type="notification", subtype="mail.mt_comment", author_id=partner.id)
 
         # broadcast the channel header to the added partner
         self._broadcast(partner_ids)
@@ -917,17 +854,21 @@ class Channel(models.Model):
             'custom_channel_name': name,
         })
 
-    def notify_typing(self, is_typing):
+    def notify_typing(self, is_typing, is_website_user=False):
         """ Broadcast the typing notification to channel members
             :param is_typing: (boolean) tells whether the current user is typing or not
+            :param is_website_user: (boolean) tells whether the user that notifies comes
+              from the website-side. This is useful in order to distinguish operator and
+              unlogged users for livechat, because unlogged users have the same
+              partner_id as the admin (default: False).
         """
         notifications = []
         for channel in self:
             data = {
                 'info': 'typing_status',
                 'is_typing': is_typing,
+                'is_website_user': is_website_user,
                 'partner_id': self.env.user.partner_id.id,
-                'partner_name': self.env.user.partner_id.name,
             }
             notifications.append([(self._cr.dbname, 'mail.channel', channel.id), data]) # notify backend users
             notifications.append([channel.uuid, data]) # notify frontend users
@@ -980,8 +921,8 @@ class Channel(models.Model):
         self.ensure_one()
         added = self.action_follow()
         if added and self.channel_type == 'channel' and not self.email_send:
-            notification = _('<div class="o_mail_notification">joined <a href="#" class="o_channel_redirect" data-oe-id="%s">#%s</a></div>', self.id, self.name)
-            self.message_post(body=notification, message_type="notification", subtype_xmlid="mail.mt_comment")
+            notification = _('<div class="o_mail_notification">joined <a href="#" class="o_channel_redirect" data-oe-id="%s">#%s</a></div>') % (self.id, self.name,)
+            self.message_post(body=notification, message_type="notification", subtype="mail.mt_comment")
 
         if added and self.moderation_guidelines:
             self._send_guidelines(self.env.user.partner_id)
@@ -1004,8 +945,8 @@ class Channel(models.Model):
             'public': privacy,
             'email_send': False,
         })
-        notification = _('<div class="o_mail_notification">created <a href="#" class="o_channel_redirect" data-oe-id="%s">#%s</a></div>', new_channel.id, new_channel.name)
-        new_channel.message_post(body=notification, message_type="notification", subtype_xmlid="mail.mt_comment")
+        notification = _('<div class="o_mail_notification">created <a href="#" class="o_channel_redirect" data-oe-id="%s">#%s</a></div>') % (new_channel.id, new_channel.name,)
+        new_channel.message_post(body=notification, message_type="notification", subtype="mail.mt_comment")
         channel_info = new_channel.channel_info('creation')[0]
         self.env['bus.bus'].sendone((self._cr.dbname, 'res.partner', self.env.user.partner_id.id), channel_info)
         return channel_info
@@ -1023,7 +964,7 @@ class Channel(models.Model):
                             [('channel_partner_ids', 'in', [self.env.user.partner_id.id])]
                         ])
                     ])
-        return self.search_read(domain, ['id', 'name', 'public', 'channel_type'], limit=limit)
+        return self.search_read(domain, ['id', 'name', 'public'], limit=limit)
 
     @api.model
     def channel_fetch_listeners(self, uuid):
@@ -1036,31 +977,26 @@ class Channel(models.Model):
             WHERE C.uuid = %s""", (uuid,))
         return self._cr.dictfetchall()
 
+    def _channel_fetch_listeners_where_clause(self, uuid):
+        return ("C.uuid = %s", (uuid,))
+
     def channel_fetch_preview(self):
         """ Return the last message of the given channels """
         if not self:
             return []
-        channels_last_message_ids = self._channel_last_message_ids()
-        channels_preview = dict((r['message_id'], r) for r in channels_last_message_ids)
+        self._cr.execute("""
+            SELECT mail_channel_id AS id, MAX(mail_message_id) AS message_id
+            FROM mail_message_mail_channel_rel
+            WHERE mail_channel_id IN %s
+            GROUP BY mail_channel_id
+            """, (tuple(self.ids),))
+        channels_preview = dict((r['message_id'], r) for r in self._cr.dictfetchall())
         last_messages = self.env['mail.message'].browse(channels_preview).message_format()
         for message in last_messages:
             channel = channels_preview[message['id']]
             del(channel['message_id'])
             channel['last_message'] = message
         return list(channels_preview.values())
-
-    def _channel_last_message_ids(self):
-        """ Return the last message of the given channels."""
-        if not self:
-            return []
-        self.flush()
-        self.env.cr.execute("""
-            SELECT mail_channel_id AS id, MAX(mail_message_id) AS message_id
-            FROM mail_message_mail_channel_rel
-            WHERE mail_channel_id IN %s
-            GROUP BY mail_channel_id
-            """, (tuple(self.ids),))
-        return self.env.cr.dictfetchall()
 
     #------------------------------------------------------
     # Commands
@@ -1095,23 +1031,23 @@ class Channel(models.Model):
         })
 
     def _define_command_help(self):
-        return {'help': _("Show a helper message")}
+        return {'help': _("Show an helper message")}
 
     def _execute_command_help(self, **kwargs):
         partner = self.env.user.partner_id
         if self.channel_type == 'channel':
-            msg = _("You are in channel <b>#%s</b>.", self.name)
+            msg = _("You are in channel <b>#%s</b>.") % self.name
             if self.public == 'private':
                 msg += _(" This channel is private. People must be invited to join it.")
         else:
             all_channel_partners = self.env['mail.channel.partner'].with_context(active_test=False)
             channel_partners = all_channel_partners.search([('partner_id', '!=', partner.id), ('channel_id', '=', self.id)])
-            msg = _("You are in a private conversation with <b>@%s</b>.", channel_partners[0].partner_id.name if channel_partners else _('Anonymous'))
+            msg = _("You are in a private conversation with <b>@%s</b>.") % (channel_partners[0].partner_id.name if channel_partners else _('Anonymous'))
         msg += _("""<br><br>
             Type <b>@username</b> to mention someone, and grab his attention.<br>
-            Type <b>#channel</b> to mention a channel.<br>
+            Type <b>#channel</b>.to mention a channel.<br>
             Type <b>/command</b> to execute a command.<br>
-            Type <b>:shortcut</b> to insert a canned response in your message.<br>""")
+            Type <b>:shortcut</b> to insert canned responses in your message.<br>""")
 
         self._send_transient_message(partner, msg)
 
@@ -1140,6 +1076,6 @@ class Channel(models.Model):
             msg = _("You are alone in this channel.")
         else:
             dots = "..." if len(members) != len(self.channel_partner_ids) - 1 else ""
-            msg = _("Users in this channel: %(members)s %(dots)s and you.", members=", ".join(members), dots=dots)
+            msg = _("Users in this channel: %s %s and you.") % (", ".join(members), dots)
 
         self._send_transient_message(partner, msg)

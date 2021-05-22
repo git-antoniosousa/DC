@@ -90,7 +90,7 @@
 
 <template id="opt_industry_list" inherit_id="website_customer.index" customize_show="True" name="Filter on Industry" priority="20">
     <xpath expr="//div[@id='ref_left_column']" position="inside">
-        <h3>References by Industries</h3>
+        <h3>References by Sectors of Activity</h3>
         <ul class="nav nav-pills flex-column mt16 mb32">
             <t t-foreach="industries" t-as="industry_dict">
                 <t t-if="industry_dict['industry_id']">
@@ -139,12 +139,6 @@
                     t-attf-href="/customers/#{ current_industry_id and 'industry/%s/' % slug(current_industry) or '' }#{ current_country_id and 'country/%s' % slug(current_country) or '' }?tag_id=#{slug(o_tag)}"/>
             </li>
         </ul>
-    </xpath>
-</template>
-
-<template id="contact_edit_options" inherit_id="website.user_navbar" name="Edit Customer Options">
-    <xpath expr="//li[@id='edit-page-menu']" position="after">
-        <t t-if="main_object._name == 'res.partner'" t-set="action" t-value="'contacts.action_contacts'"/>
     </xpath>
 </template>
 
@@ -221,7 +215,7 @@
 </template>
 
 <template id="references_block" name="Partner References Block">
-        <t t-if="any(p.website_published for p in partner.implemented_partner_ids)">
+        <t t-if="any([p.website_published for p in partner.implemented_partner_ids])">
             <h3 id="references">References</h3>
             <div t-foreach="partner.implemented_partner_ids" t-as="reference" class="media mt-3">
               <t t-if="reference.website_published">

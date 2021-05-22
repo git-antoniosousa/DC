@@ -4,7 +4,6 @@
 from contextlib import closing
 from datetime import datetime, timedelta
 
-from odoo.addons.mail.tests.common import mail_new_test_user
 from odoo.exceptions import ValidationError
 from odoo.tests.common import SavepointCase
 from odoo.exceptions import AccessError, UserError
@@ -14,22 +13,21 @@ class StockQuant(SavepointCase):
     @classmethod
     def setUpClass(cls):
         super(StockQuant, cls).setUpClass()
-        cls.demo_user = mail_new_test_user(
-            cls.env,
-            name='Pauline Poivraisselle',
-            login='pauline',
-            email='p.p@example.com',
-            notification_type='inbox',
-            groups='base.group_user',
-        )
-        cls.stock_user = mail_new_test_user(
-            cls.env,
-            name='Pauline Poivraisselle',
-            login='pauline2',
-            email='p.p@example.com',
-            notification_type='inbox',
-            groups='stock.group_stock_user',
-        )
+        Users = cls.env['res.users'].with_context({'no_reset_password': True, 'mail_create_nosubscribe': True})
+        cls.demo_user = Users.create({
+            'name': 'Pauline Poivraisselle',
+            'login': 'pauline',
+            'email': 'p.p@example.com',
+            'notification_type': 'inbox',
+            'groups_id': [(6, 0, [cls.env.ref('base.group_user').id])]
+        })
+        cls.stock_user = Users.create({
+            'name': 'Pauline Poivraisselle',
+            'login': 'pauline2',
+            'email': 'p.p@example.com',
+            'notification_type': 'inbox',
+            'groups_id': [(6, 0, [cls.env.ref('stock.group_stock_user').id])]
+        })
 
         cls.product = cls.env['product.product'].create({
             'name': 'Product A',

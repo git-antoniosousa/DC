@@ -3,19 +3,20 @@
 # 	* base_automation
 # 
 # Translators:
-# Shunho Kin <s-kin@shonan-innovation.co.jp>, 2020
-# Martin Trigaux, 2020
-# NOKA Shigekazu <shigekazu.noka@gmail.com>, 2020
-# Norimichi Sugimoto <norimichi.sugimoto@tls-ltd.co.jp>, 2020
+# Martin Trigaux, 2019
+# Manami Hashi <manami@roomsfor.hk>, 2019
+# NOKA Shigekazu <shigekazu.noka@gmail.com>, 2019
+# Norimichi Sugimoto <norimichi.sugimoto@tls-ltd.co.jp>, 2019
+# Tim Siu Lai <tl@roomsfor.hk>, 2019
 # Yoshi Tashiro <tashiro@roomsfor.hk>, 2020
 # Noma Yuki, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.3\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-21 10:46+0000\n"
-"PO-Revision-Date: 2020-09-07 08:10+0000\n"
+"POT-Creation-Date: 2020-04-27 09:21+0000\n"
+"PO-Revision-Date: 2019-08-26 09:09+0000\n"
 "Last-Translator: Noma Yuki, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/odoo/teams/41243/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -34,6 +35,11 @@ msgid ""
 msgstr ""
 "\"\n"
 "                    (ID:"
+
+#. module: base_automation
+#: model:mail.template,body_html:base_automation.test_mail_template_automation
+msgid "<div>Email automation</div>"
+msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__help
@@ -57,6 +63,7 @@ msgstr "アクションタイプ"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__active
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__active
 msgid "Active"
 msgstr "有効"
 
@@ -91,6 +98,11 @@ msgid "Archived"
 msgstr "アーカイブ済"
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__is_assigned_to_admin
+msgid "Assigned to admin user"
+msgstr ""
+
+#. module: base_automation
 #: model:ir.model,name:base_automation.model_base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__ir_actions_server__usage__base_automation
 msgid "Automated Action"
@@ -103,6 +115,16 @@ msgid "Automated Actions"
 msgstr "自動アクション"
 
 #. module: base_automation
+#: model:ir.model,name:base_automation.model_base_automation_line_test
+msgid "Automated Rule Line Test"
+msgstr ""
+
+#. module: base_automation
+#: model:ir.model,name:base_automation.model_base_automation_lead_test
+msgid "Automated Rule Test"
+msgstr ""
+
+#. module: base_automation
 #: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_tree
 msgid "Automation"
 msgstr "自動化"
@@ -113,6 +135,54 @@ msgstr "自動化"
 #: model:ir.cron,name:base_automation.ir_cron_data_base_automation_check
 msgid "Base Action Rule: check and execute"
 msgstr "基本アクションルール：チェックして実行する"
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_recursive
+#: model:ir.actions.server,name:base_automation.test_rule_recursive_ir_actions_server
+msgid "Base Automation: test recursive rule"
+msgstr ""
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_create
+#: model:ir.actions.server,name:base_automation.test_rule_on_create_ir_actions_server
+msgid "Base Automation: test rule on create"
+msgstr ""
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_recompute
+#: model:ir.actions.server,name:base_automation.test_rule_on_recompute_ir_actions_server
+msgid "Base Automation: test rule on recompute"
+msgstr ""
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_line
+#: model:ir.actions.server,name:base_automation.test_rule_on_line_ir_actions_server
+msgid "Base Automation: test rule on secondary model"
+msgstr ""
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_write
+#: model:ir.actions.server,name:base_automation.test_rule_on_write_ir_actions_server
+msgid "Base Automation: test rule on write"
+msgstr ""
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_write_check_context
+#: model:ir.actions.server,name:base_automation.test_rule_on_write_check_context_ir_actions_server
+msgid "Base Automation: test rule on write check context"
+msgstr ""
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_with_trigger
+#: model:ir.actions.server,name:base_automation.test_rule_with_trigger_ir_actions_server
+msgid "Base Automation: test rule with trigger"
+msgstr ""
+
+#. module: base_automation
+#: model:base.automation,name:base_automation.test_rule_on_write_recompute_send_email
+#: model:ir.actions.server,name:base_automation.test_rule_on_write_recompute_send_email_ir_actions_server
+msgid "Base Automation: test send an email"
+msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trigger__on_change
@@ -145,6 +215,11 @@ msgid "Binding View Types"
 msgstr "結合ビュータイプ"
 
 #. module: base_automation
+#: model:ir.model.fields.selection,name:base_automation.selection__base_automation_lead_test__state__cancel
+msgid "Cancelled"
+msgstr "取消済"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__child_ids
 msgid "Child Actions"
 msgstr "子アクション"
@@ -157,12 +232,31 @@ msgid ""
 msgstr "実行される子サーバー・アクション。最後のリターンは、アクション値は、グローバル戻り値として返され使用されることに注意してください。"
 
 #. module: base_automation
+#: model:ir.model.fields.selection,name:base_automation.selection__base_automation_lead_test__state__done
+msgid "Closed"
+msgstr "クローズ"
+
+#. module: base_automation
+#: model:ir.model.fields,help:base_automation.field_base_automation__on_change_fields
+msgid "Comma-separated list of field names that triggers the onchange."
+msgstr "onchange　をトリガするフィールド名のカンマ区切りリスト。"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__crud_model_id
+msgid "Create/Write Target Model"
+msgstr "ターゲットモデルの作成および更新"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__create_uid
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__create_uid
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__create_uid
 msgid "Created by"
 msgstr "作成者"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__create_date
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__create_date
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__create_date
 msgid "Created on"
 msgstr "作成日"
 
@@ -170,6 +264,11 @@ msgstr "作成日"
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_type__day
 msgid "Days"
 msgstr "日"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__deadline
+msgid "Deadline"
+msgstr "期日"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__trg_date_range
@@ -190,6 +289,11 @@ msgstr "トリガ日後待ち時間"
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__trg_date_range_type
 msgid "Delay type"
 msgstr "遅延タイプ"
+
+#. module: base_automation
+#: model:ir.model,name:base_automation.model_ir_demo
+msgid "Demo"
+msgstr "デモ"
 
 #. module: base_automation
 #. openerp-web
@@ -214,6 +318,8 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__display_name
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__display_name
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__display_name
 msgid "Display Name"
 msgstr "表示名"
 
@@ -240,14 +346,14 @@ msgid "Email Template"
 msgstr "Eメールテンプレート"
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__employee
+msgid "Employee"
+msgstr "従業員"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__xml_id
 msgid "External ID"
 msgstr "外部ID"
-
-#. module: base_automation
-#: model:ir.model.fields,help:base_automation.field_base_automation__on_change_field_ids
-msgid "Fields that trigger the onchange."
-msgstr "変更があると発動する動作をトリガーするフィールド。"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__groups_id
@@ -261,6 +367,8 @@ msgstr "時間"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__id
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__id
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__id
 msgid "ID"
 msgstr "ID"
 
@@ -284,7 +392,19 @@ msgid ""
 msgstr "存在する場合、この条件は、レコードの更新前に満たされなければなりません。"
 
 #. module: base_automation
+#: model:ir.model.fields.selection,name:base_automation.selection__base_automation_lead_test__state__open
+msgid "In Progress"
+msgstr "進行中"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__date_action_last
+msgid "Last Action"
+msgstr "最終アクション"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation____last_update
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test____last_update
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test____last_update
 msgid "Last Modified on"
 msgstr "最終更新日"
 
@@ -295,23 +415,32 @@ msgstr "最終実行"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__write_uid
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__write_uid
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__write_uid
 msgid "Last Updated by"
 msgstr "最終更新者"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__write_date
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__write_date
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__write_date
 msgid "Last Updated on"
 msgstr "最終更新日"
 
 #. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__least_delay_msg
-msgid "Least Delay Msg"
-msgstr "最小遅延メッセージ"
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__lead_id
+msgid "Lead"
+msgstr "リード"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__line_ids
+msgid "Line"
+msgstr "行"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__link_field_id
-msgid "Link Field"
-msgstr "リンク領域"
+msgid "Link using field"
+msgstr "項目を使用してリンク"
 
 #. module: base_automation
 #: model:ir.model.fields.selection,name:base_automation.selection__base_automation__trg_date_range_type__minutes
@@ -346,19 +475,22 @@ msgid "Months"
 msgstr "月"
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__name
+msgid "Name"
+msgstr "名称"
+
+#. module: base_automation
+#: model:ir.model.fields.selection,name:base_automation.selection__base_automation_lead_test__state__draft
+msgid "New"
+msgstr "新規"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_note
 msgid "Note"
 msgstr "ノート"
 
 #. module: base_automation
-#: code:addons/base_automation/models/base_automation.py:0
-#, python-format
-msgid ""
-"Note that this action can be trigged up to %d minutes after its schedule."
-msgstr "このアクションは、スケジュールから最大%d分後にトリガーできます。"
-
-#. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__on_change_field_ids
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__on_change_fields
 msgid "On Change Fields Trigger"
 msgstr "オンチェンジ項目トリガ"
 
@@ -390,11 +522,26 @@ msgid ""
 msgstr "ユーザのために、用途や目的といった目的となるビューの説明を伴った任意のヘルプテキスト"
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__partner_id
+msgid "Partner"
+msgstr "取引先"
+
+#. module: base_automation
+#: model:ir.model.fields.selection,name:base_automation.selection__base_automation_lead_test__state__pending
+msgid "Pending"
+msgstr "保留"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__priority
+msgid "Priority"
+msgstr "優先度"
+
+#. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__link_field_id
 msgid ""
-"Provide the field used to link the newly created record on the record used "
-"by the server action."
-msgstr "サーバーアクションで使用されるレコードに新しく作成されたレコードをリンクするために使用されるフィールドを指定します。"
+"Provide the field used to link the newly created record on the record on "
+"used by the server action."
+msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__code
@@ -403,6 +550,7 @@ msgstr "Pythonコード"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_user_id
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__user_id
 msgid "Responsible"
 msgstr "担当者"
 
@@ -434,19 +582,24 @@ msgid "Setup a new automated automation"
 msgstr "新しい自動化をセットアップする"
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__state
+msgid "Status"
+msgstr "ステータス"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_lead_test__name
+msgid "Subject"
+msgstr "件名"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_summary
 msgid "Summary"
 msgstr "サマリ"
 
 #. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__crud_model_id
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__crud_model_name
 msgid "Target Model"
 msgstr "対象モデル"
-
-#. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__crud_model_name
-msgid "Target Model Name"
-msgstr "対象モデル名"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__activity_user_field_name
@@ -481,19 +634,13 @@ msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__trigger
-msgid "Trigger"
-msgstr "トリガー"
+msgid "Trigger Condition"
+msgstr "トリガ条件"
 
 #. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__trg_date_id
 msgid "Trigger Date"
 msgstr "トリガ日"
-
-#. module: base_automation
-#: model:ir.model.fields,field_description:base_automation.field_base_automation__trigger_field_ids
-#: model_terms:ir.ui.view,arch_db:base_automation.view_base_automation_form
-msgid "Trigger Fields"
-msgstr "トリガー領域"
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__state
@@ -553,6 +700,11 @@ msgstr ""
 "                自動リマインダーメールをトリガーすることもできます。"
 
 #. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation_line_test__user_id
+msgid "User"
+msgstr "ユーザ"
+
+#. module: base_automation
 #: model:ir.model.fields,field_description:base_automation.field_base_automation__activity_user_field_name
 msgid "User field name"
 msgstr "ユーザ領域名"
@@ -567,6 +719,11 @@ msgstr "値マッピング"
 #, python-format
 msgid "Warning"
 msgstr "警告"
+
+#. module: base_automation
+#: model:ir.model.fields,field_description:base_automation.field_base_automation__trigger_field_ids
+msgid "Watched fields"
+msgstr ""
 
 #. module: base_automation
 #: model:ir.model.fields,help:base_automation.field_base_automation__trg_date_calendar_id

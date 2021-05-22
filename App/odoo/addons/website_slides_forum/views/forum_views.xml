@@ -10,15 +10,6 @@
                     <field name="slide_channel_id" readonly="True"/>
                 </group>
             </xpath>
-            <xpath expr="//field[@name='privacy']" position="attributes">
-                <attribute name="attrs">{'invisible': [('slide_channel_id', '!=', False)], 'required': [('slide_channel_id', '!=', 'False')]}</attribute>
-            </xpath>
-            <xpath expr="//field[@name='authorized_group_id']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', ('privacy', '!=', 'private'), ('slide_channel_id', '!=', False)], 'required': [('privacy', '=', 'private')]}</attribute>
-            </xpath>
-            <xpath expr="//field[@name='privacy']" position="before">
-                <field name="visibility" attrs="{'invisible': [('slide_channel_id', '=', False)]}"/>
-            </xpath>
         </field>
     </record>
 
@@ -46,7 +37,7 @@
         <field name="name">forum.post.view.graph.slides</field>
         <field name="model">forum.post</field>
         <field name="arch" type="xml">
-            <graph string="eLearning Forum Posts" sample="1">
+            <graph string="eLearning Forum Posts">
                 <field name="create_date" interval="month" type="col"/>
                 <field name="forum_id" type="row"/>
             </graph>
@@ -59,10 +50,5 @@
         <field name="view_mode">graph</field>
         <field name="view_id" ref="forum_post_view_graph_slides"/>
         <field name="domain">[('forum_id.slide_channel_ids', '!=', 'False')]</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No data yet!
-            </p>
-        </field>
     </record>
 </odoo>

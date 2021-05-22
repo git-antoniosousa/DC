@@ -4,7 +4,7 @@
 {
     'name': 'United States - Accounting',
     'version': '1.1',
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     'description': """
 United States - Chart of accounts.
 ==================================

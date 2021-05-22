@@ -8,7 +8,7 @@ class MailingList(models.Model):
     _inherit = 'mailing.list'
 
     def _compute_contact_nbr(self):
-        if self.env.context.get('mailing_sms') and self.ids:
+        if self.env.context.get('mailing_sms'):
             self.env.cr.execute('''
 select list_id, count(*)
 from mailing_contact_list_rel r
@@ -28,7 +28,7 @@ group by list_id''', (tuple(self.ids), ))
 
     def action_view_contacts(self):
         if self.env.context.get('mailing_sms'):
-            action = self.env["ir.actions.actions"]._for_xml_id("mass_mailing_sms.mailing_contact_action_sms")
+            action = self.env.ref('mass_mailing_sms.mailing_contact_action_sms').read()[0]
             action['domain'] = [('list_ids', 'in', self.ids)]
             context = dict(self.env.context, search_default_filter_valid_sms_recipient=1, default_list_ids=self.ids)
             action['context'] = context

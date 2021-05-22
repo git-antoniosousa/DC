@@ -59,9 +59,20 @@ var ShowPaymentLineWidget = AbstractField.extend({
             var content = info.content[v];
             var options = {
                 content: function () {
-                    var $content = $(QWeb.render('PaymentPopOver', content));
-                    var unreconcile_button = $content.filter('.js_unreconcile_payment').on('click', self._onRemoveMoveReconcile.bind(self));
-
+                    var $content = $(QWeb.render('PaymentPopOver', {
+                        name: content.name,
+                        journal_name: content.journal_name,
+                        date: content.date,
+                        amount: content.amount,
+                        currency: content.currency,
+                        position: content.position,
+                        payment_id: content.payment_id,
+                        payment_method_name: content.payment_method_name,
+                        move_id: content.move_id,
+                        ref: content.ref,
+                        account_payment_id: content.account_payment_id,
+                    }));
+                    $content.filter('.js_unreconcile_payment').on('click', self._onRemoveMoveReconcile.bind(self));
                     $content.filter('.js_open_payment').on('click', self._onOpenPayment.bind(self));
                     return $content;
                 },
@@ -133,13 +144,13 @@ var ShowPaymentLineWidget = AbstractField.extend({
      */
     _onRemoveMoveReconcile: function (event) {
         var self = this;
-        var moveId = parseInt($(event.target).attr('move-id'));
-        var partialId = parseInt($(event.target).attr('partial-id'));
-        if (partialId !== undefined && !isNaN(partialId)){
+        var paymentId = parseInt($(event.target).attr('payment-id'));
+        if (paymentId !== undefined && !isNaN(paymentId)){
             this._rpc({
-                model: 'account.move',
-                method: 'js_remove_outstanding_partial',
-                args: [moveId, partialId],
+                model: 'account.move.line',
+                method: 'remove_move_reconcile',
+                args: [paymentId],
+                context: {'move_id': this.res_id},
             }).then(function () {
                 self.trigger_up('reload');
             });
@@ -152,5 +163,5 @@ field_registry.add('payment', ShowPaymentLineWidget);
 return {
     ShowPaymentLineWidget: ShowPaymentLineWidget
 };
-
+    
 });

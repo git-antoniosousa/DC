@@ -3,11 +3,11 @@
 
 import base64
 
-from odoo.addons.test_mail.tests.common import TestMailCommon, TestRecipients
+from odoo.addons.test_mail.tests.common import BaseFunctionalTest, MockEmails, TestRecipients
 from odoo.tools import mute_logger
 
 
-class TestMailTemplate(TestMailCommon, TestRecipients):
+class TestMailTemplate(BaseFunctionalTest, MockEmails, TestRecipients):
 
     @classmethod
     def setUpClass(cls):
@@ -48,7 +48,7 @@ class TestMailTemplate(TestMailCommon, TestRecipients):
     @mute_logger('odoo.addons.mail.models.mail_mail')
     def test_template_send_email(self):
         mail_id = self.email_template.send_mail(self.test_record.id)
-        mail = self.env['mail.mail'].sudo().browse(mail_id)
+        mail = self.env['mail.mail'].browse(mail_id)
         self.assertEqual(mail.subject, 'About %s' % self.test_record.name)
         self.assertEqual(mail.email_to, self.email_template.email_to)
         self.assertEqual(mail.email_cc, self.email_template.email_cc)
@@ -64,6 +64,41 @@ class TestMailTemplate(TestMailCommon, TestRecipients):
         action = self.email_template.ref_ir_act_window
         self.assertEqual(action.name, 'Send Mail (%s)' % self.email_template.name)
         self.assertEqual(action.binding_model_id.model, 'mail.test.simple')
+
+    def test_template_send_email_translations_with_notif_layout(self):
+        self.env['res.lang'].load_lang('fr_FR')
+        self.test_record = self.env['mail.test.full'].with_context(self._test_context).create({
+            'name': 'Test',
+            'email_from': 'ignasse@example.com',
+            'customer_id': self.partner_2.id,
+        })
+        self._create_template('mail.test.full', {
+            'partner_to': '%s' % self.partner_2.id,
+            'email_to': '%s' % self.partner_2.email,
+            'lang': '${object.customer_id.lang}',
+        })
+        ARCH = '<template id="test_notification_template">%s</template>'
+        TEXT_EN = "Notification Template"
+        TEXT_FR = u"Template de notification"
+        view = self.env['ir.ui.view']._load_records([dict(xml_id='test_mail.test_notification_template', values={
+            'name': 'test_notification_template',
+            'arch': ARCH % TEXT_EN,
+            'inherit_id': False,
+            'type': 'qweb',
+        })])
+        self.env['ir.translation'].create({
+            'type': 'model_terms',
+            'name': 'ir.ui.view,arch_db',
+            'res_id': view.id,
+            'lang': 'fr_FR',
+            'src': TEXT_EN,
+            'value': TEXT_FR,
+        })
+        self.partner_2.lang = 'fr_FR'
+
+        mail_id = self.email_template.send_mail(self.test_record.id, False, False, None, 'test_mail.test_notification_template')
+        mail = self.env['mail.mail'].browse(mail_id)
+        self.assertEqual(mail.body_html, ARCH % TEXT_FR)
 
     # def test_template_scheduled_date(self):
     #     from unittest.mock import patch

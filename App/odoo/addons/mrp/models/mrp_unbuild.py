@@ -41,12 +41,11 @@ class MrpUnbuild(models.Model):
             ('company_id', '=', False)
         ]
 """,
-        states={'done': [('readonly', True)]}, check_company=True)
+        required=True, states={'done': [('readonly', True)]}, check_company=True)
     mo_id = fields.Many2one(
         'mrp.production', 'Manufacturing Order',
-        domain="[('id', 'in', allowed_mo_ids)]",
+        domain="[('state', 'in', ['done', 'cancel']), ('company_id', '=', company_id)]",
         states={'done': [('readonly', True)]}, check_company=True)
-    mo_bom_id = fields.Many2one('mrp.bom', 'Bill of Material used on the Production Order', related='mo_id.bom_id')
     lot_id = fields.Many2one(
         'stock.production.lot', 'Lot/Serial Number',
         domain="[('product_id', '=', product_id), ('company_id', '=', company_id)]", check_company=True,
@@ -71,36 +70,13 @@ class MrpUnbuild(models.Model):
     state = fields.Selection([
         ('draft', 'Draft'),
         ('done', 'Done')], string='Status', default='draft', index=True)
-    allowed_mo_ids = fields.One2many('mrp.production', compute='_compute_allowed_mo_ids')
-
-    @api.depends('company_id', 'product_id')
-    def _compute_allowed_mo_ids(self):
-        for unbuild in self:
-            if unbuild.product_id:
-                domain = [
-                    ('state', '=', 'done'),
-                    ('product_id', '=', unbuild.product_id.id),
-                    ('company_id', '=', unbuild.company_id.id)
-                ]
-            else:
-                domain = [
-                    ('state', 'in', ['done', 'cancel']),
-                    ('company_id', '=', unbuild.company_id.id)
-                ]
-            allowed_mos = self.env['mrp.production'].search_read(domain, ['id'])
-            if allowed_mos:
-                unbuild.allowed_mo_ids = [mo['id'] for mo in allowed_mos]
-            else:
-                unbuild.allowed_mo_ids = False
 
     @api.onchange('company_id')
     def _onchange_company_id(self):
         if self.company_id:
             warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.company_id.id)], limit=1)
-            if self.location_id.company_id != self.company_id:
-                self.location_id = warehouse.lot_stock_id
-            if self.location_dest_id.company_id != self.company_id:
-                self.location_dest_id = warehouse.lot_stock_id
+            self.location_id = warehouse.lot_stock_id
+            self.location_dest_id = warehouse.lot_stock_id
         else:
             self.location_id = False
             self.location_dest_id = False
@@ -109,18 +85,16 @@ class MrpUnbuild(models.Model):
     def _onchange_mo_id(self):
         if self.mo_id:
             self.product_id = self.mo_id.product_id.id
-            self.bom_id = self.mo_id.bom_id
+            self.product_qty = self.mo_id.product_qty
             self.product_uom_id = self.mo_id.product_uom_id
-            if self.has_tracking == 'serial':
-                self.product_qty = 1
-            else:
-                self.product_qty = self.mo_id.product_qty
 
     @api.onchange('product_id')
     def _onchange_product_id(self):
         if self.product_id:
             self.bom_id = self.env['mrp.bom']._bom_find(product=self.product_id, company_id=self.company_id.id)
             self.product_uom_id = self.product_id.uom_id.id
+            if self.company_id:
+                return {'domain': {'mo_id': [('state', '=', 'done'), ('product_id', '=', self.product_id.id), ('company_id', '=', self.company_id.id)]}}
 
     @api.constrains('product_qty')
     def _check_qty(self):
@@ -184,7 +158,7 @@ class MrpUnbuild(models.Model):
                 needed_quantity = move.product_uom_qty
                 moves_lines = original_move.mapped('move_line_ids')
                 if move in produce_moves and self.lot_id:
-                    moves_lines = moves_lines.filtered(lambda ml: self.lot_id in ml.produce_line_ids.lot_id)  # FIXME sle: double check with arm
+                    moves_lines = moves_lines.filtered(lambda ml: self.lot_id in ml.lot_produced_ids)
                 for move_line in moves_lines:
                     # Iterate over all move_lines until we unbuilded the correct quantity.
                     taken_quantity = min(needed_quantity, move_line.qty_done)
@@ -257,9 +231,8 @@ class MrpUnbuild(models.Model):
         })
 
     def _generate_move_from_bom_line(self, product, product_uom, quantity, bom_line_id=False, byproduct_id=False):
-        product_prod_location = product.with_company(self.company_id).property_stock_production
-        location_id = bom_line_id and product_prod_location or self.location_id
-        location_dest_id = bom_line_id and self.location_dest_id or product_prod_location
+        location_id = bom_line_id and product.property_stock_production or self.location_id
+        location_dest_id = bom_line_id and self.location_dest_id or product.with_context(force_company=self.company_id.id).property_stock_production
         warehouse = location_dest_id.get_warehouse()
         return self.env['stock.move'].create({
             'name': self.name,
@@ -281,12 +254,11 @@ class MrpUnbuild(models.Model):
         self.ensure_one()
         precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         available_qty = self.env['stock.quant']._get_available_quantity(self.product_id, self.location_id, self.lot_id, strict=True)
-        unbuild_qty = self.product_uom_id._compute_quantity(self.product_qty, self.product_id.uom_id)
-        if float_compare(available_qty, unbuild_qty, precision_digits=precision) >= 0:
+        if float_compare(available_qty, self.product_qty, precision_digits=precision) >= 0:
             return self.action_unbuild()
         else:
             return {
-                'name': self.product_id.display_name + _(': Insufficient Quantity To Unbuild'),
+                'name': _('Insufficient Quantity'),
                 'view_mode': 'form',
                 'res_model': 'stock.warn.insufficient.qty.unbuild',
                 'view_id': self.env.ref('mrp.stock_warn_insufficient_qty_unbuild_form_view').id,
@@ -294,9 +266,8 @@ class MrpUnbuild(models.Model):
                 'context': {
                     'default_product_id': self.product_id.id,
                     'default_location_id': self.location_id.id,
-                    'default_unbuild_id': self.id,
-                    'default_quantity': unbuild_qty,
-                    'default_product_uom_name': self.product_id.uom_name
+                    'default_unbuild_id': self.id
                 },
                 'target': 'new'
             }
+

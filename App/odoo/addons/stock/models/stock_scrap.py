@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.tools import float_compare
 
@@ -36,7 +36,7 @@ class StockScrap(models.Model):
         'uom.uom', 'Unit of Measure',
         required=True, states={'done': [('readonly', True)]}, domain="[('category_id', '=', product_uom_category_id)]")
     product_uom_category_id = fields.Many2one(related='product_id.uom_id.category_id')
-    tracking = fields.Selection(string='Product Tracking', readonly=True, related="product_id.tracking")
+    tracking = fields.Selection('Product Tracking', readonly=True, related="product_id.tracking")
     lot_id = fields.Many2one(
         'stock.production.lot', 'Lot/Serial',
         states={'done': [('readonly', True)]}, domain="[('product_id', '=', product_id), ('company_id', '=', company_id)]", check_company=True)
@@ -101,6 +101,9 @@ class StockScrap(models.Model):
             raise UserError(_('You cannot delete a scrap which is done.'))
         return super(StockScrap, self).unlink()
 
+    def _get_origin_moves(self):
+        return self.picking_id and self.picking_id.move_lines.filtered(lambda x: x.product_id == self.product_id)
+
     def _prepare_move_values(self):
         self.ensure_one()
         return {
@@ -138,12 +141,12 @@ class StockScrap(models.Model):
         return True
 
     def action_get_stock_picking(self):
-        action = self.env['ir.actions.act_window']._for_xml_id('stock.action_picking_tree_all')
+        action = self.env.ref('stock.action_picking_tree_all').read([])[0]
         action['domain'] = [('id', '=', self.picking_id.id)]
         return action
 
     def action_get_stock_move_lines(self):
-        action = self.env['ir.actions.act_window']._for_xml_id('stock.stock_move_line_action')
+        action = self.env.ref('stock.stock_move_line_action').read([])[0]
         action['domain'] = [('move_id', '=', self.move_id.id)]
         return action
 
@@ -166,12 +169,10 @@ class StockScrap(models.Model):
             ctx.update({
                 'default_product_id': self.product_id.id,
                 'default_location_id': self.location_id.id,
-                'default_scrap_id': self.id,
-                'default_quantity': scrap_qty,
-                'default_product_uom_name': self.product_id.uom_name
+                'default_scrap_id': self.id
             })
             return {
-                'name': self.product_id.display_name + _(': Insufficient Quantity To Scrap'),
+                'name': _('Insufficient Quantity'),
                 'view_mode': 'form',
                 'res_model': 'stock.warn.insufficient.qty.scrap',
                 'view_id': self.env.ref('stock.stock_warn_insufficient_qty_scrap_form_view').id,
@@ -179,3 +180,4 @@ class StockScrap(models.Model):
                 'context': ctx,
                 'target': 'new'
             }
+

@@ -5,102 +5,35 @@ import odoo.tests
 
 @odoo.tests.tagged('post_install', '-at_install')
 class TestFrontend(odoo.tests.HttpCase):
-    def setUp(self):
-        super().setUp()
-        self.env = self.env(user=self.env.ref('base.user_admin'))
-        account_obj = self.env['account.account']
+    def test_01_pos_restaurant(self):
+        env = self.env(user=self.env.ref('base.user_admin'))
+        account_obj = env['account.account']
 
-        printer = self.env['restaurant.printer'].create({
-            'name': 'Kitchen Printer',
-            'proxy_ip': 'localhost',
-        })
-        drinks_category = self.env['pos.category'].create({'name': 'Drinks'})
+        pos_config = env.ref('pos_restaurant.pos_config_restaurant')
+        main_company = env.ref('base.main_company')
 
-        pos_config = self.env['pos.config'].create({
-            'name': 'Bar',
-            'barcode_nomenclature_id': self.env.ref('barcodes.default_barcode_nomenclature').id,
-            'module_pos_restaurant': True,
-            'is_table_management': True,
-            'iface_splitbill': True,
-            'iface_printbill': True,
-            'iface_orderline_notes': True,
-            'printer_ids': [(4, printer.id)],
-            'iface_start_categ_id': drinks_category.id,
-            'start_category': True,
-            'pricelist_id': self.env.ref('product.list0').id,
-        })
-
-        main_floor = self.env['restaurant.floor'].create({
-            'name': 'Main Floor',
-            'pos_config_id': pos_config.id,
-        })
-
-        table_05 = self.env['restaurant.table'].create({
-            'name': 'T5',
-            'floor_id': main_floor.id,
-            'seats': 4,
-            'position_h': 100,
-            'position_v': 100,
-        })
-        table_04 = self.env['restaurant.table'].create({
-            'name': 'T4',
-            'floor_id': main_floor.id,
-            'seats': 4,
-            'shape': 'square',
-            'position_h': 150,
-            'position_v': 100,
-        })
-        table_02 = self.env['restaurant.table'].create({
-            'name': 'T2',
-            'floor_id': main_floor.id,
-            'seats': 4,
-            'position_h': 250,
-            'position_v': 100,
-        })
-
-        second_floor = self.env['restaurant.floor'].create({
-            'name': 'Second Floor',
-            'pos_config_id': pos_config.id,
-        })
-
-        table_01 = self.env['restaurant.table'].create({
-            'name': 'T1',
-            'floor_id': second_floor.id,
-            'seats': 4,
-            'shape': 'square',
-            'position_h': 100,
-            'position_v': 150,
-        })
-        table_03 = self.env['restaurant.table'].create({
-            'name': 'T3',
-            'floor_id': second_floor.id,
-            'seats': 4,
-            'position_h': 100,
-            'position_v': 250,
-        })
-
-        main_company = self.env.ref('base.main_company')
+        all_pos_product = self.env['product.product'].search([('available_in_pos', '=', True)])
+        discount = self.env.ref('point_of_sale.product_product_consumable')
+        self.tip = self.env.ref('point_of_sale.product_product_tip')
+        (all_pos_product - discount - self.tip)._write({'active': False})
 
         account_receivable = account_obj.create({'code': 'X1012',
                                                  'name': 'Account Receivable - Test',
-                                                 'user_type_id': self.env.ref('account.data_account_type_receivable').id,
+                                                 'user_type_id': env.ref('account.data_account_type_receivable').id,
                                                  'reconcile': True})
-
-        self.env['ir.property']._set_default(
-            'property_account_receivable_id',
-            'res.partner',
-            account_receivable,
-            main_company,
-        )
-
-        test_sale_journal = self.env['account.journal'].create({
+        field = env['ir.model.fields']._get('res.partner', 'property_account_receivable_id')
+        env['ir.property'].create({'name': 'property_account_receivable_id',
+                                   'company_id': main_company.id,
+                                   'fields_id': field.id,
+                                   'value': 'account.account,' + str(account_receivable.id)})
+        test_sale_journal = env['account.journal'].create({
             'name': 'Sales Journal - Test',
             'code': 'TSJ',
             'type': 'sale',
             'company_id': main_company.id
             })
 
-        cash_journal = self.env['account.journal'].create({
+        cash_journal = env['account.journal'].create({
             'name': 'Cash Test',
             'code': 'TCJ',
             'type': 'sale',
@@ -119,81 +52,45 @@ class TestFrontend(odoo.tests.HttpCase):
             })],
         })
 
-        coke = self.env['product.product'].create({
-            'available_in_pos': True,
-            'list_price': 2.20,
+        pos_categ_drinks = env.ref('pos_restaurant.drinks')
+
+        coke = env['product.product'].create({
             'name': 'Coca-Cola',
-            'weight': 0.01,
-            'pos_categ_id': drinks_category.id,
-            'categ_id': self.env.ref('point_of_sale.product_category_pos').id,
-            'taxes_id': [(6, 0, [])],
-        })
-
-        water = self.env['product.product'].create({
             'available_in_pos': True,
             'list_price': 2.20,
+            'taxes_id': False,
+            'pos_categ_id': pos_categ_drinks.id,
+        })
+
+        water = env['product.product'].create({
             'name': 'Water',
-            'weight': 0.01,
-            'pos_categ_id': drinks_category.id,
-            'categ_id': self.env.ref('point_of_sale.product_category_pos').id,
-            'taxes_id': [(6, 0, [])],
-        })
-
-        minute_maid = self.env['product.product'].create({
             'available_in_pos': True,
             'list_price': 2.20,
-            'name': 'Minute Maid',
-            'weight': 0.01,
-            'pos_categ_id': drinks_category.id,
-            'categ_id': self.env.ref('point_of_sale.product_category_pos').id,
-            'taxes_id': [(6, 0, [])],
+            'taxes_id': False,
+            'pos_categ_id': pos_categ_drinks.id,
         })
 
-        pricelist = self.env['product.pricelist'].create({'name': 'Restaurant Pricelist'})
-        pos_config.write({'pricelist_id': pricelist.id})
+        minute_maid = env['product.product'].create({
+            'name': 'Minute Maid',
+            'available_in_pos': True,
+            'list_price': 2.20,
+            'taxes_id': False,
+            'pos_categ_id': pos_categ_drinks.id,
+        })
 
-        self.pos_config = pos_config
+        coke.write({'taxes_id': [(6, 0, [])]})
+        water.write({'taxes_id': [(6, 0, [])]})
+        minute_maid.write({'taxes_id': [(6, 0, [])]})
 
-    def test_01_pos_restaurant(self):
+        pos_config.open_session_cb()
 
-        self.pos_config.with_user(self.env.ref('base.user_admin')).open_session_cb(check_coa=False)
+        self.start_tour("/pos/web?config_id=%d" % pos_config.id, 'pos_restaurant_sync', login="admin")
 
-        self.start_tour("/pos/ui?config_id=%d" % self.pos_config.id, 'pos_restaurant_sync', login="admin")
+        self.assertEqual(1, env['pos.order'].search_count([('amount_total', '=', 4.4), ('state', '=', 'draft')]))
+        self.assertEqual(1, env['pos.order'].search_count([('amount_total', '=', 4.4), ('state', '=', 'paid')]))
 
-        self.assertEqual(1, self.env['pos.order'].search_count([('amount_total', '=', 4.4), ('state', '=', 'draft')]))
-        self.assertEqual(1, self.env['pos.order'].search_count([('amount_total', '=', 4.4), ('state', '=', 'paid')]))
+        self.start_tour("/pos/web?config_id=%d" % pos_config.id, 'pos_restaurant_sync_second_login', login="admin")
 
-        self.start_tour("/pos/ui?config_id=%d" % self.pos_config.id, 'pos_restaurant_sync_second_login', login="admin")
-
-        self.assertEqual(0, self.env['pos.order'].search_count([('amount_total', '=', 4.4), ('state', '=', 'draft')]))
-        self.assertEqual(1, self.env['pos.order'].search_count([('amount_total', '=', 2.2), ('state', '=', 'draft')]))
-        self.assertEqual(2, self.env['pos.order'].search_count([('amount_total', '=', 4.4), ('state', '=', 'paid')]))
-
-    def test_02_others(self):
-        self.pos_config.with_user(self.env.ref('base.user_admin')).open_session_cb(check_coa=False)
-        self.start_tour("/pos/ui?config_id=%d" % self.pos_config.id, 'SplitBillScreenTour', login="admin")
-        self.start_tour("/pos/ui?config_id=%d" % self.pos_config.id, 'ControlButtonsTour', login="admin")
-        self.start_tour("/pos/ui?config_id=%d" % self.pos_config.id, 'FloorScreenTour', login="admin")
-
-    def test_03_order_management_integration(self):
-        self.pos_config.write({'manage_orders': True})
-        self.pos_config.with_user(self.env.ref('base.user_admin')).open_session_cb(check_coa=False)
-        self.start_tour("/pos/ui?config_id=%d" % self.pos_config.id, 'PosResOrderManagementScreenTour', login="admin")
-
-    def test_04_ticket_screen(self):
-        self.pos_config.with_user(self.env.ref('base.user_admin')).open_session_cb(check_coa=False)
-        self.start_tour("/pos/ui?config_id=%d" % self.pos_config.id, 'PosResTicketScreenTour', login="admin")
-
-    def test_05_tip_screen(self):
-        self.pos_config.write({'set_tip_after_payment': True, 'iface_tipproduct': True, 'tip_product_id': self.env.ref('point_of_sale.product_product_tip')})
-        self.pos_config.with_user(self.env.ref('base.user_admin')).open_session_cb(check_coa=False)
-        self.start_tour("/pos/ui?config_id=%d" % self.pos_config.id, 'PosResTipScreenTour', login="admin")
-
-        order1 = self.env['pos.order'].search([('pos_reference', 'ilike', '%-0001')])
-        order2 = self.env['pos.order'].search([('pos_reference', 'ilike', '%-0002')])
-        order3 = self.env['pos.order'].search([('pos_reference', 'ilike', '%-0003')])
-        order4 = self.env['pos.order'].search([('pos_reference', 'ilike', '%-0004')])
-        self.assertTrue(order1.is_tipped and order1.tip_amount == 0.40)
-        self.assertTrue(order2.is_tipped and order2.tip_amount == 1.00)
-        self.assertTrue(order3.is_tipped and order3.tip_amount == 1.50)
-        self.assertTrue(order4.is_tipped and order4.tip_amount == 1.00)
+        self.assertEqual(0, env['pos.order'].search_count([('amount_total', '=', 4.4), ('state', '=', 'draft')]))
+        self.assertEqual(1, env['pos.order'].search_count([('amount_total', '=', 2.2), ('state', '=', 'draft')]))
+        self.assertEqual(2, env['pos.order'].search_count([('amount_total', '=', 4.4), ('state', '=', 'paid')]))

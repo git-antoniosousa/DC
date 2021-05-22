@@ -5,7 +5,7 @@
     'name': 'Germany - Accounting',
     'author': 'openbig.org',
     'website': 'http://www.openbig.org',
-    'category': 'Accounting/Localizations',
+    'category': 'Localization',
     'description': """
 Dieses  Modul beinhaltet einen deutschen Kontenrahmen basierend auf dem SKR03.
 ==============================================================================

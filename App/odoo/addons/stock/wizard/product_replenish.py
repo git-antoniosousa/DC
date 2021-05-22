@@ -2,8 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import datetime
-
-from odoo import _, api, fields, models
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.tools.misc import clean_context
 
@@ -49,7 +48,7 @@ class ProductReplenish(models.TransientModel):
             res['product_uom_id'] = product_tmpl_id.uom_id.id
         if 'company_id' in fields:
             res['company_id'] = company.id
-        if 'warehouse_id' in fields and 'warehouse_id' not in res:
+        if 'warehouse_id' in fields:
             warehouse = self.env['stock.warehouse'].search([('company_id', '=', company.id)], limit=1)
             res['warehouse_id'] = warehouse.id
         if 'date_planned' in fields:
@@ -77,7 +76,7 @@ class ProductReplenish(models.TransientModel):
 
     def _prepare_run_values(self):
         replenishment = self.env['procurement.group'].create({
-            'partner_id': self.product_id.with_company(self.company_id).responsible_id.partner_id.id,
+            'partner_id': self.product_id.with_context(force_company=self.company_id.id).responsible_id.partner_id.id,
         })
 
         values = {

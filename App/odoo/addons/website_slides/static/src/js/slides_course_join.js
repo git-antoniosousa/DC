@@ -3,84 +3,25 @@ odoo.define('website_slides.course.join.widget', function (require) {
 
 var core = require('web.core');
 var publicWidget = require('web.public.widget');
+require('website_slides.slides');
 
 var _t = core._t;
 
 var CourseJoinWidget = publicWidget.Widget.extend({
     template: 'slide.course.join',
-    xmlDependencies: ['/website_slides/static/src/xml/slide_course_join.xml'],
+    xmlDependencies: ['/website_slides/static/src/xml/channel_management.xml'],
     events: {
         'click .o_wslides_js_course_join_link': '_onClickJoin',
     },
 
-    /**
-     *
-     * Overridden to add options parameters.
-     *
-     * @param {Object} parent
-     * @param {Object} options
-     * @param {Object} options.channel slide.channel information
-     * @param {boolean} options.isMember whether current user is member or not
-     * @param {boolean} options.publicUser whether current user is public or not
-     * @param {string} [options.joinMessage] the message to use for the simple join case
-     *   when the course if free and the user is logged in, defaults to "Join Course".
-     * @param {Promise} [options.beforeJoin] a promise to execute before we redirect to
-     *   another url within the join process (login / buy course / ...)
-     * @param {function} [options.afterJoin] a callback function called after the user has
-     *   joined the course
-     */
-    init: function (parent, options) {
-        this._super.apply(this, arguments);
-        this.channel = options.channel;
-        this.isMember = options.isMember;
-        this.publicUser = options.publicUser;
-        this.joinMessage = options.joinMessage || _t('Join Course'),
-        this.beforeJoin = options.beforeJoin || Promise.resolve();
-        this.afterJoin = options.afterJoin || function () {document.location.reload();};
-    },
-
-    //--------------------------------------------------------------------------
-    // Handlers
-    //--------------------------------------------------------------------------
-
-    /**
-     * @private
-     * @param {MouseEvent} ev
-     */
-    _onClickJoin: function (ev) {
-        ev.preventDefault();
-
-        if (this.channel.channelEnroll !== 'invite') {
-            if (this.publicUser) {
-                this.beforeJoin().then(this._redirectToLogin.bind(this));
-            } else if (!this.isMember && this.channel.channelEnroll === 'public') {
-                this.joinChannel(this.channel.channelId);
-            }
-        }
+    init: function (parent, channelId){
+        this.channelId = channelId;
+        return this._super.apply(this, arguments);
     },
 
     //--------------------------------------------------------------------------
     // Private
     //--------------------------------------------------------------------------
-
-    /**
-     * Builds a login page that then redirects to this slide page, or the channel if the course
-     * is not configured as public enroll type.
-     *
-     * @private
-     */
-    _redirectToLogin: function () {
-        var url;
-        if (this.channel.channelEnroll === 'public') {
-            url = window.location.pathname;
-            if (document.location.href.indexOf("fullscreen") !== -1) {
-                url += '?fullscreen=1';
-            }
-        } else {
-            url = `/slides/${this.channel.channelId}`;
-        }
-        document.location = _.str.sprintf('/web/login?redirect=%s', encodeURIComponent(url));
-    },
 
     /**
      * @private
@@ -100,13 +41,14 @@ var CourseJoinWidget = publicWidget.Widget.extend({
     },
 
     //--------------------------------------------------------------------------
-    // Public
+    // Handlers
     //--------------------------------------------------------------------------
+
     /**
-     * @public
-     * @param {integer} channelId
+     * @private
      */
-    joinChannel: function (channelId) {
+    _onClickJoin: function (event) {
+        var channelId = this.channelId || $(event.currentTarget).data('channel-id');
         var self = this;
         this._rpc({
             route: '/slides/channel/join',
@@ -114,8 +56,8 @@ var CourseJoinWidget = publicWidget.Widget.extend({
                 channel_id: channelId,
             },
         }).then(function (data) {
-            if (!data.error) {
-                self.afterJoin();
+            if (! data.error) {
+                location.reload();
             } else {
                 if (data.error === 'public_user') {
                     var message = _t('Please <a href="/web/login?redirect=%s">login</a> to join this course');
@@ -144,14 +86,13 @@ publicWidget.registry.websiteSlidesCourseJoin = publicWidget.Widget.extend({
     start: function () {
         var self = this;
         var proms = [this._super.apply(this, arguments)];
-        var data = self.$el.data();
-        var options = {channel: {channelEnroll: data.channelEnroll, channelId: data.channelId}};
         $('.o_wslides_js_course_join').each(function () {
-            proms.push(new CourseJoinWidget(self, options).attachTo($(this)));
+            proms.push(new CourseJoinWidget(self).attachTo($(this)));
         });
         return Promise.all(proms);
     },
 });
+
 
 return {
     courseJoinWidget: CourseJoinWidget,

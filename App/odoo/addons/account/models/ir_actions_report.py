@@ -23,11 +23,11 @@ class IrActionsReport(models.Model):
                 raise UserError(_("No original vendor bills could be found for any of the selected vendor bills."))
         return super(IrActionsReport, self)._post_pdf(save_in_attachment, pdf_content=pdf_content, res_ids=res_ids)
 
-    def _postprocess_pdf_report(self, record, buffer):
+    def postprocess_pdf_report(self, record, buffer):
         # don't save the 'account.report_original_vendor_bill' report as it's just a mean to print existing attachments
         if self.report_name == 'account.report_original_vendor_bill':
             return None
-        res = super(IrActionsReport, self)._postprocess_pdf_report(record, buffer)
+        res = super(IrActionsReport, self).postprocess_pdf_report(record, buffer)
         if self.model == 'account.move' and record.state == 'posted' and record.is_sale_document(include_receipts=True):
             attachment = self.retrieve_attachment(record)
             if attachment:

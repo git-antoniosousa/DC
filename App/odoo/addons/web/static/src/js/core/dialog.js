@@ -4,7 +4,6 @@ odoo.define('web.Dialog', function (require) {
 var core = require('web.core');
 var dom = require('web.dom');
 var Widget = require('web.Widget');
-const OwlDialog = require('web.OwlDialog');
 
 var QWeb = core.qweb;
 var _t = core._t;
@@ -72,9 +71,6 @@ var Dialog = Widget.extend({
         this._opened = new Promise(function (resolve) {
             self._openedResolver = resolve;
         });
-        if (this.on_attach_callback) {
-            this._opened = this.opened(this.on_attach_callback);
-        }
         options = _.defaults(options || {}, {
             title: _t('Odoo'), subtitle: '',
             size: 'large',
@@ -209,9 +205,6 @@ var Dialog = Widget.extend({
             if (options && options.shouldFocusButtons) {
                 self._onFocusControlButton();
             }
-
-            // Notifies OwlDialog to adjust focus/active properties on owl dialogs
-            OwlDialog.display(self);
         });
 
         return self;
@@ -243,12 +236,6 @@ var Dialog = Widget.extend({
             return;
         }
 
-        // Notifies OwlDialog to adjust focus/active properties on owl dialogs.
-        // Only has to be done if the dialog has been opened (has an el).
-        if (this.el) {
-            OwlDialog.hide(this);
-        }
-
         // Triggers the onForceClose event if the callback is defined
         if (this.onForceClose) {
             this.onForceClose();
@@ -259,9 +246,6 @@ var Dialog = Widget.extend({
 
         $('.tooltip').remove(); //remove open tooltip if any to prevent them staying when modal has disappeared
         if (this.$modal) {
-            if (this.on_detach_callback) {
-                this.on_detach_callback();
-            }
             this.$modal.modal('hide');
             this.$modal.remove();
         }
@@ -320,7 +304,7 @@ var Dialog = Widget.extend({
                 }
                 if (buttonData.close) {
                     self.onForceClose = false;
-                    Promise.resolve(def).then(self.close.bind(self));
+                    Promise.resolve(def).then(self.close.bind(self)).guardedCatch(self.close.bind(self));
                 }
             });
             if (self.technical) {

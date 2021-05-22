@@ -59,7 +59,6 @@ class AccountAnalyticAccount(models.Model):
     _inherit = ['mail.thread']
     _description = 'Analytic Account'
     _order = 'code, name asc'
-    _check_company_auto = True
 
     @api.model
     def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
@@ -83,10 +82,7 @@ class AccountAnalyticAccount(models.Model):
     def _compute_debit_credit_balance(self):
         Curr = self.env['res.currency']
         analytic_line_obj = self.env['account.analytic.line']
-        domain = [
-            ('account_id', 'in', self.ids),
-            ('company_id', 'in', [False] + self.env.companies.ids)
-        ]
+        domain = [('account_id', 'in', self.ids)]
         if self._context.get('from_date', False):
             domain.append(('date', '>=', self._context['from_date']))
         if self._context.get('to_date', False):
@@ -94,6 +90,8 @@ class AccountAnalyticAccount(models.Model):
         if self._context.get('tag_ids'):
             tag_domain = expression.OR([[('tag_ids', 'in', [tag])] for tag in self._context['tag_ids']])
             domain = expression.AND([domain, tag_domain])
+        if self._context.get('company_ids'):
+            domain.append(('company_id', 'in', self._context['company_ids']))
 
         user_currency = self.env.company.currency_id
         credit_groups = analytic_line_obj.read_group(
@@ -127,14 +125,14 @@ class AccountAnalyticAccount(models.Model):
     code = fields.Char(string='Reference', index=True, tracking=True)
     active = fields.Boolean('Active', help="If the active field is set to False, it will allow you to hide the account without removing it.", default=True)
 
-    group_id = fields.Many2one('account.analytic.group', string='Group', check_company=True)
+    group_id = fields.Many2one('account.analytic.group', string='Group', domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
 
     line_ids = fields.One2many('account.analytic.line', 'account_id', string="Analytic Lines")
 
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
 
     # use auto_join to speed up name_search call
-    partner_id = fields.Many2one('res.partner', string='Customer', auto_join=True, tracking=True, check_company=True)
+    partner_id = fields.Many2one('res.partner', string='Customer', auto_join=True, tracking=True, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
 
     balance = fields.Monetary(compute='_compute_debit_credit_balance', string='Balance')
     debit = fields.Monetary(compute='_compute_debit_credit_balance', string='Debit')
@@ -165,14 +163,14 @@ class AccountAnalyticAccount(models.Model):
             # we have to cut the search in two searches ... https://github.com/odoo/odoo/issues/25175
             partner_ids = self.env['res.partner']._search([('name', operator, name)], limit=limit, access_rights_uid=name_get_uid)
             domain = ['|', '|', ('code', operator, name), ('name', operator, name), ('partner_id', 'in', partner_ids)]
-        return self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
+        analytic_account_ids = self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
+        return models.lazy_name_get(self.browse(analytic_account_ids).with_user(name_get_uid))
 
 
 class AccountAnalyticLine(models.Model):
     _name = 'account.analytic.line'
     _description = 'Analytic Line'
     _order = 'date desc, id desc'
-    _check_company_auto = True
 
     @api.model
     def _default_user(self):
@@ -184,10 +182,10 @@ class AccountAnalyticLine(models.Model):
     unit_amount = fields.Float('Quantity', default=0.0)
     product_uom_id = fields.Many2one('uom.uom', string='Unit of Measure', domain="[('category_id', '=', product_uom_category_id)]")
     product_uom_category_id = fields.Many2one(related='product_uom_id.category_id', readonly=True)
-    account_id = fields.Many2one('account.analytic.account', 'Analytic Account', required=True, ondelete='restrict', index=True, check_company=True)
-    partner_id = fields.Many2one('res.partner', string='Partner', check_company=True)
+    account_id = fields.Many2one('account.analytic.account', 'Analytic Account', required=True, ondelete='restrict', index=True, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+    partner_id = fields.Many2one('res.partner', string='Partner', domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     user_id = fields.Many2one('res.users', string='User', default=_default_user)
-    tag_ids = fields.Many2many('account.analytic.tag', 'account_analytic_line_tag_rel', 'line_id', 'tag_id', string='Tags', copy=True, check_company=True)
+    tag_ids = fields.Many2many('account.analytic.tag', 'account_analytic_line_tag_rel', 'line_id', 'tag_id', string='Tags', copy=True, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     company_id = fields.Many2one('res.company', string='Company', required=True, readonly=True, default=lambda self: self.env.company)
     currency_id = fields.Many2one(related="company_id.currency_id", string="Currency", readonly=True, store=True, compute_sudo=True)
     group_id = fields.Many2one('account.analytic.group', related='account_id.group_id', store=True, readonly=True, compute_sudo=True)
@@ -196,4 +194,4 @@ class AccountAnalyticLine(models.Model):
     def _check_company_id(self):
         for line in self:
             if line.account_id.company_id and line.company_id.id != line.account_id.company_id.id:
-                raise ValidationError(_('The selected account belongs to another company than the one you\'re trying to create an analytic item for'))
+                raise ValidationError(_('The selected account belongs to another company that the one you\'re trying to create an analytic item for'))

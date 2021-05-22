@@ -4,12 +4,11 @@
 import time
 import logging
 
-from psycopg2 import sql, DatabaseError
-
 from odoo import api, fields, models, _
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from odoo.exceptions import ValidationError
 from odoo.addons.base.models.res_partner import WARNING_MESSAGE, WARNING_HELP
+from psycopg2 import sql, DatabaseError
 
 _logger = logging.getLogger(__name__)
 
@@ -22,19 +21,16 @@ class AccountFiscalPosition(models.Model):
     name = fields.Char(string='Fiscal Position', required=True)
     active = fields.Boolean(default=True,
         help="By unchecking the active field, you may hide a fiscal position without deleting it.")
-    company_id = fields.Many2one(
-        comodel_name='res.company',
-        string='Company', required=True, readonly=True,
-        default=lambda self: self.env.company)
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, required=True)
     account_ids = fields.One2many('account.fiscal.position.account', 'position_id', string='Account Mapping', copy=True)
     tax_ids = fields.One2many('account.fiscal.position.tax', 'position_id', string='Tax Mapping', copy=True)
     note = fields.Text('Notes', translate=True, help="Legal mentions that have to be printed on the invoices.")
     auto_apply = fields.Boolean(string='Detect Automatically', help="Apply automatically this fiscal position.")
     vat_required = fields.Boolean(string='VAT required', help="Apply only if partner has a VAT number.")
     country_id = fields.Many2one('res.country', string='Country',
-        help="Apply only if delivery country matches.")
+        help="Apply only if delivery or invoicing country match.")
     country_group_id = fields.Many2one('res.country.group', string='Country Group',
-        help="Apply only if delivery country matches the group.")
+        help="Apply only if delivery or invoicing country match the group.")
     state_ids = fields.Many2many('res.country.state', string='Federal States')
     zip_from = fields.Char(string='Zip Range From')
     zip_to = fields.Char(string='Zip Range To')
@@ -51,21 +47,28 @@ class AccountFiscalPosition(models.Model):
             if position.zip_from and position.zip_to and position.zip_from > position.zip_to:
                 raise ValidationError(_('Invalid "Zip Range", please configure it properly.'))
 
+    @api.model     # noqa
     def map_tax(self, taxes, product=None, partner=None):
-        if not self:
-            return taxes
-        result = self.env['account.tax']
+        result = self.env['account.tax'].browse()
         for tax in taxes:
-            taxes_correspondance = self.tax_ids.filtered(lambda t: t.tax_src_id == tax)
-            result |= taxes_correspondance.tax_dest_id if taxes_correspondance else tax
+            tax_count = 0
+            for t in self.tax_ids:
+                if t.tax_src_id.id == (tax._origin or tax).id:
+                    tax_count += 1
+                    if t.tax_dest_id:
+                        result |= t.tax_dest_id
+            if not tax_count:
+                result |= tax
         return result
 
+    @api.model
     def map_account(self, account):
         for pos in self.account_ids:
             if pos.account_src_id == account:
                 return pos.account_dest_id
         return account
 
+    @api.model
     def map_accounts(self, accounts):
         """ Receive a dictionary having accounts in values and try to replace those accounts accordingly to the fiscal position.
         """
@@ -119,10 +122,11 @@ class AccountFiscalPosition(models.Model):
     def _get_fpos_by_region(self, country_id=False, state_id=False, zipcode=False, vat_required=False):
         if not country_id:
             return False
+        company_id = self.env.context.get('force_company', self.env.company.id)
         base_domain = [
             ('auto_apply', '=', True),
             ('vat_required', '=', vat_required),
-            ('company_id', 'in', [self.env.company.id, False]),
+            ('company_id', 'in', [company_id, False]),
         ]
         null_state_dom = state_domain = [('state_ids', '=', False)]
         null_zip_dom = zip_domain = [('zip_from', '=', False), ('zip_to', '=', False)]
@@ -154,17 +158,12 @@ class AccountFiscalPosition(models.Model):
         if not fpos:
             # Fallback on catchall (no country, no group)
             fpos = self.search(base_domain + null_country_dom, limit=1)
-        return fpos
+        return fpos or False
 
     @api.model
     def get_fiscal_position(self, partner_id, delivery_id=None):
-        """
-        :return: fiscal position found (recordset)
-        :rtype: :class:`account.fiscal.position`
-        """
         if not partner_id:
-            return self.env['account.fiscal.position']
-
+            return False
         # This can be easily overridden to apply more complex fiscal rules
         PartnerObj = self.env['res.partner']
         partner = PartnerObj.browse(partner_id)
@@ -177,7 +176,7 @@ class AccountFiscalPosition(models.Model):
 
         # partner manually set fiscal position always win
         if delivery.property_account_position_id or partner.property_account_position_id:
-            return delivery.property_account_position_id or partner.property_account_position_id
+            return delivery.property_account_position_id.id or partner.property_account_position_id.id
 
         # First search only matching VAT positions
         vat_required = bool(partner.vat)
@@ -187,20 +186,18 @@ class AccountFiscalPosition(models.Model):
         if not fp and vat_required:
             fp = self._get_fpos_by_region(delivery.country_id.id, delivery.state_id.id, delivery.zip, False)
 
-        return fp or self.env['account.fiscal.position']
+        return fp.id if fp else False
 
 
 class AccountFiscalPositionTax(models.Model):
     _name = 'account.fiscal.position.tax'
     _description = 'Tax Mapping of Fiscal Position'
     _rec_name = 'position_id'
-    _check_company_auto = True
 
     position_id = fields.Many2one('account.fiscal.position', string='Fiscal Position',
         required=True, ondelete='cascade')
-    company_id = fields.Many2one('res.company', string='Company', related='position_id.company_id', store=True)
-    tax_src_id = fields.Many2one('account.tax', string='Tax on Product', required=True, check_company=True)
-    tax_dest_id = fields.Many2one('account.tax', string='Tax to Apply', check_company=True)
+    tax_src_id = fields.Many2one('account.tax', string='Tax on Product', required=True)
+    tax_dest_id = fields.Many2one('account.tax', string='Tax to Apply')
 
     _sql_constraints = [
         ('tax_src_dest_uniq',
@@ -213,17 +210,13 @@ class AccountFiscalPositionAccount(models.Model):
     _name = 'account.fiscal.position.account'
     _description = 'Accounts Mapping of Fiscal Position'
     _rec_name = 'position_id'
-    _check_company_auto = True
 
     position_id = fields.Many2one('account.fiscal.position', string='Fiscal Position',
         required=True, ondelete='cascade')
-    company_id = fields.Many2one('res.company', string='Company', related='position_id.company_id', store=True)
     account_src_id = fields.Many2one('account.account', string='Account on Product',
-        check_company=True, required=True,
-        domain="[('deprecated', '=', False), ('company_id', '=', company_id)]")
+        domain=[('deprecated', '=', False)], required=True)
     account_dest_id = fields.Many2one('account.account', string='Account to Use Instead',
-        check_company=True, required=True,
-        domain="[('deprecated', '=', False), ('company_id', '=', company_id)]")
+        domain=[('deprecated', '=', False)], required=True)
 
     _sql_constraints = [
         ('account_src_dest_uniq',
@@ -236,7 +229,7 @@ class ResPartner(models.Model):
     _name = 'res.partner'
     _inherit = 'res.partner'
 
-    @api.depends_context('company')
+    @api.depends_context('force_company')
     def _credit_debit_get(self):
         tables, where_clause, where_params = self.env['account.move.line'].with_context(state='posted', company_id=self.env.company.id)._query_get()
         where_params = [tuple(self.ids)] + where_params
@@ -302,25 +295,42 @@ class ResPartner(models.Model):
         return self._asset_difference_search('payable', operator, operand)
 
     def _invoice_total(self):
-        self.total_invoiced = 0
+        account_invoice_report = self.env['account.invoice.report']
         if not self.ids:
             return True
 
+        user_currency_id = self.env.company.currency_id.id
         all_partners_and_children = {}
         all_partner_ids = []
-        for partner in self.filtered('id'):
+        for partner in self:
             # price_total is in the company currency
             all_partners_and_children[partner] = self.with_context(active_test=False).search([('id', 'child_of', partner.id)]).ids
             all_partner_ids += all_partners_and_children[partner]
 
-        domain = [
-            ('partner_id', 'in', all_partner_ids),
-            ('state', 'not in', ['draft', 'cancel']),
-            ('move_type', 'in', ('out_invoice', 'out_refund')),
-        ]
-        price_totals = self.env['account.invoice.report'].read_group(domain, ['price_subtotal'], ['partner_id'])
+        # searching account.invoice.report via the ORM is comparatively expensive
+        # (generates queries "id in []" forcing to build the full table).
+        # In simple cases where all invoices are in the same currency than the user's company
+        # access directly these elements
+
+        # generate where clause to include multicompany rules
+        where_query = account_invoice_report._where_calc([
+            ('partner_id', 'in', all_partner_ids), ('state', 'not in', ['draft', 'cancel']),
+            ('type', 'in', ('out_invoice', 'out_refund'))
+        ])
+        account_invoice_report._apply_ir_rules(where_query, 'read')
+        from_clause, where_clause, where_clause_params = where_query.get_sql()
+
+        # price_total is in the company currency
+        query = """
+                  SELECT SUM(price_subtotal) as total, partner_id
+                    FROM account_invoice_report account_invoice_report
+                   WHERE %s
+                   GROUP BY partner_id
+                """ % where_clause
+        self.env.cr.execute(query, where_clause_params)
+        price_totals = self.env.cr.dictfetchall()
         for partner, child_ids in all_partners_and_children.items():
-            partner.total_invoiced = sum(price['price_subtotal'] for price in price_totals if price['partner_id'][0] in child_ids)
+            partner.total_invoiced = sum(price['total'] for price in price_totals if price['partner_id'] in child_ids)
 
     def _compute_journal_item_count(self):
         AccountMoveLine = self.env['account.move.line']
@@ -366,7 +376,7 @@ class ResPartner(models.Model):
 
     def mark_as_reconciled(self):
         self.env['account.partial.reconcile'].check_access_rights('write')
-        return self.sudo().write({'last_time_entries_checked': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT)})
+        return self.sudo().with_context(company_id=self.env.company.id).write({'last_time_entries_checked': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT)})
 
     def _get_company_currency(self):
         for partner in self:
@@ -381,31 +391,28 @@ class ResPartner(models.Model):
         help="Total amount you have to pay to this vendor.")
     debit_limit = fields.Monetary('Payable Limit')
     total_invoiced = fields.Monetary(compute='_invoice_total', string="Total Invoiced",
-        groups='account.group_account_invoice,account.group_account_readonly')
+        groups='account.group_account_invoice')
     currency_id = fields.Many2one('res.currency', compute='_get_company_currency', readonly=True,
         string="Currency", help='Utility field to express amount currency')
-    journal_item_count = fields.Integer(compute='_compute_journal_item_count', string="Journal Items")
+    journal_item_count = fields.Integer(compute='_compute_journal_item_count', string="Journal Items", type="integer")
     property_account_payable_id = fields.Many2one('account.account', company_dependent=True,
         string="Account Payable",
-        domain="[('internal_type', '=', 'payable'), ('deprecated', '=', False), ('company_id', '=', current_company_id)]",
+        domain="[('internal_type', '=', 'payable'), ('deprecated', '=', False)]",
         help="This account will be used instead of the default one as the payable account for the current partner",
         required=True)
     property_account_receivable_id = fields.Many2one('account.account', company_dependent=True,
         string="Account Receivable",
-        domain="[('internal_type', '=', 'receivable'), ('deprecated', '=', False), ('company_id', '=', current_company_id)]",
+        domain="[('internal_type', '=', 'receivable'), ('deprecated', '=', False)]",
         help="This account will be used instead of the default one as the receivable account for the current partner",
         required=True)
     property_account_position_id = fields.Many2one('account.fiscal.position', company_dependent=True,
         string="Fiscal Position",
-        domain="[('company_id', '=', current_company_id)]",
         help="The fiscal position determines the taxes/accounts used for this contact.")
     property_payment_term_id = fields.Many2one('account.payment.term', company_dependent=True,
         string='Customer Payment Terms',
-        domain="[('company_id', 'in', [current_company_id, False])]",
         help="This payment term will be used instead of the default one for sales orders and customer invoices")
     property_supplier_payment_term_id = fields.Many2one('account.payment.term', company_dependent=True,
         string='Vendor Payment Terms',
-        domain="[('company_id', 'in', [current_company_id, False])]",
         help="This payment term will be used instead of the default one for purchase orders and vendor bills")
     ref_company_ids = fields.One2many('res.company', 'partner_id',
         string='Companies that refers to partner')
@@ -459,13 +466,22 @@ class ResPartner(models.Model):
 
     def action_view_partner_invoices(self):
         self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id("account.action_move_out_invoice_type")
+        action = self.env.ref('account.action_move_out_invoice_type').read()[0]
         action['domain'] = [
-            ('move_type', 'in', ('out_invoice', 'out_refund')),
+            ('type', 'in', ('out_invoice', 'out_refund')),
             ('partner_id', 'child_of', self.id),
         ]
-        action['context'] = {'default_move_type':'out_invoice', 'move_type':'out_invoice', 'journal_type': 'sale', 'search_default_unpaid': 1}
+        action['context'] = {'default_type':'out_invoice', 'type':'out_invoice', 'journal_type': 'sale', 'search_default_unpaid': 1}
         return action
+
+    @api.onchange('company_id', 'parent_id')
+    def _onchange_company_id(self):
+        super(ResPartner, self)._onchange_company_id()
+        if self.company_id:
+            company = self.company_id
+        else:
+            company = self.env.company
+        return {'domain': {'property_account_position_id': [('company_id', 'in', [company.id, False])]}}
 
     def can_edit_vat(self):
         ''' Can't edit `vat` if there is (non draft) issued invoices. '''
@@ -473,7 +489,7 @@ class ResPartner(models.Model):
         if not can_edit_vat:
             return can_edit_vat
         has_invoice = self.env['account.move'].search([
-            ('move_type', 'in', ['out_invoice', 'out_refund']),
+            ('type', 'in', ['out_invoice', 'out_refund']),
             ('partner_id', 'child_of', self.commercial_partner_id.id),
             ('state', '=', 'posted')
         ], limit=1)
@@ -492,16 +508,16 @@ class ResPartner(models.Model):
                     vals['supplier_rank'] = 1
         return super().create(vals_list)
 
-    def _increase_rank(self, field, n=1):
+    def _increase_rank(self, field):
         if self.ids and field in ['customer_rank', 'supplier_rank']:
             try:
-                with self.env.cr.savepoint(flush=False):
+                with self.env.cr.savepoint():
                     query = sql.SQL("""
                         SELECT {field} FROM res_partner WHERE ID IN %(partner_ids)s FOR UPDATE NOWAIT;
-                        UPDATE res_partner SET {field} = {field} + %(n)s
+                        UPDATE res_partner SET {field} = {field} + 1
                         WHERE id IN %(partner_ids)s
                     """).format(field=sql.Identifier(field))
-                    self.env.cr.execute(query, {'partner_ids': tuple(self.ids), 'n': n})
+                    self.env.cr.execute(query, {'partner_ids': tuple(self.ids)})
                     for partner in self:
                         self.env.cache.remove(partner, partner._fields[field])
             except DatabaseError as e:

@@ -158,8 +158,8 @@ var Wysiwyg = Widget.extend({
      * @param {jQuery} $editable
      * @returns {Promise}
      */
-    saveModifiedImages: function ($editable) {
-        return this._summernoteManager.saveModifiedImages($editable);
+    saveCroppedImages: function ($editable) {
+        return this._summernoteManager.saveCroppedImages($editable);
     },
     /**
      * @param {String} value

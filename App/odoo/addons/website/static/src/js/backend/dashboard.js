@@ -66,8 +66,8 @@ var Dashboard = AbstractAction.extend({
 
     start: function() {
         var self = this;
-        this._computeControlPanelProps();
         return this._super().then(function() {
+            self.update_cp();
             self.render_graphs();
         });
     },
@@ -137,7 +137,7 @@ var Dashboard = AbstractAction.extend({
     on_go_to_website: function (ev) {
         ev.preventDefault();
         var website = _.findWhere(this.websites, {selected: true});
-        window.location.href = $.param.querystring(website.domain + '/', {'fw': website.id});
+        window.location.href = `/website/force/${website.id}`;
     },
 
     on_save_ga_client_id: function(ga_client_id, ga_analytics_key) {
@@ -344,6 +344,7 @@ var Dashboard = AbstractAction.extend({
     on_reverse_breadcrumb: function() {
         var self = this;
         web_client.do_push_state({});
+        this.update_cp();
         this.fetch_data().then(function() {
             self.$('.o_website_dashboard').empty();
             self.render_dashboards();
@@ -392,28 +393,33 @@ var Dashboard = AbstractAction.extend({
         });
     },
 
-    /**
-     * @private
-     */
-    _computeControlPanelProps() {
-        const $searchview = $(QWeb.render("website.DateRangeButtons", {
-            widget: this,
-        }));
-        $searchview.find('button.js_date_range').click((ev) => {
-            $searchview.find('button.js_date_range.active').removeClass('active');
-            $(ev.target).addClass('active');
-            this.on_date_range_button($(ev.target).data('date'));
-        });
-        $searchview.find('button.js_website').click((ev) => {
-            $searchview.find('button.js_website.active').removeClass('active');
-            $(ev.target).addClass('active');
-            this.on_website_button($(ev.target).data('website-id'));
-        });
+    update_cp: function() {
+        var self = this;
+        if (!this.$searchview) {
+            this.$searchview = $(QWeb.render("website.DateRangeButtons", {
+                widget: this,
+            }));
+            this.$searchview.find('button.js_date_range').click(function(ev) {
+                self.$searchview.find('button.js_date_range.active').removeClass('active');
+                $(ev.target).addClass('active');
+                self.on_date_range_button($(ev.target).data('date'));
+            });
+            this.$searchview.find('button.js_website').click(function(ev) {
+                self.$searchview.find('button.js_website.active').removeClass('active');
+                $(ev.target).addClass('active');
+                self.on_website_button($(ev.target).data('website-id'));
+            });
+        }
 
-        const $buttons = $(QWeb.render("website.GoToButtons"));
+        var $buttons = $(QWeb.render("website.GoToButtons"));
         $buttons.on('click', this.on_go_to_website.bind(this));
 
-        this.controlPanelProps.cp_content = { $searchview, $buttons };
+        this.updateControlPanel({
+            cp_content: {
+                $searchview: this.$searchview,
+                $buttons: $buttons,
+            },
+        });
     },
 
     // Loads Analytics API

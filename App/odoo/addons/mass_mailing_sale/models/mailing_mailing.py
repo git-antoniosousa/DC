@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 
-from odoo import api, fields, models, _, tools
+from odoo import api, fields, models
 
 
 class MassMailing(models.Model):
@@ -29,13 +29,13 @@ class MassMailing(models.Model):
                 mass_mailing.sale_invoiced_amount = 0
 
     def action_redirect_to_quotations(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("sale.action_quotations_with_onboarding")
+        action = self.env.ref('sale.action_quotations_with_onboarding').read()[0]
         action['domain'] = self._get_sale_utm_domain()
         action['context'] = {'create': False}
         return action
 
     def action_redirect_to_invoiced(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("account.action_move_out_invoice_type")
+        action = self.env.ref('account.action_move_out_invoice_type').read()[0]
         moves = self.env['account.move'].search(self._get_sale_utm_domain())
         action['context'] = {
             'create': False,
@@ -44,7 +44,7 @@ class MassMailing(models.Model):
         }
         action['domain'] = [
             ('id', 'in', moves.ids),
-            ('move_type', 'in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')),
+            ('type', 'in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')),
             ('state', 'not in', ['draft', 'cancel'])
         ]
         action['context'] = {'create': False}
@@ -61,23 +61,3 @@ class MassMailing(models.Model):
         if not res:
             res.append((0, '=', 1))
         return res
-
-    def _prepare_statistics_email_values(self):
-        self.ensure_one()
-        values = super(MassMailing, self)._prepare_statistics_email_values()
-        if not self.user_id:
-            return values
-
-        self_with_company = self.with_company(self.user_id.company_id)
-        currency = self.user_id.company_id.currency_id
-        formated_amount = tools.format_decimalized_amount(self_with_company.sale_invoiced_amount, currency)
-
-        values['kpi_data'][1]['kpi_col2'] = {
-            'value': self.sale_quotation_count,
-            'col_subtitle': _('QUOTATIONS'),
-        }
-        values['kpi_data'][1]['kpi_col3'] = {
-            'value': formated_amount,
-            'col_subtitle': _('INVOICED'),
-        }
-        return values

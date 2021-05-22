@@ -24,10 +24,10 @@ class PurchaseRequisitionType(models.Model):
     name = fields.Char(string='Agreement Type', required=True, translate=True)
     sequence = fields.Integer(default=1)
     exclusive = fields.Selection([
-        ('exclusive', 'Select only one RFQ (exclusive)'), ('multiple', 'Select multiple RFQ (non-exclusive)')],
+        ('exclusive', 'Select only one RFQ (exclusive)'), ('multiple', 'Select multiple RFQ')],
         string='Agreement Selection Type', required=True, default='multiple',
             help="""Select only one RFQ (exclusive):  when a purchase order is confirmed, cancel the remaining purchase order.\n
-                    Select multiple RFQ (non-exclusive): allows multiple purchase orders. On confirmation of a purchase order it does not cancel the remaining orders""")
+                    Select multiple RFQ: allows multiple purchase orders. On confirmation of a purchase order it does not cancel the remaining orders""")
     quantity_copy = fields.Selection([
         ('copy', 'Use quantities of agreement'), ('none', 'Set quantities manually')],
         string='Quantities', required=True, default='none')
@@ -76,7 +76,6 @@ class PurchaseRequisition(models.Model):
 
     @api.onchange('vendor_id')
     def _onchange_vendor(self):
-        self = self.with_company(self.company_id)
         if not self.vendor_id:
             self.currency_id = self.env.company.currency_id.id
         else:
@@ -86,11 +85,10 @@ class PurchaseRequisition(models.Model):
             ('vendor_id', '=', self.vendor_id.id),
             ('state', '=', 'ongoing'),
             ('type_id.quantity_copy', '=', 'none'),
-            ('company_id', '=', self.company_id.id),
         ])
         if any(requisitions):
-            title = _("Warning for %s", self.vendor_id.name)
-            message = _("There is already an open blanket order for this supplier. We suggest you complete this open blanket order, instead of creating a new one.")
+            title = _("Warning for %s") % self.vendor_id.name
+            message = _("There is already an open blanket order for this supplier. We suggest you to use to complete this open blanket order instead of creating a new one.")
             warning = {
                 'title': title,
                 'message': message
@@ -114,8 +112,8 @@ class PurchaseRequisition(models.Model):
 
     def action_in_progress(self):
         self.ensure_one()
-        if not self.line_ids:
-            raise UserError(_("You cannot confirm agreement '%s' because there is no product line.", self.name))
+        if not all(obj.line_ids for obj in self):
+            raise UserError(_("You cannot confirm agreement '%s' because there is no product line.") % self.name)
         if self.type_id.quantity_copy == 'none' and self.vendor_id:
             for requisition_line in self.line_ids:
                 if requisition_line.price_unit <= 0.0:
@@ -152,6 +150,20 @@ class PurchaseRequisition(models.Model):
                 requisition_line.supplier_info_ids.unlink()
         self.write({'state': 'done'})
 
+    def _prepare_tender_values(self, product_id, product_qty, product_uom, location_id, name, origin, company_id, values):
+        return{
+            'origin': origin,
+            'date_end': values['date_planned'],
+            'user_id': False,
+            'warehouse_id': values.get('warehouse_id') and values['warehouse_id'].id or False,
+            'company_id': company_id.id,
+            'line_ids': [(0, 0, {
+                'product_id': product_id.id,
+                'product_uom_id': product_uom.id,
+                'product_qty': product_qty,
+            })],
+        }
+
     def unlink(self):
         if any(requisition.state not in ('draft', 'cancel') for requisition in self):
             raise UserError(_('You can only delete draft requisitions.'))
@@ -169,7 +181,6 @@ class PurchaseRequisitionLine(models.Model):
     product_uom_id = fields.Many2one('uom.uom', string='Product Unit of Measure', domain="[('category_id', '=', product_uom_category_id)]")
     product_uom_category_id = fields.Many2one(related='product_id.uom_id.category_id')
     product_qty = fields.Float(string='Quantity', digits='Product Unit of Measure')
-    product_description_variants = fields.Char('Custom Description')
     price_unit = fields.Float(string='Unit Price', digits='Product Price')
     qty_ordered = fields.Float(compute='_compute_ordered_qty', string='Ordered Quantities')
     requisition_id = fields.Many2one('purchase.requisition', required=True, string='Purchase Agreement', ondelete='cascade')
@@ -187,7 +198,7 @@ class PurchaseRequisitionLine(models.Model):
                 ('product_id', '=', vals.get('product_id')),
                 ('name', '=', res.requisition_id.vendor_id.id),
             ])
-            if not any(s.purchase_requisition_id for s in supplier_infos):
+            if not any([s.purchase_requisition_id for s in supplier_infos]):
                 res.create_supplier_info()
             if vals['price_unit'] <= 0.0:
                 raise UserError(_('You cannot confirm the blanket order without price.'))
@@ -245,8 +256,6 @@ class PurchaseRequisitionLine(models.Model):
     def _prepare_purchase_order_line(self, name, product_qty=0.0, price_unit=0.0, taxes_ids=False):
         self.ensure_one()
         requisition = self.requisition_id
-        if self.product_description_variants:
-            name += '\n' + self.product_description_variants
         if requisition.schedule_date:
             date_planned = datetime.combine(requisition.schedule_date, time.min)
         else:

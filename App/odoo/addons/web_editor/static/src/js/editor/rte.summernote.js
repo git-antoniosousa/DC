@@ -1,23 +1,36 @@
 odoo.define('web_editor.rte.summernote', function (require) {
 'use strict';
 
+var ajax = require('web.ajax');
 var Class = require('web.Class');
-const concurrency = require('web.concurrency');
 var core = require('web.core');
-// Use the top window's core.bus for dialog events so that they take the whole window
-// instead of being confined to an iframe. This means that the event triggered on
-// the bus by summernote in an iframe will be caught by the wysiwyg's SummernoteManager
-// outside the iframe.
-const topBus = window.top.odoo.__DEBUG__.services['web.core'].bus;
-const {ColorpickerWidget} = require('web.Colorpicker');
-var ColorPaletteWidget = require('web_editor.ColorPalette').ColorPaletteWidget;
+var ColorpickerDialog = require('web.ColorpickerDialog');
 var mixins = require('web.mixins');
+const session = require('web.session');
 var fonts = require('wysiwyg.fonts');
+var weContext = require('web_editor.context');
 var rte = require('web_editor.rte');
 var ServicesMixin = require('web.ServicesMixin');
 var weWidgets = require('wysiwyg.widgets');
 
+var QWeb = core.qweb;
 var _t = core._t;
+
+session.is_bound.then(() => {
+    if (session.is_website_user) {
+        return;
+    }
+    ajax.jsonRpc('/web/dataset/call_kw', 'call', {
+        'model': 'ir.ui.view',
+        'method': 'read_template',
+        'args': ['web_editor.colorpicker'],
+        'kwargs': {
+            'context': weContext.get(),
+        }
+    }).then(function (data) {
+        QWeb.add_template('<templates>' + data + '</templates>');
+    });
+});
 
 // Summernote Lib (neek change to make accessible: method and object)
 var dom = $.summernote.core.dom;
@@ -60,66 +73,107 @@ var tplButton = renderer.getTemplate().button;
 var tplIconButton = renderer.getTemplate().iconButton;
 var tplDropdown = renderer.getTemplate().dropdown;
 
-const processAndApplyColor = function (target, eventName, color, preview) {
-    if (!color) {
-        color = 'inherit';
-    } else if (!ColorpickerWidget.isCSSColor(color)) {
-        color = (eventName === "foreColor" ? 'text-' : 'bg-') + color;
+function _rgbToHex(cssColor) {
+    var rgba = cssColor.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+    if (!rgba) {
+        return cssColor;
     }
-    var layoutInfo = dom.makeLayoutInfo(target);
-    $.summernote.pluginEvents[eventName](undefined, eventHandler.modules.editor, layoutInfo, color, preview);
-};
-// Update and change the popovers content, and add history button
-renderer.createPalette = function ($container, options) {
-    const $dropdownContent = $container.find(".colorPalette");
-    // The editor's root widget can be website or web's root widget and cannot be properly retrieved...
-    const parent = odoo.__DEBUG__.services['root.widget'];
-    _.each($dropdownContent, elem => {
-        const eventName = elem.dataset.eventName;
-        let colorpicker = null;
-        const mutex = new concurrency.MutexedDropPrevious();
-        const $dropdown = $(elem).closest('.btn-group, .dropdown');
-        let manualOpening = false;
-        // Prevent dropdown closing on colorpicker click
-        $dropdown.on('hide.bs.dropdown', ev => {
-            return !(ev.clickEvent && ev.clickEvent.originalEvent && ev.clickEvent.originalEvent.__isColorpickerClick);
-        });
-        $dropdown.on('show.bs.dropdown', () => {
-            if (manualOpening) {
-                return true;
-            }
-            mutex.exec(() => {
-                const oldColorpicker = colorpicker;
-                const hookEl = oldColorpicker ? oldColorpicker.el : elem;
+    if (rgba[4]) {
+        return cssColor;
+    }
+    var hex = ColorpickerDialog.convertRgbToHex(
+        parseInt(rgba[1]),
+        parseInt(rgba[2]),
+        parseInt(rgba[3])
+    );
+    if (!hex) {
+        return cssColor; // TODO handle error
+    }
+    return hex.hex.toUpperCase();
+}
 
-                const r = range.create();
-                const targetNode = r.sc;
-                const targetElement = targetNode.nodeType === Node.ELEMENT_NODE ? targetNode : targetNode.parentNode;
-                colorpicker = new ColorPaletteWidget(parent, {
-                    excluded: ['transparent_grayscale'],
-                    $editable: rte.Class.prototype.editable(), // Our parent is the root widget, we can't retrieve the editable section from it...
-                    selectedColor: $(targetElement).css(eventName === "foreColor" ? 'color' : 'backgroundColor'),
-                });
-                colorpicker.on('custom_color_picked color_picked', null, ev => {
-                    processAndApplyColor(ev.data.target, eventName, ev.data.color);
-                });
-                colorpicker.on('color_hover color_leave', null, ev => {
-                    processAndApplyColor(ev.data.target, eventName, ev.data.color, true);
-                });
-                colorpicker.on('enter_key_color_colorpicker', null, () => {
-                    $dropdown.children('.dropdown-toggle').dropdown('hide');
-                });
-                return colorpicker.replace(hookEl).then(() => {
-                    if (oldColorpicker) {
-                        oldColorpicker.destroy();
-                    }
-                    manualOpening = true;
-                    $dropdown.children('.dropdown-toggle').dropdown('show');
-                    manualOpening = false;
-                });
-            });
-            return false;
+// Update and change the popovers content, and add history button
+var fn_createPalette = renderer.createPalette;
+renderer.createPalette = function ($container, options) {
+    fn_createPalette.call(this, $container, options);
+
+    const $clpicker = QWeb.has_template('web_editor.colorpicker')
+        ? $(QWeb.render('web_editor.colorpicker'))
+        : $(document.createElement('colorpicker'));
+
+    var groups;
+    if ($clpicker.is("colorpicker")) {
+        groups = _.map($clpicker.find('[data-name="theme"]'), function (el) {
+            return $(el).find("button").empty();
         });
+    } else {
+        groups = [$clpicker.find("button").empty()];
+    }
+
+    var $palettes = $container.find(".note-color .note-color-palette");
+
+    if (groups.length) {
+        var html = "<h6 class='mt-2'>" + _t("Theme colors") + "</h6>" + _.map(groups, function ($group) {
+            var $row = $("<div/>", {"class": "note-color-row mb8"}).append($group);
+            var $after_breaks = $row.find(".o_small + :not(.o_small)");
+            if ($after_breaks.length === 0) {
+                $after_breaks = $row.find(":nth-child(8n+9)");
+            }
+            $after_breaks.addClass("o_clear");
+            return $row[0].outerHTML;
+        }).join("") + "<h6 class='mt-2'>" + _t("Common colors") + "</h6>";
+        $palettes.prepend(html);
+    }
+
+    // Find the custom colors which are used in the page and add them to the color palette
+    var colors = [];
+    var $editable = window.__EditorMenuBar_$editable || $();
+    _.each($editable.find('[style*="color"]'), function (element) {
+        if (element.style.color) {
+            colors.push(element.style.color);
+        }
+        if (element.style.backgroundColor) {
+            colors.push(element.style.backgroundColor);
+        }
+    });
+
+    var $customColorPalettes = $container.find('.note-color .note-custom-color-palette').append($('<div/>', {class: "note-color-row"}));
+    var $customColorRows = $customColorPalettes.find('.note-color-row');
+    _.each(_.uniq(colors), function (color) {
+        var hexColor = _rgbToHex(color);
+        if (_.indexOf(_.flatten(options.colors), hexColor) < 0) {
+            // Create button for used custom color for backColor and foreColor both and add them into palette
+            $customColorRows.append('<button type="button" class="o_custom_color" data-color="' + color + '" style="background-color:' + color + ';" />');
+        }
+    });
+
+    $palettes.push.apply($palettes, $customColorPalettes);
+
+    var $forePalette = $palettes.filter(":even").closest('li').addClass('note-palette');
+    var $bgPalette = $palettes.filter(":odd").closest('li').addClass('note-palette');
+
+    $forePalette.add($bgPalette).find('.note-color-reset').remove();
+    $forePalette.children().each(function () {
+        var $reset = $('<div class="note-color-reset" data-event="foreColor" data-value="inherit"></div>').text(_t('Reset to default'));
+        $(this).prepend($reset);
+    })
+    $bgPalette.children().each(function () {
+        var $reset = $('<div class="note-color-reset" data-event="backColor" data-value="inherit"></div>').text(_t('Reset to default'));
+        $(this).prepend($reset);
+    })
+
+    var $fore = $forePalette.find("button:not(.note-color-btn)").addClass("note-color-btn");
+    $fore.each(function () {
+        var $el = $(this);
+        var className = $el.hasClass('o_custom_color') ? $el.data('color') : 'text-' + $el.data('color');
+        $el.attr('data-event', 'foreColor').attr('data-value', className).addClass($el.hasClass('o_custom_color') ? '' : 'bg-' + $el.data('color'));
+    });
+
+    var $bg = $bgPalette.find("button:not(.note-color-btn)").addClass("note-color-btn");
+    $bg.each(function () {
+        var $el = $(this);
+        var className = $el.hasClass('o_custom_color') ? $el.data('color') : 'bg-' + $el.data('color');
+        $el.attr('data-event', 'backColor').attr('data-value', className).addClass($el.hasClass('o_custom_color') ? '' : className);
     });
 };
 
@@ -276,8 +330,10 @@ eventHandler.modules.popover.button.update = function ($container, oStyle) {
         $(oStyle.image).addClass('o_we_selected_image');
 
         if (dom.isImgFont(oStyle.image)) {
-            $container.find('.note-fore-color-preview > button > .caret').css('border-bottom-color', $(oStyle.image).css('color'));
-            $container.find('.note-back-color-preview > button > .caret').css('border-bottom-color', $(oStyle.image).css('background-color'));
+            $container.find('[data-event="customColor"][data-value="foreColor"]').attr('data-color', $(oStyle.image).css('color'));
+            $container.find('[data-event="customColor"][data-value="backColor"]').attr('data-color', $(oStyle.image).css('background-color'));
+            $container.find('.note-fore-color-preview > button').css('border-bottom-color', $(oStyle.image).css('color'));
+            $container.find('.note-back-color-preview > button').css('border-bottom-color', $(oStyle.image).css('background-color'));
 
             $container.find('.btn-group:not(.only_fa):has(button[data-event="resize"],button[data-value="img-thumbnail"])').addClass('d-none');
             $container.find('.only_fa').removeClass('d-none');
@@ -318,8 +374,10 @@ eventHandler.modules.popover.button.update = function ($container, oStyle) {
 
         $(oStyle.image).trigger('attributes_change');
     } else {
-        $container.find('.note-fore-color-preview > button > .caret').css('border-bottom-color', oStyle.color);
-        $container.find('.note-back-color-preview > button > .caret').css('border-bottom-color', oStyle['background-color']);
+        $container.find('[data-event="customColor"][data-value="foreColor"]').attr('data-color', oStyle.color);
+        $container.find('[data-event="customColor"][data-value="backColor"]').attr('data-color', oStyle['background-color']);
+        $container.find('.note-fore-color-preview > button').css('border-bottom-color', oStyle.color);
+        $container.find('.note-back-color-preview > button').css('border-bottom-color', oStyle['background-color']);
     }
 };
 
@@ -372,15 +430,6 @@ eventHandler.modules.popover.update = function ($popover, oStyle, isAirMode) {
     } else {
         $airPopover.show();
     }
-
-    const $externalHistoryButtons = $('.o_we_external_history_buttons');
-    if ($externalHistoryButtons.length) {
-        const $noteHistory = $('.note-history');
-        $noteHistory.addClass('d-none');
-        $externalHistoryButtons.find(':first-child').prop('disabled', $noteHistory.find('[data-event=undo]').prop('disabled'));
-        $externalHistoryButtons.find(':last-child').prop('disabled', $noteHistory.find('[data-event=redo]').prop('disabled'));
-    }
-    $popover.trigger('summernote_popover_update_call');
 };
 
 var fn_handle_update = eventHandler.modules.handle.update;
@@ -449,7 +498,7 @@ eventHandler.modules.linkDialog.showLinkDialog = function ($editable, $dialog, l
     }
 
     var def = new $.Deferred();
-    topBus.trigger('link_dialog_demand', {
+    core.bus.trigger('link_dialog_demand', {
         $editable: $editable,
         linkInfo: linkInfo,
         onSave: function (linkInfo) {
@@ -476,7 +525,7 @@ eventHandler.modules.imageDialog.showImageDialog = function ($editable) {
     var media = $(r.sc).parents().addBack().filter(function (i, el) {
         return dom.isImg(el);
     })[0];
-    topBus.trigger('media_dialog_demand', {
+    core.bus.trigger('media_dialog_demand', {
         $editable: $editable,
         media: media,
         options: {
@@ -499,15 +548,34 @@ eventHandler.modules.imageDialog.showImageDialog = function ($editable) {
 $.summernote.pluginEvents.alt = function (event, editor, layoutInfo, sorted) {
     var $editable = layoutInfo.editable();
     var $selection = layoutInfo.handle().find('.note-control-selection');
-    topBus.trigger('alt_dialog_demand', {
+    core.bus.trigger('alt_dialog_demand', {
         $editable: $editable,
         media: $selection.data('target'),
+    });
+};
+$.summernote.pluginEvents.customColor = function (event, editor, layoutInfo, customColor) {
+    var defaultColor = event.target.dataset.color;
+    core.bus.trigger('color_picker_dialog_demand', {
+        color: defaultColor === 'rgba(0, 0, 0, 0)' ? 'rgb(255, 0, 0)' : defaultColor,
+        onSave: function (color) {
+            var $palettes = $(event.currentTarget).find('.note-custom-color-palette > .note-color-row')
+                .append(('<button type="button" class="note-color-btn" data-value="' + color + '" style="background-color:' + color + ';" />'));
+            $palettes.filter(':odd').find('button:not([data-event])').attr('data-event', 'backColor');
+            $palettes.filter(':even').find('button:not([data-event])').attr('data-event', 'foreColor');
+            if (customColor === 'foreColor') {
+                $(event.currentTarget).find('.note-fore-color-preview > button').css('border-bottom-color', color);
+                $.summernote.pluginEvents.foreColor(event, editor, layoutInfo, color);
+            } else {
+                $(event.currentTarget).find('.note-back-color-preview > button').css('border-bottom-color', color);
+                $.summernote.pluginEvents.backColor(event, editor, layoutInfo, color);
+            }
+        }
     });
 };
 $.summernote.pluginEvents.cropImage = function (event, editor, layoutInfo, sorted) {
     var $editable = layoutInfo.editable();
     var $selection = layoutInfo.handle().find('.note-control-selection');
-    topBus.trigger('crop_image_demand', {
+    core.bus.trigger('crop_image_dialog_demand', {
         $editable: $editable,
         media: $selection.data('target'),
     });
@@ -1124,10 +1192,11 @@ var SummernoteManager = Class.extend(mixins.EventDispatcherMixin, ServicesMixin,
         mixins.EventDispatcherMixin.init.call(this);
         this.setParent(parent);
 
-        topBus.on('alt_dialog_demand', this, this._onAltDialogDemand);
-        topBus.on('crop_image_demand', this, this._onCropImageDemand);
-        topBus.on('link_dialog_demand', this, this._onLinkDialogDemand);
-        topBus.on('media_dialog_demand', this, this._onMediaDialogDemand);
+        core.bus.on('alt_dialog_demand', this, this._onAltDialogDemand);
+        core.bus.on('color_picker_dialog_demand', this, this._onColorPickerDialogDemand);
+        core.bus.on('crop_image_dialog_demand', this, this._onCropImageDialogDemand);
+        core.bus.on('link_dialog_demand', this, this._onLinkDialogDemand);
+        core.bus.on('media_dialog_demand', this, this._onMediaDialogDemand);
     },
     /**
      * @override
@@ -1135,43 +1204,59 @@ var SummernoteManager = Class.extend(mixins.EventDispatcherMixin, ServicesMixin,
     destroy: function () {
         mixins.EventDispatcherMixin.destroy.call(this);
 
-        topBus.off('alt_dialog_demand', this, this._onAltDialogDemand);
-        topBus.off('crop_image_demand', this, this._onCropImageDemand);
-        topBus.off('link_dialog_demand', this, this._onLinkDialogDemand);
-        topBus.off('media_dialog_demand', this, this._onMediaDialogDemand);
+        core.bus.off('alt_dialog_demand', this, this._onAltDialogDemand);
+        core.bus.off('color_picker_dialog_demand', this, this._onColorPickerDialogDemand);
+        core.bus.off('crop_image_dialog_demand', this, this._onCropImageDialogDemand);
+        core.bus.off('link_dialog_demand', this, this._onLinkDialogDemand);
+        core.bus.off('media_dialog_demand', this, this._onMediaDialogDemand);
     },
 
     /**
-     * Create modified image attachments.
+     * Create/Update cropped attachments.
      *
      * @param {jQuery} $editable
      * @returns {Promise}
      */
-    saveModifiedImages: function ($editable) {
-        const defs = _.map($editable, async editableEl => {
-            const {oeModel: resModel, oeId: resId} = editableEl.dataset;
-            const proms = [...editableEl.querySelectorAll('.o_modified_image_to_save')].map(async el => {
-                const isBackground = !el.matches('img');
-                el.classList.remove('o_modified_image_to_save');
-                // Modifying an image always creates a copy of the original, even if
-                // it was modified previously, as the other modified image may be used
-                // elsewhere if the snippet was duplicated or was saved as a custom one.
-                const newAttachmentSrc = await this._rpc({
-                    route: `/web_editor/modify_image/${el.dataset.originalId}`,
-                    params: {
+    saveCroppedImages: function ($editable) {
+        var defs = _.map($editable.find('.o_cropped_img_to_save'), async croppedImg => {
+            var $croppedImg = $(croppedImg);
+            $croppedImg.removeClass('o_cropped_img_to_save');
+
+            var resModel = $croppedImg.data('crop:resModel');
+            var resID = $croppedImg.data('crop:resID');
+            var cropID = $croppedImg.data('crop:id');
+            var mimetype = $croppedImg.data('crop:mimetype');
+            var originalSrc = $croppedImg.data('crop:originalSrc');
+
+            var datas = $croppedImg.attr('src').split(',')[1];
+            let attachmentID = cropID;
+            if (!cropID) {
+                var name = originalSrc + '.crop';
+                attachmentID = await this._rpc({
+                    model: 'ir.attachment',
+                    method: 'create',
+                    args: [{
                         res_model: resModel,
-                        res_id: parseInt(resId),
-                        data: (isBackground ? el.dataset.bgSrc : el.getAttribute('src')).split(',')[1],
-                    },
+                        res_id: resID,
+                        name: name,
+                        datas: datas,
+                        mimetype: mimetype,
+                        url: originalSrc, // To save the original image that was cropped
+                    }],
                 });
-                if (isBackground) {
-                    $(el).css('background-image', `url('${newAttachmentSrc}')`);
-                    delete el.dataset.bgSrc;
-                } else {
-                    el.setAttribute('src', newAttachmentSrc);
-                }
+            } else {
+                await this._rpc({
+                    model: 'ir.attachment',
+                    method: 'write',
+                    args: [[cropID], {datas: datas}],
+                });
+            }
+            const access_token = await this._rpc({
+                model: 'ir.attachment',
+                method: 'generate_access_token',
+                args: [[attachmentID]],
             });
-            return Promise.all(proms);
+            $croppedImg.attr('src', '/web/image/' + attachmentID + '?access_token=' + access_token[0]);
         });
         return Promise.all(defs);
     },
@@ -1203,19 +1288,52 @@ var SummernoteManager = Class.extend(mixins.EventDispatcherMixin, ServicesMixin,
         }
         altDialog.open();
     },
-    /**
-     * Called when a demand to crop an image is received on the bus.
+/**
+     * Called when a demand to open a color picker dialog is received on the bus.
      *
      * @private
      * @param {Object} data
      */
-    _onCropImageDemand: function (data) {
+    _onColorPickerDialogDemand: function (data) {
         if (data.__alreadyDone) {
             return;
         }
         data.__alreadyDone = true;
-        new weWidgets.ImageCropWidget(this, data.media)
-            .appendTo(data.$editable.parent());
+        var colorpicker = new ColorpickerDialog(this, {
+            defaultColor: data.color,
+        });
+        if (data.onSave) {
+            colorpicker.on('colorpicker:saved', this, function (ev) {
+                data.onSave(ev.data.cssColor);
+            });
+        }
+        colorpicker.open();
+    },
+    /**
+     * Called when a demand to open a crop dialog is received on the bus.
+     *
+     * @private
+     * @param {Object} data
+     */
+    _onCropImageDialogDemand: function (data) {
+        if (data.__alreadyDone) {
+            return;
+        }
+        data.__alreadyDone = true;
+        var cropImageDialog = new weWidgets.CropImageDialog(this,
+            _.extend({
+                res_model: data.$editable.data('oe-model'),
+                res_id: data.$editable.data('oe-id'),
+            }, data.options || {}),
+            data.media
+        );
+        if (data.onSave) {
+            cropImageDialog.on('save', this, data.onSave);
+        }
+        if (data.onCancel) {
+            cropImageDialog.on('cancel', this, data.onCancel);
+        }
+        cropImageDialog.open();
     },
     /**
      * Called when a demand to open a link dialog is received on the bus.
@@ -1253,15 +1371,11 @@ var SummernoteManager = Class.extend(mixins.EventDispatcherMixin, ServicesMixin,
         }
         data.__alreadyDone = true;
 
-        const model = data.$editable.data('oe-model');
-        const field = data.$editable.data('oe-field');
-        const type = data.$editable.data('oe-type');
         var mediaDialog = new weWidgets.MediaDialog(this,
             _.extend({
-                res_model: model,
+                res_model: data.$editable.data('oe-model'),
                 res_id: data.$editable.data('oe-id'),
                 domain: data.$editable.data('oe-media-domain'),
-                useMediaLibrary: field && (model === 'ir.ui.view' && field === 'arch' || type === 'html'),
             }, data.options),
             data.media
         );
@@ -1272,6 +1386,40 @@ var SummernoteManager = Class.extend(mixins.EventDispatcherMixin, ServicesMixin,
             mediaDialog.on('cancel', this, data.onCancel);
         }
         mediaDialog.open();
+    },
+});
+/**
+ * @todo cannot do this without include because it would make a loop in the
+ * JS module dependencies otherwise.
+ */
+rte.Class.include({
+    /**
+     * @override
+     */
+    start: function () {
+        this._summernoteManager = new SummernoteManager(this);
+        return this._super.apply(this, arguments);
+    },
+    /**
+     * @override
+     */
+    cancel: function () {
+        this._super.apply(this, arguments);
+        this._summernoteManager.destroy();
+    },
+
+    //--------------------------------------------------------------------------
+    // Public
+    //--------------------------------------------------------------------------
+
+    /**
+     * Create/Update cropped attachments.
+     *
+     * @param {jQuery} $editable
+     * @returns {Deferred}
+     */
+    saveCroppedImages: function ($editable) {
+        return this._summernoteManager.saveCroppedImages($editable);
     },
 });
 return SummernoteManager;

@@ -140,9 +140,9 @@ class TestRobustness(SavepointCase):
         move1._action_confirm()
         move1._action_assign()
 
-        self.assertEqual(move1.move_line_ids.package_id, package)
+        move1.result_package_id = False
+
         package.unpack()
-        self.assertEqual(move1.move_line_ids.package_id, self.env['stock.quant.package'])
 
         # unreserve
         move1._do_unreserve()

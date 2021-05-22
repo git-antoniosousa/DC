@@ -67,12 +67,11 @@ var SlideUploadDialog = Dialog.extend({
         this._alertRemove();
         $('<div/>', {
             "class": 'alert alert-warning',
-            id: 'upload-alert',
             role: 'alert'
         }).text(message).insertBefore(this.$('form'));
     },
     _alertRemove: function () {
-        this.$('#upload-alert').remove();
+        this.$('.alert-warning').remove();
     },
     /**
      * Section and tags management from select2
@@ -189,17 +188,17 @@ var SlideUploadDialog = Dialog.extend({
             if (! this.modulesToInstallStatus.installing) {
                 btnList.push({text: this.modulesToInstallStatus.failed ? _t("Retry") : _t("Install"), classes: 'btn-primary', click: this._onClickInstallModuleConfirm.bind(this)});
             }
-            btnList.push({text: _t("Discard"), classes: 'o_w_slide_go_back', click: this._onClickGoBack.bind(this)});
+            btnList.push({text: _t("Go Back"), classes: 'o_w_slide_go_back', click: this._onClickGoBack.bind(this)});
         } else if (state !== '_upload') { // no button when uploading
             if (this.canUpload) {
                 if (this.canPublish) {
-                    btnList.push({text: _t("Save & Publish"), classes: 'btn-primary o_w_slide_upload o_w_slide_upload_published', click: this._onClickFormSubmit.bind(this)});
-                    btnList.push({text: _t("Save"), classes: 'o_w_slide_upload', click: this._onClickFormSubmit.bind(this)});
+                    btnList.push({text: _t("Publish"), classes: 'btn-primary o_w_slide_upload o_w_slide_upload_published', click: this._onClickFormSubmit.bind(this)});
+                    btnList.push({text: _t("Save as Draft"), classes: 'o_w_slide_upload', click: this._onClickFormSubmit.bind(this)});
                 } else {
-                    btnList.push({text: _t("Save"), classes: 'btn-primary o_w_slide_upload', click: this._onClickFormSubmit.bind(this)});
+                    btnList.push({text: _t("Save as Draft"), classes: 'btn-primary o_w_slide_upload', click: this._onClickFormSubmit.bind(this)});
                 }
             }
-            btnList.push({text: _t("Discard"), classes: 'o_w_slide_go_back', click: this._onClickGoBack.bind(this)});
+            btnList.push({text: _t("Go Back"), classes: 'o_w_slide_go_back', click: this._onClickGoBack.bind(this)});
         }
         return btnList;
     },
@@ -208,7 +207,7 @@ var SlideUploadDialog = Dialog.extend({
      *
      * @private
      */
-    _getSelect2DropdownValues: function () {
+    _getSelect2DropdownValues: function (){
         var result = {};
         var self = this;
         // tags
@@ -224,16 +223,16 @@ var SlideUploadDialog = Dialog.extend({
             result['tag_ids'] = tagValues;
         }
         // category
-        if (!self.defaultCategoryID) {
+        if (!self.defaultCategoryID){
             var categoryValue = this.$('#category_id').select2('data');
             if (categoryValue && categoryValue.create) {
                 result['category_id'] = [0, {'name': categoryValue.text}];
             } else if (categoryValue) {
-                result['category_id'] = [categoryValue.id];
+                result['category_id'] =  [categoryValue.id];
                 this.categoryID = categoryValue.id;
             }
         } else {
-            result['category_id'] = [self.defaultCategoryID];
+            result['category_id'] =  [self.defaultCategoryID];
             this.categoryID = self.defaultCategoryID;
         }
         return result;
@@ -292,23 +291,23 @@ var SlideUploadDialog = Dialog.extend({
                 }
             },
             fill_data: function (query, data) {
-                var self = this,
+                var that = this,
                     tags = {results: []};
                 _.each(data, function (obj) {
-                    if (self.matcher(query.term, obj[nameKey])) {
+                    if (that.matcher(query.term, obj[nameKey])) {
                         tags.results.push({id: obj.id, text: obj[nameKey]});
                     }
                 });
                 query.callback(tags);
             },
             query: function (query) {
-                var self = this;
+                var that = this;
                 // fetch data only once and store it
                 if (!this.selection_data) {
                     this.fetch_rpc_fnc().then(function (data) {
-                        self.can_create = data.can_create;
-                        self.fill_data(query, data.read_results);
-                        self.selection_data = data.read_results;
+                        that.can_create = data.can_create;
+                        that.fill_data(query, data.read_results);
+                        that.selection_data = data.read_results;
                     });
                 } else {
                     this.fill_data(query, this.selection_data);
@@ -352,20 +351,22 @@ var SlideUploadDialog = Dialog.extend({
         };
     },
     /**
-     * Show the preview
+     * Show the preview/right column and resize the modal
      * @private
      */
-    _showPreviewColumn: function () {
-        this.$('.o_slide_tutorial').addClass('d-none');
-        this.$('.o_slide_preview').removeClass('d-none');
+    _showPreviewColumn: function() {
+        this.$('#o_wslides_js_slide_upload_left_column').removeClass('col').addClass('col-md-6');
+        this.$('#o_wslides_js_slide_upload_preview_column').removeClass('d-none');
+        this.$modal.find('.modal-dialog').addClass('modal-lg');
     },
     /**
-     * Hide the preview
+     * Hide the preview/right column and resize the modal
      * @private
      */
     _hidePreviewColumn: function () {
-        this.$('.o_slide_tutorial').removeClass('d-none');
-        this.$('.o_slide_preview').addClass('d-none');
+        this.$('#o_wslides_js_slide_upload_left_column').addClass('col').removeClass('col-md-6');
+        this.$('#o_wslides_js_slide_upload_preview_column').addClass('d-none');
+        this.$modal.find('.modal-dialog').removeClass('modal-lg');
     },
     /**
      * @private
@@ -387,7 +388,6 @@ var SlideUploadDialog = Dialog.extend({
     _onChangeType: function () {
         var currentType = this.get('state');
         var tmpl;
-        this.$modal.find('.modal-dialog').removeClass('modal-lg');
         if (currentType === '_select') {
             tmpl = 'website.slide.upload.modal.select';
         } else if (currentType === '_upload') {
@@ -396,7 +396,6 @@ var SlideUploadDialog = Dialog.extend({
             tmpl = 'website.slide.upload.modal.import';
         } else {
             tmpl = this.slide_type_data[currentType]['template'];
-            this.$modal.find('.modal-dialog').addClass('modal-lg');
         }
         this.$('.o_w_slide_upload_modal_container').empty();
         this.$('.o_w_slide_upload_modal_container').append(QWeb.render(tmpl, {widget: this}));
@@ -408,6 +407,8 @@ var SlideUploadDialog = Dialog.extend({
         } else {
             this.set_title(_t("Upload a document"));
         }
+
+        this.$modal.find('.modal-dialog').removeClass('modal-lg');
     },
     _onChangeCanSubmitForm: function (ev) {
         if (this.get('can_submit_form')) {
@@ -422,7 +423,6 @@ var SlideUploadDialog = Dialog.extend({
 
         var $input = $(ev.currentTarget);
         var preventOnchange = $input.data('preventOnchange');
-        var $preview = self.$('#slide-image');
 
         var file = ev.target.files[0];
         if (!file) {
@@ -449,7 +449,7 @@ var SlideUploadDialog = Dialog.extend({
 
         utils.getDataURLFromFile(file).then(function (buffer) {
             if (isImage) {
-                $preview.attr('src', buffer);
+                self.$('#slide-image').attr('src', buffer);
             }
             buffer = buffer.split(',')[1];
             self.file.data = buffer;
@@ -459,7 +459,7 @@ var SlideUploadDialog = Dialog.extend({
         if (file.type === 'application/pdf') {
             var ArrayReader = new FileReader();
             this.set('can_submit_form', false);
-            // file read as ArrayBuffer for pdfjsLib get_Document API
+            // file read as ArrayBuffer for PDFJS get_Document API
             ArrayReader.readAsArrayBuffer(file);
             ArrayReader.onload = function (evt) {
                 var buffer = evt.target.result;
@@ -469,15 +469,15 @@ var SlideUploadDialog = Dialog.extend({
                     self.set('can_submit_form', true);
                 };
                 /**
-                 * The following line fixes pdfjsLib 'Util' global variable.
+                 * The following line fixes PDFJS 'Util' global variable.
                  * This is (most likely) related to #32181 which lazy loads most assets.
                  *
-                 * That caused an issue where the global 'Util' variable from pdfjsLib can be
+                 * That caused an issue where the global 'Util' variable from PDFJS can be
                  * (depending of which libraries load first) overridden by the global 'Util'
                  * variable of bootstrap.
-                 * (See 'lib/bootstrap/js/util.js' and 'web/static/lib/pdfjs/build/pdfjs.js')
+                 * (See 'lib/bootstrap/js/util.js' and 'lib/pdfjs/src/shared/util.js')
                  *
-                 * This commit ensures that the global 'Util' variable is set to the one of pdfjsLib
+                 * This commit ensures that the global 'Util' variable is set to the one of PDFJS
                  * right before it's used.
                  *
                  * Eventually, we should update or get rid of one of the two libraries since they're
@@ -485,9 +485,9 @@ var SlideUploadDialog = Dialog.extend({
                  * In the mean time, this small fix allows not refactoring all of this and can not
                  * cause much harm.
                  */
-                Util = window.pdfjsLib.Util;
-                window.pdfjsLib.getDocument(new Uint8Array(buffer), null, passwordNeeded).then(function getPdf(pdf) {
-                    self._formSetFieldValue('duration', (pdf._pdfInfo.numPages || 0) * 5);
+                Util = PDFJS.Util;
+                PDFJS.getDocument(new Uint8Array(buffer), null, passwordNeeded).then(function getPdf(pdf) {
+                    self._formSetFieldValue('duration', (pdf.pdfInfo.numPages || 0) * 5);
                     pdf.getPage(1).then(function getFirstPage(page) {
                         var scale = 1;
                         var viewport = page.getViewport(scale);
@@ -501,7 +501,7 @@ var SlideUploadDialog = Dialog.extend({
                             viewport: viewport
                         }).then(function () {
                             var imageData = self.$('#data_canvas')[0].toDataURL();
-                            $preview.attr('src', imageData);
+                            self.$('#slide-image').attr('src', imageData);
                             if (loaded) {
                                 self.set('can_submit_form', true);
                             }
@@ -516,9 +516,7 @@ var SlideUploadDialog = Dialog.extend({
         if (!preventOnchange) {
             var input = file.name;
             var inputVal = input.substr(0, input.lastIndexOf('.')) || input;
-            if (this._formGetFieldValue('name') === "") {
-                this._formSetFieldValue('name', inputVal);
-            }
+            this._formSetFieldValue('name', inputVal);
         }
     },
     _onChangeSlideUrl: function (ev) {
@@ -559,7 +557,7 @@ var SlideUploadDialog = Dialog.extend({
                     .text(_.str.sprintf(_t('Failed to install "%s".'), this.modulesToInstallStatus.name));
             }
         } else {
-            this.modulesToInstallStatus = _.extend({}, _.find(this.modulesToInstall, function (item) { return item.id === moduleId; }));
+            this.modulesToInstallStatus = _.extend({}, _.find(this.modulesToInstall, function (item) { return item.id == moduleId; }));
             this.set('state', '_import');
             this.$('#o_wslides_install_module_text')
                 .text(_.str.sprintf(_t('Do you want to install the "%s" app?'), this.modulesToInstallStatus.name));
@@ -593,7 +591,6 @@ var SlideUploadDialog = Dialog.extend({
             this.modulesToInstallStatus = null;
         }
     },
-
     _onClickFormSubmit: function (ev) {
         var self = this;
         var $btn = $(ev.currentTarget);
@@ -605,20 +602,15 @@ var SlideUploadDialog = Dialog.extend({
                 route: '/slides/add_slide',
                 params: values,
             }).then(function (data) {
-                self._onFormSubmitDone(data, oldType);
+                if (data.error) {
+                    self.set('state', oldType);
+                    self._alertDisplay(data.error);
+                } else {
+                    window.location = data.url;
+                }
             });
         }
     },
-
-    _onFormSubmitDone: function (data, oldType) {
-        if (data.error) {
-            this.set('state', oldType);
-            this._alertDisplay(data.error);
-        } else {
-            window.location = data.url;
-        }
-    },
-
     _onClickSlideTypeIcon: function (ev) {
         var $elem = this.$(ev.currentTarget);
         var slideType = $elem.data('slideType');

@@ -1,16 +1,51 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
-from odoo.tests import tagged
+
+import time
+
+from odoo.addons.account.tests.account_test_classes import AccountingTestCase
 from odoo.exceptions import ValidationError
+from odoo.tests import tagged
 
 
 @tagged('post_install', '-at_install')
-class ISRTest(AccountTestInvoicingCommon):
+class ISRPrintTest(AccountingTestCase):
 
-    @classmethod
-    def setUpClass(cls, chart_template_ref='l10n_ch.l10nch_chart_template'):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def create_invoice(self, currency_to_use='base.CHF'):
+        """ Generates a test invoice """
+        invoice = self.env['account.move'].with_context(default_type='out_invoice').create({
+            'type': 'out_invoice',
+            'partner_id': self.env.ref("base.res_partner_2").id,
+            'currency_id': self.env.ref(currency_to_use).id,
+            'invoice_date': time.strftime('%Y') + '-12-22',
+            'invoice_line_ids': [
+                (0, 0, {
+                    'product_id': self.env.ref("product.product_product_4").id,
+                    'quantity': 1,
+                    'price_unit': 42,
+                }),
+            ],
+        })
+        invoice.post()
+
+        return invoice
+
+    def create_account(self, number):
+        """ Generates a test res.partner.bank. """
+        rslt = self.env['res.partner.bank'].create({
+            'acc_number': number,
+            'partner_id': self.env.ref("base.res_partner_2").id,
+        })
+        rslt._onchange_set_l10n_ch_postal()
+        return rslt
+
+    def create_isr_issuer_account(self, number):
+        """ Generates a test res.partner.bank on company """
+        return self.env['res.partner.bank'].create({
+            'acc_number': "ISR {} number",
+            'partner_id': self.env.user.company_id.partner_id.id,
+            'l10n_ch_isr_subscription_chf': number,
+        })
 
     def print_isr(self, invoice):
         try:
@@ -19,49 +54,26 @@ class ISRTest(AccountTestInvoicingCommon):
         except ValidationError:
             return False
 
-    def test_l10n_ch_postals(self):
+    def isr_not_generated(self, invoice):
+        """ Prints the given invoice and tests that no ISR generation is triggered. """
+        self.assertFalse(self.print_isr(invoice), 'No ISR should be generated for this invoice')
 
-        def assertBankAccountValid(account_number, expected_account_type, expected_postal=None):
-            partner_bank = self.env['res.partner.bank'].create({
-                'acc_number': account_number,
-                'partner_id': self.partner_a.id,
-            })
-            expected_vals = {'acc_type': expected_account_type}
-            if expected_postal is not None:
-                expected_vals['l10n_ch_postal'] = expected_postal
-
-            self.assertRecordValues(partner_bank, [expected_vals])
-
-        assertBankAccountValid('010391391', 'postal', expected_postal='010391391')
-        assertBankAccountValid('010391394', 'bank')
-        assertBankAccountValid('CH6309000000250097798', 'iban', expected_postal='25-9779-8')
-        assertBankAccountValid('GR1601101250000000012300695', 'iban', expected_postal=False)
+    def isr_generated(self, invoice):
+        """ Prints the given invoice and tests that an ISR generation is triggered. """
+        self.assertTrue(self.print_isr(invoice), 'An ISR should have been generated')
 
     def test_isr(self):
-        isr_bank_account = self.env['res.partner.bank'].create({
-            'acc_number': "ISR {} number",
-            'partner_id': self.env.company.partner_id.id,
-            'l10n_ch_isr_subscription_chf': '01-39139-1',
-        })
+        #Let us test the generation of an ISR for an invoice, first by showing an
+        #ISR report is only generated when Odoo has all the data it needs.
+        invoice_1 = self.create_invoice('base.CHF')
+        self.isr_not_generated(invoice_1)
 
-        invoice_chf = self.env['account.move'].create({
-            'move_type': 'out_invoice',
-            'partner_id': self.partner_a.id,
-            'partner_bank_id': isr_bank_account.id,
-            'currency_id': self.env.ref('base.CHF').id,
-            'invoice_date': '2019-01-01',
-            'invoice_line_ids': [(0, 0, {'product_id': self.product_a.id})],
-        })
-        invoice_chf.action_post()
-        self.assertTrue(self.print_isr(invoice_chf))
+        #Now we add an account for payment to our invoice, the ISR can be generated
+        test_account = self.create_isr_issuer_account('01-39139-1')
+        invoice_1.invoice_partner_bank_id = test_account
+        self.isr_generated(invoice_1)
 
-        invoice_eur = self.env['account.move'].create({
-            'move_type': 'out_invoice',
-            'partner_id': self.partner_a.id,
-            'partner_bank_id': isr_bank_account.id,
-            'currency_id': self.env.ref('base.EUR').id,
-            'invoice_date': '2019-01-01',
-            'invoice_line_ids': [(0, 0, {'product_id': self.product_a.id})],
-        })
-        invoice_eur.action_post()
-        self.assertFalse(self.print_isr(invoice_eur))
+        #Now, let us show that, with the same data, an invoice in euros does not generate any ISR (because the bank does not have any EUR postal reference)
+        invoice_2 = self.create_invoice('base.EUR')
+        invoice_2.partner_bank_id = test_account
+        self.isr_not_generated(invoice_2)

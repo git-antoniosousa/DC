@@ -14,8 +14,8 @@ class AccountFiscalPosition(models.Model):
     @api.model
     def get_fiscal_position(self, partner_id, delivery_id=None):
         """ Take into account the partner afip responsibility in order to auto-detect the fiscal position """
-        company = self.env.company
-        if company.country_id.code == "AR":
+        company = self.env['res.company'].browse(self._context.get('force_company', self.env.company.id))
+        if company.country_id == self.env.ref('base.ar'):
             PartnerObj = self.env['res.partner']
             partner = PartnerObj.browse(partner_id)
 
@@ -27,19 +27,19 @@ class AccountFiscalPosition(models.Model):
 
             # partner manually set fiscal position always win
             if delivery.property_account_position_id or partner.property_account_position_id:
-                return delivery.property_account_position_id or partner.property_account_position_id
+                return delivery.property_account_position_id.id or partner.property_account_position_id.id
             domain = [
                 ('auto_apply', '=', True),
                 ('l10n_ar_afip_responsibility_type_ids', '=', self.env['res.partner'].browse(
                     partner_id).l10n_ar_afip_responsibility_type_id.id),
-                ('company_id', '=', company.id),
+                ('company_id', '=', company.id)
             ]
-            return self.sudo().search(domain, limit=1)
+            return self.search(domain, limit=1).id
         return super().get_fiscal_position(partner_id, delivery_id=delivery_id)
 
     @api.onchange('l10n_ar_afip_responsibility_type_ids', 'country_group_id', 'country_id', 'zip_from', 'zip_to')
     def _onchange_afip_responsibility(self):
-        if self.company_id.country_id.code == "AR":
+        if self.company_id.country_id == self.env.ref('base.ar'):
             if self.l10n_ar_afip_responsibility_type_ids and any(['country_group_id', 'country_id', 'zip_from', 'zip_to']):
                 return {'warning': {
                     'title': _("Warning"),

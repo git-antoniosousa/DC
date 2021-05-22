@@ -59,7 +59,7 @@ QUnit.module('ModelFieldSelector', {
             readonly: false,
             debugMode: true,
         });
-        await testUtils.mock.addMockEnvironment(fieldSelector, {data: this.data});
+        testUtils.mock.addMockEnvironment(fieldSelector, {data: this.data});
         await fieldSelector.appendTo($target);
         var $value = fieldSelector.$("> .o_field_selector_value");
 
@@ -171,38 +171,6 @@ QUnit.module('ModelFieldSelector', {
         }
     });
 
-    QUnit.test("default field chain should set the page data correctly", async function (assert) {
-        assert.expect(3);
-
-        var $target = $("#qunit-fixture");
-
-        // Create the field selector and its mock environment
-        // passing 'product_id' as a prefilled field-chain
-        var fieldSelector = new ModelFieldSelector(null, "partner", ['product_id'], {
-            readonly: false,
-            debugMode: true,
-        });
-        await testUtils.addMockEnvironment(fieldSelector, {data: this.data});
-        await fieldSelector.appendTo($target);
-
-        // Focusing the field selector input should open a field selector popover
-        fieldSelector.$el.trigger('focusin');
-        var $fieldSelectorPopover = fieldSelector.$(".o_field_selector_popover:visible");
-        assert.strictEqual($fieldSelectorPopover.length, 1,
-            "field selector popover should be visible");
-
-        // The field selector popover should contain the list of "product"
-        // fields. "Product Name" should be among them.
-        var $lis = $fieldSelectorPopover.find("li");
-        assert.strictEqual($lis.length, 1,
-            "there should be only one field proposition for 'product' model");
-        assert.ok($lis.first().html().indexOf("Product Name") >= 0,
-            "the name of the only suggestion should be 'Product Name'");
-
-
-        fieldSelector.destroy();
-    });
-
     QUnit.test("use the filter option", async function (assert) {
         assert.expect(2);
 
@@ -215,7 +183,7 @@ QUnit.module('ModelFieldSelector', {
                 return field.type === 'many2one';
             },
         });
-        await testUtils.mock.addMockEnvironment(fieldSelector, {data: this.data});
+        testUtils.mock.addMockEnvironment(fieldSelector, {data: this.data});
         await fieldSelector.appendTo($target);
 
         fieldSelector.$el.trigger('focusin');
@@ -237,7 +205,7 @@ QUnit.module('ModelFieldSelector', {
         var fieldSelector = new ModelFieldSelector(null, "partner", [], {
             readonly: false,
         });
-        await testUtils.mock.addMockEnvironment(fieldSelector, {data: this.data});
+        testUtils.mock.addMockEnvironment(fieldSelector, {data: this.data});
         await fieldSelector.appendTo($target);
 
         fieldSelector.$el.trigger('focusin');
@@ -269,7 +237,7 @@ QUnit.module('ModelFieldSelector', {
             readonly: false,
             showSearchInput: false,
         });
-        await testUtils.mock.addMockEnvironment(fieldSelector, { data: this.data });
+        testUtils.mock.addMockEnvironment(fieldSelector, { data: this.data });
         await fieldSelector.appendTo($target);
 
         fieldSelector.$el.trigger('focusin');
@@ -291,7 +259,7 @@ QUnit.module('ModelFieldSelector', {
             readonly: false,
             showSearchInput: false,
         });
-        await testUtils.mock.addMockEnvironment(fieldSelector, {data: this.data});
+        testUtils.mock.addMockEnvironment(fieldSelector, {data: this.data});
         await fieldSelector.appendTo($target);
 
         var $fieldName = fieldSelector.$('.o_field_selector_chain_part');
@@ -311,7 +279,7 @@ QUnit.module('ModelFieldSelector', {
             readonly: false,
             showSearchInput: false,
         });
-        await testUtils.mock.addMockEnvironment(fieldSelector, {data: this.data});
+        testUtils.mock.addMockEnvironment(fieldSelector, {data: this.data});
         await fieldSelector.appendTo($target);
 
         var $fieldName = fieldSelector.$('.o_field_selector_chain_part');

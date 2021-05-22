@@ -4,6 +4,7 @@
 {
     'name': "Lithuania - Accounting",
     'version': '1.0.0',
+    'summary': 'accounting, Lithuanian',
     'description': """
         Chart of Accounts (COA) Template for Lithuania's Accounting.
 
@@ -18,7 +19,7 @@
     'license': 'LGPL-3',
     'author': "Focusate",
     'website': "http://www.focusate.eu",
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     'depends': [
         'l10n_multilang',
     ],
@@ -34,9 +35,6 @@
         # Try Loading COA for Current Company
         'data/account_chart_template_load.xml',
         'data/menuitem_data.xml',
-    ],
-    'demo': [
-        'demo/demo_company.xml',
     ],
     'post_init_hook': 'load_translations',
     'installable': True,

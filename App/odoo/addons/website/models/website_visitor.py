@@ -3,9 +3,8 @@
 
 from datetime import datetime, timedelta
 import uuid
-import pytz
 
-from odoo import fields, models, api, _
+from odoo import fields, models, api, registry, _
 from odoo.addons.base.models.res_partner import _tz_get
 from odoo.exceptions import UserError
 from odoo.tools.misc import _format_time_ago
@@ -39,7 +38,7 @@ class WebsiteVisitor(models.Model):
 
     # localisation and info
     country_id = fields.Many2one('res.country', 'Country', readonly=True)
-    country_flag = fields.Char(related="country_id.image_url", string="Country Flag")
+    country_flag = fields.Binary(related="country_id.image", string="Country Flag")
     lang_id = fields.Many2one('res.lang', string='Language', help="Language from the website when visitor has been created")
     timezone = fields.Selection(_tz_get, string='Timezone')
     email = fields.Char(string='Email', compute='_compute_email_phone')
@@ -49,7 +48,7 @@ class WebsiteVisitor(models.Model):
     visit_count = fields.Integer('Number of visits', default=1, readonly=True, help="A new visit is considered if last connection was more than 8 hours ago.")
     website_track_ids = fields.One2many('website.track', 'visitor_id', string='Visited Pages History', readonly=True)
     visitor_page_count = fields.Integer('Page Views', compute="_compute_page_statistics", help="Total number of visits on tracked pages")
-    page_ids = fields.Many2many('website.page', string="Visited Pages", compute="_compute_page_statistics", groups="website.group_website_designer")
+    page_ids = fields.Many2many('website.page', string="Visited Pages", compute="_compute_page_statistics")
     page_count = fields.Integer('# Visited Pages', compute="_compute_page_statistics", help="Total number of tracked page visited")
     last_visited_page_id = fields.Many2one('website.page', string="Last Visited Page", compute="_compute_last_visited_page_id")
 
@@ -66,10 +65,13 @@ class WebsiteVisitor(models.Model):
 
     @api.depends('name')
     def name_get(self):
-        return [(
-            record.id,
-            (record.name or _('Website Visitor #%s', record.id))
-        ) for record in self]
+        res = []
+        for record in self:
+            res.append((
+                record.id,
+                record.name or _('Website Visitor #%s') % record.id
+            ))
+        return res
 
     @api.depends('partner_id.email_normalized', 'partner_id.mobile', 'partner_id.phone')
     def _compute_email_phone(self):
@@ -122,39 +124,38 @@ class WebsiteVisitor(models.Model):
             visitor.time_since_last_action = _format_time_ago(self.env, (datetime.now() - visitor.last_connection_datetime))
             visitor.is_connected = (datetime.now() - visitor.last_connection_datetime) < timedelta(minutes=5)
 
-    def _check_for_message_composer(self):
-        """ Purpose of this method is to actualize visitor model prior to contacting
-        him. Used notably for inheritance purpose, when dealing with leads that
-        could update the visitor model. """
-        return bool(self.partner_id and self.partner_id.email)
-
-    def _prepare_message_composer_context(self):
-        return {
-            'default_model': 'res.partner',
-            'default_res_id': self.partner_id.id,
-            'default_partner_ids': [self.partner_id.id],
-        }
+    def _prepare_visitor_send_mail_values(self):
+        if self.partner_id.email:
+            return {
+                'res_model': 'res.partner',
+                'res_id': self.partner_id.id,
+                'partner_ids': [self.partner_id.id],
+            }
+        return {}
 
     def action_send_mail(self):
         self.ensure_one()
-        if not self._check_for_message_composer():
-            raise UserError(_("There are no contact and/or no email linked to this visitor."))
-        visitor_composer_ctx = self._prepare_message_composer_context()
+        visitor_mail_values = self._prepare_visitor_send_mail_values()
+        if not visitor_mail_values:
+            raise UserError(_("There is no email linked this visitor."))
         compose_form = self.env.ref('mail.email_compose_message_wizard_form', False)
-        compose_ctx = dict(
+        ctx = dict(
+            default_model=visitor_mail_values.get('res_model'),
+            default_res_id=visitor_mail_values.get('res_id'),
             default_use_template=False,
+            default_partner_ids=[(6, 0, visitor_mail_values.get('partner_ids'))],
             default_composition_mode='comment',
+            default_reply_to=self.env.user.partner_id.email,
         )
-        compose_ctx.update(**visitor_composer_ctx)
         return {
-            'name': _('Contact Visitor'),
+            'name': _('Compose Email'),
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
             'res_model': 'mail.compose.message',
             'views': [(compose_form.id, 'form')],
             'view_id': compose_form.id,
             'target': 'new',
-            'context': compose_ctx,
+            'context': ctx,
         }
 
     def _get_visitor_from_request(self, force_create=False):
@@ -186,11 +187,7 @@ class WebsiteVisitor(models.Model):
             # Cookie associated to a Partner
             visitor = Visitor
 
-        if visitor and not visitor.timezone:
-            tz = self._get_visitor_timezone()
-            if tz:
-                visitor.timezone = tz
-        if not visitor and force_create:
+        if force_create and not visitor:
             visitor = self._create_visitor()
 
         return visitor
@@ -201,9 +198,9 @@ class WebsiteVisitor(models.Model):
         if request.httprequest.cookies.get('visitor_uuid', '') != visitor_sudo.access_token:
             expiration_date = datetime.now() + timedelta(days=365)
             response.set_cookie('visitor_uuid', visitor_sudo.access_token, expires=expiration_date)
-        self._handle_website_page_visit(website_page, visitor_sudo)
+        self._handle_website_page_visit(response, website_page, visitor_sudo)
 
-    def _handle_website_page_visit(self, website_page, visitor_sudo):
+    def _handle_website_page_visit(self, response, website_page, visitor_sudo):
         """ Called on dispatch. This will create a website.visitor if the http request object
         is a tracked website page or a tracked view. Only on tracked elements to avoid having
         too much operations done on every page or other http requests.
@@ -231,8 +228,8 @@ class WebsiteVisitor(models.Model):
             self.env['website.track'].create(website_track_values)
         self._update_visitor_last_visit()
 
-    def _create_visitor(self):
-        """ Create a visitor. Tracking is added after the visitor has been created."""
+    def _create_visitor(self, website_track_values=None):
+        """ Create a visitor and add a track to it if website_track_values is set."""
         country_code = request.session.get('geoip', {}).get('country_code', False)
         country_id = request.env['res.country'].sudo().search([('code', '=', country_code)], limit=1).id if country_code else False
         vals = {
@@ -240,53 +237,16 @@ class WebsiteVisitor(models.Model):
             'country_id': country_id,
             'website_id': request.website.id,
         }
-
-        tz = self._get_visitor_timezone()
-        if tz:
-            vals['timezone'] = tz
-
         if not self.env.user._is_public():
             vals['partner_id'] = self.env.user.partner_id.id
             vals['name'] = self.env.user.partner_id.name
+        if website_track_values:
+            vals['website_track_ids'] = [(0, 0, website_track_values)]
         return self.sudo().create(vals)
 
-    def _link_to_partner(self, partner, update_values=None):
-        """ Link visitors to a partner. This method is meant to be overridden in
-        order to propagate, if necessary, partner information to sub records.
-
-        :param partner: partner used to link sub records;
-        :param update_values: optional values to update visitors to link;
-        """
-        vals = {'name': partner.name}
-        if update_values:
-            vals.update(update_values)
-        self.write(vals)
-
-    def _link_to_visitor(self, target, keep_unique=True):
-        """ Link visitors to target visitors, because they are linked to the
-        same identity. Purpose is mainly to propagate partner identity to sub
-        records to ease database update and decide what to do with "duplicated".
-        THis method is meant to be overridden in order to implement some specific
-        behavior linked to sub records of duplicate management.
-
-        :param target: main visitor, target of link process;
-        :param keep_unique: if True, find a way to make target unique;
-        """
-        # Link sub records of self to target partner
-        if target.partner_id:
-            self._link_to_partner(target.partner_id)
-        # Link sub records of self to target visitor
-        self.website_track_ids.write({'visitor_id': target.id})
-
-        if keep_unique:
-            self.unlink()
-
-        return target
-
     def _cron_archive_visitors(self):
-        delay_days = int(self.env['ir.config_parameter'].sudo().get_param('website.visitor.live.days', 30))
-        deadline = datetime.now() - timedelta(days=delay_days)
-        visitors_to_archive = self.env['website.visitor'].sudo().search([('last_connection_datetime', '<', deadline)])
+        one_week_ago = datetime.now() - timedelta(days=7)
+        visitors_to_archive = self.env['website.visitor'].sudo().search([('last_connection_datetime', '<', one_week_ago)])
         visitors_to_archive.write({'active': False})
 
     def _update_visitor_last_visit(self):
@@ -308,12 +268,3 @@ class WebsiteVisitor(models.Model):
                 self.env.cr.execute(query, (date_now, self.id), log_exceptions=False)
         except Exception:
             pass
-
-    def _get_visitor_timezone(self):
-        tz = request.httprequest.cookies.get('tz') if request else None
-        if tz in pytz.all_timezones:
-            return tz
-        elif not self.env.user._is_public():
-            return self.env.user.tz
-        else:
-            return None

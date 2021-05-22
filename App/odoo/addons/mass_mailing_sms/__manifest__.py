@@ -7,7 +7,6 @@
     'description': '',
     'version': '1.0',
     'category': 'Marketing/Email Marketing',
-    'sequence': 245,
     'depends': [
         'portal',
         'mass_mailing',

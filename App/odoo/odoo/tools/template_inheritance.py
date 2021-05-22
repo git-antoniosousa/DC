@@ -146,10 +146,6 @@ def apply_inheritance_specs(source, specs_tree, inherit_branding=False, pre_loca
                         else:
                             comment = content
                     source = copy.deepcopy(spec_content)
-                    # only keep the t-name of a template root node
-                    t_name = node.get('t-name')
-                    if t_name:
-                        source.set('t-name', t_name)
                     if comment is not None:
                         text = source.text
                         source.text = None
@@ -231,7 +227,7 @@ def apply_inheritance_specs(source, specs_tree, inherit_branding=False, pre_loca
             ])
             tag = "<%s%s>" % (spec.tag, attrs)
             raise ValueError(
-                _("Element '%s' cannot be located in parent view", tag)
+                _("Element '%s' cannot be located in parent view") % tag
             )
 
     return source

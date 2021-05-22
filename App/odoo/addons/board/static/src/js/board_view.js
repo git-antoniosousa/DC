@@ -42,7 +42,10 @@ var BoardController = FormController.extend({
      * @override
      */
     getTitle: function () {
-        return _t("My Dashboard");
+        if (this.inDashboard) {
+            return _t("My Dashboard");
+        }
+        return this._super.apply(this, arguments);
     },
 
     //--------------------------------------------------------------------------
@@ -89,6 +92,12 @@ var BoardController = FormController.extend({
             });
         });
         dialog.open();
+    },
+    /**
+     * @private
+     */
+    _onEnableDashboard: function () {
+        this.inDashboard = true;
     },
     /**
      * We need to intercept switch_view event coming from sub views, because we
@@ -246,7 +255,6 @@ var BoardRenderer = FormRenderer.extend({
                 var rawContext = new Context(action.context, evalContext, {lang: session.user_context.lang});
                 var context = pyUtils.eval('context', rawContext, evalContext);
                 var domain = params.domain || pyUtils.eval('domain', action.domain || '[]', action.context);
-
                 action.context = context;
                 action.domain = domain;
 
@@ -263,27 +271,17 @@ var BoardRenderer = FormRenderer.extend({
                            .then(function (viewsInfo) {
                     var viewInfo = viewsInfo[viewType];
                     var View = viewRegistry.get(viewType);
-
-                    const searchQuery = {
-                        context: context,
-                        domain: domain,
-                        groupBy: typeof context.group_by === 'string' && context.group_by ?
-                                    [context.group_by] :
-                                    context.group_by || [],
-                        orderedBy: context.orderedBy || [],
-                    };
-
-                    if (View.prototype.searchMenuTypes.includes('comparison')) {
-                        searchQuery.timeRanges = context.comparison || {};
-                    }
-
                     var view = new View(viewInfo, {
                         action: action,
                         hasSelectors: false,
                         modelName: action.res_model,
-                        searchQuery,
+                        searchQuery: {
+                            context: context,
+                            domain: domain,
+                            groupBy: typeof context.group_by === 'string' && context.group_by ? [context.group_by] : context.group_by || [],
+                            orderedBy: context.orderedBy || [],
+                        },
                         withControlPanel: false,
-                        withSearchPanel: false,
                     });
                     return view.getController(self).then(function (controller) {
                         self._boardFormViewIDs[controller.handle] = _.first(
@@ -308,6 +306,7 @@ var BoardRenderer = FormRenderer.extend({
         // this function has a side effect.  This is ok because we assume that
         // once we have a '<board>' tag, we are in a special dashboard mode.
         this.$el.addClass('o_dashboard');
+        this.trigger_up('enable_dashboard');
 
         var hasAction = _.detect(node.children, function (column) {
             return _.detect(column.children,function (element){

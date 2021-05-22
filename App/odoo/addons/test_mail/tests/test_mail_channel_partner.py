@@ -128,7 +128,7 @@ class TestMailSecurity(SavepointCase):
         channel_partner_3 = self.env['mail.channel.partner'].search([('channel_id', '=', self.private_channel_1.id), ('partner_id', '=', self.user_3.partner_id.id)])
         channel_partner_3.with_user(self.user_3).custom_channel_name = 'Test'
         with self.assertRaises(AccessError):
-            channel_partner_1.with_user(self.user_2).custom_channel_name = 'Blabla'
+            channel_partner_1.with_user(self.user_3).custom_channel_name = 'Blabla'
         self.assertNotEqual(channel_partner_1.custom_channel_name, 'Blabla')
 
     def test_channel_acls_04(self):

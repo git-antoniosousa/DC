@@ -34,7 +34,8 @@ class AccountChartTemplate(models.Model):
             'name': _('Effectively Paid'),
             'code': 'CBMX',
             'company_id': company.id,
-            'default_account_id': account,
+            'default_credit_account_id': account,
+            'default_debit_account_id': account,
             'show_on_dashboard': True,
         })
         return res

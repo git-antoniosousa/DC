@@ -3,17 +3,12 @@
 
 
 from unittest.mock import patch
-import email.policy
-import email.message
-import re
-import threading
 
-from odoo.tests.common import BaseCase, SavepointCase, TransactionCase
+from odoo.tests.common import BaseCase
+from odoo.tests.common import SavepointCase
 from odoo.tools import (
-    is_html_empty, html_sanitize, append_content_to_html, plaintext2html,
-    email_split,
-    misc, formataddr,
-    prepend_html_content,
+    html_sanitize, append_content_to_html, plaintext2html, email_split,
+    misc, formataddr, decode_smtp_header
 )
 
 from . import test_mail_examples
@@ -93,7 +88,7 @@ class TestSanitizer(BaseCase):
             self.assertTrue('ha.ckers.org' not in html or 'http://ha.ckers.org/xss.css' in html, 'html_sanitize did not remove a malicious code in %s (%s)' % (content, html))
 
         content = "<!--[if gte IE 4]><SCRIPT>alert('XSS');</SCRIPT><![endif]-->"  # down-level hidden block
-        self.assertEqual(html_sanitize(content, silent=False), '')
+        self.assertEquals(html_sanitize(content, silent=False), '')
 
     def test_html(self):
         sanitized_html = html_sanitize(test_mail_examples.MISC_HTML_SOURCE)
@@ -106,10 +101,10 @@ class TestSanitizer(BaseCase):
         not_emails = [
             '<blockquote cite="mid:CAEJSRZvWvud8c6Qp=wfNG6O1+wK3i_jb33qVrF7XyrgPNjnyUA@mail.gmail.com" type="cite">cat</blockquote>',
             '<img alt="@github-login" class="avatar" src="/web/image/pi" height="36" width="36">']
-        for not_email in not_emails:
-            sanitized = html_sanitize(not_email)
-            left_part = not_email.split('>')[0]  # take only left part, as the sanitizer could add data information on node
-            self.assertNotIn(misc.html_escape(not_email), sanitized, 'html_sanitize stripped emails of original html')
+        for email in not_emails:
+            sanitized = html_sanitize(email)
+            left_part = email.split('>')[0]  # take only left part, as the sanitizer could add data information on node
+            self.assertNotIn(misc.html_escape(email), sanitized, 'html_sanitize stripped emails of original html')
             self.assertIn(left_part, sanitized)
 
     def test_style_parsing(self):
@@ -323,70 +318,6 @@ class TestHtmlTools(BaseCase):
         for html, content, plaintext_flag, preserve_flag, container_tag, expected in test_samples:
             self.assertEqual(append_content_to_html(html, content, plaintext_flag, preserve_flag, container_tag), expected, 'append_content_to_html is broken')
 
-    def test_is_html_empty(self):
-        void_strings_samples = ['', False, ' ']
-        for content in void_strings_samples:
-            self.assertTrue(is_html_empty(content))
-
-        void_html_samples = ['<p><br></p>', '<p><br> </p>', '<p><br /></p >']
-        for content in void_html_samples:
-            self.assertTrue(is_html_empty(content), 'Failed with %s' % content)
-
-        valid_html_samples = ['<p><br>1</p>', '<p>1<br > </p>']
-        for content in valid_html_samples:
-            self.assertFalse(is_html_empty(content))
-
-    def test_prepend_html_content(self):
-        body = """
-            <html>
-                <body>
-                    <div>test</div>
-                </body>
-            </html>
-        """
-
-        content = "<span>content</span>"
-
-        result = prepend_html_content(body, content)
-        result = re.sub(r'[\s\t]', '', result)
-        self.assertEqual(result, "<html><body><span>content</span><div>test</div></body></html>")
-
-        body = "<div>test</div>"
-        content = "<span>content</span>"
-
-        result = prepend_html_content(body, content)
-        result = re.sub(r'[\s\t]', '', result)
-        self.assertEqual(result, "<span>content</span><div>test</div>")
-
-        body = """
-            <body>
-                <div>test</div>
-            </body>
-        """
-
-        result = prepend_html_content(body, content)
-        result = re.sub(r'[\s\t]', '', result)
-        self.assertEqual(result, "<body><span>content</span><div>test</div></body>")
-
-        body = """
-            <html>
-                <body>
-                    <div>test</div>
-                </body>
-            </html>
-        """
-
-        content = """
-            <html>
-                <body>
-                    <div>test</div>
-                </body>
-            </html>
-        """
-        result = prepend_html_content(body, content)
-        result = re.sub(r'[\s\t]', '', result)
-        self.assertEqual(result, "<html><body><div>test</div><div>test</div></body></html>")
-
 
 class TestEmailTools(BaseCase):
     """ Test some of our generic utility functions for emails """
@@ -404,7 +335,6 @@ class TestEmailTools(BaseCase):
 
     def test_email_formataddr(self):
         email = 'joe@example.com'
-        email_idna = 'joe@examplé.com'
         cases = [
             # (name, address),          charsets            expected
             (('', email),               ['ascii', 'utf-8'], 'joe@example.com'),
@@ -413,17 +343,50 @@ class TestEmailTools(BaseCase):
             (('joe"doe', email),        ['ascii', 'utf-8'], '"joe\\"doe" <joe@example.com>'),
             (('joé', email),            ['ascii'],          '=?utf-8?b?am/DqQ==?= <joe@example.com>'),
             (('joé', email),            ['utf-8'],          '"joé" <joe@example.com>'),
-            (('', email_idna),          ['ascii'],          'joe@xn--exampl-gva.com'),
-            (('', email_idna),          ['utf-8'],          'joe@examplé.com'),
-            (('joé', email_idna),       ['ascii'],          '=?utf-8?b?am/DqQ==?= <joe@xn--exampl-gva.com>'),
-            (('joé', email_idna),       ['utf-8'],          '"joé" <joe@examplé.com>'),
-            (('', 'joé@example.com'),   ['ascii', 'utf-8'], 'joé@example.com'),
+            (('', 'joé@example.com'),   ['ascii', 'utf-8'], UnicodeEncodeError),  # need SMTPUTF8 support
+            (('', 'joe@examplé.com'),   ['ascii', 'utf-8'], UnicodeEncodeError),  # need IDNA support
         ]
 
         for pair, charsets, expected in cases:
             for charset in charsets:
                 with self.subTest(pair=pair, charset=charset):
-                    self.assertEqual(formataddr(pair, charset), expected)
+                    if isinstance(expected, str):
+                        self.assertEqual(formataddr(pair, charset), expected)
+                    else:
+                        self.assertRaises(expected, formataddr, pair, charset)
+
+
+    def test_decode_smtp_header_email(self):
+        cases = [
+            # In == Out for trivial ASCII cases
+            ('Joe Doe <joe@ex.com>', 'Joe Doe <joe@ex.com>'),
+            ('Joe <joe@ex.com>, Mike <mike@ex.com>', 'Joe <joe@ex.com>, Mike <mike@ex.com>'),
+
+            # Same thing, but RFC822 quoted-strings must be preserved
+            ('"Doe, Joe" <joe@ex.com>', '"Doe, Joe" <joe@ex.com>'),
+            ('"Doe, Joe" <joe@ex.com>, "Foo, Mike" <mike@ex.com>',
+                    '"Doe, Joe" <joe@ex.com>, "Foo, Mike" <mike@ex.com>'),
+
+            # RFC2047-encoded words have to be quoted after decoding, because
+            # they are considered RFC822 `words` i.e. atom or quoted-string only!
+            # It's ok to quote a single word even if unnecessary.
+            # Example values produced by `formataddr((name, address), 'ascii')`
+            ("=?utf-8?b?Sm/DqQ==?= <joe@ex.com>", '"Joé" <joe@ex.com>'),
+            ("=?utf-8?b?Sm/DqQ==?= <joe@ex.com>, =?utf-8?b?RsO2w7YsIE1pa2U=?= <mike@ex.com>",
+                    '"Joé" <joe@ex.com>, "Föö, Mike" <mike@ex.com>'),
+            ('=?utf-8?b?RG/DqSwg?= =?US-ASCII?Q?Joe?= <joe@ex.com>',
+                '"Doé, ""Joe" <joe@ex.com>'),
+
+            # Double-quotes may appear in the encoded form and /must/ be turned
+            # into a RFC2822 quoted-pair (i.e. escaped)
+            #   "Trevor \"Banana\" Dumoulin" <tbd@ex.com>
+            ('=?utf-8?b?VHLDqXZvciAiQmFuYW5hIiBEdW1vdWxpbg==?= <tbd@ex.com>',
+                    '"Trévor \\"Banana\\" Dumoulin" <tbd@ex.com>'),
+        ]
+
+        for test, truth in cases:
+            self.assertEqual(decode_smtp_header(test, quoted=True), truth)
+
 
 
 class EmailConfigCase(SavepointCase):
@@ -446,47 +409,3 @@ class EmailConfigCase(SavepointCase):
             "The body of an email",
         )
         self.assertEqual(message["From"], "settings@example.com")
-
-
-class TestEmailMessage(TransactionCase):
-    def test_as_string(self):
-        """Ensure all email sent are bpo-34424 and bpo-35805 free"""
-
-        message_truth = (
-            r'From: .+? <joe@example\.com>\r\n'
-            r'To: .+? <joe@example\.com>\r\n'
-            r'Message-Id: <[0-9a-z.-]+@[0-9a-z.-]+>\r\n'
-            r'References: (<[0-9a-z.-]+@[0-9a-z.-]+>\s*)+\r\n'
-            r'\r\n'
-        )
-
-        class FakeSMTP:
-            """SMTP stub"""
-            def __init__(this):
-                this.email_sent = False
-
-            # Python 3 before 3.7.4
-            def sendmail(this, smtp_from, smtp_to_list, message_str,
-                         mail_options=(), rcpt_options=()):
-                this.email_sent = True
-                self.assertRegex(message_str, message_truth)
-
-            # Python 3.7.4+
-            def send_message(this, message, smtp_from, smtp_to_list,
-                             mail_options=(), rcpt_options=()):
-                message_str = message.as_string()
-                this.email_sent = True
-                self.assertRegex(message_str, message_truth)
-
-        msg = email.message.EmailMessage(policy=email.policy.SMTP)
-        msg['From'] = '"Joé Doe" <joe@example.com>'
-        msg['To'] = '"Joé Doe" <joe@example.com>'
-
-        # Message-Id & References fields longer than 77 chars (bpo-35805)
-        msg['Message-Id'] = '<929227342217024.1596730490.324691772460938-example-30661-some.reference@test-123.example.com>'
-        msg['References'] = '<345227342212345.1596730777.324691772483620-example-30453-other.reference@test-123.example.com>'
-
-        smtp = FakeSMTP()
-        self.patch(threading.currentThread(), 'testing', False)
-        self.env['ir.mail_server'].send_email(msg, smtp_session=smtp)
-        self.assertTrue(smtp.email_sent)

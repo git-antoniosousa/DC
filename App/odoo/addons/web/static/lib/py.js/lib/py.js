@@ -133,10 +133,10 @@ var py = {};
         return this;
     };
     infix('if', 20, function (left) {
-        this.ifTrue = left;
-        this.condition = expression();
+        this.first = left;
+        this.second = expression();
         advance('else');
-        this.ifFalse = expression();
+        this.third = expression();
         return this;
     });
 
@@ -308,11 +308,10 @@ var py = {};
                     }));
                 } else if (string_pattern.test(token)) {
                     var m = string_pattern.exec(token);
+                    var value = (m[3] !== undefined ? m[3] : m[5]);
                     tokens.push(create(symbols['(string)'], {
-                        value: PY_decode_string_literal(
-                            m[3] !== undefined ? m[3] : m[5],
-                            !!(m[2] || m[4])
-                        )
+                        unicode: !!(m[2] || m[4]),
+                        value: value
                     }));
                 } else if (token in symbols) {
                     var symbol;
@@ -1351,7 +1350,8 @@ var py = {};
             }
             return PY_ensurepy(val, expr.value);
         case '(string)':
-            return py.str.fromJSON(expr.value);
+            return py.str.fromJSON(PY_decode_string_literal(
+                expr.value, expr.unicode));
         case '(number)':
             return py.float.fromJSON(expr.value);
         case '(constant)':
@@ -1385,13 +1385,6 @@ var py = {};
                 return or_first
             }
             return py.evaluate(expr.second, context);
-        case 'if':
-            var cond = py.evaluate(expr.condition, context);
-            if (py.PY_isTrue(cond)) {
-                return py.evaluate(expr.ifTrue, context);
-            } else {
-                return py.evaluate(expr.ifFalse, context);
-            }
         case '(':
             if (expr.second) {
                 var callable = py.evaluate(expr.first, context);

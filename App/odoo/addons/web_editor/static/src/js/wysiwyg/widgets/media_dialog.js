@@ -81,8 +81,8 @@ var MediaDialog = Dialog.extend({
             this.activeWidget = this.videoWidget;
         } else if (this.iconWidget && $media.is('span, i')) {
             this.activeWidget = this.iconWidget;
-        } else {
-            this.activeWidget = [this.imageWidget, this.documentWidget, this.videoWidget, this.iconWidget].find(w => !!w);
+        } else if (this.imageWidget) {
+            this.activeWidget = this.imageWidget;
         }
         this.initiallyActiveWidget = this.activeWidget;
     },
@@ -108,8 +108,6 @@ var MediaDialog = Dialog.extend({
         if (this.videoWidget) {
             promises.push(this.videoWidget.appendTo(this.$("#editor-media-video")));
         }
-
-        this.opened(() => this.$('input.o_we_search:visible:first').focus());
 
         return Promise.all(promises);
     },

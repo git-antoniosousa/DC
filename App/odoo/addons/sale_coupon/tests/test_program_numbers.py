@@ -12,32 +12,11 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
     def setUp(self):
         super(TestSaleCouponProgramNumbers, self).setUp()
 
-        self.largeCabinet = self.env['product.product'].create({
-            'name': 'Large Cabinet',
-            'list_price': 320.0,
-            'taxes_id': False,
-        })
-        self.conferenceChair = self.env['product.product'].create({
-            'name': 'Conference Chair',
-            'list_price': 16.5,
-            'taxes_id': False,
-        })
-        self.pedalBin = self.env['product.product'].create({
-            'name': 'Pedal Bin',
-            'list_price': 47.0,
-            'taxes_id': False,
-        })
-        self.drawerBlack = self.env['product.product'].create({
-            'name': 'Drawer Black',
-            'list_price': 25.0,
-            'taxes_id': False,
-        })
-        self.largeMeetingTable = self.env['product.product'].create({
-            'name': 'Large Meeting Table',
-            'list_price': 40000.0,
-            'taxes_id': False,
-        })
-
+        self.largeCabinet = self.env.ref('product.product_product_6')
+        self.conferenceChair = self.env.ref('product.product_product_11')
+        self.pedalBin = self.env.ref('product.product_product_9')
+        self.drawerBlack = self.env.ref('product.product_product_16')
+        self.largeMeetingTable = self.env.ref('product.consu_delivery_02')
         self.steve = self.env['res.partner'].create({
             'name': 'Steve Bucknor',
             'email': 'steve.bucknor@example.com',
@@ -46,7 +25,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'partner_id': self.steve.id
         })
 
-        self.p1 = self.env['coupon.program'].create({
+        self.p1 = self.env['sale.coupon.program'].create({
             'name': 'Code for 10% on orders',
             'promo_code_usage': 'code_needed',
             'promo_code': 'test_10pc',
@@ -54,7 +33,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'discount_percentage': 10.0,
             'program_type': 'promotion_program',
         })
-        self.p2 = self.env['coupon.program'].create({
+        self.p2 = self.env['sale.coupon.program'].create({
             'name': 'Buy 3 cabinets, get one for free',
             'promo_code_usage': 'no_code_needed',
             'reward_type': 'product',
@@ -63,7 +42,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'rule_min_quantity': 3,
             'rule_products_domain': '[["name","ilike","large cabinet"]]',
         })
-        self.p3 = self.env['coupon.program'].create({
+        self.p3 = self.env['sale.coupon.program'].create({
             'name': 'Buy 1 drawer black, get a free Large Meeting Table',
             'promo_code_usage': 'no_code_needed',
             'reward_type': 'product',
@@ -71,7 +50,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'reward_product_id': self.largeMeetingTable.id,
             'rule_products_domain': '[["name","ilike","drawer black"]]',
         })
-        self.discount_coupon_program = self.env['coupon.program'].create({
+        self.discount_coupon_program = self.env['sale.coupon.program'].create({
             'name': '$100 coupon',
             'program_type': 'coupon_program',
             'reward_type': 'discount',
@@ -165,7 +144,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'amount': 15,
             'price_include': True,
         })
-        p_specific_product = self.env['coupon.program'].create({
+        p_specific_product = self.env['sale.coupon.program'].create({
             'name': '20% reduction on Large Cabinet in cart',
             'promo_code_usage': 'no_code_needed',
             'reward_type': 'discount',
@@ -317,7 +296,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
 
         # Create needed programs
         self.p2.active = False
-        self.p_large_cabinet = self.env['coupon.program'].create({
+        self.p_large_cabinet = self.env['sale.coupon.program'].create({
             'name': 'Buy 1 large cabinet, get one for free',
             'promo_code_usage': 'no_code_needed',
             'reward_type': 'product',
@@ -325,7 +304,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'reward_product_id': self.largeCabinet.id,
             'rule_products_domain': '[["name","ilike","large cabinet"]]',
         })
-        self.p_conference_chair = self.env['coupon.program'].create({
+        self.p_conference_chair = self.env['sale.coupon.program'].create({
             'name': 'Buy 1 chair, get one for free',
             'promo_code_usage': 'no_code_needed',
             'reward_type': 'product',
@@ -333,7 +312,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'reward_product_id': self.conferenceChair.id,
             'rule_products_domain': '[["name","ilike","conference chair"]]',
         })
-        self.p_pedal_bin = self.env['coupon.program'].create({
+        self.p_pedal_bin = self.env['sale.coupon.program'].create({
             'name': 'Buy 1 bin, get one for free',
             'promo_code_usage': 'no_code_needed',
             'reward_type': 'product',
@@ -401,7 +380,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
         # -- End test inside the test
 
         # Now we want to apply a 20% discount only on Large Cabinet
-        self.env['coupon.program'].create({
+        self.env['sale.coupon.program'].create({
             'name': '20% reduction on Large Cabinet in cart',
             'promo_code_usage': 'no_code_needed',
             'reward_type': 'discount',
@@ -495,7 +474,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
     def test_program_fixed_price(self):
         # Check fixed amount discount
         order = self.empty_order
-        fixed_amount_program = self.env['coupon.program'].create({
+        fixed_amount_program = self.env['sale.coupon.program'].create({
             'name': '$249 discount',
             'promo_code_usage': 'no_code_needed',
             'program_type': 'promotion_program',
@@ -530,7 +509,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
 
     def test_program_next_order(self):
         order = self.empty_order
-        self.env['coupon.program'].create({
+        self.env['sale.coupon.program'].create({
             'name': 'Free Pedal Bin if at least 1 article',
             'promo_code_usage': 'no_code_needed',
             'promo_applicability': 'on_next_order',
@@ -581,7 +560,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'order_id': order.id,
         })
         self.assertEqual(order.amount_total, 165.0, "The order amount is not correct")
-        self.env['coupon.generate.wizard'].with_context(active_id=self.discount_coupon_program.id).create({}).generate_coupon()
+        self.env['sale.coupon.generate'].with_context(active_id=self.discount_coupon_program.id).create({}).generate_coupon()
         coupon = self.discount_coupon_program.coupon_ids[0]
         self.env['sale.coupon.apply.code'].with_context(active_id=order.id).create({
             'coupon_code': coupon.code
@@ -604,17 +583,17 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
         })
         self.assertEqual(order.amount_total, 165.0, "The order amount is not correct")
 
-        self.env['coupon.program'].create({
-            'name': '$100 promotion program',
-            'program_type': 'promotion_program',
-            'promo_code_usage': 'code_needed',
-            'promo_code': 'testpromo',
-            'reward_type': 'discount',
-            'discount_type': 'fixed_amount',
-            'discount_fixed_amount': 100,
-            'active': True,
-            'discount_apply_on': 'on_order',
-            'rule_minimum_amount': 100.00,
+        discount_promotion_program = self.env['sale.coupon.program'].create({
+             'name': '$100 promotion program',
+             'program_type': 'promotion_program',
+             'promo_code_usage': 'code_needed',
+             'promo_code': 'testpromo',
+             'reward_type': 'discount',
+             'discount_type': 'fixed_amount',
+             'discount_fixed_amount': 100,
+             'active': True,
+             'discount_apply_on': 'on_order',
+             'rule_minimum_amount': 100.00,
         })
 
         self.env['sale.coupon.apply.code'].with_context(active_id=order.id).create({
@@ -624,7 +603,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
         order.recompute_coupon_lines()
         self.assertEqual(order.amount_total, 65.0, "The promotion program should not be removed after recomputation")
 
-        self.env['coupon.generate.wizard'].with_context(active_id=self.discount_coupon_program.id).create({}).generate_coupon()
+        self.env['sale.coupon.generate'].with_context(active_id=self.discount_coupon_program.id).create({}).generate_coupon()
         coupon = self.discount_coupon_program.coupon_ids[0]
         with self.assertRaises(UserError):
             self.env['sale.coupon.apply.code'].with_context(active_id=order.id).create({
@@ -650,7 +629,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             * Even applying the coupon in reverse order should yield same result
         """
 
-        coupon_program = self.env['coupon.program'].create({
+        coupon_program = self.env['sale.coupon.program'].create({
             'name': '$288.5 coupon',
             'program_type': 'coupon_program',
             'reward_type': 'discount',
@@ -693,7 +672,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             }).process_coupon()
         self.assertEqual(order.amount_total, 283.5, "The promotion program should be correctly applied")
 
-        self.env['coupon.generate.wizard'].with_context(active_id=coupon_program.id).create({
+        self.env['sale.coupon.generate'].with_context(active_id=coupon_program.id).create({
             'generation_type': 'nbr_coupon',
             'nbr_coupons': 1,
         }).generate_coupon()
@@ -740,7 +719,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             * Even applying the coupon in reverse order should yield same result
         """
 
-        coupon_program = self.env['coupon.program'].create({
+        coupon_program = self.env['sale.coupon.program'].create({
             'name': '$290 coupon',
             'program_type': 'coupon_program',
             'reward_type': 'discount',
@@ -783,7 +762,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             }).process_coupon()
         self.assertEqual(order.amount_total, 270.0, "The promotion program should be correctly applied")
 
-        self.env['coupon.generate.wizard'].with_context(active_id=coupon_program.id).create({
+        self.env['sale.coupon.generate'].with_context(active_id=coupon_program.id).create({
             'generation_type': 'nbr_coupon',
             'nbr_coupons': 1,
         }).generate_coupon()
@@ -822,7 +801,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             - Advanced: This discount must be split by different taxes
         """
         order = self.empty_order
-        p_specific_products = self.env['coupon.program'].create({
+        p_specific_products = self.env['sale.coupon.program'].create({
             'name': '20% reduction on Conference Chair and Drawer Black in cart',
             'promo_code_usage': 'no_code_needed',
             'reward_type': 'discount',
@@ -902,7 +881,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
         # auto applied promotion program
 
         order = self.empty_order
-        self.p3 = self.env['coupon.program'].create({
+        self.p3 = self.env['sale.coupon.program'].create({
             'name': 'Buy 2 Chairs, get 1 free',
             'promo_code_usage': 'no_code_needed',
             'reward_type': 'product',
@@ -946,7 +925,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'lst_price': 118.0,
         })
 
-        self.env['coupon.program'].create({
+        test10 = self.env['sale.coupon.program'].create({
             'name': '10% discount',
             'promo_code_usage': 'no_code_needed',
             'program_type': 'promotion_program',
@@ -955,7 +934,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'rule_minimum_amount': 1500.0,
             'rule_minimum_amount_tax_inclusion': 'tax_included',
         })
-        self.env['coupon.program'].create({
+        test15 = self.env['sale.coupon.program'].create({
             'name': '15% discount',
             'promo_code_usage': 'no_code_needed',
             'program_type': 'promotion_program',
@@ -964,7 +943,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'rule_minimum_amount': 1750.0,
             'rule_minimum_amount_tax_inclusion': 'tax_included',
         })
-        self.env['coupon.program'].create({
+        test20 = self.env['sale.coupon.program'].create({
             'name': '20% discount',
             'promo_code_usage': 'no_code_needed',
             'program_type': 'promotion_program',
@@ -973,7 +952,7 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
             'rule_minimum_amount': 2000.0,
             'rule_minimum_amount_tax_inclusion': 'tax_included',
         })
-        self.env['coupon.program'].create({
+        test25 = self.env['sale.coupon.program'].create({
             'name': '25% discount',
             'promo_code_usage': 'no_code_needed',
             'program_type': 'promotion_program',
@@ -1019,3 +998,87 @@ class TestSaleCouponProgramNumbers(TestSaleCouponCommon):
         order.recompute_coupon_lines()
         self.assertEqual(order.amount_total, 1486.80, "Discount improperly applied")
         self.assertEqual(len(order.order_line.ids), 2, "No discount applied while it should")
+
+    def test_program_free_prods_with_min_qty_and_reward_qty_and_rule(self):
+        order = self.empty_order
+        coupon_program = self.env['sale.coupon.program'].create({
+            'name': '2 free conference chair if at least 1 large cabinet',
+            'promo_code_usage': 'code_needed',
+            'program_type': 'promotion_program',
+            'reward_type': 'product',
+            'reward_product_quantity': 2,
+            'reward_product_id': self.conferenceChair.id,
+            'rule_min_quantity': 1,
+            'rule_products_domain': '["&", ["sale_ok","=",True], ["name","ilike","large cabinet"]]',
+        })
+        # set large cabinet and conference chair prices
+        self.largeCabinet.write({'list_price': 500, 'sale_ok': True,})
+        self.conferenceChair.write({'list_price': 100, 'sale_ok': True})
+
+        # create SOL
+        sol1 = self.env['sale.order.line'].create({
+            'product_id': self.largeCabinet.id,
+            'name': 'Large Cabinet',
+            'product_uom_qty': 1.0,
+            'order_id': order.id,
+        })
+        sol2 = self.env['sale.order.line'].create({
+            'product_id': self.conferenceChair.id,
+            'name': 'Conference chair',
+            'product_uom_qty': 2.0,
+            'order_id': order.id,
+        })
+
+        self.assertEqual(len(order.order_line), 2, 'The order must contain 2 order lines since the coupon is not yet applied')
+        self.assertEqual(order.amount_total, 700.0, 'The price must be 500.0 since the coupon is not yet applied')
+
+        # generate and apply coupon
+        self.env['sale.coupon.generate'].with_context(active_id=coupon_program.id).create({
+            'generation_type': 'nbr_coupon',
+            'nbr_coupons': 1,
+        }).generate_coupon()
+        coupon = coupon_program.coupon_ids
+        self.env['sale.coupon.apply.code'].with_context(active_id=order.id).create({
+            'coupon_code': coupon.code
+        }).process_coupon()
+
+        # Name                  | Qty | price_unit |  Tax     |  HTVA   |   TVAC  |  TVA  |
+        # --------------------------------------------------------------------------------
+        # Conference Chair      |  2  |    100.00  | /        |  200.00 |  200.00 |       /
+        # Large Cabinet         |  1  |    500.00  | /        |  500.00 |  500.00 |       /
+        #
+        # Free Conference Chair |  2  |   -100.00  | /        | -200.00 | -200.00 |       /
+        # --------------------------------------------------------------------------------
+        # TOTAL                                               |  500.00 |  500.00 |       /
+
+        self.assertEqual(len(order.order_line), 3, 'The order must contain 3 order lines including one for free conference chair')
+        self.assertEqual(order.amount_total, 500.0, 'The price must be 500.0 since two conference chairs are free')
+        self.assertEqual(order.order_line[2].price_total, -200.0, 'The last order line should apply a reduction of 200.0 since there are two conference chairs that cost 100.0 each')
+
+        # prevent user to get illicite discount by decreasing the to 1 the reward product qty after applying the coupon
+        sol2.product_uom_qty = 1.0
+        order.recompute_coupon_lines()
+
+        # in this case user should not have -200.0
+        # Name                  | Qty | price_unit |  Tax     |  HTVA   |   TVAC  |  TVA  |
+        # --------------------------------------------------------------------------------
+        # Conference Chair      |  1  |    100.00  | /        |  100.00 |  100.00 |       /
+        # Large Cabine          |  1  |    500.00  | /        |  500.00 |  500.00 |       /
+        #
+        # Free Conference Chair |  2  |   -100.00  | /        | -200.00 | -200.00 |       /
+        # --------------------------------------------------------------------------------
+        # TOTAL                                               |  400.00 |  400.00 |       /
+
+
+        # he should rather have this one
+        # Name                  | Qty | price_unit |  Tax     |  HTVA   |   TVAC  |  TVA  |
+        # --------------------------------------------------------------------------------
+        # Conference Chair      |  1  |    100.00  | /        |  100.00 |  100.00 |       /
+        # Large Cabinet         |  1  |    500.00  | /        |  500.00 |  500.00 |       /
+        #
+        # Free Conference Chair |  1  |   -100.00  | /        | -100.00 | -100.00 |       /
+        # --------------------------------------------------------------------------------
+        # TOTAL                                               |  500.00 |  500.00 |       /
+
+        self.assertEqual(order.amount_total, 500.0, 'The price must be 500.0 since two conference chairs are free and the user only bought one')
+        self.assertEqual(order.order_line[2].price_total, -100.0, 'The last order line should apply a reduction of 100.0 since there is one conference chair that cost 100.0')

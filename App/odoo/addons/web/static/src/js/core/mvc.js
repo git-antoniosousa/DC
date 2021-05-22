@@ -81,7 +81,7 @@ var Model = Class.extend(mixins.EventDispatcherMixin, ServicesMixin, {
 });
 
 /**
- * Only responsibility of this component is to display the user interface, and
+ * Only responsability of this component is to display the user interface, and
  * react to user changes.
  *
  * @class Renderer
@@ -109,11 +109,9 @@ var Controller = Widget.extend({
      * @param {Model} model
      * @param {Renderer} renderer
      * @param {Object} params
-     * @param {any} [params.handle=null]
      */
     init: function (parent, model, renderer, params) {
         this._super.apply(this, arguments);
-        this.handle = params.handle || null;
         this.model = model;
         this.renderer = renderer;
     },
@@ -180,13 +178,11 @@ var Factory = Class.extend({
         var self = this;
         var model = this.getModel(parent);
         return Promise.all([this._loadData(model), ajax.loadLibs(this)]).then(function (result) {
-            const { state, handle } = result[0];
+            var state = result[0];
             var renderer = self.getRenderer(parent, state);
             var Controller = self.Controller || self.config.Controller;
-            const initialState = model.get(handle);
             var controllerParams = _.extend({
-                initialState,
-                handle,
+                initialState: state,
             }, self.controllerParams);
             var controller = new Controller(parent, model, renderer, controllerParams);
             model.setParent(controller);
@@ -225,16 +221,13 @@ var Factory = Class.extend({
      *
      * @private
      * @param {Model} model a Model instance
-     * @param {Object} [options={}]
-     * @param {boolean} [options.withSampleData=true]
      * @returns {Promise<*>} a promise that resolves to the value returned by
      *   the get method from the model
      * @todo: get rid of loadParams (use modelParams instead)
      */
-    _loadData: function (model, options = {}) {
-        options.withSampleData = 'withSampleData' in options ? options.withSampleData : true;
-        return model.load(this.loadParams).then(function (handle) {
-            return { state: model.get(handle, options), handle };
+    _loadData: function (model) {
+        return model.load(this.loadParams).then(function () {
+            return model.get.apply(model, arguments);
         });
     },
 });

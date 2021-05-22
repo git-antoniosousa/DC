@@ -71,8 +71,12 @@ SectionAndNoteFieldOne2Many.include({
                 grid_product_tmpl_id: {id: productTemplateId}
             },
             viewType: 'form',
-            onSuccess: function () {
-                const gridInfo = self.recordData.grid;
+            onSuccess: function (result) {
+                // result = list of widgets
+                // find one of the SO widget
+                // (not so lines because the grid values are computed on the SO)
+                // and get the grid information from its recordData.
+                var gridInfo = result.find(r => r.recordData.grid).recordData.grid;
                 self._openMatrixConfigurator(gridInfo, productTemplateId, editedCellAttributes);
             }
         });

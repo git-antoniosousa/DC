@@ -19,7 +19,6 @@
         <field name="arch" type="xml">
             <field name="name" position="after">
                 <field name="website_id" groups="website.group_multi_website" optional="show"/>
-                <field name="is_published" string="Is Published" optional="hide"/>
             </field>
         </field>
     </record>
@@ -30,8 +29,8 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
-            <field name="default_code" position="after">
-                <field name="website_id" groups="website.group_multi_website" optional="hide"/>
+            <field name="name" position="after">
+                <field name="website_id" groups="website.group_multi_website" optional="show"/>
             </field>
         </field>
     </record>
@@ -43,14 +42,8 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="website_sale.product_template_view_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="/tree" position="attributes">
-              <attribute name="default_order">website_sequence</attribute>
-            </xpath>
             <field name="sequence" position="replace">
                 <field name="website_sequence" widget="handle"/>
-            </field>
-            <field name="website_id" position="after">
-                <field name="is_published" string="Is Published" optional="hide"/>
             </field>
         </field>
     </record>
@@ -88,6 +81,12 @@
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
             <!-- add state field in header -->
+            <xpath expr="//group[@name='email_template_and_project']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//group[@name='description']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
             <div name="button_box" position="inside">
                 <field name="is_published" widget="website_redirect_button" attrs="{'invisible': [('sale_ok','=',False)]}"/>
             </div>
@@ -101,7 +100,7 @@
                             <field name="public_categ_ids" widget="many2many_tags" string="Categories"/>
                             <field name="alternative_product_ids" widget="many2many_tags" domain="[('id', '!=', active_id), '|', ('company_id', '=', company_id), ('company_id', '=', False)]"/>
                             <field name="accessory_product_ids" widget="many2many_tags"/>
-                            <field name="website_ribbon_id" groups="base.group_no_one"/>
+                            <field name="website_style_ids" widget="many2many_tags" groups="base.group_no_one"/>
                         </group>
                     </group>
                     <group name="product_template_images" string="Extra Product Media">
@@ -138,7 +137,7 @@
                             <field name="name"/>
                             <field name="parent_id"/>
                             <field name="website_id" options="{'no_create': True}" groups="website.group_multi_website"/>
-                            <field name="sequence" groups="base.group_no_one"/>
+                            <field name="sequence"/>
                         </group>
                     </div>
                 </sheet>
@@ -173,6 +172,19 @@
         </field>
     </record>
 
+    <record id="website_sale_pricelist_form_view2" model="ir.ui.view">
+        <field name="name">website_sale.pricelist.form.2</field>
+        <field name="inherit_id" ref="product.product_pricelist_view" />
+        <field name="model">product.pricelist</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <xpath expr='//field[@name="item_ids"]/tree' position='inside'>
+                <!-- this field should have been added by 9b62813cddb2726003b4b989c32185400059dfa1 -->
+                <!-- but it might be missing in dbs where "product" has been installed before this fix -->
+                <field name="company_id" invisible='1'/>
+            </xpath>
+          </field>
+    </record>
     <record id="website_sale_pricelist_form_view" model="ir.ui.view">
         <field name="name">website_sale.pricelist.form</field>
         <field name="inherit_id" ref="product.product_pricelist_view" />

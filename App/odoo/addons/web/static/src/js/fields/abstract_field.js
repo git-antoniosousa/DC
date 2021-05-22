@@ -82,11 +82,6 @@ var AbstractField = Widget.extend({
      */
     noLabel: false,
     /**
-     * Currently only used in list view.
-     * If set, this value will be displayed as column name.
-     */
-    label: '',
-    /**
      * Abstract field class
      *
      * @constructor
@@ -264,16 +259,6 @@ var AbstractField = Widget.extend({
         return $();
     },
     /**
-     * Returns whether or not the field is empty and can thus be hidden. This
-     * method is typically called when the widget is in readonly, to hide it
-     * (and its label) if it is empty.
-     *
-     * @returns {boolean}
-     */
-    isEmpty: function () {
-        return !this.isSet();
-    },
-    /**
      * Returns true iff the widget has a visible element that can take the focus
      *
      * @returns {boolean}
@@ -296,7 +281,7 @@ var AbstractField = Widget.extend({
      * value was changed by the user. This is checked before saving a record, by
      * the view.
      *
-     * Note: this is the responsibility of the view to check that required
+     * Note: this is the responsability of the view to check that required
      * fields have a set value.
      *
      * @returns {boolean} true/false if the widget is valid
@@ -375,8 +360,7 @@ var AbstractField = Widget.extend({
             var isToggled = py.PY_isTrue(
                 py.evaluate(dec.expression, self.record.evalContext)
             );
-            const className = self._getClassFromDecoration(dec.name);
-            self.$el.toggleClass(className, isToggled);
+            self.$el.toggleClass(dec.className, isToggled);
         });
     },
     /**
@@ -384,36 +368,11 @@ var AbstractField = Widget.extend({
      *
      * @private
      * @param {any} value (from the field type)
-     * @param {string} [formatType=this.formatType] the formatter to use
      * @returns {string}
      */
-    _formatValue: function (value, formatType) {
+    _formatValue: function (value) {
         var options = _.extend({}, this.nodeOptions, { data: this.recordData }, this.formatOptions);
-        return field_utils.format[formatType || this.formatType](value, this.field, options);
-    },
-    /**
-     * Returns the className corresponding to a given decoration. A
-     * decoration is of the form 'decoration-%s'. By default, replaces
-     * 'decoration' by 'text'.
-     *
-     * @private
-     * @param {string} decoration must be of the form 'decoration-%s'
-     * @returns {string}
-     */
-    _getClassFromDecoration: function (decoration) {
-        return `text-${decoration.split('-')[1]}`;
-    },
-    /**
-     * Compares the given value with the last value that has been set.
-     * Note that we compare unparsed values. Handles the special case where no
-     * value has been set yet, and the given value is the empty string.
-     *
-     * @private
-     * @param {any} value
-     * @returns {boolean} true iff values are the same
-     */
-    _isLastSetValue: function (value) {
-        return this.lastSetValue === value || (this.value === false && value === '');
+        return field_utils.format[this.formatType](value, this.field, options);
     },
     /**
      * This method check if a value is the same as the current value of the
@@ -511,8 +470,9 @@ var AbstractField = Widget.extend({
      * @returns {Promise}
      */
     _setValue: function (value, options) {
-        // we try to avoid doing useless work, if the value given has not changed.
-        if (this._isLastSetValue(value)) {
+        // we try to avoid doing useless work, if the value given has not
+        // changed.  Note that we compare the unparsed values.
+        if (this.lastSetValue === value || (this.value === false && value === '')) {
             return Promise.resolve();
         }
         this.lastSetValue = value;

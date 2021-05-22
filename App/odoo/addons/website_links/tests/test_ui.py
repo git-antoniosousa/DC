@@ -1,6 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from unittest.mock import patch
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 import odoo.tests
 
@@ -12,7 +15,7 @@ class TestUi(odoo.tests.HttpCase):
         super(TestUi, self).setUp()
 
         def _get_title_from_url(addr, **kw):
-            return 'Contact Us | My Website'
+            return 'About us | My Website' if 'aboutus' in addr else 'Contact Us | My Website'
 
         patcher = patch('odoo.addons.link_tracker.models.link_tracker.LinkTracker._get_title_from_url', wraps=_get_title_from_url)
         patcher.start()

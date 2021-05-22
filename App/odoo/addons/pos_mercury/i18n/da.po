@@ -3,22 +3,21 @@
 # 	* pos_mercury
 # 
 # Translators:
-# Martin Trigaux, 2020
-# Morten Schou <ms@msteknik.dk>, 2020
-# Jesper Carstensen <jc@danodoo.dk>, 2020
-# Pernille Kristensen <pernillekristensen1994@gmail.com>, 2020
-# Sanne Kristensen <sanne@vkdata.dk>, 2020
-# lhmflexerp <lhm@flexerp.dk>, 2020
+# Martin Trigaux, 2019
+# Morten Schou <ms@msteknik.dk>, 2019
+# Jesper Carstensen <jc@danodoo.dk>, 2019
+# Pernille Kristensen <pernillekristensen1994@gmail.com>, 2019
+# Sanne Kristensen <sanne@vkdata.dk>, 2019
+# lhmflexerp <lhm@flexerp.dk>, 2019
 # Mads Søndergaard, 2020
-# Mads Søndergaard <mads@vkdata.dk>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server saas~13.5\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-01 07:28+0000\n"
-"PO-Revision-Date: 2020-09-07 08:16+0000\n"
-"Last-Translator: Mads Søndergaard <mads@vkdata.dk>, 2020\n"
+"POT-Creation-Date: 2019-12-05 12:32+0000\n"
+"PO-Revision-Date: 2019-08-26 09:13+0000\n"
+"Last-Translator: Mads Søndergaard, 2020\n"
 "Language-Team: Danish (https://www.transifex.com/odoo/teams/41243/da/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -49,17 +48,22 @@ msgstr ""
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/OrderReceipt.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "ABOVE AMOUNT PURSUANT"
 msgstr "Ovenstående beløb i henhold til"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/OrderReceipt.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "APPROVAL CODE:"
 msgstr "GODKENDELSESKODE:"
+
+#. module: pos_mercury
+#: model:ir.model,name:pos_mercury.model_ir_autovacuum
+msgid "Automatic Vacuum"
+msgstr "Automatisk sletning"
 
 #. module: pos_mercury
 #: model:ir.model,name:pos_mercury.model_barcode_rule
@@ -67,8 +71,13 @@ msgid "Barcode Rule"
 msgstr "Stregkode regler"
 
 #. module: pos_mercury
+#: model_terms:ir.ui.view,arch_db:pos_mercury.pos_config_view_form_inherit_pos_mercury
+msgid "Barcode Scanner/Card Reader"
+msgstr "Stregkode scanner/kortlæser"
+
+#. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/OrderReceipt.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "CARDHOLDER WILL PAY CARD ISSUER"
 msgstr "KORTHOLDER VIL BETALE KORTUDSTEDER"
@@ -107,7 +116,7 @@ msgstr "Konfigurer din kortlæser"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Could not read card"
 msgstr "Kunne ikke læse kort"
@@ -131,7 +140,7 @@ msgstr "Kreditkort"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid ""
 "Credit card refunds are not supported. Instead select your credit card "
@@ -143,14 +152,17 @@ msgstr ""
 " Vantiv backend."
 
 #. module: pos_mercury
-#: model:ir.model.fields,field_description:pos_mercury.field_barcode_rule__display_name
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_configuration__display_name
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_mercury_transaction__display_name
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_order__display_name
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment__display_name
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment_method__display_name
 msgid "Display Name"
 msgstr "Vis navn"
+
+#. module: pos_mercury
+#. openerp-web
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
+#, python-format
+msgid "Error"
+msgstr "Fejl"
 
 #. module: pos_mercury
 #: model_terms:ir.ui.view,arch_db:pos_mercury.view_pos_mercury_configuration_form
@@ -164,25 +176,21 @@ msgstr ""
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/ProductScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Go to payment screen to use cards"
 msgstr "Gå til betalingsskærm for at anvende kort"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Handling transaction..."
 msgstr "Administrere transaktion..."
 
 #. module: pos_mercury
-#: model:ir.model.fields,field_description:pos_mercury.field_barcode_rule__id
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_configuration__id
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_mercury_transaction__id
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_order__id
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment__id
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment_method__id
 msgid "ID"
 msgstr "ID"
 
@@ -206,12 +214,8 @@ msgid "Invoice number from Vantiv Pay"
 msgstr "Fakturanummer fra Vantiv Pay"
 
 #. module: pos_mercury
-#: model:ir.model.fields,field_description:pos_mercury.field_barcode_rule____last_update
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_configuration____last_update
 #: model:ir.model.fields,field_description:pos_mercury.field_pos_mercury_mercury_transaction____last_update
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_order____last_update
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment____last_update
-#: model:ir.model.fields,field_description:pos_mercury.field_pos_payment_method____last_update
 msgid "Last Modified on"
 msgstr "Sidst ændret den"
 
@@ -261,29 +265,43 @@ msgstr "Ingen åbnede point of sale sessioner for bruger %s fundet."
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "No response from Vantiv (Vantiv down?)"
 msgstr "Intet svar fra Vantiv (Er Vantiv nede?)"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "No response from server (connected to network?)"
 msgstr "Intet svar fra server (forbundet til netværk?)"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Odoo error while processing transaction."
 msgstr "Odoo fejl under behandling af transaktion."
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
+#, python-format
+msgid "One credit card swipe already pending."
+msgstr "Ét kreditkort gennemtræk afventer allerede."
+
+#. module: pos_mercury
+#. openerp-web
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
+#, python-format
+msgid "Online Payment"
+msgstr "Online betaling"
+
+#. module: pos_mercury
+#. openerp-web
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Partially approved"
 msgstr "Delvist godkendt"
@@ -298,7 +316,7 @@ msgstr ""
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Pay with: "
 msgstr "Betal med:"
@@ -315,7 +333,7 @@ msgstr "Betalings reference nummer fra Vantiv Pay"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Please setup your Vantiv merchant account."
 msgstr "Vær venlig at opsætte din Vantiv sælger konto."
@@ -347,35 +365,35 @@ msgstr "Point of Sale Vantiv transaktion"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Refunds not supported"
 msgstr "Refunderinger ikke understøttet"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Reversal failed, sending VoidSale..."
 msgstr "Tilbagebetaling slog fejl, sender VoidSale..."
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Reversal succeeded"
 msgstr "Tilbagebetaling vellykket"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Sending reversal..."
 msgstr "Sender tilbagebetaling..."
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/OrderReceipt.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "TO CARDHOLDER AGREEMENT"
 msgstr "TIL KORTHOLDER AFTALE"
@@ -407,7 +425,7 @@ msgstr "Navnet på kortholder"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid ""
 "This can be caused by a badly executed swipe or by not having your keyboard "
@@ -418,7 +436,7 @@ msgstr ""
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "Transaction approved"
 msgstr "Transaktion godkendt"
@@ -436,9 +454,9 @@ msgid ""
 "                                just like on any other payment line. Whenever the payment line is set up, a card\n"
 "                                can be swiped through the card reader device."
 msgstr ""
-"Brugen af Vantiv integrationen i Point of Sale er ligetil: Blot tryk på den\n"
+"Brugen af Vantiv integrationen i Point of Sale er ligetil: Blto tryk på den\n"
 "                                tilhørende betalings metode. Efterfølgende kan mængden justeres (f.eks. ved veksling)\n"
-"                                nøjagtig som enhver anden betalingslinje. Hver gang betalingslinjen opsættes, kan et kort trækkes igennem kortlæser enheden."
+"                                nøjagtig som enhver anden betalingslinje. Hver gang betalingslinjen opsætte, kan et kort trækkes igennem kortlæser enheden."
 
 #. module: pos_mercury
 #: model_terms:ir.ui.view,arch_db:pos_mercury.res_config_settings_view_form_inherit_pos_mercury
@@ -473,14 +491,14 @@ msgstr "Vantiv reference"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/js/PaymentScreen.js:0
+#: code:addons/pos_mercury/static/src/js/pos_mercury.js:0
 #, python-format
 msgid "VoidSale succeeded"
 msgstr "VoidSale vellykket"
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/PaymentScreenPaymentLines.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "WAITING FOR SWIPE"
 msgstr "AFVENTER GENNEMTRÆK"
@@ -497,7 +515,7 @@ msgstr ""
 
 #. module: pos_mercury
 #. openerp-web
-#: code:addons/pos_mercury/static/src/xml/OrderReceipt.xml:0
+#: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:0
 #, python-format
 msgid "X______________________________"
 msgstr "X______________________________"

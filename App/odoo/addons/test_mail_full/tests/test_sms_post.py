@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.addons.test_mail_full.tests.common import TestMailFullCommon, TestRecipients
+from odoo.addons.sms.tests import common as sms_common
+from odoo.addons.test_mail_full.tests import common as test_mail_full_common
 
 
-class TestSMSPost(TestMailFullCommon, TestRecipients):
+class TestSMSPost(test_mail_full_common.BaseFunctionalTest, sms_common.MockSMS, test_mail_full_common.TestRecipients):
     """ TODO
 
       * add tests for new mail.message and mail.thread fields;
@@ -24,7 +25,7 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
         cls.test_record = cls._reset_mail_context(cls.test_record)
 
     def test_message_sms_internals_body(self):
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms('<p>Mega SMS<br/>Top moumoutte</p>', partner_ids=self.partner_1.ids)
 
@@ -33,26 +34,26 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
         self.assertSMSNotification([{'partner': self.partner_1}], 'Mega SMS\nTop moumoutte', messages)
 
     def test_message_sms_internals_check_existing(self):
-        with self.with_user('employee'), self.mockSMSGateway(sim_error='wrong_number_format'):
+        with self.sudo('employee'), self.mockSMSGateway(sim_error='wrong_number_format'):
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=self.partner_1.ids)
 
         self.assertSMSNotification([{'partner': self.partner_1, 'state': 'exception', 'failure_type': 'sms_number_format'}], self._test_body, messages)
 
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             test_record._notify_record_by_sms(messages, {'partners': [{'id': self.partner_1.id, 'notif': 'sms'}]}, check_existing=True)
         self.assertSMSNotification([{'partner': self.partner_1}], self._test_body, messages)
 
     def test_message_sms_internals_sms_numbers(self):
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=self.partner_1.ids, sms_numbers=self.random_numbers)
 
         self.assertSMSNotification([{'partner': self.partner_1}, {'number': self.random_numbers_san[0]}, {'number': self.random_numbers_san[1]}], self._test_body, messages)
 
     def test_message_sms_internals_subtype(self):
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms('<p>Mega SMS<br/>Top moumoutte</p>', subtype_id=self.env.ref('mail.mt_comment').id, partner_ids=self.partner_1.ids)
 
@@ -65,7 +66,7 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
             self.partner_1.id: self.random_numbers[0],
             self.partner_2.id: self.random_numbers[1],
         }
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=(self.partner_1 | self.partner_2).ids, sms_pid_to_number=pid_to_number)
 
@@ -75,7 +76,7 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
             self._test_body, messages)
 
     def test_message_sms_model_partner(self):
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             messages = self.partner_1._message_sms(self._test_body)
             messages |= self.partner_2._message_sms(self._test_body)
         self.assertSMSNotification([{'partner': self.partner_1}, {'partner': self.partner_2}], self._test_body, messages)
@@ -90,7 +91,7 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
         self.assertSMSNotification([{'partner': self.partner_1, 'number': self.random_numbers_san[0]}, {'partner': self.partner_2}], self._test_body, messages)
 
     def test_message_sms_model_w_partner_only(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             record = self.env['mail.test.sms.partner'].create({'partner_id': self.partner_1.id})
 
             with self.mockSMSGateway():
@@ -99,17 +100,18 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
         self.assertSMSNotification([{'partner': self.partner_1}], self._test_body, messages)
 
     def test_message_sms_model_w_partner_only_void(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             record = self.env['mail.test.sms.partner'].create({'partner_id': False})
 
             with self.mockSMSGateway():
                 messages = record._message_sms(self._test_body)
 
-        # should not crash but have a failed notification
-        self.assertSMSNotification([{'partner': self.env['res.partner'], 'number': False, 'state': 'exception', 'failure_type': 'sms_number_missing'}], self._test_body, messages)
+        # should not crash but no sms / no recipients
+        notifs = self.env['mail.notification'].search([('mail_message_id', 'in', messages.ids)])
+        self.assertFalse(notifs)
 
     def test_message_sms_on_field_w_partner(self):
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, number_field='mobile_nbr')
 
@@ -118,31 +120,16 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
     def test_message_sms_on_field_wo_partner(self):
         self.test_record.write({'customer_id': False})
 
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, number_field='mobile_nbr')
 
         self.assertSMSNotification([{'number': self.test_record.mobile_nbr}], self._test_body, messages)
 
-    def test_message_sms_on_field_wo_partner_wo_value(self):
-        """ Test record without a partner and without phone values. """
-        self.test_record.write({
-            'customer_id': False,
-            'phone_nbr': False,
-            'mobile_nbr': False,
-        })
-
-        with self.with_user('employee'), self.mockSMSGateway():
-            test_record = self.env['mail.test.sms'].browse(self.test_record.id)
-            messages = test_record._message_sms(self._test_body)
-
-        # should not crash but have a failed notification
-        self.assertSMSNotification([{'partner': self.env['res.partner'], 'number': False, 'state': 'exception', 'failure_type': 'sms_number_missing'}], self._test_body, messages)
-
     def test_message_sms_on_field_wo_partner_default_field(self):
         self.test_record.write({'customer_id': False})
 
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body)
 
@@ -151,40 +138,40 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
     def test_message_sms_on_field_wo_partner_default_field_2(self):
         self.test_record.write({'customer_id': False, 'phone_nbr': False})
 
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body)
 
         self.assertSMSNotification([{'number': self.test_numbers_san[0]}], self._test_body, messages)
 
     def test_message_sms_on_numbers(self):
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, sms_numbers=self.random_numbers_san)
         self.assertSMSNotification([{'number': self.random_numbers_san[0]}, {'number': self.random_numbers_san[1]}], self._test_body, messages)
 
     def test_message_sms_on_numbers_sanitization(self):
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, sms_numbers=self.random_numbers)
         self.assertSMSNotification([{'number': self.random_numbers_san[0]}, {'number': self.random_numbers_san[1]}], self._test_body, messages)
 
     def test_message_sms_on_partner_ids(self):
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=(self.partner_1 | self.partner_2).ids)
 
         self.assertSMSNotification([{'partner': self.partner_1}, {'partner': self.partner_2}], self._test_body, messages)
 
     def test_message_sms_on_partner_ids_default(self):
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body)
 
         self.assertSMSNotification([{'partner': self.test_record.customer_id, 'number': self.test_numbers_san[1]}], self._test_body, messages)
 
     def test_message_sms_on_partner_ids_w_numbers(self):
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=self.partner_1.ids, sms_numbers=self.random_numbers[:1])
 
@@ -197,7 +184,7 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
             'body': 'Dear ${object.display_name} this is an SMS.',
         })
 
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             with self.mockSMSGateway():
                 test_record = self.env['mail.test.sms'].browse(self.test_record.id)
                 messages = test_record._message_sms_with_template(template=sms_template)
@@ -205,7 +192,7 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
         self.assertSMSNotification([{'partner': self.partner_1, 'number': self.test_numbers_san[1]}], 'Dear %s this is an SMS.' % self.test_record.display_name, messages)
 
     def test_message_sms_with_template_fallback(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             with self.mockSMSGateway():
                 test_record = self.env['mail.test.sms'].browse(self.test_record.id)
                 messages = test_record._message_sms_with_template(template_xmlid='test_mail_full.this_should_not_exists', template_fallback='Fallback for ${object.id}')
@@ -225,7 +212,7 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
             'res_id': sms_template.id,
         })
 
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             with self.mockSMSGateway():
                 test_record = self.env['mail.test.sms'].browse(self.test_record.id)
                 messages = test_record._message_sms_with_template(template_xmlid='test_mail_full.this_should_exists')
@@ -233,7 +220,7 @@ class TestSMSPost(TestMailFullCommon, TestRecipients):
         self.assertSMSNotification([{'partner': self.partner_1, 'number': self.test_numbers_san[1]}], 'Dear %s this is an SMS.' % self.test_record.display_name, messages)
 
 
-class TestSMSPostException(TestMailFullCommon, TestRecipients):
+class TestSMSPostException(test_mail_full_common.BaseFunctionalTest, sms_common.MockSMS, test_mail_full_common.TestRecipients):
 
     @classmethod
     def setUpClass(cls):
@@ -259,7 +246,7 @@ class TestSMSPostException(TestMailFullCommon, TestRecipients):
 
     def test_message_sms_w_numbers_invalid(self):
         random_numbers = self.random_numbers + ['6988754']
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, sms_numbers=random_numbers)
 
@@ -272,7 +259,7 @@ class TestSMSPostException(TestMailFullCommon, TestRecipients):
             'phone': self.random_numbers[1],
             'country_id': False,
         })
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=self.test_record.customer_id.ids)
 
@@ -284,7 +271,7 @@ class TestSMSPostException(TestMailFullCommon, TestRecipients):
             'mobile': 'youpie',
             'phone': 'youpla',
         })
-        with self.with_user('employee'), self.mockSMSGateway():
+        with self.sudo('employee'), self.mockSMSGateway():
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=self.test_record.customer_id.ids)
 
@@ -295,12 +282,12 @@ class TestSMSPostException(TestMailFullCommon, TestRecipients):
         # TDE FIXME: not sure
         # random_numbers = self.random_numbers + [self.random_numbers[1]]
         # random_numbers_san = self.random_numbers_san + [self.random_numbers_san[1]]
-        # with self.with_user('employee'), self.mockSMSGateway():
+        # with self.sudo('employee'), self.mockSMSGateway():
         #     messages = self.test_record._message_sms(self._test_body, sms_numbers=random_numbers)
         # self.assertSMSNotification({}, {random_numbers_san[0]: {}, random_numbers_san[1]: {}, random_numbers_san[2]: {}}, self._test_body, messages)
 
     def test_message_sms_crash_credit(self):
-        with self.with_user('employee'), self.mockSMSGateway(sim_error='credit'):
+        with self.sudo('employee'), self.mockSMSGateway(sim_error='credit'):
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=(self.partner_1 | self.partner_2).ids)
 
@@ -310,7 +297,7 @@ class TestSMSPostException(TestMailFullCommon, TestRecipients):
         ], self._test_body, messages)
 
     def test_message_sms_crash_credit_single(self):
-        with self.with_user('employee'), self.mockSMSGateway(nbr_t_error={self.partner_2.phone_get_sanitized_number(): 'credit'}):
+        with self.sudo('employee'), self.mockSMSGateway(nbr_t_error={self.partner_2.phone_get_sanitized_number(): 'credit'}):
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=(self.partner_1 | self.partner_2 | self.partner_3).ids)
 
@@ -321,7 +308,7 @@ class TestSMSPostException(TestMailFullCommon, TestRecipients):
         ], self._test_body, messages)
 
     def test_message_sms_crash_server_crash(self):
-        with self.with_user('employee'), self.mockSMSGateway(sim_error='jsonrpc_exception'):
+        with self.sudo('employee'), self.mockSMSGateway(sim_error='jsonrpc_exception'):
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=(self.partner_1 | self.partner_2 | self.partner_3).ids)
 
@@ -331,29 +318,8 @@ class TestSMSPostException(TestMailFullCommon, TestRecipients):
             {'partner': self.partner_3, 'state': 'exception', 'failure_type': 'sms_server'},
         ], self._test_body, messages)
 
-    def test_message_sms_crash_unregistered(self):
-        with self.with_user('employee'), self.mockSMSGateway(sim_error='unregistered'):
-            test_record = self.env['mail.test.sms'].browse(self.test_record.id)
-            messages = test_record._message_sms(self._test_body, partner_ids=(self.partner_1 | self.partner_2).ids)
-
-        self.assertSMSNotification([
-            {'partner': self.partner_1, 'state': 'exception', 'failure_type': 'sms_acc'},
-            {'partner': self.partner_2, 'state': 'exception', 'failure_type': 'sms_acc'},
-        ], self._test_body, messages)
-
-    def test_message_sms_crash_unregistered_single(self):
-        with self.with_user('employee'), self.mockSMSGateway(nbr_t_error={self.partner_2.phone_get_sanitized_number(): 'unregistered'}):
-            test_record = self.env['mail.test.sms'].browse(self.test_record.id)
-            messages = test_record._message_sms(self._test_body, partner_ids=(self.partner_1 | self.partner_2 | self.partner_3).ids)
-
-        self.assertSMSNotification([
-            {'partner': self.partner_1, 'state': 'sent'},
-            {'partner': self.partner_2, 'state': 'exception', 'failure_type': 'sms_acc'},
-            {'partner': self.partner_3, 'state': 'sent'},
-        ], self._test_body, messages)
-
     def test_message_sms_crash_wrong_number(self):
-        with self.with_user('employee'), self.mockSMSGateway(sim_error='wrong_number_format'):
+        with self.sudo('employee'), self.mockSMSGateway(sim_error='wrong_number_format'):
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=(self.partner_1 | self.partner_2).ids)
 
@@ -363,7 +329,7 @@ class TestSMSPostException(TestMailFullCommon, TestRecipients):
         ], self._test_body, messages)
 
     def test_message_sms_crash_wrong_number_single(self):
-        with self.with_user('employee'), self.mockSMSGateway(nbr_t_error={self.partner_2.phone_get_sanitized_number(): 'wrong_number_format'}):
+        with self.sudo('employee'), self.mockSMSGateway(nbr_t_error={self.partner_2.phone_get_sanitized_number(): 'wrong_number_format'}):
             test_record = self.env['mail.test.sms'].browse(self.test_record.id)
             messages = test_record._message_sms(self._test_body, partner_ids=(self.partner_1 | self.partner_2 | self.partner_3).ids)
 
@@ -374,7 +340,7 @@ class TestSMSPostException(TestMailFullCommon, TestRecipients):
         ], self._test_body, messages)
 
 
-class TestSMSApi(TestMailFullCommon):
+class TestSMSApi(test_mail_full_common.BaseFunctionalTest, sms_common.MockSMS):
 
     @classmethod
     def setUpClass(cls):
@@ -385,7 +351,7 @@ class TestSMSApi(TestMailFullCommon):
         cls.sms_template = cls._create_sms_template('mail.test.sms')
 
     def test_message_schedule_sms(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             with self.mockSMSGateway():
                 self.env['mail.test.sms'].browse(self.records.ids)._message_sms_schedule_mass(body=self._test_body, mass_keep_log=False)
 
@@ -393,7 +359,7 @@ class TestSMSApi(TestMailFullCommon):
             self.assertSMSOutgoing(record.customer_id, None, self._test_body)
 
     def test_message_schedule_sms_w_log(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             with self.mockSMSGateway():
                 self.env['mail.test.sms'].browse(self.records.ids)._message_sms_schedule_mass(body=self._test_body, mass_keep_log=True)
 
@@ -402,7 +368,7 @@ class TestSMSApi(TestMailFullCommon):
             self.assertSMSLogged(record, self._test_body)
 
     def test_message_schedule_sms_w_template(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             with self.mockSMSGateway():
                 self.env['mail.test.sms'].browse(self.records.ids)._message_sms_schedule_mass(template=self.sms_template, mass_keep_log=False)
 
@@ -410,7 +376,7 @@ class TestSMSApi(TestMailFullCommon):
             self.assertSMSOutgoing(record.customer_id, None, 'Dear %s this is an SMS.' % record.display_name)
 
     def test_message_schedule_sms_w_template_and_log(self):
-        with self.with_user('employee'):
+        with self.sudo('employee'):
             with self.mockSMSGateway():
                 self.env['mail.test.sms'].browse(self.records.ids)._message_sms_schedule_mass(template=self.sms_template, mass_keep_log=True)
 

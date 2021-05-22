@@ -12,9 +12,7 @@ var _t = core._t;
 
 var MassMailingFieldHtml = FieldHtml.extend({
     xmlDependencies: (FieldHtml.prototype.xmlDependencies || []).concat(["/mass_mailing/static/src/xml/mass_mailing.xml"]),
-    jsLibs: [
-        '/mass_mailing/static/src/js/mass_mailing_link_dialog_fix.js',
-    ],
+    jsLibs: [],
 
     custom_events: _.extend({}, FieldHtml.prototype.custom_events, {
         snippets_loaded: '_onSnippetsLoaded',
@@ -65,7 +63,7 @@ var MassMailingFieldHtml = FieldHtml.extend({
 
         var $editable = this.wysiwyg.getEditable();
 
-        return this.wysiwyg.saveModifiedImages(this.$content).then(function () {
+        return this.wysiwyg.saveCroppedImages(this.$content).then(function () {
             return self.wysiwyg.save().then(function (result) {
                 self._isDirty = result.isDirty;
 

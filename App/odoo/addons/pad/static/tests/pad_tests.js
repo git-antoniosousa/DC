@@ -93,7 +93,7 @@ QUnit.module('pad widget', {
                 return this._super.apply(this, arguments);
             },
             session: {
-                name: "batman",
+                userName: "batman",
             },
         });
         assert.isNotVisible(form.$('p.oe_unconfigured'),
@@ -144,7 +144,7 @@ QUnit.module('pad widget', {
                 return result;
             },
             session: {
-                name: "batman",
+                userName: "batman",
             },
         });
         assert.strictEqual(form.$('.oe_pad_content').text(), "Loading",
@@ -181,7 +181,7 @@ QUnit.module('pad widget', {
                 return this._super.apply(this, arguments);
             },
             session: {
-                name: "batman",
+                userName: "batman",
             },
         });
         var def = form.canBeDiscarded();
@@ -221,7 +221,7 @@ QUnit.module('pad widget', {
                 return this._super.apply(this, arguments);
             },
             session: {
-                name: "batman",
+                userName: "batman",
             },
         });
         await testUtils.form.clickEdit(form);
@@ -262,7 +262,7 @@ QUnit.module('pad widget', {
                 return this._super.apply(this, arguments);
             },
             session: {
-                name: "batman",
+                userName: "batman",
             },
         });
         await testUtils.form.clickEdit(form);

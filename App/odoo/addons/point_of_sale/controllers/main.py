@@ -6,21 +6,17 @@ import werkzeug.utils
 from odoo import http
 from odoo.http import request
 from odoo.osv.expression import AND
-from odoo.tools import convert
 
 _logger = logging.getLogger(__name__)
 
 
 class PosController(http.Controller):
 
-    @http.route(['/pos/web', '/pos/ui'], type='http', auth='user')
+    @http.route('/pos/web', type='http', auth='user')
     def pos_web(self, config_id=False, **k):
         """Open a pos session for the given config.
 
         The right pos session will be selected to open, if non is open yet a new session will be created.
-
-        /pos/ui and /pos/web both can be used to acces the POS. On the SaaS,
-        /pos/ui uses HTTPS while /pos/web uses HTTP.
 
         :param debug: The debug mode to load the session in.
         :type debug: str.
@@ -29,7 +25,7 @@ class PosController(http.Controller):
         :returns: object -- The rendered pos session.
         """
         domain = [
-                ('state', 'in', ['opening_control', 'opened']),
+                ('state', '=', 'opened'),
                 ('user_id', '=', request.session.uid),
                 ('rescue', '=', False)
                 ]
@@ -42,7 +38,7 @@ class PosController(http.Controller):
         # session.
         if not pos_session and config_id:
             domain = [
-                ('state', 'in', ['opening_control', 'opened']),
+                ('state', '=', 'opened'),
                 ('rescue', '=', False),
                 ('config_id', '=', int(config_id)),
             ]
@@ -52,35 +48,16 @@ class PosController(http.Controller):
             return werkzeug.utils.redirect('/web#action=point_of_sale.action_client_pos_menu')
         # The POS only work in one company, so we enforce the one of the session in the context
         session_info = request.env['ir.http'].session_info()
-        session_info['user_context']['allowed_company_ids'] = pos_session.company_id.ids
+        session_info['user_context']['pos_session_company_ids'] = pos_session.company_id.ids
         context = {
             'session_info': session_info,
             'login_number': pos_session.login(),
         }
         return request.render('point_of_sale.index', qcontext=context)
 
-    @http.route('/pos/ui/tests', type='http', auth="user")
-    def test_suite(self, mod=None, **kwargs):
-        domain = [
-            ('state', '=', 'opened'),
-            ('user_id', '=', request.session.uid),
-            ('rescue', '=', False)
-        ]
-        pos_session = request.env['pos.session'].sudo().search(domain, limit=1)
-        session_info = request.env['ir.http'].session_info()
-        session_info['user_context']['allowed_company_ids'] = pos_session.company_id.ids
-        context = {
-            'session_info': session_info,
-        }
-        return request.render('point_of_sale.qunit_suite', qcontext=context)
-
     @http.route('/pos/sale_details_report', type='http', auth='user')
     def print_sale_details(self, date_start=False, date_stop=False, **kw):
         r = request.env['report.point_of_sale.report_saledetails']
-        pdf, _ = request.env.ref('point_of_sale.sale_details_report').with_context(date_start=date_start, date_stop=date_stop)._render_qweb_pdf(r)
+        pdf, _ = request.env.ref('point_of_sale.sale_details_report').with_context(date_start=date_start, date_stop=date_stop).render_qweb_pdf(r)
         pdfhttpheaders = [('Content-Type', 'application/pdf'), ('Content-Length', len(pdf))]
         return request.make_response(pdf, headers=pdfhttpheaders)
-
-    @http.route('/pos/load_onboarding_data', type='json', auth='user')
-    def load_onboarding_data(self):
-        convert.convert_file(request.env.cr, 'point_of_sale', 'data/point_of_sale_onboarding.xml', None, mode='init', kind='data')

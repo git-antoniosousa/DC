@@ -3,14 +3,14 @@ import base64
 import re
 from collections import OrderedDict
 from io import BytesIO
-from odoo import api, fields, models, _, _lt
+from odoo import api, fields, models, _
 from PIL import Image
 import babel
 import babel.dates
 from lxml import etree, html
 import math
 
-from odoo.tools import html_escape as escape, posix_to_ldml, float_utils, format_date, format_duration, pycompat
+from odoo.tools import html_escape as escape, posix_to_ldml, safe_eval, float_utils, format_date, format_duration, pycompat
 from odoo.tools.mail import safe_attrs
 from odoo.tools.misc import get_lang, babel_locale_parse
 
@@ -223,7 +223,6 @@ class DateTimeConverter(models.AbstractModel):
         options = super(DateTimeConverter, self).get_available_options()
         options.update(
             format=dict(type='string', string=_('Pattern to format')),
-            tz_name=dict(type='char', string=_('Optional timezone name')),
             time_only=dict(type='boolean', string=_('Display only the time')),
             hide_seconds=dict(type='boolean', string=_('Hide seconds')),
             date_only=dict(type='boolean', string=_('Display only the date')),
@@ -244,11 +243,6 @@ class DateTimeConverter(models.AbstractModel):
 
         value = fields.Datetime.context_timestamp(self, value)
 
-        if options.get('tz_name'):
-            tzinfo = babel.dates.get_timezone(options['tz_name'])
-        else:
-            tzinfo = None
-
         if 'format' in options:
             pattern = options['format']
         else:
@@ -266,12 +260,10 @@ class DateTimeConverter(models.AbstractModel):
 
         if options.get('time_only'):
             format_func = babel.dates.format_time
-            return pycompat.to_text(format_func(value, format=pattern, locale=locale))
         if options.get('date_only'):
             format_func = babel.dates.format_date
-            return pycompat.to_text(format_func(value, format=pattern, locale=locale))
 
-        return pycompat.to_text(format_func(value, format=pattern, tzinfo=tzinfo, locale=locale))
+        return pycompat.to_text(format_func(value, format=pattern, locale=locale))
 
 
 class TextConverter(models.AbstractModel):
@@ -296,7 +288,7 @@ class SelectionConverter(models.AbstractModel):
     def get_available_options(self):
         options = super(SelectionConverter, self).get_available_options()
         options.update(
-            selection=dict(type='selection', string=_('Selection'), description=_('By default the widget uses the field information'), required=True)
+            selection=dict(type='selection', string=_('Selection'), description=_('By default the widget uses the field informations'), required=True)
         )
         return options
 
@@ -386,17 +378,6 @@ class ImageConverter(models.AbstractModel):
 
         return u'<img src="data:%s;base64,%s">' % (Image.MIME[image.format], value.decode('ascii'))
 
-class ImageUrlConverter(models.AbstractModel):
-    """ ``image_url`` widget rendering, inserts an image tag in the
-    document.
-    """
-    _name = 'ir.qweb.field.image_url'
-    _description = 'Qweb Field Image'
-    _inherit = 'ir.qweb.field.image'
-
-    @api.model
-    def value_to_html(self, value, options):
-        return u'<img src="%s">' % (value)
 
 class MonetaryConverter(models.AbstractModel):
     """ ``monetary`` converter, has a mandatory option
@@ -485,13 +466,13 @@ class MonetaryConverter(models.AbstractModel):
 
 
 TIMEDELTA_UNITS = (
-    ('year',   _lt('year'),   3600 * 24 * 365),
-    ('month',  _lt('month'),  3600 * 24 * 30),
-    ('week',   _lt('week'),   3600 * 24 * 7),
-    ('day',    _lt('day'),    3600 * 24),
-    ('hour',   _lt('hour'),   3600),
-    ('minute', _lt('minute'), 60),
-    ('second', _lt('second'), 1)
+    ('year',   3600 * 24 * 365),
+    ('month',  3600 * 24 * 30),
+    ('week',   3600 * 24 * 7),
+    ('day',    3600 * 24),
+    ('hour',   3600),
+    ('minute', 60),
+    ('second', 1)
 )
 
 
@@ -533,32 +514,17 @@ class DurationConverter(models.AbstractModel):
     @api.model
     def get_available_options(self):
         options = super(DurationConverter, self).get_available_options()
-        unit = [(value, str(label)) for value, label, ratio in TIMEDELTA_UNITS]
+        unit = [[u[0], _(u[0])] for u in TIMEDELTA_UNITS]
         options.update(
             digital=dict(type="boolean", string=_('Digital formatting')),
             unit=dict(type="selection", params=unit, string=_('Date unit'), description=_('Date unit used for comparison and formatting'), default_value='second', required=True),
             round=dict(type="selection", params=unit, string=_('Rounding unit'), description=_("Date unit used for the rounding. The value must be smaller than 'hour' if you use the digital formatting."), default_value='second'),
-            format=dict(
-                type="selection",
-                params=[
-                    ('long', _('Long')),
-                    ('short', _('Short')),
-                    ('narrow', _('Narrow'))],
-                string=_('Format'),
-                description=_("Formatting: long, short, narrow (not used for digital)"),
-                default_value='long'
-            ),
-            add_direction=dict(
-                type="boolean",
-                string=_("Add direction"),
-                description=_("Add directional information (not used for digital)")
-            ),
         )
         return options
 
     @api.model
     def value_to_html(self, value, options):
-        units = {unit: duration for unit, label, duration in TIMEDELTA_UNITS}
+        units = dict(TIMEDELTA_UNITS)
 
         locale = babel_locale_parse(self.user_lang().code)
         factor = units[options.get('unit', 'second')]
@@ -572,7 +538,7 @@ class DurationConverter(models.AbstractModel):
         sections = []
 
         if options.get('digital'):
-            for unit, label, secs_per_unit in TIMEDELTA_UNITS:
+            for unit, secs_per_unit in TIMEDELTA_UNITS:
                 if secs_per_unit > 3600:
                     continue
                 v, r = divmod(r, secs_per_unit)
@@ -586,17 +552,12 @@ class DurationConverter(models.AbstractModel):
         if value < 0:
             r = -r
             sections.append(u'-')
-        for unit, label, secs_per_unit in TIMEDELTA_UNITS:
+        for unit, secs_per_unit in TIMEDELTA_UNITS:
             v, r = divmod(r, secs_per_unit)
             if not v:
                 continue
             section = babel.dates.format_timedelta(
-                v*secs_per_unit,
-                granularity=round_to,
-                add_direction=options.get('add_direction'),
-                format=options.get('format', 'long'),
-                threshold=1,
-                locale=locale)
+                v*secs_per_unit, threshold=1, locale=locale)
             if section:
                 sections.append(section)
 
@@ -653,7 +614,6 @@ class BarcodeConverter(models.AbstractModel):
             height=dict(type='integer', string=_('Height'), default_value=100),
             humanreadable=dict(type='integer', string=_('Human Readable'), default_value=0),
             quiet=dict(type='integer', string='Quiet', default_value=1),
-            mask=dict(type='string', string='Mask', default_value='')
         )
         return options
 
@@ -665,7 +625,7 @@ class BarcodeConverter(models.AbstractModel):
         barcode = self.env['ir.actions.report'].barcode(
             barcode_symbology,
             value,
-            **{key: value for key, value in options.items() if key in ['width', 'height', 'humanreadable', 'quiet', 'mask']})
+            **{key: value for key, value in options.items() if key in ['width', 'height', 'humanreadable', 'quiet']})
 
         img_element = html.Element('img')
         for k, v in options.items():
@@ -685,22 +645,9 @@ class Contact(models.AbstractModel):
     @api.model
     def get_available_options(self):
         options = super(Contact, self).get_available_options()
-        contact_fields = [
-            {'field_name': 'name', 'label': _('Name'), 'default': True},
-            {'field_name': 'address', 'label': _('Address'), 'default': True},
-            {'field_name': 'phone', 'label': _('Phone'), 'default': True},
-            {'field_name': 'mobile', 'label': _('Mobile'), 'default': True},
-            {'field_name': 'email', 'label': _('Email'), 'default': True},
-            {'field_name': 'vat', 'label': _('VAT')},
-        ]
-        separator_params = dict(
-            type='selection',
-            selection=[[" ", _("Space")], [",", _("Comma")], ["-", _("Dash")], ["|", _("Vertical bar")], ["/", _("Slash")]],
-            placeholder=_('Linebreak'),
-        )
         options.update(
-            fields=dict(type='array', params=dict(type='selection', params=contact_fields), string=_('Displayed fields'), description=_('List of contact fields to display in the widget'), default_value=[param.get('field_name') for param in contact_fields if param.get('default')]),
-            separator=dict(type='selection', params=separator_params, string=_('Address separator'), description=_('Separator use to split the address from the display_name.'), default_value=False),
+            fields=dict(type='array', params=dict(type='selection', params=["name", "address", "city", "country_id", "phone", "mobile", "email", "fax", "karma", "website"]), string=_('Displayed fields'), description=_('List of contact fields to display in the widget'), default_value=["name", "address", "phone", "mobile", "email"]),
+            separator=dict(type='string', string=_('Address separator'), description=_('Separator use to split the address from the display_name.'), default_value="\\n"),
             no_marker=dict(type='boolean', string=_('Hide badges'), description=_("Don't display the font awesome marker")),
             no_tag_br=dict(type='boolean', string=_('Use comma'), description=_("Use comma instead of the <br> tag to display the address")),
             phone_icons=dict(type='boolean', string=_('Display phone icons'), description=_("Display the phone icons even if no_marker is True")),
@@ -727,13 +674,11 @@ class Contact(models.AbstractModel):
             'country_id': value.country_id.display_name,
             'website': value.website,
             'email': value.email,
-            'vat': value.vat,
-            'vat_label': value.country_id.vat_label or _('VAT'),
             'fields': opf,
             'object': value,
             'options': options
         }
-        return self.env['ir.qweb']._render('base.contact', val, **options.get('template_options', dict()))
+        return self.env['ir.qweb'].render('base.contact', val, **options.get('template_options', dict()))
 
 
 class QwebView(models.AbstractModel):
@@ -752,4 +697,4 @@ class QwebView(models.AbstractModel):
             _logger.warning("%s.%s must be a 'ir.ui.view' model." % (record, field_name))
             return None
 
-        return pycompat.to_text(view._render(options.get('values', {}), engine='ir.qweb'))
+        return pycompat.to_text(view.render(options.get('values', {}), engine='ir.qweb'))

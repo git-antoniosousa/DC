@@ -3,15 +3,15 @@
 
 from odoo.exceptions import AccessError
 from odoo.addons.sale_purchase.tests.common import TestCommonSalePurchaseNoChart
-from odoo.tests import tagged
 
 
-@tagged('-at_install', 'post_install')
 class TestAccessRights(TestCommonSalePurchaseNoChart):
 
     @classmethod
-    def setUpClass(cls, chart_template_ref=None):
-        super().setUpClass(chart_template_ref=chart_template_ref)
+    def setUpClass(cls):
+        super(TestAccessRights, cls).setUpClass()
+
+        cls.setUpServicePurchaseProducts()
 
         # Create a users
         group_sale_user = cls.env.ref('sales_team.group_sale_salesman')
@@ -34,7 +34,7 @@ class TestAccessRights(TestCommonSalePurchaseNoChart):
         SaleOrder = self.env['sale.order'].with_context(tracking_disable=True)
 
         sale_order = SaleOrder.with_user(self.user_salesperson).create({
-            'partner_id': self.partner_a.id,
+            'partner_id': self.partner_customer_usd.id,
             'user_id': self.user_salesperson.id
         })
 
@@ -54,15 +54,15 @@ class TestAccessRights(TestCommonSalePurchaseNoChart):
 
         self.assertTrue(sale_order.name, "Saleperson can read its own SO")
 
-        action = sale_order.sudo().action_view_purchase_orders()
+        action = sale_order.sudo().action_view_purchase()
 
         # try to access PO as sale person
         with self.assertRaises(AccessError):
-            purchase_orders = self.env['purchase.order'].with_user(self.user_salesperson).browse(action['res_id'])
+            purchase_orders = self.env['purchase.order'].with_user(self.user_salesperson).search(action['domain'])
             purchase_orders.read()
 
         # try to access PO as purchase person
-        purchase_orders = self.env['purchase.order'].with_user(self.user_purchaseperson).browse(action['res_id'])
+        purchase_orders = self.env['purchase.order'].with_user(self.user_purchaseperson).search(action['domain'])
         purchase_orders.read()
 
         # try to access the PO lines from the SO, as sale person

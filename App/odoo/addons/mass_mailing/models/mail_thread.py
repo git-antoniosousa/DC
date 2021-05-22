@@ -57,31 +57,8 @@ class MailThread(models.AbstractModel):
         if bounced_email:
             three_months_ago = fields.Datetime.to_string(datetime.datetime.now() - datetime.timedelta(weeks=13))
             stats = self.env['mailing.trace'].search(['&', ('bounced', '>', three_months_ago), ('email', '=ilike', bounced_email)]).mapped('bounced')
-            if len(stats) >= BLACKLIST_MAX_BOUNCED_LIMIT and (not bounced_partner or bounced_partner.message_bounce >= BLACKLIST_MAX_BOUNCED_LIMIT):
+            if len(stats) >= BLACKLIST_MAX_BOUNCED_LIMIT and (not bounced_partner or any(p.message_bounce >= BLACKLIST_MAX_BOUNCED_LIMIT for p in bounced_partner)):
                 if max(stats) > min(stats) + datetime.timedelta(weeks=1):
                     blacklist_rec = self.env['mail.blacklist'].sudo()._add(bounced_email)
                     blacklist_rec._message_log(
                         body='This email has been automatically blacklisted because of too much bounced.')
-
-    @api.model
-    def message_new(self, msg_dict, custom_values=None):
-        """ Overrides mail_thread message_new that is called by the mailgateway
-            through message_process.
-            This override updates the document according to the email.
-        """
-        defaults = {}
-
-        if issubclass(type(self), self.pool['utm.mixin']):
-            thread_references = msg_dict.get('references', '') or msg_dict.get('in_reply_to', '')
-            msg_references = tools.mail_header_msgid_re.findall(thread_references)
-            if msg_references:
-                traces = self.env['mailing.trace'].search([('message_id', 'in', msg_references)], limit=1)
-                if traces:
-                    defaults['campaign_id'] = traces.campaign_id.id
-                    defaults['source_id'] = traces.mass_mailing_id.source_id.id
-                    defaults['medium_id'] = traces.mass_mailing_id.medium_id.id
-
-        if custom_values:
-            defaults.update(custom_values)
-
-        return super(MailThread, self).message_new(msg_dict, custom_values=defaults)

@@ -3,15 +3,20 @@
 # 	* mass_mailing_sms
 # 
 # Translators:
-# 敬雲 林 <chingyun@yuanchih-consult.com>, 2020
+# Andy Cheng <andy.cheng@richsoda.com>, 2019
+# sejun huang <sejun.huang@gmail.com>, 2019
+# Kenny Chen <chen.kenny@yuanchih-consult.com>, 2019
+# bluce Lan <bluce.lan@gmail.com>, 2019
+# Martin Trigaux, 2019
+# 敬雲 林 <chingyun@yuanchih-consult.com>, 2019
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-27 11:24+0000\n"
-"PO-Revision-Date: 2020-09-07 08:14+0000\n"
-"Last-Translator: 敬雲 林 <chingyun@yuanchih-consult.com>, 2020\n"
+"POT-Creation-Date: 2020-04-27 10:11+0000\n"
+"PO-Revision-Date: 2019-08-26 09:11+0000\n"
+"Last-Translator: 敬雲 林 <chingyun@yuanchih-consult.com>, 2019\n"
 "Language-Team: Chinese (Taiwan) (https://www.transifex.com/odoo/teams/41243/zh_TW/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -23,6 +28,19 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_sms_test_view_form
 msgid "+32 495 85 85 77, +33 545 55 55 55"
 msgstr "+32 495 85 85 77, +33 545 55 55 55"
+
+#. module: mass_mailing_sms
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_contact_view_form
+msgid ""
+"<i class=\"fa fa-ban\" style=\"color: red;\" role=\"img\" title=\"This "
+"number is blacklisted for SMS Marketing\" aria-label=\"Phone Blacklisted\" "
+"attrs=\"{'invisible': [('phone_blacklisted', '=', False)]}\" "
+"groups=\"base.group_user\"/>"
+msgstr ""
+"<i class=\"fa fa-ban\" style=\"color: red;\" role=\"img\" title=\"This "
+"number is blacklisted for SMS Marketing\" aria-label=\"Phone Blacklisted\" "
+"attrs=\"{'invisible': [('phone_blacklisted', '=', False)]}\" "
+"groups=\"base.group_user\"/>"
 
 #. module: mass_mailing_sms
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_form_sms
@@ -62,13 +80,6 @@ msgstr ""
 "'!=', 'sms')]}\">簡訊在佇列中，將很快發送。</span>"
 
 #. module: mass_mailing_sms
-#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_form_sms
-msgid ""
-"<span name=\"sent_sms\" attrs=\"{'invisible': [('mailing_type', '!=', "
-"'sms')]}\">SMS Text Message have been sent.</span>"
-msgstr ""
-
-#. module: mass_mailing_sms
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_view_form
 msgid ""
 "<span name=\"trace_type_name_sms\" attrs=\"{'invisible': [('trace_type', "
@@ -86,14 +97,6 @@ msgid ""
 msgstr "<strong>看來你沒有足夠的IAP點數。點擊這裡購買點數。</strong>"
 
 #. module: mass_mailing_sms
-#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_form_sms
-msgid ""
-"<strong>\n"
-"                            It appears your SMS account is not registered. Click here to set up your account.\n"
-"                        </strong>"
-msgstr ""
-
-#. module: mass_mailing_sms
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_view_form_sms
 msgid "<strong>This SMS could not be sent.</strong>"
 msgstr "<strong>無法發送此 SMS。</strong>"
@@ -102,16 +105,6 @@ msgstr "<strong>無法發送此 SMS。</strong>"
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_view_form_sms
 msgid "<strong>This number appears to be invalid.</strong>"
 msgstr "<strong>此號碼似乎無效。</strong>"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_needaction
-msgid "Action Needed"
-msgstr "需採取行動"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_attachment_count
-msgid "Attachment Count"
-msgstr "附件數"
 
 #. module: mass_mailing_sms
 #: model:utm.tag,name:mass_mailing_sms.mailing_tag_0
@@ -131,23 +124,7 @@ msgid "Blacklisted"
 msgstr "列入黑名單"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__mobile_blacklisted
-msgid "Blacklisted Phone Is Mobile"
-msgstr ""
-
-#. module: mass_mailing_sms
-#: model:ir.ui.menu,name:mass_mailing_sms.phone_blacklist_menu
-msgid "Blacklisted Phone Numbers"
-msgstr ""
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__phone_blacklisted
-msgid "Blacklisted Phone is Phone"
-msgstr ""
-
-#. module: mass_mailing_sms
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_sms_composer__utm_campaign_id
-#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_tree_sms
 msgid "Campaign"
 msgstr "行銷"
 
@@ -160,6 +137,11 @@ msgstr "行銷"
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_sms_test_view_form
 msgid "Cancel"
 msgstr "取消"
+
+#. module: mass_mailing_sms
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_form_sms
+msgid "Clicked"
+msgstr "點選率"
 
 #. module: mass_mailing_sms
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_trace__sms_code
@@ -184,6 +166,7 @@ msgstr "連絡人清單"
 #. module: mass_mailing_sms
 #: model:ir.actions.act_window,name:mass_mailing_sms.mailing_contact_action_sms
 #: model:ir.ui.menu,name:mass_mailing_sms.mailing_contact_menu_sms
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_contact_view_tree_sms
 msgid "Contacts"
 msgstr "聯繫人"
 
@@ -219,15 +202,7 @@ msgid "Created on"
 msgstr "建立於"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__display_name
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_list__display_name
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_mailing__display_name
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_sms_test__display_name
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_trace__display_name
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_res_users__display_name
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_sms_composer__display_name
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_sms_sms__display_name
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_utm_campaign__display_name
 msgid "Display Name"
 msgstr "顯示名稱"
 
@@ -238,19 +213,17 @@ msgid "Duplicate"
 msgstr "複製"
 
 #. module: mass_mailing_sms
-#: code:addons/mass_mailing_sms/models/res_users.py:0
-#, python-format
-msgid "Email Marketing"
-msgstr "電郵市場行銷"
-
-#. module: mass_mailing_sms
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_contact_view_search
 msgid "Exclude Blacklisted Phone"
 msgstr "排除黑名單電話"
 
 #. module: mass_mailing_sms
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_report_view_search
+msgid "Extended Filters..."
+msgstr "擴展篩選..."
+
+#. module: mass_mailing_sms
 #: model:mailing.mailing,name:mass_mailing_sms.mailing_sms_1
-#: model:mailing.mailing,sms_subject:mass_mailing_sms.mailing_sms_1
 #: model:mailing.mailing,subject:mass_mailing_sms.mailing_sms_1
 #: model:utm.source,name:mass_mailing_sms.mailing_sms_1_utm_source
 msgid "Extra Promo"
@@ -262,28 +235,6 @@ msgid "Failure type"
 msgstr "失敗類型"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__phone_sanitized
-msgid ""
-"Field used to store sanitized phone number. Helps speeding up searches and "
-"comparisons."
-msgstr "用於存儲已清理電話號碼的欄位。説明加快搜索和比較。"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_follower_ids
-msgid "Followers"
-msgstr "關注人"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_channel_ids
-msgid "Followers (Channels)"
-msgstr "關注人（頻道）"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_partner_ids
-msgid "Followers (Partners)"
-msgstr "關注人（業務夥伴）"
-
-#. module: mass_mailing_sms
 #: code:addons/mass_mailing_sms/wizard/mailing_sms_test.py:0
 #, python-format
 msgid ""
@@ -292,29 +243,12 @@ msgid ""
 msgstr "以下數位未正確編碼： %s，您可輸入例如：\"+32 495 85 85 77，+33 545 55 55 55 55\""
 
 #. module: mass_mailing_sms
-#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_form_sms
-msgid ""
-"For an Email, Subject your Recipients will see in their inbox.\n"
-"                    For an SMS Text Message, internal Title of the Message."
-msgstr ""
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_report_view_search
+msgid "Group By..."
+msgstr "分組按..."
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_mailing__sms_subject
-msgid ""
-"For an email, the subject your recipients will see in their inbox.\n"
-"For an SMS, the internal title of the message."
-msgstr ""
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__id
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_list__id
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_mailing__id
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_sms_test__id
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_trace__id
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_res_users__id
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_sms_composer__id
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_sms_sms__id
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_utm_campaign__id
 msgid "ID"
 msgstr "ID"
 
@@ -328,45 +262,10 @@ msgstr ""
 "相關 sms.sms 的 ID。此欄位是一個整數位段，因為相關 sms.sms 可以與其統計資訊分開刪除。但是，多個操作和控制器都需要 ID。"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__message_needaction
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__message_unread
-msgid "If checked, new messages require your attention."
-msgstr "勾選代表有新訊息需要您留意。"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__message_has_error
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__message_has_sms_error
-msgid "If checked, some messages have a delivery error."
-msgstr "勾選代表有訊息發生傳送錯誤。"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__phone_sanitized_blacklisted
-msgid ""
-"If the sanitized phone number is on the blacklist, the contact won't receive"
-" mass mailing sms anymore, from any list"
-msgstr ""
-
-#. module: mass_mailing_sms
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_mailing__sms_allow_unsubscribe
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_sms_composer__mass_sms_allow_unsubscribe
 msgid "Include opt-out link"
 msgstr "包括取消訂閱連結"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__mobile_blacklisted
-msgid ""
-"Indicates if a blacklisted sanitized phone number is a mobile number. Helps "
-"distinguish which number is blacklisted             when there is both a "
-"mobile and phone field in a model."
-msgstr ""
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__phone_blacklisted
-msgid ""
-"Indicates if a blacklisted sanitized phone number is a phone number. Helps "
-"distinguish which number is blacklisted             when there is both a "
-"mobile and phone field in a model."
-msgstr ""
 
 #. module: mass_mailing_sms
 #: model:ir.model.fields.selection,name:mass_mailing_sms.selection__mailing_trace__failure_type__sms_credit
@@ -384,20 +283,7 @@ msgid "Insufficient credits"
 msgstr "點數不足"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_is_follower
-msgid "Is Follower"
-msgstr "是關注人"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact____last_update
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_list____last_update
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_mailing____last_update
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_sms_test____last_update
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_trace____last_update
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_res_users____last_update
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_sms_composer____last_update
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_sms_sms____last_update
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_utm_campaign____last_update
 msgid "Last Modified on"
 msgstr "最後修改於"
 
@@ -443,30 +329,27 @@ msgid "Mailing Type"
 msgstr "簡訊類型"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_main_attachment_id
-msgid "Main Attachment"
-msgstr "主要附件"
-
-#. module: mass_mailing_sms
 #: model:ir.model,name:mass_mailing_sms.model_mailing_mailing
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_sms_sms__mailing_id
 msgid "Mass Mailing"
 msgstr "群發信件"
 
 #. module: mass_mailing_sms
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_report_view_search
+msgid "Mass Mailing Campaign"
+msgstr "群發信件行銷"
+
+#. module: mass_mailing_sms
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_report_view_graph
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_report_view_pivot
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_report_view_search
+msgid "Mass Mailing Statistics"
+msgstr "群發信件階段"
+
+#. module: mass_mailing_sms
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_utm_campaign__mailing_sms_ids
 msgid "Mass SMS"
 msgstr "群發簡訊"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_has_error
-msgid "Message Delivery error"
-msgstr "訊息遞送錯誤"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_ids
-msgid "Messages"
-msgstr "訊息"
 
 #. module: mass_mailing_sms
 #: model:ir.model.fields.selection,name:mass_mailing_sms.selection__mailing_trace__failure_type__sms_number_missing
@@ -496,34 +379,9 @@ msgid "Number %s not found"
 msgstr "電話號碼%s 未找到"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_needaction_counter
-msgid "Number of Actions"
-msgstr "動作數量"
-
-#. module: mass_mailing_sms
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_utm_campaign__mailing_sms_count
 msgid "Number of Mass SMS"
 msgstr "群發簡訊號碼"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_has_error_counter
-msgid "Number of errors"
-msgstr "錯誤數量"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__message_needaction_counter
-msgid "Number of messages which requires an action"
-msgstr "需要處理的消息數量"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__message_has_error_counter
-msgid "Number of messages with delivery error"
-msgstr "有發送錯誤的郵件數量"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__message_unread_counter
-msgid "Number of unread messages"
-msgstr "未讀訊息的數量"
 
 #. module: mass_mailing_sms
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_sms_test__numbers
@@ -536,8 +394,8 @@ msgid "Outgoing SMS"
 msgstr "出向簡訊"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__phone_sanitized_blacklisted
-msgid "Phone Blacklisted"
+#: model:ir.ui.menu,name:mass_mailing_sms.phone_blacklist_menu
+msgid "Phone Blacklist"
 msgstr "電話黑名單"
 
 #. module: mass_mailing_sms
@@ -549,11 +407,6 @@ msgstr "請輸入您的電話號碼"
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_form_sms
 msgid "Put in Queue"
 msgstr "放入佇列"
-
-#. module: mass_mailing_sms
-#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_tree_sms
-msgid "Recipients"
-msgstr "收件人"
 
 #. module: mass_mailing_sms
 #: model:ir.ui.menu,name:mass_mailing_sms.mass_mailing_sms_menu_reporting
@@ -580,22 +433,15 @@ msgid "SMS Content"
 msgstr "SMS 內容"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_has_sms_error
-msgid "SMS Delivery error"
-msgstr "簡訊發送錯誤"
-
-#. module: mass_mailing_sms
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_trace__sms_sms_id_int
 msgid "SMS ID (tech)"
 msgstr "簡訊 ID (技術)"
 
 #. module: mass_mailing_sms
-#: code:addons/mass_mailing_sms/models/res_users.py:0
 #: model:ir.actions.act_window,name:mass_mailing_sms.mailing_mailing_action_sms
 #: model:ir.ui.menu,name:mass_mailing_sms.mass_mailing_sms_menu_mass_sms
 #: model:ir.ui.menu,name:mass_mailing_sms.mass_mailing_sms_menu_root
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_tree_sms
-#, python-format
 msgid "SMS Marketing"
 msgstr "簡訊行銷"
 
@@ -641,14 +487,9 @@ msgid "STOP SMS : %s"
 msgstr "停止簡訊 ： %s"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__phone_sanitized
-msgid "Sanitized Number"
-msgstr "消毒數量"
-
-#. module: mass_mailing_sms
-#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_tree_sms
-msgid "Scheduled"
-msgstr "安排"
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_report_view_search
+msgid "Scheduled Period"
+msgstr "計劃期間"
 
 #. module: mass_mailing_sms
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_sms_test_view_form
@@ -668,7 +509,7 @@ msgstr "立即發送"
 #. module: mass_mailing_sms
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.utm_campaign_view_form
 msgid "Send SMS"
-msgstr "發送短信"
+msgstr "發送簡訊"
 
 #. module: mass_mailing_sms
 #: model:ir.model,name:mass_mailing_sms.model_sms_composer
@@ -688,14 +529,29 @@ msgid ""
 msgstr "向下面的數位發送用於測試的示例 SMS（逗號分隔清單）。"
 
 #. module: mass_mailing_sms
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_form_sms
+msgid "Sent"
+msgstr "已發送"
+
+#. module: mass_mailing_sms
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_report_view_search
+msgid "Sent By"
+msgstr "發送者"
+
+#. module: mass_mailing_sms
 #: model:ir.model.fields.selection,name:mass_mailing_sms.selection__mailing_trace__failure_type__sms_server
 msgid "Server Error"
 msgstr "伺服器錯誤"
 
 #. module: mass_mailing_sms
+#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_trace_report_view_search
+msgid "State"
+msgstr "狀態"
+
+#. module: mass_mailing_sms
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_sms_sms__mailing_trace_ids
 msgid "Statistics"
-msgstr "統計資訊"
+msgstr "統計信息"
 
 #. module: mass_mailing_sms
 #: model:ir.model,name:mass_mailing_sms.model_mailing_sms_test
@@ -730,12 +586,6 @@ msgid "There was an error when trying to unsubscribe"
 msgstr "嘗試取消訂閱時出錯"
 
 #. module: mass_mailing_sms
-#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_contact_view_form
-msgid ""
-"This phone number is blacklisted for SMS Marketing. Click to unblacklist."
-msgstr ""
-
-#. module: mass_mailing_sms
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_form_sms
 msgid ""
 "This will schedule an SMS marketing to all recipients. Do you still want to "
@@ -749,12 +599,6 @@ msgid ""
 msgstr "這將立即向所有收件者傳送簡訊。是否仍要繼續？"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_mailing__sms_subject
-#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_form_sms
-msgid "Title"
-msgstr "稱謂"
-
-#. module: mass_mailing_sms
 #: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_trace__trace_type
 msgid "Type"
 msgstr "類型"
@@ -765,39 +609,9 @@ msgid "UTM Campaign"
 msgstr "UTM 行銷活動"
 
 #. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_mailing__sms_has_unregistered_account
-msgid "UX Field to propose to Register the SMS IAP account"
-msgstr ""
-
-#. module: mass_mailing_sms
 #: model:ir.model.fields,help:mass_mailing_sms.field_mailing_mailing__sms_has_insufficient_credit
 msgid "UX Field to propose to buy IAP credits"
 msgstr "UX 欄位建議購買 IAP 點數"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_unread
-msgid "Unread Messages"
-msgstr "未讀消息"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__message_unread_counter
-msgid "Unread Messages Counter"
-msgstr "未讀消息計數器"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields.selection,name:mass_mailing_sms.selection__mailing_trace__failure_type__sms_acc
-msgid "Unregistered Account"
-msgstr ""
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_mailing__sms_has_unregistered_account
-msgid "Unregistered IAP account"
-msgstr ""
-
-#. module: mass_mailing_sms
-#: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_mailing_view_kanban_sms
-msgid "Unregistered account"
-msgstr ""
 
 #. module: mass_mailing_sms
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.blacklist_main
@@ -816,24 +630,9 @@ msgid "Use at your own risks."
 msgstr ""
 
 #. module: mass_mailing_sms
-#: model:ir.model,name:mass_mailing_sms.model_res_users
-msgid "Users"
-msgstr "使用者"
-
-#. module: mass_mailing_sms
 #: model_terms:ir.ui.view,arch_db:mass_mailing_sms.mailing_contact_view_search
 msgid "Valid SMS Recipients"
 msgstr "有效的簡訊接收者"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,field_description:mass_mailing_sms.field_mailing_contact__website_message_ids
-msgid "Website Messages"
-msgstr "網站訊息"
-
-#. module: mass_mailing_sms
-#: model:ir.model.fields,help:mass_mailing_sms.field_mailing_contact__website_message_ids
-msgid "Website communication history"
-msgstr "網站溝通記錄"
 
 #. module: mass_mailing_sms
 #: model:ir.model.fields.selection,name:mass_mailing_sms.selection__mailing_trace__failure_type__sms_number_format
@@ -842,7 +641,6 @@ msgstr "錯誤的電話號碼格式"
 
 #. module: mass_mailing_sms
 #: model:mailing.mailing,name:mass_mailing_sms.mailing_sms_0
-#: model:mailing.mailing,sms_subject:mass_mailing_sms.mailing_sms_0
 #: model:mailing.mailing,subject:mass_mailing_sms.mailing_sms_0
 #: model:utm.campaign,name:mass_mailing_sms.utm_campaign_0
 #: model:utm.source,name:mass_mailing_sms.mailing_sms_0_utm_source

@@ -3,7 +3,7 @@
 {
     'name': 'test-exceptions',
     'version': '0.1',
-    'category': 'Hidden/Tests',
+    'category': 'Tests',
     'description': """A module to generate exceptions.""",
     'depends': ['base'],
     'data': ['view.xml', 'ir.model.access.csv'],

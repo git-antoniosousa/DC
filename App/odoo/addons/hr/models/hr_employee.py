@@ -4,12 +4,14 @@
 import base64
 from random import choice
 from string import digits
-from werkzeug.urls import url_encode
+import itertools
+from werkzeug import url_encode
+import pytz
 
 from odoo import api, fields, models, _
-from odoo.osv.query import Query
 from odoo.exceptions import ValidationError, AccessError
 from odoo.modules.module import get_module_resource
+from odoo.addons.resource.models.resource_mixin import timezone_datetime
 
 
 class HrEmployeePrivate(models.Model):
@@ -37,7 +39,6 @@ class HrEmployeePrivate(models.Model):
     user_id = fields.Many2one('res.users', 'User', related='resource_id.user_id', store=True, readonly=False)
     user_partner_id = fields.Many2one(related='user_id.partner_id', related_sudo=False, string="User's partner")
     active = fields.Boolean('Active', related='resource_id.active', default=True, store=True, readonly=False)
-    company_id = fields.Many2one('res.company',required=True)
     # private partner
     address_home_id = fields.Many2one(
         'res.partner', 'Address', help='Enter here the private address of the employee, not the one linked to your company.',
@@ -54,7 +55,7 @@ class HrEmployeePrivate(models.Model):
         ('male', 'Male'),
         ('female', 'Female'),
         ('other', 'Other')
-    ], groups="hr.group_hr_user", tracking=True)
+    ], groups="hr.group_hr_user", default="male", tracking=True)
     marital = fields.Selection([
         ('single', 'Single'),
         ('married', 'Married'),
@@ -83,17 +84,15 @@ class HrEmployeePrivate(models.Model):
     visa_expire = fields.Date('Visa Expire Date', groups="hr.group_hr_user", tracking=True)
     additional_note = fields.Text(string='Additional Note', groups="hr.group_hr_user", tracking=True)
     certificate = fields.Selection([
-        ('graduate', 'Graduate'),
         ('bachelor', 'Bachelor'),
         ('master', 'Master'),
-        ('doctor', 'Doctor'),
         ('other', 'Other'),
     ], 'Certificate Level', default='other', groups="hr.group_hr_user", tracking=True)
     study_field = fields.Char("Field of Study", groups="hr.group_hr_user", tracking=True)
     study_school = fields.Char("School", groups="hr.group_hr_user", tracking=True)
     emergency_contact = fields.Char("Emergency Contact", groups="hr.group_hr_user", tracking=True)
     emergency_phone = fields.Char("Emergency Phone", groups="hr.group_hr_user", tracking=True)
-    km_home_work = fields.Integer(string="Home-Work Distance", groups="hr.group_hr_user", tracking=True)
+    km_home_work = fields.Integer(string="Km Home-Work", groups="hr.group_hr_user", tracking=True)
 
     image_1920 = fields.Image(default=_default_image)
     phone = fields.Char(related='address_home_id.phone', related_sudo=False, readonly=False, string="Private Phone", groups="hr.group_hr_user")
@@ -115,7 +114,6 @@ class HrEmployeePrivate(models.Model):
         ('retired', 'Retired')
     ], string="Departure Reason", groups="hr.group_hr_user", copy=False, tracking=True)
     departure_description = fields.Text(string="Additional Information", groups="hr.group_hr_user", copy=False, tracking=True)
-    departure_date = fields.Date(string="Departure Date", groups="hr.group_hr_user", copy=False, tracking=True)
     message_main_attachment_id = fields.Many2one(groups="hr.group_hr_user")
 
     _sql_constraints = [
@@ -163,11 +161,7 @@ class HrEmployeePrivate(models.Model):
         """
         if self.check_access_rights('read', raise_exception=False):
             return super(HrEmployeePrivate, self)._search(args, offset=offset, limit=limit, order=order, count=count, access_rights_uid=access_rights_uid)
-        ids = self.env['hr.employee.public']._search(args, offset=offset, limit=limit, order=order, count=count, access_rights_uid=access_rights_uid)
-        if not count and isinstance(ids, Query):
-            # the result is expected from this table, so we should link tables
-            ids = super(HrEmployeePrivate, self.sudo())._search([('id', 'in', ids)])
-        return ids
+        return self.env['hr.employee.public']._search(args, offset=offset, limit=limit, order=order, count=count, access_rights_uid=access_rights_uid)
 
     def get_formview_id(self, access_uid=None):
         """ Override this method in order to redirect many2one towards the right model depending on access_uid """
@@ -200,10 +194,30 @@ class HrEmployeePrivate(models.Model):
             if employee.pin and not employee.pin.isdigit():
                 raise ValidationError(_("The PIN must be a sequence of digits."))
 
+    @api.onchange('job_id')
+    def _onchange_job_id(self):
+        if self.job_id:
+            self.job_title = self.job_id.name
+
+    @api.onchange('address_id')
+    def _onchange_address(self):
+        self.work_phone = self.address_id.phone
+        self.mobile_phone = self.address_id.mobile
+
+    @api.onchange('company_id')
+    def _onchange_company(self):
+        address = self.company_id.partner_id.address_get(['default'])
+        self.address_id = address['default'] if address else False
+
+    @api.onchange('department_id')
+    def _onchange_department(self):
+        if self.department_id.manager_id:
+            self.parent_id = self.department_id.manager_id
+
     @api.onchange('user_id')
     def _onchange_user(self):
         if self.user_id:
-            self.update(self._sync_user(self.user_id, bool(self.image_1920)))
+            self.update(self._sync_user(self.user_id))
             if not self.name:
                 self.name = self.user_id.name
 
@@ -212,13 +226,12 @@ class HrEmployeePrivate(models.Model):
         if self.resource_calendar_id and not self.tz:
             self.tz = self.resource_calendar_id.tz
 
-    def _sync_user(self, user, employee_has_image=False):
+    def _sync_user(self, user):
         vals = dict(
+            image_1920=user.image_1920,
             work_email=user.email,
             user_id=user.id,
         )
-        if not employee_has_image:
-            vals['image_1920'] = user.image_1920
         if user.tz:
             vals['tz'] = user.tz
         return vals
@@ -227,7 +240,7 @@ class HrEmployeePrivate(models.Model):
     def create(self, vals):
         if vals.get('user_id'):
             user = self.env['res.users'].browse(vals['user_id'])
-            vals.update(self._sync_user(user, vals.get('image_1920') == self._default_image()))
+            vals.update(self._sync_user(user))
             vals['name'] = vals.get('name', user.name)
         employee = super(HrEmployeePrivate, self).create(vals)
         url = '/web#%s' % url_encode({
@@ -249,8 +262,7 @@ class HrEmployeePrivate(models.Model):
             if account_id:
                 self.env['res.partner.bank'].browse(account_id).partner_id = vals['address_home_id']
         if vals.get('user_id'):
-            # Update the profile pictures with user, except if provided 
-            vals.update(self._sync_user(self.env['res.users'].browse(vals['user_id']), bool(vals.get('image_1920'))))
+            vals.update(self._sync_user(self.env['res.users'].browse(vals['user_id'])))
         res = super(HrEmployeePrivate, self).write(vals)
         if vals.get('department_id') or vals.get('user_id'):
             department_id = vals['department_id'] if vals.get('department_id') else self[:1].department_id.id
@@ -267,14 +279,10 @@ class HrEmployeePrivate(models.Model):
 
     def toggle_active(self):
         res = super(HrEmployeePrivate, self).toggle_active()
-        unarchived_employees = self.filtered(lambda employee: employee.active)
-        unarchived_employees.write({
+        self.filtered(lambda employee: employee.active).write({
             'departure_reason': False,
             'departure_description': False,
-            'departure_date': False
         })
-        archived_addresses = unarchived_employees.mapped('address_home_id').filtered(lambda addr: not addr.active)
-        archived_addresses.toggle_active()
         if len(self) == 1 and not self.active:
             return {
                 'type': 'ir.actions.act_window',

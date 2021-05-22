@@ -3,8 +3,8 @@
 {
     'name': 'Maintenance',
     'version': '1.0',
-    'sequence': 100,
-    'category': 'Manufacturing/Maintenance',
+    'sequence': 125,
+    'category': 'Operations/Maintenance',
     'description': """
         Track equipments and maintenance requests""",
     'depends': ['mail'],

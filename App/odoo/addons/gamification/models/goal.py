@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import ast
 import logging
+import time
 from datetime import date, datetime, timedelta
 
 from odoo import api, fields, models, _, exceptions
 from odoo.osv import expression
-from odoo.tools.safe_eval import safe_eval, time
+from odoo.tools.safe_eval import safe_eval
 
 _logger = logging.getLogger(__name__)
 
 
-DOMAIN_TEMPLATE = "[('store', '=', True), '|', ('model_id', '=', model_id), ('model_id', 'in', model_inherited_ids)%s]"
 class GoalDefinition(models.Model):
     """Goal definition
 
@@ -34,21 +33,14 @@ class GoalDefinition(models.Model):
         ('sum', "Automatic: sum on a field"),
         ('python', "Automatic: execute a specific Python code"),
     ], default='manually', string="Computation Mode", required=True,
-       help="Define how the goals will be computed. The result of the operation will be stored in the field 'Current'.")
+       help="Defined how will be computed the goals. The result of the operation will be stored in the field 'Current'.")
     display_mode = fields.Selection([
         ('progress', "Progressive (using numerical values)"),
         ('boolean', "Exclusive (done or not-done)"),
     ], default='progress', string="Displayed as", required=True)
     model_id = fields.Many2one('ir.model', string='Model', help='The model object for the field to evaluate')
-    model_inherited_ids = fields.Many2many('ir.model', related='model_id.inherited_model_ids')
-    field_id = fields.Many2one(
-        'ir.model.fields', string='Field to Sum', help='The field containing the value to evaluate',
-        domain=DOMAIN_TEMPLATE % ''
-    )
-    field_date_id = fields.Many2one(
-        'ir.model.fields', string='Date Field', help='The date to use for the time period evaluated',
-        domain=DOMAIN_TEMPLATE % ", ('ttype', 'in', ('date', 'datetime'))"
-    )
+    field_id = fields.Many2one('ir.model.fields', string='Field to Sum', help='The field containing the value to evaluate')
+    field_date_id = fields.Many2one('ir.model.fields', string='Date Field', help='The date to use for the time period evaluated')
     domain = fields.Char(
         "Filter Domain", required=True, default="[]",
         help="Domain for filtering records. General rule, not user depending,"
@@ -57,7 +49,7 @@ class GoalDefinition(models.Model):
              " user if not in batch mode.")
 
     batch_mode = fields.Boolean("Batch Mode", help="Evaluate the expression in batch instead of once for each user")
-    batch_distinctive_field = fields.Many2one('ir.model.fields', string="Distinctive field for batch user", help="In batch mode, this indicates which field distinguishes one user from the other, e.g. user_id, partner_id...")
+    batch_distinctive_field = fields.Many2one('ir.model.fields', string="Distinctive field for batch user", help="In batch mode, this indicates which field distinct one user form the other, e.g. user_id, partner_id...")
     batch_user_expression = fields.Char("Evaluated expression for batch mode", help="The value to compare with the distinctive field. The expression can contain reference to 'user' which is a browse record of the current user, e.g. user.id, user.partner_id.id...")
     compute_code = fields.Text("Python Code", help="Python code to be executed for each user. 'result' should contains the new current value. Evaluated user can be access through object.user_id.")
     condition = fields.Selection([
@@ -110,17 +102,11 @@ class GoalDefinition(models.Model):
                 Model = self.env[definition.model_id.model]
                 field = Model._fields.get(definition.field_id.name)
                 if not (field and field.store):
-                    raise exceptions.UserError(_(
-                        "The model configuration for the definition %(name)s seems incorrect, please check it.\n\n%(field_name)s not stored",
-                        name=definition.name,
-                        field_name=definition.field_id.name
-                    ))
+                    raise exceptions.UserError(
+                        _("The model configuration for the definition %s seems incorrect, please check it.\n\n%s not stored") % (definition.name, definition.field_id.name))
             except KeyError as e:
-                raise exceptions.UserError(_(
-                    "The model configuration for the definition %(name)s seems incorrect, please check it.\n\n%(error)s not found",
-                    name=definition.name,
-                    error=e
-                ))
+                raise exceptions.UserError(
+                    _("The model configuration for the definition %s seems incorrect, please check it.\n\n%s not found") % (definition.name, e))
 
     @api.model
     def create(self, vals):
@@ -139,6 +125,19 @@ class GoalDefinition(models.Model):
             self._check_model_validity()
         return res
 
+    @api.onchange('model_id')
+    def _change_model_id(self):
+        """Force domain for the `field_id` and `field_date_id` fields"""
+        if not self.model_id:
+            return {'domain': {'field_id': expression.FALSE_DOMAIN, 'field_date_id': expression.FALSE_DOMAIN}}
+        model_fields_domain = [
+            ('store', '=', True),
+            '|', ('model_id', '=', self.model_id.id),
+                 ('model_id', 'in', self.model_id.inherited_model_ids.ids)]
+        model_date_fields_domain = expression.AND([[('ttype', 'in', ('date', 'datetime'))], model_fields_domain])
+        return {'domain': {'field_id': model_fields_domain, 'field_date_id': model_date_fields_domain}}
+
+
 class Goal(models.Model):
     """Goal instance for a user
 
@@ -153,14 +152,14 @@ class Goal(models.Model):
     user_id = fields.Many2one('res.users', string="User", required=True, auto_join=True, ondelete="cascade")
     line_id = fields.Many2one('gamification.challenge.line', string="Challenge Line", ondelete="cascade")
     challenge_id = fields.Many2one(
-        related='line_id.challenge_id', store=True, readonly=True, index=True,
+        related='line_id.challenge_id', store=True, readonly=True,
         help="Challenge that generated the goal, assign challenge to users "
              "to generate goals with a value in this field.")
     start_date = fields.Date("Start Date", default=fields.Date.today)
     end_date = fields.Date("End Date")  # no start and end = always active
-    target_goal = fields.Float('To Reach', required=True)
+    target_goal = fields.Float('To Reach', required=True, tracking=True)
 # no goal = global index
-    current = fields.Float("Current Value", required=True, default=0)
+    current = fields.Float("Current Value", required=True, default=0, tracking=True)
     completeness = fields.Float("Completeness", compute='_get_completion')
     state = fields.Selection([
         ('draft', "Draft"),
@@ -168,7 +167,7 @@ class Goal(models.Model):
         ('reached', "Reached"),
         ('failed', "Failed"),
         ('canceled', "Canceled"),
-    ], default='draft', string='State', required=True)
+    ], default='draft', string='State', required=True, tracking=True)
     to_update = fields.Boolean('To update')
     closed = fields.Boolean('Closed goal', help="These goals will not be recomputed.")
 
@@ -184,9 +183,9 @@ class Goal(models.Model):
              "case of non-manual goal or goal not linked to a challenge.")
 
     definition_description = fields.Text("Definition Description", related='definition_id.description', readonly=True)
-    definition_condition = fields.Selection(string="Definition Condition", related='definition_id.condition', readonly=True)
+    definition_condition = fields.Selection("Definition Condition", related='definition_id.condition', readonly=True)
     definition_suffix = fields.Char("Suffix", related='definition_id.full_suffix', readonly=True)
-    definition_display = fields.Selection(string="Display Mode", related='definition_id.display_mode', readonly=True)
+    definition_display = fields.Selection("Display Mode", related='definition_id.display_mode', readonly=True)
 
     @api.depends('current', 'target_goal', 'definition_id.condition')
     def _get_completion(self):
@@ -218,11 +217,14 @@ class Goal(models.Model):
             return {}
 
         # generate a reminder report
-        body_html = self.env.ref('gamification.email_template_goal_reminder')._render_field('body_html', self.ids, compute_lang=True)[self.id]
+        template = self.env.ref('gamification.email_template_goal_reminder')\
+                           .get_email_template(self.id)
+        body_html = self.env['mail.template'].with_context(template._context)\
+            ._render_template(template.body_html, 'gamification.goal', self.id)
         self.message_notify(
             body=body_html,
             partner_ids=[self.user_id.partner_id.id],
-            subtype_xmlid='mail.mt_comment',
+            subtype='mail.mt_comment',
             email_layout_xmlid='mail.mail_notification_light',
         )
 
@@ -289,13 +291,13 @@ class Goal(models.Model):
                             "of code for definition %s, expected a number",
                             result, definition.name)
 
-            elif definition.computation_mode in ('count', 'sum'):  # count or sum
+            else:  # count or sum
                 Obj = self.env[definition.model_id.model]
 
                 field_date_name = definition.field_date_id.name
-                if definition.batch_mode:
+                if definition.computation_mode == 'count' and definition.batch_mode:
                     # batch mode, trying to do as much as possible in one request
-                    general_domain = ast.literal_eval(definition.domain)
+                    general_domain = safe_eval(definition.domain)
                     field_name = definition.batch_distinctive_field.name
                     subqueries = {}
                     for goal in goals:
@@ -312,22 +314,12 @@ class Goal(models.Model):
                         if end_date:
                             subquery_domain.append((field_date_name, '<=', end_date))
 
-                        if definition.computation_mode == 'count':
-                            value_field_name = field_name + '_count'
-                            if field_name == 'id':
-                                # grouping on id does not work and is similar to search anyway
-                                users = Obj.search(subquery_domain)
-                                user_values = [{'id': user.id, value_field_name: 1} for user in users]
-                            else:
-                                user_values = Obj.read_group(subquery_domain, fields=[field_name], groupby=[field_name])
-
-                        else:  # sum
-                            value_field_name = definition.field_id.name
-                            if field_name == 'id':
-                                user_values = Obj.search_read(subquery_domain, fields=['id', value_field_name])
-                            else:
-                                user_values = Obj.read_group(subquery_domain, fields=[field_name, "%s:sum" % value_field_name], groupby=[field_name])
-
+                        if field_name == 'id':
+                            # grouping on id does not work and is similar to search anyway
+                            users = Obj.search(subquery_domain)
+                            user_values = [{'id': user.id, 'id_count': 1} for user in users]
+                        else:
+                            user_values = Obj.read_group(subquery_domain, fields=[field_name], groupby=[field_name])
                         # user_values has format of read_group: [{'partner_id': 42, 'partner_id_count': 3},...]
                         for goal in [g for g in goals if g.id in query_goals]:
                             for user_value in user_values:
@@ -335,7 +327,7 @@ class Goal(models.Model):
                                 if isinstance(queried_value, tuple) and len(queried_value) == 2 and isinstance(queried_value[0], int):
                                     queried_value = queried_value[0]
                                 if queried_value == query_goals[goal.id]:
-                                    new_value = user_value.get(value_field_name, goal.current)
+                                    new_value = user_value.get(field_name+'_count', goal.current)
                                     goals_to_write.update(goal._get_write_values(new_value))
 
                 else:
@@ -351,6 +343,7 @@ class Goal(models.Model):
 
                         if definition.computation_mode == 'sum':
                             field_name = definition.field_id.name
+                            # TODO for master: group on user field in batch mode
                             res = Obj.read_group(domain, [field_name], [])
                             new_value = res and res[0][field_name] or 0.0
 
@@ -358,11 +351,6 @@ class Goal(models.Model):
                             new_value = Obj.search_count(domain)
 
                         goals_to_write.update(goal._get_write_values(new_value))
-
-            else:
-                _logger.error(
-                    "Invalid computation mode '%s' in definition %s",
-                    definition.computation_mode, definition.name)
 
             for goal, values in goals_to_write.items():
                 if not values:
@@ -449,7 +437,7 @@ class Goal(models.Model):
         if self.computation_mode == 'manually':
             # open a wizard window to update the value manually
             action = {
-                'name': _("Update %s", self.definition_id.name),
+                'name': _("Update %s") % self.definition_id.name,
                 'id': self.id,
                 'type': 'ir.actions.act_window',
                 'views': [[False, 'form']],

@@ -2,11 +2,10 @@
 
 from functools import partial
 
-from odoo.tests import common, tagged
+from odoo.tests import common
 from odoo.tools.misc import mute_logger
 
 
-@tagged('-at_install', 'post_install')
 class TestError(common.HttpCase):
     def setUp(self):
         super(TestError, self).setUp()

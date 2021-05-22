@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
-    'name': 'Argentina - Accounting',
-    'version': "3.2",
+    'name': 'Argentinian Accounting',
+    'version': "3.3",
     'description': """
 Functional
 ----------
@@ -66,7 +66,7 @@ Master Data:
 * Partners: Consumidor Final and AFIP
 """,
     'author': 'ADHOC SA',
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     'depends': [
         'l10n_latam_invoice_document',
         'l10n_latam_base',
@@ -75,8 +75,8 @@ Master Data:
         'security/ir.model.access.csv',
         'data/l10n_latam_identification_type_data.xml',
         'data/l10n_ar_afip_responsibility_type_data.xml',
+        'data/account_group_data.xml',
         'data/account_chart_template_data.xml',
-        'data/account.group.template.csv',
         'data/account.account.template.csv',
         'data/account_chart_template_data2.xml',
         'data/account_tax_group.xml',
@@ -87,7 +87,6 @@ Master Data:
         'data/res_partner_data.xml',
         'data/res.currency.csv',
         'data/res.country.csv',
-        'views/l10n_ar.xml',
         'views/account_move_view.xml',
         'views/res_partner_view.xml',
         'views/res_company_view.xml',
@@ -99,9 +98,9 @@ Master Data:
         'views/uom_uom_view.xml',
         'views/account_journal_view.xml',
         'views/l10n_latam_document_type_view.xml',
+        'views/ir_sequence_view.xml',
         'views/report_invoice.xml',
         'report/invoice_report_view.xml',
-        'data/account_chart_template_configure_data.xml',
     ],
     'demo': [
         # we create demo data on different companies (not main_company) to

@@ -42,7 +42,7 @@ class TestBasic(TransactionCase):
     def test_required(self):
         f = Form(self.env['test_testing_utilities.a'])
         # f1 no default & no value => should fail
-        with self.assertRaisesRegex(AssertionError, 'f1 is a required field'):
+        with self.assertRaisesRegexp(AssertionError, 'f1 is a required field'):
             f.save()
         # set f1 and unset f2 => should work
         f.f1 = '1'
@@ -377,13 +377,13 @@ class TestO2M(TransactionCase):
 
         with f.subs.edit(index=0) as s:
             self.assertEqual(s.v, 5)
-            self.assertEqual(s.value, 2)
+            self.assertEqual(s.value, False)
 
         r = f.save()
 
         self.assertEqual(
             [get(s) for s in r.subs],
-            [("5", 2, 5)]
+            [("5", 0, 5)]
         )
 
     def test_o2m_inner_default(self):

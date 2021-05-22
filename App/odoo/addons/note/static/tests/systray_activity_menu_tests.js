@@ -1,26 +1,26 @@
 odoo.define('note.systray.ActivityMenuTests', function (require) {
 "use strict";
 
-const { afterEach, beforeEach, start } = require('mail/static/src/utils/test_utils.js');
 var ActivityMenu = require('mail.systray.ActivityMenu');
+var mailTestUtils = require('mail.testUtils');
 
 var testUtils = require('web.test_utils');
 
 QUnit.module('note', {}, function () {
-QUnit.module("ActivityMenu", {
-    beforeEach() {
-        beforeEach(this);
 
-        Object.assign(this.data, {
+QUnit.module("ActivityMenu", {
+    beforeEach: function () {
+        this.services = mailTestUtils.getMailServices();
+        this.data = {
             'mail.activity.menu': {
                 fields: {
                     name: { type: "char" },
                     model: { type: "char" },
                     type: { type: "char" },
-                    planned_count: { type: "integer" },
-                    today_count: { type: "integer" },
-                    overdue_count: { type: "integer" },
-                    total_count: { type: "integer" }
+                    planned_count: { type: "integer"},
+                    today_count: { type: "integer"},
+                    overdue_count: { type: "integer"},
+                    total_count: { type: "integer"}
                 },
                 records: [],
             },
@@ -30,19 +30,16 @@ QUnit.module("ActivityMenu", {
                 },
                 records: [],
             }
-        });
-    },
-    afterEach() {
-        afterEach(this);
-    },
+        };
+    }
 });
 
 QUnit.test('note activity menu widget: create note from activity menu', async function (assert) {
     assert.expect(15);
     var self = this;
-
-    const { widget } = await start({
-        data: this.data,
+    var activityMenu = new ActivityMenu();
+    testUtils.mock.addMockEnvironment(activityMenu, {
+        services: this.services,
         mockRPC: function (route, args) {
             if (args.method === 'systray_get_activities') {
                 return Promise.resolve(self.data['mail.activity.menu'].records);
@@ -74,10 +71,8 @@ QUnit.test('note activity menu widget: create note from activity menu', async fu
             return this._super(route, args);
         },
     });
-
-    const activityMenu = new ActivityMenu(widget);
     await activityMenu.appendTo($('#qunit-fixture'));
-    assert.hasClass(activityMenu.$el, 'o_mail_systray_item',
+    assert.hasClass(activityMenu.$el,'o_mail_systray_item',
         'should be the instance of widget');
     assert.strictEqual(activityMenu.$('.o_notification_counter').text(), '0',
         "should not have any activity notification initially");
@@ -123,8 +118,7 @@ QUnit.test('note activity menu widget: create note from activity menu', async fu
         'ActivityMenu add note button should be displayed');
     assert.hasClass(activityMenu.$('.o_note'), 'd-none',
         'ActivityMenu add note input should be hidden');
-    widget.destroy();
+    activityMenu.destroy();
 });
 });
-
 });

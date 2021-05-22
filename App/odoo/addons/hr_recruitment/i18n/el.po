@@ -3,18 +3,18 @@
 # 	* hr_recruitment
 # 
 # Translators:
-# Martin Trigaux, 2020
-# Kostas Goutoudis <goutoudis@gmail.com>, 2020
-# George Tarasidis <george_tarasidis@yahoo.com>, 2020
-# Chris Sal <christian.salias@gmail.com>, 2020
+# Chris Sal <christian.salias@gmail.com>, 2019
+# Martin Trigaux, 2019
+# Kostas Goutoudis <goutoudis@gmail.com>, 2019
+# George Tarasidis <george_tarasidis@yahoo.com>, 2019
 # Alexandros Kapetanios <alexandros@gnugr.org>, 2021
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-29 13:45+0000\n"
-"PO-Revision-Date: 2020-09-07 08:13+0000\n"
+"POT-Creation-Date: 2019-12-05 12:32+0000\n"
+"PO-Revision-Date: 2019-08-26 09:10+0000\n"
 "Last-Translator: Alexandros Kapetanios <alexandros@gnugr.org>, 2021\n"
 "Language-Team: Greek (https://www.transifex.com/odoo/teams/41243/el/)\n"
 "MIME-Version: 1.0\n"
@@ -24,47 +24,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: hr_recruitment
-#: model_terms:digest.tip,tip_description:hr_recruitment.digest_tip_hr_recruitment_0
-msgid "% endif"
-msgstr ""
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "<b>Click to view</b> the application."
-msgstr ""
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "<b>Did you apply by sending an email?</b> Check incoming applications."
-msgstr ""
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "<b>Drag this card</b>, to qualify him for a first interview."
-msgstr ""
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid ""
-"<div><b>Try to send an email</b> to the applicant.</div><div><i>Tips: All "
-"emails sent or received are saved in the history here</i>"
-msgstr ""
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid ""
-"<div>Great job! You hired a new colleague!</div><div>Try the Website app to "
-"publish job offers online.</div>"
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
+msgid "<i class=\"fa fa-comments\" role=\"img\" aria-label=\"Unread messages\"/>"
 msgstr ""
 
 #. module: hr_recruitment
@@ -88,27 +49,18 @@ msgid "<i class=\"fa fa-paperclip\" role=\"img\" aria-label=\"Documents\"/>"
 msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
-msgid ""
-"<span class=\"badge badge-pill badge-danger pull-right mr-4\" "
-"attrs=\"{'invisible': [('active', '=', True)]}\">Refused</span>"
-msgstr ""
-
-#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_survey
 msgid "<span class=\"o_stat_text\">Trackers</span>"
 msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
-msgid ""
-"<span title=\"Link Trackers\"><i class=\"fa fa-lg fa-envelope\" role=\"img\""
-" aria-label=\"Link Trackers\"/></span>"
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_recruitment_stage_kanban
+msgid "<span>Folded in Recruitment Pipe: </span>"
 msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_recruitment_stage_kanban
-msgid "<span>Folded in Recruitment Pipe: </span>"
+#: model_terms:digest.tip,tip_description:hr_recruitment.digest_tip_hr_recruitment_0
+msgid "<strong style=\"font-size: 16px;\">Try the mail gateway</strong>"
 msgstr ""
 
 #. module: hr_recruitment
@@ -150,7 +102,7 @@ msgid ""
 "                % endif\n"
 "\n"
 "                <h3 style=\"color:#9A6C8E;\"><strong>What is the next step?</strong></h3>\n"
-"                We usually <strong>answer applications within a few days.</strong><br/><br/>\n"
+"                We usually <strong>answer applications within 3 days.</strong><br/><br/>\n"
 "                Feel free to <strong>contact us if you want a faster\n"
 "                feedback</strong> or if you don't get news from us\n"
 "                quickly enough (just reply to this email).\n"
@@ -186,6 +138,11 @@ msgid ""
 "                    % set location = '%s, %s' % (location, object.job_id.address_id.country_id.name)\n"
 "                % endif\n"
 "                <br/>\n"
+"                % if object.job_id.address_id:\n"
+"                    <a href=\"https://maps.google.com/maps?q=${location}\" target=\"new\">\n"
+"                        <img src=\"http://maps.googleapis.com/maps/api/staticmap?autoscale=1&amp;size=598x200&amp;maptype=roadmap&amp;format=png&amp;visual_refresh=true&amp;markers=size:mid%7Ccolor:0xa5117d%7Clabel:%7C${location}\" style=\"vertical-align:bottom;\"/>\n"
+"                    </a>\n"
+"                % endif\n"
 "            </div>\n"
 "        </td>\n"
 "    </tr>\n"
@@ -242,7 +199,7 @@ msgid ""
 "\n"
 "                <hr width=\"97%\" style=\"background-color: rgb(204,204,204); border: medium none; clear: both; display: block; font-size: 0px; min-height: 1px; line-height: 0; margin: 16px 0px 16px 0px;\"/>\n"
 "                <h3 style=\"color:#9A6C8E;\"><strong>What is the next step?</strong></h3>\n"
-"                We usually <strong>answer applications within a few days</strong>.\n"
+"                We usually <strong>answer applications within 3 days</strong>.\n"
 "                <br/><br/>\n"
 "                The next step is either a call or a meeting in our offices.\n"
 "                <br/>\n"
@@ -282,6 +239,12 @@ msgid ""
 "                    % set location = '%s, %s' % (location, object.job_id.address_id.country_id.name)\n"
 "                % endif\n"
 "                <br/>\n"
+"\n"
+"                % if object.job_id.address_id:\n"
+"                    <a href=\"https://maps.google.com/maps?q=${location}\" target=\"new\">\n"
+"                        <img src=\"http://maps.googleapis.com/maps/api/staticmap?autoscale=1&amp;size=598x200&amp;maptype=roadmap&amp;format=png&amp;visual_refresh=true&amp;markers=size:mid%7Ccolor:0xa5117d%7Clabel:%7C${location}\" style=\"vertical-align:bottom;\"/>\n"
+"                    </a>\n"
+"                % endif\n"
 "            </div>\n"
 "        </td>\n"
 "    </tr>\n"
@@ -336,22 +299,12 @@ msgid ""
 msgstr ""
 
 #. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_defaults
-msgid ""
-"A Python dictionary that will be evaluated to provide default values when "
-"creating new records for this alias."
-msgstr ""
-"Ένα Python λεξικό που θα αξιολογηθεί για να παρέχει προεπιλεγμένες τιμές "
-"όταν δημιουργείτε νέες εγγραφές για αυτό το ψευδώνυμο."
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__message_needaction
 msgid "Action Needed"
 msgstr "Απαιτείται ενέργεια"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__active
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__active
 msgid "Active"
 msgstr "Σε Ισχύ"
 
@@ -369,11 +322,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__activity_state
 msgid "Activity State"
 msgstr "Κατάσταση Δραστηριότητας"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__activity_type_icon
-msgid "Activity Type Icon"
-msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.actions.act_window,name:hr_recruitment.mail_activity_type_action_config_hr_applicant
@@ -408,33 +356,8 @@ msgid "Alias"
 msgstr "Ψευδώνυμο"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_contact
-msgid "Alias Contact Security"
-msgstr "Ψευδώνυμο Ασφάλειας Επαφής"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__alias_id
 msgid "Alias ID"
-msgstr ""
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_name
-msgid "Alias Name"
-msgstr "Ψευδώνυμο ονόματος"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_domain
-msgid "Alias domain"
-msgstr "Ψευδώνυμο τομέα"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_model_id
-msgid "Aliased Model"
-msgstr "Μοντέλο Ψευδωνύμου"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__all_application_count
-msgid "All Application Count"
 msgstr ""
 
 #. module: hr_recruitment
@@ -444,9 +367,7 @@ msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model,name:hr_recruitment.model_hr_applicant
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__applicant_ids
 #: model:ir.model.fields,field_description:hr_recruitment.field_calendar_event__applicant_id
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_employee__applicant_id
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Applicant"
 msgstr "Αιτών"
@@ -465,6 +386,11 @@ msgstr ""
 #. module: hr_recruitment
 #: model:mail.message.subtype,name:hr_recruitment.mt_job_applicant_stage_changed
 msgid "Applicant Stage Changed"
+msgstr ""
+
+#. module: hr_recruitment
+#: model:mail.message.subtype,description:hr_recruitment.mt_applicant_new
+msgid "Applicant created"
 msgstr ""
 
 #. module: hr_recruitment
@@ -561,13 +487,15 @@ msgid "Appreciation"
 msgstr ""
 
 #. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Archived"
 msgstr "Αρχειοθετημένα"
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
-msgid "Archived / Refused"
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
+msgid "Are you sure?"
 msgstr ""
 
 #. module: hr_recruitment
@@ -585,12 +513,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Attachments"
 msgstr "Συνημμένα"
-
-#. module: hr_recruitment
-#: code:addons/hr_recruitment/models/hr_recruitment.py:0
-#, python-format
-msgid "Attachments, like resumes, get indexed automatically."
-msgstr ""
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__availability
@@ -652,14 +574,6 @@ msgid "By Recruiter"
 msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:digest.tip,tip_description:hr_recruitment.digest_tip_hr_recruitment_0
-msgid ""
-"By setting an alias to a job position, emails sent to this address create applications automatically. You can even use multiple trackers to get statistics according to the source of the application: LinkedIn, Monster, Indeed, etc.\n"
-"        % set record = object.env['hr.job'].search([('alias_name', '!=', False)], limit=1)\n"
-"        % if record and record.alias_domain"
-msgstr ""
-
-#. module: hr_recruitment
 #: model:ir.model,name:hr_recruitment.model_calendar_event
 msgid "Calendar Event"
 msgstr ""
@@ -668,11 +582,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__campaign_id
 msgid "Campaign"
 msgstr "Εκστρατεία"
-
-#. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_get_refuse_reason_view_form
-msgid "Cancel"
-msgstr "Ακύρωση"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.crm_case_graph_view_job
@@ -688,7 +597,7 @@ msgstr ""
 #. openerp-web
 #: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
 #, python-format
-msgid "Choose an application email."
+msgid "Click here to create a new job position."
 msgstr ""
 
 #. module: hr_recruitment
@@ -753,13 +662,6 @@ msgid "Contract Signed"
 msgstr "Υπογράφηκε Σύμβαση"
 
 #. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "Copy this email address, to paste it in your email composer, to apply."
-msgstr ""
-
-#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_simple_form
 msgid "Create"
 msgstr "Δημιουργία"
@@ -776,18 +678,13 @@ msgid "Create a Job Position"
 msgstr ""
 
 #. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "Create your first Job Position."
+#: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_job_sources
+msgid "Create some aliases to track where applicants come from"
 msgstr ""
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__create_uid
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__create_uid
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__create_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__create_uid
@@ -795,10 +692,7 @@ msgid "Created by"
 msgstr "Δημιουργήθηκε από"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__create_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__create_date
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__create_date
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__create_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__create_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__create_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__create_date
@@ -813,11 +707,6 @@ msgid "Creation Date"
 msgstr "Ημερομηνία Δημιουργίας"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_bounced_content
-msgid "Custom Bounced Message"
-msgstr ""
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__day_close
 msgid "Days to Close"
 msgstr "Μέρες για να Κλείσει"
@@ -826,11 +715,6 @@ msgstr "Μέρες για να Κλείσει"
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__day_open
 msgid "Days to Open"
 msgstr "Μέρες για να Ανοίξει"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_defaults
-msgid "Default Values"
-msgstr "Προεπιλεγμένες τιμές"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_simple_form
@@ -880,7 +764,6 @@ msgid "Delete"
 msgstr "Διαγραφή"
 
 #. module: hr_recruitment
-#: model:ir.model,name:hr_recruitment.model_hr_department
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__department_id
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search
 msgid "Department"
@@ -899,7 +782,6 @@ msgstr "Τμήματα"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__description
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__name
 msgid "Description"
 msgstr "Περιγραφή"
 
@@ -914,19 +796,11 @@ msgid "Discard"
 msgstr "Απόρριψη"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__display_name
-#: model:ir.model.fields,field_description:hr_recruitment.field_calendar_event__display_name
-#: model:ir.model.fields,field_description:hr_recruitment.field_digest_digest__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__display_name
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__display_name
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_department__display_name
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_employee__display_name
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__display_name
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__display_name
-#: model:ir.model.fields,field_description:hr_recruitment.field_res_config_settings__display_name
 msgid "Display Name"
 msgstr "Εμφάνιση Ονόματος"
 
@@ -952,11 +826,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
 msgid "Documents"
 msgstr "Έγγραφα"
-
-#. module: hr_recruitment
-#: model:hr.applicant.refuse.reason,name:hr_recruitment.refuse_reason_1
-msgid "Doesn't fit the job requirements"
-msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.actions.act_window,help:hr_recruitment.hr_recruitment_stage_act
@@ -1003,11 +872,6 @@ msgstr ""
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__email_cc
 msgid "Email cc"
-msgstr ""
-
-#. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__name
-msgid "Email subject for applications sent via email"
 msgstr ""
 
 #. module: hr_recruitment
@@ -1102,23 +966,13 @@ msgid "Followers (Partners)"
 msgstr "Ακόλουθοι (Συνεργάτες)"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__activity_type_icon
-msgid "Font awesome icon e.g. fa-tasks"
-msgstr "Γραμματοσειρά awesome  π.χ. fa-tasks"
-
-#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Future Activities"
 msgstr "Μελλοντικές Δραστηριότητες"
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_source_tree
-msgid "Generate Email"
-msgstr ""
-
-#. module: hr_recruitment
-#: model:ir.model,name:hr_recruitment.model_applicant_get_refuse_reason
-msgid "Get Refuse Reason"
+msgid "Generate email alias"
 msgstr ""
 
 #. module: hr_recruitment
@@ -1168,35 +1022,23 @@ msgid "Group By"
 msgstr "Ομαδοποίηση κατά"
 
 #. module: hr_recruitment
+#: model:ir.model,name:hr_recruitment.model_hr_department
+msgid "HR Department"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__hr_responsible_id
 msgid "HR Responsible"
 msgstr ""
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__id
-#: model:ir.model.fields,field_description:hr_recruitment.field_calendar_event__id
-#: model:ir.model.fields,field_description:hr_recruitment.field_digest_digest__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__id
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__id
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_department__id
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_employee__id
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__id
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__id
-#: model:ir.model.fields,field_description:hr_recruitment.field_res_config_settings__id
 msgid "ID"
 msgstr "Κωδικός"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_parent_thread_id
-msgid ""
-"ID of the parent record holding the alias (example: project holding the task"
-" creation alias)"
-msgstr ""
-"Αναγνωριστικό της μητρικής εγγραφής που κρατά το ψευδώνυμο (παράδειγμα: έργο"
-" που κατέχει το ψευδώνυμο της δημιουργίας εργασίας)"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__activity_exception_icon
@@ -1225,13 +1067,6 @@ msgstr ""
 msgid ""
 "If set, a message is posted on the applicant using the template when the "
 "applicant is set to the stage."
-msgstr ""
-
-#. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_bounced_content
-msgid ""
-"If set, this content will automatically be sent out to unauthorized users "
-"instead of the default message."
 msgstr ""
 
 #. module: hr_recruitment
@@ -1292,7 +1127,6 @@ msgstr "Είναι Ακόλουθος"
 
 #. module: hr_recruitment
 #: code:addons/hr_recruitment/models/hr_job.py:0
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__job_id
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 #, python-format
@@ -1307,6 +1141,11 @@ msgstr ""
 #. module: hr_recruitment
 #: model:utm.campaign,name:hr_recruitment.utm_campaign_job
 msgid "Job Campaign"
+msgstr ""
+
+#. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__job_id
+msgid "Job ID"
 msgstr ""
 
 #. module: hr_recruitment
@@ -1387,19 +1226,11 @@ msgid "Kpi Hr Recruitment New Colleagues Value"
 msgstr ""
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason____last_update
-#: model:ir.model.fields,field_description:hr_recruitment.field_calendar_event____last_update
-#: model:ir.model.fields,field_description:hr_recruitment.field_digest_digest____last_update
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant____last_update
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category____last_update
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason____last_update
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_department____last_update
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_employee____last_update
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job____last_update
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree____last_update
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source____last_update
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage____last_update
-#: model:ir.model.fields,field_description:hr_recruitment.field_res_config_settings____last_update
 msgid "Last Modified on"
 msgstr "Τελευταία τροποποίηση στις"
 
@@ -1415,11 +1246,8 @@ msgid "Last Stage Update"
 msgstr "Ενημέρωση Τελευταίου Σταδίου"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__write_uid
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__write_uid
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__write_uid
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__write_uid
@@ -1427,11 +1255,8 @@ msgid "Last Updated by"
 msgstr "Τελευταία Ενημέρωση από"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__write_date
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_refuse_reason__write_date
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_degree__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_source__write_date
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_recruitment_stage__write_date
@@ -1444,12 +1269,6 @@ msgid "Late Activities"
 msgstr "Καθυστερημένες Δραστηριότητες"
 
 #. module: hr_recruitment
-#: code:addons/hr_recruitment/models/hr_recruitment.py:0
-#, python-format
-msgid "Let people apply by email to save time."
-msgstr ""
-
-#. module: hr_recruitment
 #: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_job
 #: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_job_config
 msgid "Let's create a job position."
@@ -1460,48 +1279,7 @@ msgstr ""
 #: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
 #, python-format
 msgid ""
-"Let's create the position. An email will be setup for applications, and a "
-"public job description, if you use the Website app."
-msgstr ""
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "Let's have a look at how to <b>improve</b> your <b>hiring process</b>."
-msgstr ""
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "Let's have a look at the applications pipeline."
-msgstr ""
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "Let’s create this new employee now."
-msgstr ""
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "Let’s go back to the dashboard."
-msgstr ""
-
-#. module: hr_recruitment
-#: model:hr.recruitment.source,name:hr_recruitment.hr_recruitment_linkedin_ceo
-#: model:hr.recruitment.source,name:hr_recruitment.hr_recruitment_linkedin_consultant
-#: model:hr.recruitment.source,name:hr_recruitment.hr_recruitment_linkedin_cto
-#: model:hr.recruitment.source,name:hr_recruitment.hr_recruitment_linkedin_developer
-#: model:hr.recruitment.source,name:hr_recruitment.hr_recruitment_linkedin_hrm
-#: model:hr.recruitment.source,name:hr_recruitment.hr_recruitment_linkedin_marketing
-#: model:hr.recruitment.source,name:hr_recruitment.hr_recruitment_linkedin_trainee
-msgid "LinkedIn"
+"Let's have a look at the <b>applications pipeline</b> for this job position."
 msgstr ""
 
 #. module: hr_recruitment
@@ -1598,8 +1376,21 @@ msgid "New Applications <br/>"
 msgstr ""
 
 #. module: hr_recruitment
+#: code:addons/hr_recruitment/models/hr_recruitment.py:0
+#, python-format
+msgid "New Employee %s Hired"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_department__new_hired_employee
 msgid "New Hired Employee"
+msgstr ""
+
+#. module: hr_recruitment
+#: model_terms:digest.tip,tip_description:hr_recruitment.digest_tip_hr_recruitment_0
+msgid ""
+"New applicants can be generated from incoming emails. You just need to set "
+"email aliases in configuration of job positions.<br>"
 msgstr ""
 
 #. module: hr_recruitment
@@ -1644,22 +1435,9 @@ msgid "No Subject"
 msgstr "Χωρίς Θέμα"
 
 #. module: hr_recruitment
-#: code:addons/hr_recruitment/models/hr_recruitment.py:0
-#, python-format
-msgid "No application yet"
-msgstr ""
-
-#. module: hr_recruitment
 #: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_job_applications
 #: model_terms:ir.actions.act_window,help:hr_recruitment.crm_case_categ0_act_job
 msgid "No applications yet"
-msgstr ""
-
-#. module: hr_recruitment
-#: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_recruitment_report_filtered_department
-#: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_recruitment_report_filtered_job
-#: model_terms:ir.actions.act_window,help:hr_recruitment.hr_applicant_action_analysis
-msgid "No data yet!"
 msgstr ""
 
 #. module: hr_recruitment
@@ -1740,53 +1518,9 @@ msgid "Online Posting"
 msgstr "Ηλεκτρονική Δημοσίευση"
 
 #. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_force_thread_id
-msgid ""
-"Optional ID of a thread (record) to which all incoming messages will be "
-"attached, even if they did not reply to it. If set, this will disable the "
-"creation of new records completely."
-msgstr ""
-"Προαιρετική ταυτότητα ενός νήματος (εγγραφής), στην οποία όλα τα εισερχόμενα"
-" μηνύματα θα πρέπει να επισυνάπτονται, ακόμη και αν δεν απαντήσει σ 'αυτό. "
-"Εάν οριστεί, αυτό θα απενεργοποιήσει εντελώς τη δημιουργία νέων αρχείων."
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "Or talk about this applicant privately with your colleagues."
-msgstr ""
-
-#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 msgid "Other Applications"
 msgstr ""
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_user_id
-msgid "Owner"
-msgstr "Ιδιοκτήτης"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_parent_model_id
-msgid "Parent Model"
-msgstr "Μοντέλο Γονέα"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_parent_thread_id
-msgid "Parent Record Thread ID"
-msgstr "Κωδικός γονικής εγγραφής νήματος"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_parent_model_id
-msgid ""
-"Parent model holding the alias. The model holding the alias reference is not"
-" necessarily the model given by alias_model_id (example: project "
-"(parent_model) and task (model))"
-msgstr ""
-"Γονικό μοντέλο κρατώντας το ψευδώνυμο. Το μοντέλο που κρατά το ψευδώνυμο "
-"αναφοράς δεν είναι απαραίτητο το μοντέλο να δίνεται από alias_model_id "
-"(παράδειγμα: Έργο (parent_model) και Εργασία (μοντέλο))"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_job__hr_responsible_id
@@ -1797,19 +1531,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__partner_phone
 msgid "Phone"
 msgstr "Τηλέφωνο"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_contact
-msgid ""
-"Policy to post a message on the document using the mailgateway.\n"
-"- everyone: everyone can post\n"
-"- partners: only authenticated partners\n"
-"- followers: only followers of the related document or members of following channels\n"
-msgstr ""
-"Πολιτική για τη αποστολή μηνύματος στο έγγραφο χρησιμοποιώντας το mailgateway.\n"
-"- όλοι: ο καθένας μπορεί να αποστείλει\n"
-"- συνεργάτες: μόνο οι επικυρωμένοι συνεργάτες \n"
-"- ακόλουθοι: μόνο οι ακόλουθοι του σχετικού εγγράφου ή μέλη των παρακάτω καναλιών\n"
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__probability
@@ -1864,17 +1585,6 @@ msgstr ""
 #: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_job
 #: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_job_config
 msgid "Ready to recruit more efficiently?"
-msgstr ""
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__alias_force_thread_id
-msgid "Record Thread ID"
-msgstr "Ταυτότητα εγγραφής νήματος"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__user_id
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__user_id
-msgid "Recruiter"
 msgstr ""
 
 #. module: hr_recruitment
@@ -1936,31 +1646,6 @@ msgid "Refuse"
 msgstr "Άρνηση"
 
 #. module: hr_recruitment
-#: code:addons/hr_recruitment/models/hr_recruitment.py:0
-#: model:ir.actions.act_window,name:hr_recruitment.applicant_get_refuse_reason_action
-#: model:ir.model.fields,field_description:hr_recruitment.field_applicant_get_refuse_reason__refuse_reason_id
-#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__refuse_reason_id
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_get_refuse_reason_view_form
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_refuse_reason_view_form
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_refuse_reason_view_tree
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
-#, python-format
-msgid "Refuse Reason"
-msgstr ""
-
-#. module: hr_recruitment
-#: model:ir.model,name:hr_recruitment.model_hr_applicant_refuse_reason
-msgid "Refuse Reason of Applicant"
-msgstr ""
-
-#. module: hr_recruitment
-#: model:ir.actions.act_window,name:hr_recruitment.hr_applicant_refuse_reason_action
-#: model:ir.ui.menu,name:hr_recruitment.menu_hr_applicant_refuse_reason
-msgid "Refuse Reasons"
-msgstr ""
-
-#. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_form
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search
 msgid "Refused"
 msgstr "Απορριφθέντα"
@@ -1977,6 +1662,8 @@ msgid "Requirements"
 msgstr "Απαιτήσεις"
 
 #. module: hr_recruitment
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__user_id
+#: model:ir.model.fields,field_description:hr_recruitment.field_hr_job__user_id
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
 msgid "Responsible"
@@ -2018,13 +1705,6 @@ msgid "Salary Proposed by the Organisation, extra advantages"
 msgstr ""
 
 #. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "Save it !"
-msgstr ""
-
-#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
 msgid "Schedule Interview"
 msgstr ""
@@ -2040,20 +1720,8 @@ msgid "Search Applicants"
 msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_source_view_search
-msgid "Search Source"
-msgstr ""
-
-#. module: hr_recruitment
 #: model:hr.recruitment.stage,name:hr_recruitment.stage_job3
 msgid "Second Interview"
-msgstr ""
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "Send your email. Followers will get a copy of the communication."
 msgstr ""
 
 #. module: hr_recruitment
@@ -2063,10 +1731,20 @@ msgid "Sequence"
 msgstr "Ακολουθία"
 
 #. module: hr_recruitment
+#: model_terms:digest.tip,tip_description:hr_recruitment.digest_tip_hr_recruitment_0
+msgid "Set Email Aliases"
+msgstr ""
+
+#. module: hr_recruitment
 #: model:ir.actions.act_window,name:hr_recruitment.action_hr_recruitment_configuration
 #: model:ir.ui.menu,name:hr_recruitment.menu_hr_recruitment_global_settings
 msgid "Settings"
 msgstr "Ρυθμίσεις"
+
+#. module: hr_recruitment
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
+msgid "Share Trackers"
+msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
@@ -2175,11 +1853,6 @@ msgid "Subject / Application Name"
 msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.applicant_get_refuse_reason_view_form
-msgid "Submit"
-msgstr "Υποβολή"
-
-#. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant_category__name
 msgid "Tag Name"
 msgstr "Όνομα Ετικέτας"
@@ -2199,31 +1872,9 @@ msgid "Tags"
 msgstr "Ετικέτες"
 
 #. module: hr_recruitment
-#: model:hr.applicant.refuse.reason,name:hr_recruitment.refuse_reason_3
-msgid "The applicant gets a better offer"
-msgstr ""
-
-#. module: hr_recruitment
-#: model:hr.applicant.refuse.reason,name:hr_recruitment.refuse_reason_2
-msgid "The applicant is not interested anymore"
-msgstr ""
-
-#. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__availability
 msgid "The date at which the applicant will be available to start working"
 msgstr ""
-
-#. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_model_id
-msgid ""
-"The model (Odoo Document Kind) to which this alias corresponds. Any incoming"
-" email that does not reply to an existing record will cause the creation of "
-"a new record of this model (e.g. a Project Task)"
-msgstr ""
-"Το μοντέλο (Odoo Document Kind) στο οποίο αντιστοιχεί αυτό το ψευδώνυμο. "
-"Κάθε εισερχόμενο email που δεν έχει απαντηθεί σε υπάρχουσα εγγραφή, θα "
-"προκαλέσει τη δημιουργία μίας νέας εγγραφής αυτού του μοντέλου (π.χ. Εργασία"
-" Έργου)"
 
 #. module: hr_recruitment
 #: model:ir.model.constraint,message:hr_recruitment.constraint_hr_recruitment_degree_name_uniq
@@ -2231,24 +1882,11 @@ msgid "The name of the Degree of Recruitment must be unique!"
 msgstr ""
 
 #. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_name
+#: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_job_sources
 msgid ""
-"The name of the email alias, e.g. 'jobs' if you want to catch emails for "
-"<jobs@example.odoo.com>"
+"These aliases can be emails or urls for every source. When the applicant "
+"arrives here through one of these you'll know where he came from."
 msgstr ""
-"Το όνομα του ψευδώνυμου email , π.χ. 'jobs', αν θέλετε να πάρετε emails για "
-"<jobs@example.odoo.com>"
-
-#. module: hr_recruitment
-#: model:ir.model.fields,help:hr_recruitment.field_hr_job__alias_user_id
-msgid ""
-"The owner of records created upon receiving emails on this alias. If this "
-"field is not set the system will attempt to find the right owner based on "
-"the sender (From) address, or will use the Administrator account if no "
-"system user is found for that address."
-msgstr ""
-"Ο ιδιοκτήτης των εγγραφών που δημιουργούνται κατά τη λήψη μηνυμάτων ηλεκτρονικού ταχυδρομείου σε αυτό το ψευδώνυμο. Αν αυτό το πεδίο δεν είναι ρυθμισμένο το σύστημα θα προσπαθήσει να βρει το σωστό ιδιοκτήτη με βάση τον αποστολέα (Από) τη διεύθυνση.\n"
-"Διαφορετικά, θα χρησιμοποιήσει το λογαριασμό διαχειριστή, αν ο χρήστης δεν έχει βρεθεί στο σύστημα για τη συγκεκριμένη διεύθυνση."
 
 #. module: hr_recruitment
 #: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__campaign_id
@@ -2277,12 +1915,6 @@ msgid ""
 msgstr ""
 
 #. module: hr_recruitment
-#: model:digest.tip,name:hr_recruitment.digest_tip_hr_recruitment_0
-#: model_terms:digest.tip,tip_description:hr_recruitment.digest_tip_hr_recruitment_0
-msgid "Tip: Let candidates apply by email"
-msgstr ""
-
-#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.view_hr_job_kanban
 msgid "To Recruit"
 msgstr ""
@@ -2298,8 +1930,12 @@ msgid "Tooltips"
 msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:digest.tip,tip_description:hr_recruitment.digest_tip_hr_recruitment_0
-msgid "Try sending an email"
+#. openerp-web
+#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
+#, python-format
+msgid ""
+"Try to send an email to this address, it will create an application "
+"automatically."
 msgstr ""
 
 #. module: hr_recruitment
@@ -2316,6 +1952,7 @@ msgstr "Μη Ανατεθειμένη"
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__message_unread
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_applicant_view_search_bis
+#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_kanban_view_applicant
 msgid "Unread Messages"
 msgstr "Μη αναγνωσμένα μηνύματα"
 
@@ -2323,11 +1960,6 @@ msgstr "Μη αναγνωσμένα μηνύματα"
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__message_unread_counter
 msgid "Unread Messages Counter"
 msgstr "Μετρητής μη αναγνωσμένων μηνυμάτων"
-
-#. module: hr_recruitment
-#: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_job_sources
-msgid "Use emails and links trackers"
-msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.res_config_settings_view_form
@@ -2339,8 +1971,20 @@ msgstr "Χρησιμοποιήστε έντυπα συνέντευξης κατ�
 msgid ""
 "Use interview forms tailored to each job position during the recruitment "
 "process. Select the form to use in the job position detail form. This relies"
-" on the Survey app."
+" on Survey app."
 msgstr ""
+"Χρησιμοποιήστε έντυπα συνεντεύξεων προσαρμοσμένα σε κάθε θέση εργασίας κατά "
+"τη διάρκεια της διαδικασίας πρόσληψης. Επιλέξτε το έντυπο που θέλετε να "
+"χρησιμοποιήσετε στη φόρμα λεπτομερειών θέσης εργασίας. Αυτό βασίζεται στην "
+"εφαρμογή Έρευνα."
+
+#. module: hr_recruitment
+#. openerp-web
+#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
+#, python-format
+msgid "Use the breadcrumbs to <b>go back to the dashboard</b>."
+msgstr ""
+"Χρησιμοποιήστε τα ίχνοι πλοήγησης για να <b>επιστρέψετε στο ταμπλό</b>."
 
 #. module: hr_recruitment
 #: model:ir.model.fields,field_description:hr_recruitment.field_hr_applicant__user_email
@@ -2353,8 +1997,11 @@ msgid "Very Good"
 msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:ir.actions.act_window,help:hr_recruitment.action_hr_job_sources
-msgid "Want to analyse where applications come from ?"
+#. openerp-web
+#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
+#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
+#, python-format
+msgid "Want to <b>start recruiting</b> like a pro? <i>Start here.</i>"
 msgstr ""
 
 #. module: hr_recruitment
@@ -2366,13 +2013,6 @@ msgstr "Μηνύματα Ιστότοπου"
 #: model:ir.model.fields,help:hr_recruitment.field_hr_applicant__website_message_ids
 msgid "Website communication history"
 msgstr "Ιστορικό επικοινωνίας ιστότοπου"
-
-#. module: hr_recruitment
-#. openerp-web
-#: code:addons/hr_recruitment/static/src/js/tours/hr_recruitment.js:0
-#, python-format
-msgid "What do you want to recruit today? Choose a job title..."
-msgstr ""
 
 #. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_stage_form
@@ -2395,21 +2035,17 @@ msgid "Your Job Application: ${object.job_id.name | safe}"
 msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_recruitment_source_tree
-msgid "e.g. LinkedIn"
-msgstr ""
-
-#. module: hr_recruitment
 #: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_simple_form
 msgid "e.g. Sales Manager"
 msgstr ""
 
 #. module: hr_recruitment
-#: model_terms:ir.ui.view,arch_db:hr_recruitment.hr_job_simple_form
-msgid "e.g. sales-manager"
+#: model:ir.actions.server,name:hr_recruitment.hr_applicant_resumes_server
+msgid "hr.applicant.resumes.server"
 msgstr ""
 
 #. module: hr_recruitment
-#: model:ir.actions.server,name:hr_recruitment.hr_applicant_resumes_server
-msgid "hr.applicant.resumes.server"
+#: code:addons/hr_recruitment/models/hr_recruitment.py:0
+#, python-format
+msgid "job applicant"
 msgstr ""

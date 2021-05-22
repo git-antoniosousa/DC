@@ -67,7 +67,7 @@ QUnit.module('Views', {
         assert.expect(22);
 
         var calledRoutes = {};
-        var model = await createModel({
+        var model = createModel({
             Model: KanbanModel,
             data: this.data,
             mockRPC: function (route) {
@@ -132,7 +132,7 @@ QUnit.module('Views', {
         var done = assert.async();
         assert.expect(4);
 
-        var model = await createModel({
+        var model = createModel({
             Model: KanbanModel,
             data: this.data,
             mockRPC: function (route, args) {
@@ -157,7 +157,7 @@ QUnit.module('Views', {
             assert.strictEqual(xpadGroup.count, 1, 'xpad group has one record');
 
             // archive the column 'xphone'
-            var recordIDs = xphoneGroup.data.map(record => record.res_id);
+            var recordIDs = _.pluck(xphoneGroup.data, 'id');
             await model.actionArchive(recordIDs, xphoneGroup.id);
             state = model.get(resultID);
             xphoneGroup = _.findWhere(state.data, {res_id: 37});
@@ -173,7 +173,7 @@ QUnit.module('Views', {
         var done = assert.async();
         assert.expect(2);
 
-        var model = await createModel({
+        var model = createModel({
             Model: KanbanModel,
             data: this.data,
             mockRPC: function (route, args) {
@@ -210,7 +210,7 @@ QUnit.module('Views', {
         this.data.partner.records.push({id: 3, foo: 'aaa', product_id: 37});
 
         var nbReseq = 0;
-        var model = await createModel({
+        var model = createModel({
             Model: KanbanModel,
             data: this.data,
             mockRPC: function (route, args) {
@@ -270,7 +270,7 @@ QUnit.module('Views', {
         assert.expect(8);
 
         var self = this;
-        var model = await createModel({
+        var model = createModel({
             Model: KanbanModel,
             data: this.data,
         });

@@ -7,9 +7,7 @@ from odoo import api, fields, models
 class EventTypeMail(models.Model):
     _inherit = 'event.type.mail'
 
-    notification_type = fields.Selection(selection_add=[
-        ('sms', 'SMS')
-    ], ondelete={'sms': 'set default'})
+    notification_type = fields.Selection(selection_add=[('sms', 'SMS')])
     sms_template_id = fields.Many2one(
         'sms.template', string='SMS Template',
         domain=[('model', '=', 'event.registration')], ondelete='restrict',
@@ -23,9 +21,7 @@ class EventTypeMail(models.Model):
 class EventMailScheduler(models.Model):
     _inherit = 'event.mail'
 
-    notification_type = fields.Selection(selection_add=[
-        ('sms', 'SMS')
-    ], ondelete={'sms': 'set default'})
+    notification_type = fields.Selection(selection_add=[('sms', 'SMS')])
     sms_template_id = fields.Many2one(
         'sms.template', string='SMS Template',
         domain=[('model', '=', 'event.registration')], ondelete='restrict',
@@ -36,9 +32,7 @@ class EventMailScheduler(models.Model):
             now = fields.Datetime.now()
             if mail.interval_type != 'after_sub':
                 # Do not send SMS if the communication was scheduled before the event but the event is over
-                if not mail.mail_sent and mail.scheduled_date <= now and mail.notification_type == 'sms' and \
-                        (mail.interval_type != 'before_event' or mail.event_id.date_end > now) and \
-                        mail.sms_template_id:
+                if not mail.mail_sent and (mail.interval_type != 'before_event' or mail.event_id.date_end > now) and mail.notification_type == 'sms' and mail.sms_template_id:
                     self.env['event.registration']._message_sms_schedule_mass(
                         template=mail.sms_template_id,
                         active_domain=[('event_id', '=', mail.event_id.id), ('state', '!=', 'cancel')],
@@ -52,18 +46,8 @@ class EventMailRegistration(models.Model):
     _inherit = 'event.mail.registration'
 
     def execute(self):
-        now = fields.Datetime.now()
-        todo = self.filtered(lambda reg_mail:
-            not reg_mail.mail_sent and \
-            reg_mail.registration_id.state in ['open', 'done'] and \
-            (reg_mail.scheduled_date and reg_mail.scheduled_date <= now) and \
-            reg_mail.scheduler_id.notification_type == 'sms'
-        )
-        for reg_mail in todo:
-            reg_mail.registration_id._message_sms_schedule_mass(
-                template=reg_mail.scheduler_id.sms_template_id,
-                mass_keep_log=True
-            )
-        todo.write({'mail_sent': True})
-
+        for record in self:
+            if record.registration_id.state in ['open', 'done'] and not record.mail_sent and record.scheduler_id.notification_type == 'sms':
+                record.registration_id._message_sms_schedule_mass(template=record.scheduler_id.sms_template_id, mass_keep_log=True)
+                record.write({'mail_sent': True})
         return super(EventMailRegistration, self).execute()

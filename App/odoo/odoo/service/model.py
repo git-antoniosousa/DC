@@ -9,7 +9,7 @@ import threading
 import time
 
 import odoo
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError, ValidationError, QWebException
 from odoo.models import check_method_name
 from odoo.tools.translate import translate, translate_sql_constraint
 from odoo.tools.translate import _
@@ -92,7 +92,13 @@ def check(f):
                 if odoo.registry(dbname)._init and not odoo.tools.config['test_enable']:
                     raise odoo.exceptions.Warning('Currently, this database is not fully loaded and can not be used.')
                 return f(dbname, *args, **kwargs)
-            except OperationalError as e:
+            except (OperationalError, QWebException) as e:
+                if isinstance(e, QWebException):
+                    cause = e.qweb.get('cause')
+                    if isinstance(cause, OperationalError):
+                        e = cause
+                    else:
+                        raise
                 # Automatically retry the typical transaction serialization errors
                 if e.pgcode not in PG_CONCURRENCY_ERRORS_TO_RETRY:
                     raise
@@ -155,7 +161,7 @@ def execute_cr(cr, uid, obj, method, *args, **kw):
     odoo.api.Environment.reset()  # clean cache etc if we retry the same transaction
     recs = odoo.api.Environment(cr, uid, {}).get(obj)
     if recs is None:
-        raise UserError(_("Object %s doesn't exist", obj))
+        raise UserError(_("Object %s doesn't exist") % obj)
     result = odoo.api.call_kw(recs, method, args, kw)
     # force evaluation of lazy values before the cursor is closed, as it would
     # error afterwards if the lazy isn't already evaluated (and cached)

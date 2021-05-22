@@ -4,8 +4,7 @@
 
 {
     'name': 'Contacts',
-    'category': 'Sales/CRM',
-    'sequence': 150,
+    'category': 'Tools',
     'summary': 'Centralize your address book',
     'description': """
 This module gives you a quick view of your contacts directory, accessible from your home page.

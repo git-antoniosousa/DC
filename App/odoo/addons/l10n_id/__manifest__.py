@@ -4,7 +4,7 @@
 {
     'name': 'Indonesian - Accounting',
     'version': '1.0',
-    'category': 'Accounting/Localizations/Account Charts',
+    'category': 'Localization',
     'description': """
 This is the latest Indonesian Odoo localisation necessary to run Odoo accounting for SMEs with:
 =================================================================================================
@@ -12,16 +12,13 @@ This is the latest Indonesian Odoo localisation necessary to run Odoo accounting
     - tax structure""",
     'author': 'vitraining.com',
     'website': 'http://www.vitraining.com',
-    'depends': ['account', 'base_iban', 'base_vat', 'l10n_multilang'],
+    'depends': ['account', 'base_iban', 'base_vat'],
     'data': [
         'data/account_chart_template_data.xml',
         'data/account.account.template.csv',
         'data/account_chart_template_post_data.xml',
         'data/account_tax_template_data.xml',
         'data/account_chart_template_configuration_data.xml',
+        'views/account_reconcile_model_views.xml',
     ],
-    'demo': [
-        'demo/demo_company.xml',
-    ],
-    'post_init_hook': 'load_translations',
 }

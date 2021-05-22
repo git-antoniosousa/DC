@@ -4,7 +4,6 @@ from werkzeug import urls
 
 from odoo import api, fields, models
 from odoo.http import request
-from odoo.tools.json import scriptsafe as json_scriptsafe
 
 
 class ServerAction(models.Model):
@@ -49,29 +48,13 @@ class ServerAction(models.Model):
         eval_context = super(ServerAction, self)._get_eval_context(action)
         if action.state == 'code':
             eval_context['request'] = request
-            eval_context['json'] = json_scriptsafe
         return eval_context
 
     @api.model
-    def _run_action_code_multi(self, eval_context=None):
+    def run_action_code_multi(self, action, eval_context=None):
         """ Override to allow returning response the same way action is already
             returned by the basic server action behavior. Note that response has
             priority over action, avoid using both.
         """
-        res = super(ServerAction, self)._run_action_code_multi(eval_context)
+        res = super(ServerAction, self).run_action_code_multi(action, eval_context)
         return eval_context.get('response', res)
-
-
-class IrActionsTodo(models.Model):
-    _name = 'ir.actions.todo'
-    _inherit = 'ir.actions.todo'
-
-    def action_launch(self):
-        res = super().action_launch()  # do ensure_one()
-
-        if self.id == self.env.ref('website.theme_install_todo').id:
-            # Pick a theme consume all ir.actions.todo by default (due to lower sequence).
-            # Once done, we re-enable the main ir.act.todo: open_menu
-            self.env.ref('base.open_menu').action_open()
-
-        return res

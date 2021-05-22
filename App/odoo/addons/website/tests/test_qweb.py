@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from lxml import etree
 import re
 
 from odoo import http, tools
-from odoo.addons.base.tests.common import TransactionCaseWithUserDemo
 from odoo.addons.website.tools import MockRequest
 from odoo.modules.module import get_module_resource
 from odoo.tests.common import TransactionCase
 
 
-class TestQweb(TransactionCaseWithUserDemo):
+class TestQweb(TransactionCase):
     def _load(self, module, *args):
         tools.convert_file(self.cr, 'website',
                            get_module_resource(module, *args),
-                           {}, 'init', False, 'test')
+                           {}, 'init', False, 'test', self.registry._assertion_report)
 
     def test_qweb_cdn(self):
         self._load('website', 'tests', 'template_qweb_test.xml')
 
-        website = self.env.ref('website.default_website')
+        website = self.env['website'].browse(1)
         website.write({
             "cdn_activated": True,
             "cdn_url": "http://test.cdn"
@@ -33,57 +31,48 @@ class TestQweb(TransactionCaseWithUserDemo):
 
         demo_env = self.env(user=demo)
 
-        html = demo_env['ir.qweb']._render('website.test_template', {"user": demo}, website_id= website.id)
-        asset_data = etree.HTML(html).xpath('//*[@data-asset-xmlid]')[0]
-        asset_xmlid = asset_data.attrib.get('data-asset-xmlid')
-        asset_version = asset_data.attrib.get('data-asset-version')
-
+        html = demo_env['ir.qweb'].render('website.test_template', {"user": demo}, website_id= website.id)
         html = html.strip().decode('utf8')
         html = re.sub(r'\?unique=[^"]+', '', html).encode('utf8')
 
         attachments = demo_env['ir.attachment'].search([('url', '=like', '/web/content/%-%/website.test_bundle.%')])
         self.assertEqual(len(attachments), 2)
-
-        format_data = {
-            "js": attachments[0].url,
-            "css": attachments[1].url,
-            "user_id": demo.id,
-            "filename": "Marc%20Demo",
-            "alt": "Marc Demo",
-            "asset_xmlid": asset_xmlid,
-            "asset_version": asset_version,
-        }
-
         self.assertEqual(html, ("""<!DOCTYPE html>
 <html>
     <head>
         <link rel="stylesheet" href="http://test.external.link/style1.css"/>
         <link rel="stylesheet" href="http://test.external.link/style2.css"/>
-        <link type="text/css" rel="stylesheet" href="http://test.cdn%(css)s" data-asset-xmlid="%(asset_xmlid)s" data-asset-version="%(asset_version)s"/>
+        <link type="text/css" rel="stylesheet" href="http://test.cdn%(css)s"/>
         <meta/>
         <script type="text/javascript" src="http://test.external.link/javascript1.js"></script>
         <script type="text/javascript" src="http://test.external.link/javascript2.js"></script>
-        <script type="text/javascript" src="http://test.cdn%(js)s" data-asset-xmlid="%(asset_xmlid)s" data-asset-version="%(asset_version)s"></script>
+        <script type="text/javascript" src="http://test.cdn%(js)s"></script>
     </head>
     <body>
-        <img src="http://test.external.link/img.png" loading="lazy"/>
-        <img src="http://test.cdn/website/static/img.png" loading="lazy"/>
+        <img src="http://test.external.link/img.png"/>
+        <img src="http://test.cdn/website/static/img.png"/>
         <a href="http://test.external.link/link">x</a>
         <a href="http://test.cdn/web/content/local_link">x</a>
         <span style="background-image: url('http://test.cdn/web/image/2')">xxx</span>
         <div widget="html"><span class="toto">
-                span<span class="fa"></span><img src="http://test.cdn/web/image/1" loading="lazy">
+                span<span class="fa"></span><img src="http://test.cdn/web/image/1">
             </span></div>
-        <div widget="image"><img src="http://test.cdn/web/image/res.users/%(user_id)s/image_1920/%(filename)s" class="img img-fluid" alt="%(alt)s" loading="lazy"/></div>
+        <div widget="image"><img src="http://test.cdn/web/image/res.users/%(user_id)s/image_1920/%(filename)s" class="img img-fluid" alt="%(alt)s"/></div>
     </body>
-</html>""" % format_data).encode('utf8'))
+</html>""" % {
+            "js": attachments[0].url,
+            "css": attachments[1].url,
+            "user_id": demo.id,
+            "filename": "Marc%20Demo",
+            "alt": "Marc Demo",
+        }).encode('utf8'))
 
 
 class TestQwebProcessAtt(TransactionCase):
     def setUp(self):
         super(TestQwebProcessAtt, self).setUp()
-        self.website = self.env.ref('website.default_website')
-        self.env['res.lang']._activate_lang('fr_FR')
+        self.website = self.env['website'].browse(1)
+        self.env.ref('base.lang_fr').active = True
         self.website.language_ids = self.env.ref('base.lang_en') + self.env.ref('base.lang_fr')
         self.website.default_lang_id = self.env.ref('base.lang_en')
         self.website.cdn_activated = True

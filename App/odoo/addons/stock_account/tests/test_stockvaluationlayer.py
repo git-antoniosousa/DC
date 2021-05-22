@@ -108,7 +108,7 @@ class TestStockValuationCommon(SavepointCase):
             'picking_type_id': self.picking_type_out.id,
         })
         if unit_cost:
-            dropshipped.price_unit = unit_cost
+            dropshipped.unit_cost = unit_cost
         dropshipped._action_confirm()
         dropshipped._action_assign()
         dropshipped.move_line_ids.qty_done = quantity
@@ -123,7 +123,7 @@ class TestStockValuationCommon(SavepointCase):
         stock_return_picking_action = stock_return_picking.create_returns()
         return_pick = self.env['stock.picking'].browse(stock_return_picking_action['res_id'])
         return_pick.move_lines[0].move_line_ids[0].qty_done = quantity_to_return
-        return_pick._action_done()
+        return_pick.action_done()
         return return_pick.move_lines
 
 
@@ -211,7 +211,7 @@ class TestStockValuationStandard(TestStockValuationCommon):
         move3 = self._make_out_move(self.product1, 15)
 
         # change cost from 10 to 15
-        self.product1.standard_price = 15.0
+        self.product1._change_standard_price(15.0)
 
         self.assertEqual(self.product1.value_svl, 75)
         self.assertEqual(self.product1.quantity_svl, 5)
@@ -276,7 +276,7 @@ class TestStockValuationStandard(TestStockValuationCommon):
             'location_dest_id': self.stock_location.id,
         })
         for product in (product1, product2):
-            product.standard_price = 10
+            product.unit_cost = 10
             in_move = self.env['stock.move'].create({
                 'name': 'in %s units @ %s per unit' % (2, str(10)),
                 'product_id': product.id,
@@ -293,7 +293,7 @@ class TestStockValuationStandard(TestStockValuationCommon):
         # set quantity done only on one move
         in_move.move_line_ids.qty_done = 2
         res_dict = picking.button_validate()
-        wizard = self.env[(res_dict.get('res_model'))].with_context(res_dict.get('context')).browse(res_dict.get('res_id'))
+        wizard = self.env[(res_dict.get('res_model'))].browse(res_dict.get('res_id'))
         res_dict_for_back_order = wizard.process()
 
         self.assertTrue(product2.stock_valuation_layer_ids)
@@ -666,13 +666,14 @@ class TestStockValuationFIFO(TestStockValuationCommon):
         self.assertEqual(self.product1.quantity_svl, 1)
 
     def test_dropship_1(self):
+        orig_standard_price = self.product1.standard_price
         move1 = self._make_in_move(self.product1, 1, unit_cost=10)
         move2 = self._make_in_move(self.product1, 1, unit_cost=20)
         move3 = self._make_dropship_move(self.product1, 1, unit_cost=10)
 
         self.assertEqual(self.product1.value_svl, 30)
         self.assertEqual(self.product1.quantity_svl, 2)
-        self.assertAlmostEqual(self.product1.standard_price, 10)
+        self.assertEqual(orig_standard_price, self.product1.standard_price)
 
 
 class TestStockValuationChangeCostMethod(TestStockValuationCommon):

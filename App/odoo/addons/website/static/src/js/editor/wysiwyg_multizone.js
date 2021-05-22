@@ -77,22 +77,18 @@ var WysiwygMultizone = Wysiwyg.extend({
                 });
         });
 
-        // Ensure :blank oe_structure elements are in fact empty as ':blank'
-        // does not really work with all browsers.
-        for (const el of this.$('.oe_structure')) {
-            if (!el.innerHTML.trim()) {
+        // TODO remove me in master, this should just be solved in master XML
+        // if required. Keep this in stable for now though.
+        _.each(this.$('.oe_structure[data-editor-message]'), el => {
+            if (!el.dataset.editorMessage || el.dataset.editorMessage === "False") {
+                return;
+            }
+            var isBlank = !el.innerHTML.trim();
+            if (isBlank) {
                 el.innerHTML = '';
             }
-        }
-
-        // TODO remove this code in master by migrating users who did not
-        // receive the XML change about the 'oe_structure_solo' class (the
-        // header original XML is now correct but we changed specs after
-        // release to not allow multi snippets drop zones in the header).
-        const $headerZones = this._getEditableArea().filter((i, el) => el.closest('header#top') !== null);
-        // oe_structure_multi to ease custo in stable
-        const selector = '.oe_structure[id*="oe_structure"]:not(.oe_structure_multi)';
-        $headerZones.find(selector).addBack(selector).addClass('oe_structure_solo');
+            el.classList.toggle('oe_empty', isBlank);
+        });
 
         return this._super.apply(this, arguments).then(() => {
             // Showing Mega Menu snippets if one dropdown is already opened
@@ -156,10 +152,10 @@ var WysiwygMultizone = Wysiwyg.extend({
         var cssBgImage = $(el.querySelector('.o_record_cover_image')).css('background-image');
         var coverProps = {
             'background-image': cssBgImage.replace(/"/g, '').replace(window.location.protocol + "//" + window.location.host, ''),
-            'background_color_class': el.dataset.bgColorClass,
-            'background_color_style': el.dataset.bgColorStyle,
+            'background-color': el.dataset.filterColor,
             'opacity': el.dataset.filterValue,
             'resize_class': el.dataset.coverClass,
+            'text_size_class': el.dataset.textSizeClass,
             'text_align_class': el.dataset.textAlignClass,
         };
 
@@ -253,23 +249,13 @@ snippetsEditor.Class.include({
      */
     toggleMegaMenuSnippets: function (show) {
         setTimeout(() => this._activateSnippet(false));
-        this._showMegaMenuSnippets = show;
-        this._filterSnippets();
+        this.$('#snippet_mega_menu').toggleClass('d-none', !show);
     },
 
     //--------------------------------------------------------------------------
     // Private
     //--------------------------------------------------------------------------
 
-    /**
-     * @override
-     */
-    _filterSnippets(search) {
-        this._super(...arguments);
-        if (!this._showMegaMenuSnippets) {
-            this.el.querySelector('#snippet_mega_menu').classList.add('d-none');
-        }
-    },
     /**
      * @override
      */

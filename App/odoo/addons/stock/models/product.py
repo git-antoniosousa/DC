@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-import operator as py_operator
-from ast import literal_eval
-from collections import defaultdict
-
-from odoo import _, api, fields, models, SUPERUSER_ID
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.osv import expression
 from odoo.tools import pycompat,float_is_zero
 from odoo.tools.float_utils import float_round
+from datetime import datetime
+import operator as py_operator
 
 OPERATORS = {
     '<': py_operator.lt,
@@ -97,7 +95,7 @@ class Product(models.Model):
     @api.depends('stock_move_ids.product_qty', 'stock_move_ids.state')
     @api.depends_context(
         'lot_id', 'owner_id', 'package_id', 'from_date', 'to_date',
-        'location', 'warehouse',
+        'company_owned', 'force_company', 'location', 'warehouse',
     )
     def _compute_quantities(self):
         products = self.filtered(lambda p: p.type != 'service')
@@ -143,16 +141,32 @@ class Product(models.Model):
             domain_move_in_done = list(domain_move_in)
             domain_move_out_done = list(domain_move_out)
         if from_date:
-            date_date_expected_domain_from = [('date', '>=', from_date)]
+            date_date_expected_domain_from = [
+                '|',
+                    '&',
+                        ('state', '=', 'done'),
+                        ('date', '>=', from_date),
+                    '&',
+                        ('state', '!=', 'done'),
+                        ('date_expected', '>=', from_date),
+            ]
             domain_move_in += date_date_expected_domain_from
             domain_move_out += date_date_expected_domain_from
         if to_date:
-            date_date_expected_domain_to = [('date', '<=', to_date)]
+            date_date_expected_domain_to = [
+                '|',
+                    '&',
+                        ('state', '=', 'done'),
+                        ('date', '<=', to_date),
+                    '&',
+                        ('state', '!=', 'done'),
+                        ('date_expected', '<=', to_date),
+            ]
             domain_move_in += date_date_expected_domain_to
             domain_move_out += date_date_expected_domain_to
 
-        Move = self.env['stock.move'].with_context(active_test=False)
-        Quant = self.env['stock.quant'].with_context(active_test=False)
+        Move = self.env['stock.move']
+        Quant = self.env['stock.quant']
         domain_move_in_todo = [('state', 'in', ('waiting', 'confirmed', 'assigned', 'partially_available'))] + domain_move_in
         domain_move_out_todo = [('state', 'in', ('waiting', 'confirmed', 'assigned', 'partially_available'))] + domain_move_out
         moves_in_res = dict((item['product_id'][0], item['product_qty']) for item in Move.read_group(domain_move_in_todo, ['product_id', 'product_qty'], ['product_id'], orderby='id'))
@@ -213,11 +227,32 @@ class Product(models.Model):
         '''
         Parses the context and returns a list of location_ids based on it.
         It will return all stock locations when no parameters are given
-        Possible parameters are shop, warehouse, location, compute_child
+        Possible parameters are shop, warehouse, location, force_company, compute_child
         '''
         Warehouse = self.env['stock.warehouse']
 
-        def _search_ids(model, values):
+        if self.env.context.get('company_owned', False):
+            company_id = self.env.company.id
+            return (
+                [('location_id.company_id', '=', company_id), ('location_id.usage', 'in', ['internal', 'transit'])],
+                ['&',
+                     ('location_dest_id.company_id', '=', company_id),
+                     '|',
+                         ('location_id.company_id', '=', False),
+                         '&',
+                             ('location_id.usage', 'in', ['inventory', 'production']),
+                             ('location_id.company_id', '=', company_id),
+                 ],
+                ['&',
+                     ('location_id.company_id', '=', company_id),
+                     '|',
+                         ('location_dest_id.company_id', '=', False),
+                         '&',
+                             ('location_dest_id.usage', 'in', ['inventory', 'production']),
+                             ('location_dest_id.company_id', '=', company_id),
+                 ]
+            )
+        def _search_ids(model, values, force_company_id):
             ids = set()
             domain = []
             for item in values:
@@ -226,6 +261,8 @@ class Product(models.Model):
                 else:
                     domain = expression.OR([[('name', 'ilike', item)], domain])
             if domain:
+                if force_company_id:
+                    domain = expression.AND([[('company_id', '=', force_company_id)], domain])
                 ids |= set(self.env[model].search(domain).ids)
             return ids
 
@@ -238,21 +275,22 @@ class Product(models.Model):
         warehouse = self.env.context.get('warehouse')
         if warehouse and not isinstance(warehouse, list):
             warehouse = [warehouse]
+        force_company = self.env.context.get('force_company', False)
         # filter by location and/or warehouse
         if warehouse:
-            w_ids = set(Warehouse.browse(_search_ids('stock.warehouse', warehouse)).mapped('view_location_id').ids)
+            w_ids = set(Warehouse.browse(_search_ids('stock.warehouse', warehouse, force_company)).mapped('view_location_id').ids)
             if location:
-                l_ids = _search_ids('stock.location', location)
+                l_ids = _search_ids('stock.location', location, force_company)
                 location_ids = w_ids & l_ids
             else:
                 location_ids = w_ids
         else:
             if location:
-                location_ids = _search_ids('stock.location', location)
+                location_ids = _search_ids('stock.location', location, force_company)
             else:
                 location_ids = set(Warehouse.search([]).mapped('view_location_id').ids)
 
-        return self._get_domain_locations_new(location_ids, compute_child=self.env.context.get('compute_child', True))
+        return self._get_domain_locations_new(location_ids, company_id=self.env.context.get('force_company', False), compute_child=self.env.context.get('compute_child', True))
 
     def _get_domain_locations_new(self, location_ids, company_id=False, compute_child=True):
         operator = compute_child and 'child_of' or 'in'
@@ -287,7 +325,7 @@ class Product(models.Model):
         # to use the quants, not the stock moves. Therefore, we bypass the usual
         # '_search_product_quantity' method and call '_search_qty_available_new' instead. This
         # allows better performances.
-        if not ({'from_date', 'to_date'} & set(self.env.context.keys())):
+        if value == 0.0 and operator == '>' and not ({'from_date', 'to_date'} & set(self.env.context.keys())):
             product_ids = self._search_qty_available_new(
                 operator, value, self.env.context.get('lot_id'), self.env.context.get('owner_id'),
                 self.env.context.get('package_id')
@@ -314,11 +352,11 @@ class Product(models.Model):
         # TDE FIXME: should probably clean the search methods
         # to prevent sql injections
         if field not in ('qty_available', 'virtual_available', 'incoming_qty', 'outgoing_qty', 'free_qty'):
-            raise UserError(_('Invalid domain left operand %s', field))
+            raise UserError(_('Invalid domain left operand %s') % field)
         if operator not in ('<', '>', '=', '!=', '<=', '>='):
-            raise UserError(_('Invalid domain operator %s', operator))
+            raise UserError(_('Invalid domain operator %s') % operator)
         if not isinstance(value, (float, int)):
-            raise UserError(_('Invalid domain right operand %s', value))
+            raise UserError(_('Invalid domain right operand %s') % value)
 
         # TODO: Still optimization possible when searching virtual quantities
         ids = []
@@ -340,28 +378,9 @@ class Product(models.Model):
         if package_id:
             domain_quant.append(('package_id', '=', package_id))
         quants_groupby = self.env['stock.quant'].read_group(domain_quant, ['product_id', 'quantity'], ['product_id'], orderby='id')
-
-        # check if we need include zero values in result
-        include_zero = (
-            value < 0.0 and operator in ('>', '>=') or
-            value > 0.0 and operator in ('<', '<=') or
-            value == 0.0 and operator in ('>=', '<=', '=')
-        )
-
-        processed_product_ids = set()
         for quant in quants_groupby:
-            product_id = quant['product_id'][0]
-            if include_zero:
-                processed_product_ids.add(product_id)
             if OPERATORS[operator](quant['quantity'], value):
-                product_ids.add(product_id)
-
-        if include_zero:
-            products_without_quants_in_domain = self.env['product.product'].search([
-                ('type', '=', 'product'),
-                ('id', 'not in', list(processed_product_ids))]
-            )
-            product_ids |= set(products_without_quants_in_domain.ids)
+                product_ids.add(quant['product_id'][0])
         return list(product_ids)
 
     def _compute_nbr_reordering_rules(self):
@@ -395,10 +414,7 @@ class Product(models.Model):
     def view_header_get(self, view_id, view_type):
         res = super(Product, self).view_header_get(view_id, view_type)
         if not res and self._context.get('active_id') and self._context.get('active_model') == 'stock.location':
-            return _(
-                'Products: %(location)s',
-                location=self.env['stock.location'].browse(self._context['active_id']).name,
-            )
+            res = '%s%s' % (_('Products: '), self.env['stock.location'].browse(self._context['active_id']).name)
         return res
 
     @api.model
@@ -433,28 +449,12 @@ class Product(models.Model):
                         res['fields']['qty_available']['string'] = _('Produced Qty')
         return res
 
-    def action_view_orderpoints(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("stock.action_orderpoint")
-        action['context'] = literal_eval(action.get('context'))
-        action['context'].pop('search_default_trigger', False)
-        action['context'].update({
-            'search_default_filter_not_snoozed': True,
-        })
-        if self and len(self) == 1:
-            action['context'].update({
-                'default_product_id': self.ids[0],
-                'search_default_product_id': self.ids[0]
-            })
-        else:
-            action['domain'] = expression.AND([action.get('domain', []), [('product_id', 'in', self.ids)]])
-        return action
-
     def action_view_routes(self):
         return self.mapped('product_tmpl_id').action_view_routes()
 
     def action_view_stock_move_lines(self):
         self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id("stock.stock_move_line_action")
+        action = self.env.ref('stock.stock_move_line_action').read()[0]
         action['domain'] = [('product_id', '=', self.id)]
         return action
 
@@ -469,7 +469,7 @@ class Product(models.Model):
 
     def action_open_product_lot(self):
         self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id("stock.action_production_lot_form")
+        action = self.env.ref('stock.action_production_lot_form').read()[0]
         action['domain'] = [('product_id', '=', self.id)]
         action['context'] = {
             'default_product_id': self.id,
@@ -482,11 +482,8 @@ class Product(models.Model):
     def action_open_quants(self):
         domain = [('product_id', 'in', self.ids)]
         hide_location = not self.user_has_groups('stock.group_stock_multi_locations')
-        hide_lot = all(product.tracking == 'none' for product in self)
-        self = self.with_context(
-            hide_location=hide_location, hide_lot=hide_lot,
-            no_at_date=True, search_default_on_hand=True,
-        )
+        hide_lot = all([product.tracking == 'none' for product in self])
+        self = self.with_context(hide_location=hide_location, hide_lot=hide_lot)
 
         # If user have rights to write on quant, we define the view as editable.
         if self.user_has_groups('stock.group_stock_manager'):
@@ -507,16 +504,19 @@ class Product(models.Model):
             )
         else:
             self = self.with_context(product_tmpl_ids=self.product_tmpl_id.ids)
-        action = self.env['stock.quant']._get_quants_action(domain)
-        action["name"] = _('Update Quantity')
-        return action
+        ctx = dict(self.env.context)
+        ctx.update({'no_at_date': True, 'search_default_on_hand': True})
+        return self.env['stock.quant'].with_context(ctx)._get_quants_action(domain)
 
     def action_update_quantity_on_hand(self):
         return self.product_tmpl_id.with_context(default_product_id=self.id, create=True).action_update_quantity_on_hand()
 
     def action_product_forecast_report(self):
-        self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id("stock.stock_replenishment_product_product_action")
+        action = self.env.ref('stock.report_stock_quantity_action_product').read()[0]
+        action['domain'] = [
+            ('product_id', '=', self.id),
+            ('warehouse_id', '!=', False),
+        ]
         return action
 
     @api.model
@@ -539,29 +539,16 @@ class Product(models.Model):
         return theoretical_quantity
 
     def write(self, values):
-        if 'active' in values:
-            self.filtered(lambda p: p.active != values['active']).with_context(active_test=False).orderpoint_ids.write({
-                'active': values['active']
-            })
-        return super().write(values)
-
-    def _get_quantity_in_progress(self, location_ids=False, warehouse_ids=False):
-        return defaultdict(float), defaultdict(float)
-
-    def _get_rules_from_location(self, location, route_ids=False, seen_rules=False):
-        if not seen_rules:
-            seen_rules = self.env['stock.rule']
-        rule = self.env['procurement.group']._get_rule(self, location, {
-            'route_ids': route_ids,
-            'warehouse_id': location.get_warehouse()
-        })
-        if not rule:
-            return seen_rules
-        if rule.procure_method == 'make_to_stock' or rule.action not in ('pull_push', 'pull'):
-            return seen_rules | rule
-        else:
-            return self._get_rules_from_location(rule.location_src_id, seen_rules=seen_rules | rule)
-
+        res = super(Product, self).write(values)
+        if 'active' in values and not values['active']:
+            products = self.mapped('orderpoint_ids').filtered(lambda r: r.active).mapped('product_id')
+            if products:
+                msg = _('You still have some active reordering rules on this product. Please archive or delete them first.')
+                msg += '\n\n'
+                for product in products:
+                    msg += '- %s \n' % product.display_name
+                raise UserError(msg)
+        return res
 
     def _filter_to_unlink(self):
         domain = [('product_id', 'in', self.ids)]
@@ -577,9 +564,7 @@ class ProductTemplate(models.Model):
     responsible_id = fields.Many2one(
         'res.users', string='Responsible', default=lambda self: self.env.uid, company_dependent=True, check_company=True,
         help="This user will be responsible of the next activities related to logistic operations for this product.")
-    type = fields.Selection(selection_add=[
-        ('product', 'Storable Product')
-    ], tracking=True, ondelete={'product': 'set default'})
+    type = fields.Selection(selection_add=[('product', 'Storable Product')], tracking=True)
     property_stock_production = fields.Many2one(
         'stock.location', "Production Location",
         company_dependent=True, check_company=True, domain="[('usage', '=', 'production'), '|', ('company_id', '=', False), ('company_id', '=', allowed_company_ids[0])]",
@@ -614,9 +599,6 @@ class ProductTemplate(models.Model):
     # to influence computed field.
     location_id = fields.Many2one('stock.location', 'Location', store=False)
     warehouse_id = fields.Many2one('stock.warehouse', 'Warehouse', store=False)
-    has_available_route_ids = fields.Boolean(
-        'Routes can be selected on this product', compute='_compute_has_available_route_ids',
-        default=lambda self: self.env['stock.location.route'].search_count([('product_selectable', '=', True)]))
     route_ids = fields.Many2many(
         'stock.location.route', 'stock_route_product', 'product_id', 'route_id', 'Routes',
         domain=[('product_selectable', '=', True)],
@@ -632,16 +614,15 @@ class ProductTemplate(models.Model):
         relation="stock.location.route", string="Category Routes",
         related='categ_id.total_route_ids', readonly=False, related_sudo=False)
 
-    @api.depends('type')
-    def _compute_has_available_route_ids(self):
-        self.has_available_route_ids = self.env['stock.location.route'].search_count([('product_selectable', '=', True)])
+    def _is_cost_method_standard(self):
+        return True
 
     @api.depends(
         'product_variant_ids',
         'product_variant_ids.stock_move_ids.product_qty',
         'product_variant_ids.stock_move_ids.state',
     )
-    @api.depends_context('company')
+    @api.depends_context('company_owned', 'force_company', 'location', 'warehouse')
     def _compute_quantities(self):
         res = self._compute_quantities_dict()
         for template in self:
@@ -655,14 +636,14 @@ class ProductTemplate(models.Model):
 
     def _compute_quantities_dict(self):
         # TDE FIXME: why not using directly the function fields ?
-        variants_available = self.with_context(active_test=False).mapped('product_variant_ids')._product_available()
+        variants_available = self.mapped('product_variant_ids')._product_available()
         prod_available = {}
         for template in self:
             qty_available = 0
             virtual_available = 0
             incoming_qty = 0
             outgoing_qty = 0
-            for p in template.with_context(active_test=False).product_variant_ids:
+            for p in template.product_variant_ids:
                 qty_available += variants_available[p.id]["qty_available"]
                 virtual_available += variants_available[p.id]["virtual_available"]
                 incoming_qty += variants_available[p.id]["incoming_qty"]
@@ -770,7 +751,7 @@ class ProductTemplate(models.Model):
 
     # Be aware that the exact same function exists in product.product
     def action_open_quants(self):
-        return self.with_context(active_test=False).product_variant_ids.filtered(lambda p: p.active or p.qty_available != 0).action_open_quants()
+        return self.product_variant_ids.action_open_quants()
 
     def action_update_quantity_on_hand(self):
         advanced_option_groups = [
@@ -783,7 +764,7 @@ class ProductTemplate(models.Model):
             return self.action_open_quants()
         else:
             default_product_id = self.env.context.get('default_product_id', len(self.product_variant_ids) == 1 and self.product_variant_id.id)
-            action = self.env["ir.actions.actions"]._for_xml_id("stock.action_change_product_quantity")
+            action = self.env.ref('stock.action_change_product_quantity').read()[0]
             action['context'] = dict(
                 self.env.context,
                 default_product_id=default_product_id,
@@ -801,17 +782,24 @@ class ProductTemplate(models.Model):
         return self._get_action_view_related_putaway_rules(domain)
 
     def action_view_orderpoints(self):
-        return self.product_variant_ids.action_view_orderpoints()
+        products = self.mapped('product_variant_ids')
+        action = self.env.ref('stock.product_open_orderpoint').read()[0]
+        if products and len(products) == 1:
+            action['context'] = {'default_product_id': products.ids[0], 'search_default_product_id': products.ids[0]}
+        else:
+            action['domain'] = [('product_id', 'in', products.ids)]
+            action['context'] = {}
+        return action
 
     def action_view_stock_move_lines(self):
         self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id("stock.stock_move_line_action")
+        action = self.env.ref('stock.stock_move_line_action').read()[0]
         action['domain'] = [('product_id.product_tmpl_id', 'in', self.ids)]
         return action
 
     def action_open_product_lot(self):
         self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id("stock.action_production_lot_form")
+        action = self.env.ref('stock.action_production_lot_form').read()[0]
         action['domain'] = [('product_id.product_tmpl_id', '=', self.id)]
         action['context'] = {
             'default_product_tmpl_id': self.id,
@@ -823,26 +811,12 @@ class ProductTemplate(models.Model):
             })
         return action
 
-    def action_open_routes_diagram(self):
-        products = False
-        if self.env.context.get('default_product_id'):
-            products = self.env['product.product'].browse(self.env.context['default_product_id'])
-        if not products and self.env.context.get('default_product_tmpl_id'):
-            products = self.env['product.template'].browse(self.env.context['default_product_tmpl_id']).product_variant_ids
-        if not self.user_has_groups('stock.group_stock_multi_warehouses') and len(products) == 1:
-            company = products.company_id or self.env.company
-            warehouse = self.env['stock.warehouse'].search([('company_id', '=', company.id)], limit=1)
-            return self.env.ref('stock.action_report_stock_rule').report_action(None, data={
-                'product_id': products.id,
-                'warehouse_ids': warehouse.ids,
-            }, config=False)
-        action = self.env["ir.actions.actions"]._for_xml_id("stock.action_stock_rules_report")
-        action['context'] = self.env.context
-        return action
-
     def action_product_tmpl_forecast_report(self):
-        self.ensure_one()
-        action = self.env["ir.actions.actions"]._for_xml_id('stock.stock_replenishment_product_product_action')
+        action = self.env.ref('stock.report_stock_quantity_action_product').read()[0]
+        action['domain'] = [
+            ('product_id', 'in', self.product_variant_ids.ids),
+            ('warehouse_id', '!=', False),
+        ]
         return action
 
 class ProductCategory(models.Model):

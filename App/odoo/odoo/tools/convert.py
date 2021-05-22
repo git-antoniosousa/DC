@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-
-__all__ = [
-    'convert_file', 'convert_sql_import',
-    'convert_csv_import', 'convert_xml_import'
-]
-
 import base64
 import io
 import logging
 import os.path
 import re
 import subprocess
-import warnings
+import sys
+import time
 
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -25,7 +20,7 @@ except ImportError:
     jingtrang = None
 
 import odoo
-from . import pycompat
+from . import assertion_report, pycompat
 from .config import config
 from .misc import file_open, unquote, ustr, SKIPPED_ELEMENT_TYPES
 from .translate import _
@@ -33,11 +28,19 @@ from odoo import SUPERUSER_ID, api
 
 _logger = logging.getLogger(__name__)
 
-from .safe_eval import safe_eval as s_eval, pytz, time
+from .safe_eval import safe_eval as s_eval
 safe_eval = lambda expr, ctx={}: s_eval(expr, ctx, nocopy=True)
 
 class ParseError(Exception):
-    ...
+    def __init__(self, msg, text, filename, lineno):
+        self.msg = msg
+        self.text = text
+        self.filename = filename
+        self.lineno = lineno
+
+    def __str__(self):
+        return '"%s" while parsing %s:%s, near\n%s' \
+            % (self.msg, self.filename, self.lineno, self.text)
 
 class RecordDictWrapper(dict):
     """
@@ -293,7 +296,6 @@ form: module.record_id""" % (xml_id,)
 
         xml_id = rec.get('id','')
         self._test_xml_id(xml_id)
-        warnings.warn(f"The <report> tag is deprecated, use a <record> tag for {xml_id!r}.", DeprecationWarning)
 
         if rec.get('groups'):
             g_names = rec.get('groups','').split(',')
@@ -333,7 +335,6 @@ form: module.record_id""" % (xml_id,)
         name = rec.get('name')
         xml_id = rec.get('id','')
         self._test_xml_id(xml_id)
-        warnings.warn("The <act_window> tag is deprecated, use a <record> for {xml_id!r}.", DeprecationWarning)
         view_id = False
         if rec.get('view_id'):
             view_id = self.id_get(rec.get('view_id'))
@@ -423,7 +424,7 @@ form: module.record_id""" % (xml_id,)
         data = dict(xml_id=xid, values=res, noupdate=self.noupdate)
         self.env['ir.actions.act_window']._load_records([data], self.mode == 'update')
 
-    def _tag_menuitem(self, rec, parent=None):
+    def _tag_menuitem(self, rec):
         rec_id = rec.attrib["id"]
         self._test_xml_id(rec_id)
 
@@ -437,12 +438,11 @@ form: module.record_id""" % (xml_id,)
         if rec.get('sequence'):
             values['sequence'] = int(rec.get('sequence'))
 
-        if parent is not None:
-            values['parent_id'] = parent
-        elif rec.get('parent'):
+        if rec.get('parent'):
             values['parent_id'] = self.id_get(rec.attrib['parent'])
-        elif rec.get('web_icon'):
-            values['web_icon'] = rec.attrib['web_icon']
+        else:
+            if rec.get('web_icon'):
+                values['web_icon'] = rec.attrib['web_icon']
 
 
         if rec.get('name'):
@@ -480,9 +480,7 @@ form: module.record_id""" % (xml_id,)
             'values': values,
             'noupdate': self.noupdate,
         }
-        menu = self.env['ir.ui.menu']._load_records([data], self.mode == 'update')
-        for child in rec.iterchildren('menuitem'):
-            self._tag_menuitem(child, parent=menu.id)
+        self.env['ir.ui.menu']._load_records([data], self.mode == 'update')
 
     def _tag_record(self, rec):
         rec_model = rec.get("model")
@@ -494,8 +492,7 @@ form: module.record_id""" % (xml_id,)
         if self.xml_filename and rec_id:
             model = model.with_context(
                 install_module=self.module,
-                install_filename=self.xml_filename,
-                install_xmlid=rec_id,
+                install_filename=self.xml_filename
             )
 
         self._test_xml_id(rec_id)
@@ -675,14 +672,6 @@ form: module.record_id""" % (xml_id,)
             self._noupdate.append(nodeattr2bool(el, 'noupdate', self.noupdate))
             try:
                 f(rec)
-            except ParseError:
-                raise
-            except Exception as e:
-                raise ParseError('while parsing %s:%s, near\n%s' % (
-                    rec.getroottree().docinfo.URL,
-                    rec.sourceline,
-                    etree.tostring(rec, encoding='unicode').rstrip()
-                )) from e
             finally:
                 self._noupdate.pop()
                 self.envs.pop()
@@ -695,11 +684,14 @@ form: module.record_id""" % (xml_id,)
     def noupdate(self):
         return self._noupdate[-1]
 
-    def __init__(self, cr, module, idref, mode, noupdate=False, xml_filename=None):
+    def __init__(self, cr, module, idref, mode, report=None, noupdate=False, xml_filename=None):
         self.mode = mode
         self.module = module
         self.envs = [odoo.api.Environment(cr, SUPERUSER_ID, {})]
         self.idref = {} if idref is None else idref
+        if report is None:
+            report = assertion_report.assertion_report()
+        self.assertion_report = report
         self._noupdate = [noupdate]
         self.xml_filename = xml_filename
         self._tags = {
@@ -716,10 +708,21 @@ form: module.record_id""" % (xml_id,)
 
     def parse(self, de):
         assert de.tag in self.DATA_ROOTS, "Root xml tag must be <openerp>, <odoo> or <data>."
-        self._tag_root(de)
+        try:
+            self._tag_root(de)
+        except Exception as e:
+            exc_info = sys.exc_info()
+            pycompat.reraise(
+                ParseError,
+                ParseError(
+                    ustr(e),
+                    etree.tostring(de, encoding='unicode').rstrip(),
+                    de.getroottree().docinfo.URL, de.sourceline),
+                exc_info[2]
+            )
     DATA_ROOTS = ['odoo', 'data', 'openerp']
 
-def convert_file(cr, module, filename, idref, mode='update', noupdate=False, kind=None, pathname=None):
+def convert_file(cr, module, filename, idref, mode='update', noupdate=False, kind=None, report=None, pathname=None):
     if pathname is None:
         pathname = os.path.join(module, filename)
     ext = os.path.splitext(filename)[1].lower()
@@ -730,7 +733,7 @@ def convert_file(cr, module, filename, idref, mode='update', noupdate=False, kin
         elif ext == '.sql':
             convert_sql_import(cr, fp)
         elif ext == '.xml':
-            convert_xml_import(cr, module, fp, idref, mode, noupdate)
+            convert_xml_import(cr, module, fp, idref, mode, noupdate, report)
         elif ext == '.js':
             pass # .js files are valid but ignored here.
         else:
@@ -747,6 +750,7 @@ def convert_csv_import(cr, module, fname, csvcontent, idref=None, mode='init',
         encoding: utf-8'''
     filename, _ext = os.path.splitext(os.path.basename(fname))
     model = filename.split('-')[0]
+
     reader = pycompat.csv_reader(io.BytesIO(csvcontent), quotechar='"', delimiter=',')
     fields = next(reader)
 
@@ -784,10 +788,10 @@ def convert_xml_import(cr, module, xmlfile, idref=None, mode='init', noupdate=Fa
         _logger.exception("The XML file '%s' does not fit the required schema !", xmlfile.name)
         if jingtrang:
             p = subprocess.run(['pyjing', schema, xmlfile.name], stdout=subprocess.PIPE)
-            _logger.warning(p.stdout.decode())
+            _logger.warn(p.stdout.decode())
         else:
             for e in relaxng.error_log:
-                _logger.warning(e)
+                _logger.warn(e)
             _logger.info("Install 'jingtrang' for more precise and useful validation messages.")
         raise
 
@@ -795,5 +799,5 @@ def convert_xml_import(cr, module, xmlfile, idref=None, mode='init', noupdate=Fa
         xml_filename = xmlfile
     else:
         xml_filename = xmlfile.name
-    obj = xml_import(cr, module, idref, mode, noupdate=noupdate, xml_filename=xml_filename)
+    obj = xml_import(cr, module, idref, mode, report=report, noupdate=noupdate, xml_filename=xml_filename)
     obj.parse(doc.getroot())

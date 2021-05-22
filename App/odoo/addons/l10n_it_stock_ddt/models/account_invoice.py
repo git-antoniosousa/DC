@@ -19,7 +19,7 @@ class AccountMove(models.Model):
         """
         self.ensure_one()
         # We don't consider returns/credit notes as we suppose they will lead to more deliveries/invoices as well
-        if self.move_type != "out_invoice" or self.state != 'posted':
+        if self.type != "out_invoice" or self.state != 'posted':
             return {}
         line_count = 0
         invoice_line_pickings = {}
@@ -31,7 +31,7 @@ class AccountMove(models.Model):
                     invoice_line_pickings.setdefault(done_moves_related.picking_id, []).append(line_count)
             else:
                 total_invoices = done_moves_related.mapped('sale_line_id.invoice_lines').filtered(
-                    lambda l: l.move_id.state == 'posted' and l.move_id.move_type == 'out_invoice').sorted(lambda l: l.move_id.invoice_date)
+                    lambda l: l.move_id.state == 'posted' and l.move_id.type == 'out_invoice').sorted(lambda l: l.move_id.invoice_date)
                 total_invs = [(i.product_uom_id._compute_quantity(i.quantity, i.product_id.uom_id), i) for i in total_invoices]
                 inv = total_invs.pop(0)
                 # Match all moves and related invoice lines FIFO looking for when the matched invoice_line matches line
@@ -57,7 +57,7 @@ class AccountMove(models.Model):
 
     @api.depends('invoice_line_ids', 'invoice_line_ids.sale_line_ids')
     def _compute_ddt_ids(self):
-        it_out_invoices = self.filtered(lambda i: i.move_type == 'out_invoice' and i.company_id.country_id.code == 'IT')
+        it_out_invoices = self.filtered(lambda i: i.type == 'out_invoice' and i.company_id.country_id.code == 'IT')
         for invoice in it_out_invoices:
             invoice_line_pickings = invoice._get_ddt_values()
             pickings = self.env['stock.picking']

@@ -2,10 +2,8 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import unittest
 from odoo.addons.stock_landed_costs.tests.common import TestStockLandedCostsCommon
-from odoo.addons.stock_landed_costs.tests.test_stockvaluationlayer import TestStockValuationLCCommon
-from odoo.addons.stock_account.tests.test_stockvaluation import _create_accounting_data
-
-from odoo.tests import tagged, Form
+from odoo.addons.stock_landed_costs.tests.test_stockvaluationlayer import TestStockValuationLC
+from odoo.tests import Form, tagged
 
 
 @tagged('post_install', '-at_install')
@@ -16,9 +14,9 @@ class TestLandedCosts(TestStockLandedCostsCommon):
         # Create picking incoming shipment
         self.picking_in = self.Picking.create({
             'partner_id': self.supplier_id,
-            'picking_type_id': self.warehouse.in_type_id.id,
+            'picking_type_id': self.picking_type_in_id,
             'location_id': self.supplier_location_id,
-            'location_dest_id': self.warehouse.lot_stock_id.id})
+            'location_dest_id': self.stock_location_id})
         self.Move.create({
             'name': self.product_refrigerator.name,
             'product_id': self.product_refrigerator.id,
@@ -26,7 +24,7 @@ class TestLandedCosts(TestStockLandedCostsCommon):
             'product_uom': self.product_refrigerator.uom_id.id,
             'picking_id': self.picking_in.id,
             'location_id': self.supplier_location_id,
-            'location_dest_id': self.warehouse.lot_stock_id.id})
+            'location_dest_id': self.stock_location_id})
         self.Move.create({
             'name': self.product_oven.name,
             'product_id': self.product_oven.id,
@@ -34,12 +32,12 @@ class TestLandedCosts(TestStockLandedCostsCommon):
             'product_uom': self.product_oven.uom_id.id,
             'picking_id': self.picking_in.id,
             'location_id': self.supplier_location_id,
-            'location_dest_id': self.warehouse.lot_stock_id.id})
+            'location_dest_id': self.stock_location_id})
         # Create picking outgoing shipment
         self.picking_out = self.Picking.create({
             'partner_id': self.customer_id,
-            'picking_type_id': self.warehouse.out_type_id.id,
-            'location_id': self.warehouse.lot_stock_id.id,
+            'picking_type_id': self.picking_type_out_id,
+            'location_id': self.stock_location_id,
             'location_dest_id': self.customer_location_id})
         self.Move.create({
             'name': self.product_refrigerator.name,
@@ -47,10 +45,14 @@ class TestLandedCosts(TestStockLandedCostsCommon):
             'product_uom_qty': 2,
             'product_uom': self.product_refrigerator.uom_id.id,
             'picking_id': self.picking_out.id,
-            'location_id': self.warehouse.lot_stock_id.id,
+            'location_id': self.stock_location_id,
             'location_dest_id': self.customer_location_id})
 
     def test_00_landed_costs_on_incoming_shipment(self):
+        chart_of_accounts = self.env.company.chart_template_id
+        generic_coa = self.env.ref('l10n_generic_coa.configurable_chart_template')
+        if chart_of_accounts != generic_coa:
+            raise unittest.SkipTest('Skip this test as it works only with %s (%s loaded)' % (generic_coa.name, chart_of_accounts.name))
         """ Test landed cost on incoming shipment """
         #
         # (A) Purchase product
@@ -100,6 +102,11 @@ class TestLandedCosts(TestStockLandedCostsCommon):
         self.assertEqual(account_entry['debit'], 430.0, 'Wrong Account Entry')
 
     def test_01_negative_landed_costs_on_incoming_shipment(self):
+        chart_of_accounts = self.env.company.chart_template_id
+        generic_coa = self.env.ref('l10n_generic_coa.configurable_chart_template')
+        if chart_of_accounts != generic_coa:
+            raise unittest.SkipTest('Skip this test as it works only with %s (%s loaded)' % (generic_coa.name, chart_of_accounts.name))
+
         """ Test negative landed cost on incoming shipment """
         #
         # (A) Purchase Product
@@ -228,7 +235,7 @@ class TestLandedCosts(TestStockLandedCostsCommon):
         self.picking_in.action_confirm()
         # Transfer incoming shipment
         res_dict = self.picking_in.button_validate()
-        wizard = Form(self.env[(res_dict.get('res_model'))].with_context(res_dict.get('context'))).save()
+        wizard = self.env[(res_dict.get('res_model'))].browse(res_dict.get('res_id'))
         wizard.process()
         return self.picking_in
 
@@ -241,7 +248,7 @@ class TestLandedCosts(TestStockLandedCostsCommon):
         # Transfer picking.
 
         res_dict = self.picking_out.button_validate()
-        wizard = Form(self.env[(res_dict.get('res_model'))].with_context(res_dict['context'])).save()
+        wizard = self.env[(res_dict.get('res_model'))].browse(res_dict.get('res_id'))
         wizard.process()
 
     def _create_landed_costs(self, value, picking_in):
@@ -297,11 +304,12 @@ class TestLandedCosts(TestStockLandedCostsCommon):
 
 
 @tagged('post_install', '-at_install')
-class TestLandedCostsWithPurchaseAndInv(TestStockValuationLCCommon):
+class TestLandedCostsWithPurchaseAndInv(TestStockValuationLC):
     def test_invoice_after_lc(self):
         self.env.company.anglo_saxon_accounting = True
         self.product1.product_tmpl_id.categ_id.property_cost_method = 'fifo'
         self.product1.product_tmpl_id.categ_id.property_valuation = 'real_time'
+        self.product1.product_tmpl_id.invoice_policy = 'delivery'
         self.price_diff_account = self.env['account.account'].create({
             'name': 'price diff account',
             'code': 'price diff account',
@@ -327,7 +335,7 @@ class TestLandedCostsWithPurchaseAndInv(TestStockValuationLCCommon):
         # Check SVL and AML
         svl = self.env['stock.valuation.layer'].search([('stock_move_id', '=', receipt.move_lines.id)])
         self.assertAlmostEqual(svl.value, 455)
-        aml = self.env['account.move.line'].search([('account_id', '=', self.company_data['default_account_stock_valuation'].id)])
+        aml = self.env['account.move.line'].search([('account_id', '=', self.stock_valuation_account.id)])
         self.assertAlmostEqual(aml.debit, 455)
 
         # Create and validate LC
@@ -350,16 +358,16 @@ class TestLandedCostsWithPurchaseAndInv(TestStockValuationLCCommon):
         self.assertAlmostEqual(lc.valuation_adjustment_lines.final_cost, 554)
         svl = self.env['stock.valuation.layer'].search([('stock_move_id', '=', receipt.move_lines.id)], order='id desc', limit=1)
         self.assertAlmostEqual(svl.value, 99)
-        aml = self.env['account.move.line'].search([('account_id', '=', self.company_data['default_account_stock_valuation'].id)], order='id desc', limit=1)
+        aml = self.env['account.move.line'].search([('account_id', '=', self.stock_valuation_account.id)], order='id desc', limit=1)
         self.assertAlmostEqual(aml.debit, 99)
 
         # Create an invoice with the same price
-        move_form = Form(self.env['account.move'].with_context(default_move_type='in_invoice'))
+        move_form = Form(self.env['account.move'].with_context(default_type='in_invoice'))
         move_form.partner_id = order.partner_id
         move_form.purchase_id = order
         move = move_form.save()
-        move.action_post()
+        move.post()
 
         # Check nothing was posted in the price difference account
         price_diff_aml = self.env['account.move.line'].search([('account_id','=', self.price_diff_account.id), ('move_id', '=', move.id)])
-        self.assertEqual(len(price_diff_aml), 0, "No line should have been generated in the price difference account.")
+        self.assertEquals(len(price_diff_aml), 0, "No line should have been generated in the price difference account.")

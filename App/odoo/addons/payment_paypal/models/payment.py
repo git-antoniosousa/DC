@@ -19,9 +19,7 @@ _logger = logging.getLogger(__name__)
 class AcquirerPaypal(models.Model):
     _inherit = 'payment.acquirer'
 
-    provider = fields.Selection(selection_add=[
-        ('paypal', 'Paypal')
-    ], ondelete={'paypal': 'set default'})
+    provider = fields.Selection(selection_add=[('paypal', 'Paypal')])
     paypal_email_account = fields.Char('Email', required_if_provider='paypal', groups='base.group_user')
     paypal_seller_account = fields.Char(
         'Merchant Account ID', groups='base.group_user',
@@ -194,16 +192,15 @@ class TxPaypal(models.Model):
         if not self.acquirer_id.paypal_pdt_token and not self.acquirer_id.paypal_seller_account and status in ['Completed', 'Processed', 'Pending']:
             template = self.env.ref('payment_paypal.mail_template_paypal_invite_user_to_configure', False)
             if template:
-                render_template = template._render({
+                render_template = template.render({
                     'acquirer': self.acquirer_id,
                 }, engine='ir.qweb')
-                mail_body = self.env['mail.render.mixin']._replace_local_links(render_template)
+                mail_body = self.env['mail.thread']._replace_local_links(render_template)
                 mail_values = {
                     'body_html': mail_body,
                     'subject': _('Add your Paypal account to Odoo'),
                     'email_to': self.acquirer_id.paypal_email_account,
-                    'email_from': self.acquirer_id.create_uid.email_formatted,
-                    'author_id': self.acquirer_id.create_uid.partner_id.id,
+                    'email_from': self.acquirer_id.create_uid.email
                 }
                 self.env['mail.mail'].sudo().create(mail_values).send()
 

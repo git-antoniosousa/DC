@@ -6,28 +6,6 @@ from odoo.exceptions import UserError
 from odoo.tools import float_compare, float_is_zero
 
 
-class AccountMove(models.Model):
-    _inherit = 'account.move'
-
-    def action_post(self):
-        #inherit of the function from account.move to validate a new tax and the priceunit of a downpayment
-        res = super(AccountMove, self).action_post()
-        line_ids = self.mapped('line_ids').filtered(lambda line: line.sale_line_ids.is_downpayment)
-        for line in line_ids:
-            try:
-                line.sale_line_ids.tax_id = line.tax_ids
-                if all(line.tax_ids.mapped('price_include')):
-                    line.sale_line_ids.price_unit = line.price_unit
-                else:
-                    #To keep positive amount on the sale order and to have the right price for the invoice
-                    #We need the - before our untaxed_amount_to_invoice
-                    line.sale_line_ids.price_unit = -line.sale_line_ids.untaxed_amount_to_invoice
-            except UserError:
-                # a UserError here means the SO was locked, which prevents changing the taxes
-                # just ignore the error - this is a nice to have feature and should not be blocking
-                pass
-        return res
-
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
@@ -72,6 +50,8 @@ class AccountMoveLine(models.Model):
             For Vendor Bill flow, if the product has a 'erinvoice policy' and is a cost, then we will find the SO on which reinvoice the AAL
         """
         self.ensure_one()
+        if self.sale_line_ids:
+            return False
         uom_precision_digits = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         return float_compare(self.credit or 0.0, self.debit or 0.0, precision_digits=uom_precision_digits) != 1 and self.product_id.expense_policy not in [False, 'no']
 
@@ -177,7 +157,7 @@ class AccountMoveLine(models.Model):
         last_so_line = self.env['sale.order.line'].search([('order_id', '=', order.id)], order='sequence desc', limit=1)
         last_sequence = last_so_line.sequence + 1 if last_so_line else 100
 
-        fpos = order.fiscal_position_id or order.fiscal_position_id.get_fiscal_position(order.partner_id.id)
+        fpos = order.fiscal_position_id or order.partner_id.property_account_position_id
         taxes = fpos.map_tax(self.product_id.taxes_id, self.product_id, order.partner_id)
 
         return {

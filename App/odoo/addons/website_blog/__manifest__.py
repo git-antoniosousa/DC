@@ -4,7 +4,7 @@
 {
     'name': 'Blogs',
     'category': 'Website/Website',
-    'sequence': 200,
+    'sequence': 140,
     'website': 'https://www.odoo.com/page/blog-engine',
     'summary': 'Publish blog posts, announces, news',
     'version': '1.0',
@@ -16,8 +16,7 @@
         'views/website_blog_components.xml',
         'views/website_blog_posts_loop.xml',
         'views/website_blog_templates.xml',
-        'views/snippets/snippets.xml',
-        'views/snippets/s_latest_posts.xml',
+        'views/snippets.xml',
         'security/ir.model.access.csv',
         'security/website_blog_security.xml',
     ],

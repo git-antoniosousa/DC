@@ -46,7 +46,7 @@ tour.register('shop_cart_recovery', {
     },
     {
         content: "click action",
-        trigger: '.o_dropdown_toggler_btn:contains("Action")',
+        trigger: '.btn:containsExact("Action")',
     },
     {
         content: "click Send a Cart Recovery Email",
@@ -58,9 +58,9 @@ tour.register('shop_cart_recovery', {
     },
     {
         content: "check the mail is sent, grab the recovery link, and logout",
-        trigger: '.o_Message_content a:containsExact("Resume order")',
+        trigger: '.o_thread_message_content a:containsExact("Resume order")',
         run: function () {
-            var link = $('.o_Message_content a:containsExact("Resume order")').attr('href');
+            var link = $('.o_thread_message_content a:containsExact("Resume order")').attr('href');
             localStorage.setItem(recoveryLinkKey, link);
             window.location.href = "/web/session/logout?redirect=/";
         }

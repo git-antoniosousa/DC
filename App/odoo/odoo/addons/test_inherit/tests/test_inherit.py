@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo.addons.base.tests.common import TransactionCaseWithUserDemo
 from odoo.tests import common
 
 class test_inherits(common.TransactionCase):
@@ -76,13 +75,10 @@ class test_inherits(common.TransactionCase):
         self.assertIsInstance(field.selection, str)
         self.assertEqual(field._description_selection(self.env), [('baz', 'Baz')])
 
-
-class test_inherits_demo(TransactionCaseWithUserDemo):
-
     def test_50_search_one2many(self):
         """ check search on one2many field based on inherited many2one field. """
         # create a daughter record attached to partner Demo
-        partner_demo = self.partner_demo
+        partner_demo = self.env.ref('base.partner_demo')
         daughter = self.env['test.inherit.daughter'].create({'partner_id': partner_demo.id})
         self.assertEqual(daughter.partner_id, partner_demo)
         self.assertIn(daughter, partner_demo.daughter_ids)

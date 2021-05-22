@@ -8,6 +8,7 @@ import time
 import traceback
 
 from odoo import api, fields, models, tools, _
+from odoo.tools.misc import get_lang
 
 _logger = logging.getLogger(__name__)
 
@@ -46,8 +47,6 @@ class Currency(models.Model):
     ]
 
     def _get_rates(self, company, date):
-        if not self.ids:
-            return {}
         self.env['res.currency.rate'].flush(['rate', 'currency_id', 'company_id', 'name'])
         query = """SELECT c.id,
                           COALESCE((SELECT r.rate FROM res_currency_rate r
@@ -112,7 +111,8 @@ class Currency(models.Model):
         integer_value = int(parts[0])
         fractional_value = int(parts[2] or 0)
 
-        lang = tools.get_lang(self.env)
+        lang_code = self.env.context.get('lang') or self.env.user.lang or get_lang(self.env).code
+        lang = self.env['res.lang'].with_context(active_test=False).search([('code', '=', lang_code)])
         amount_words = tools.ustr('{amt_value} {amt_word}').format(
                         amt_value=_num2words(integer_value, lang=lang.iso_code),
                         amt_word=self.currency_unit_label,
@@ -238,7 +238,7 @@ class CurrencyRate(models.Model):
     name = fields.Date(string='Date', required=True, index=True,
                            default=lambda self: fields.Date.today())
     rate = fields.Float(digits=0, default=1.0, help='The rate of the currency to the currency of rate 1')
-    currency_id = fields.Many2one('res.currency', string='Currency', readonly=True, required=True, ondelete="cascade")
+    currency_id = fields.Many2one('res.currency', string='Currency', readonly=True)
     company_id = fields.Many2one('res.company', string='Company',
                                  default=lambda self: self.env.company)
 

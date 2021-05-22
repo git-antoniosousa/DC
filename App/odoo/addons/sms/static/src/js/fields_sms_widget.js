@@ -1,9 +1,11 @@
 odoo.define('sms.sms_widget', function (require) {
 "use strict";
 
+var basicFields = require('web.basic_fields');
 var core = require('web.core');
 var fieldRegistry = require('web.field_registry');
-var FieldTextEmojis = require('mail.field_text_emojis');
+
+var FieldText = basicFields.FieldText;
 
 var _t = core._t;
 /**
@@ -11,9 +13,8 @@ var _t = core._t;
  * the number of SMS and the number of characters. This text is computed every
  * time the user changes the body.
  */
-var SmsWidget = FieldTextEmojis.extend({
+var SmsWidget = FieldText.extend({
     className: 'o_field_text',
-    enableEmojis: false,
     /**
      * @constructor
      */
@@ -22,17 +23,6 @@ var SmsWidget = FieldTextEmojis.extend({
         this.nbrChar = 0;
         this.nbrSMS = 0;
         this.encoding = 'GSM7';
-        this.enableEmojis = !!this.nodeOptions.enable_emojis;
-    },
-    
-    /**
-     * @override
-     *"This will add the emoji dropdown to a target field (controlled by the "enableEmojis" attribute)
-     */
-    on_attach_callback: function () {
-        if (this.enableEmojis) {
-            this._super.apply(this, arguments);
-        }
     },
 
     //--------------------------------------------------------------------------
@@ -146,19 +136,6 @@ var SmsWidget = FieldTextEmojis.extend({
     //--------------------------------------------------------------------------
     // Handlers
     //--------------------------------------------------------------------------
-
-    /**
-     * @override
-     * @private
-     */
-    _onBlur: function () {
-        var content = this._getValue();
-        if( !content.trim().length && content.length > 0) {
-            this.do_warn(_t("Your SMS Text Message must include at least one non-whitespace character"));
-            this.$input.val(content.trim());
-            this._updateSMSInfo();
-        }
-    },
 
     /**
      * @override

@@ -60,7 +60,8 @@ FormController.include({
      */
     _barcodeAddX2MQuantity: function (barcode, activeBarcode) {
         if (this.mode === 'readonly') {
-            this.do_warn(false, _t('Enable edit mode to modify this document'));
+            this.do_warn(_t('Error: Document not editable'),
+                _t('To modify this document, please first start edition.'));
             return Promise.reject();
         }
 
@@ -87,68 +88,59 @@ FormController.include({
     /**
      * @private
      */
-    _barcodePagerFirst: async function () {
-        return this._updatePage(() => 1);
+    _barcodePagerFirst: function () {
+        var self = this;
+        return this.mutex.exec(function () {}).then(function () {
+            if (!self.pager) {
+                self.do_warn(_t('Error: Pager not available'));
+                return;
+            }
+            self.pager.updateState({
+                current_min: 1,
+            }, {notifyChange: true});
+        });
     },
     /**
      * @private
      */
-    _barcodePagerLast: async function () {
-        return this._updatePage((min, state) => state.count);
+    _barcodePagerLast: function () {
+        var self = this;
+        return this.mutex.exec(function () {}).then(function () {
+            if (!self.pager) {
+                self.do_warn(_t('Error: Pager not available'));
+                return;
+            }
+            var state = self.model.get(self.handle, {raw: true});
+            self.pager.updateState({
+                current_min: state.count,
+            }, {notifyChange: true});
+        });
     },
     /**
      * @private
      */
     _barcodePagerNext: function () {
-        return this._updatePage((min, state) => {
-            min += 1;
-            if (min > state.count) {
-                min = 1;
+        var self = this;
+        return this.mutex.exec(function () {}).then(function () {
+            if (!self.pager) {
+                self.do_warn(_t('Error: Pager not available'));
+                return;
             }
-            return min;
+            self.pager.next();
         });
     },
     /**
      * @private
      */
     _barcodePagerPrevious: function () {
-        return this._updatePage((min, state) => {
-            min -= 1;
-            if (min < 1) {
-                min = state.count;
+        var self = this;
+        return this.mutex.exec(function () {}).then(function () {
+            if (!self.pager) {
+                self.do_warn(_t('Error: Pager not available'));
+                return;
             }
-            return min;
+            self.pager.previous();
         });
-    },
-    /**
-     * Change the current minimum value of the pager using provided function.
-     * This function will be given the current minimum and state and must return
-     * the updated value.
-     *
-     * @private
-     * @param {Function(currentMin: Number, state: Object)} updater
-     */
-    _updatePage: async function (updater) {
-        await this.mutex.exec(() => {});
-        const state = this.model.get(this.handle, { raw: true });
-        const pagingInfo = this._getPagingInfo(state);
-        if (!pagingInfo) {
-            return this.do_warn(false, _t('Pager unavailable'));
-        }
-        const currentMinimum = updater(pagingInfo.currentMinimum, state);
-        const limit = pagingInfo.limit;
-        const reloadParams = state.groupedBy && state.groupedBy.length ? {
-                groupsLimit: limit,
-                groupsOffset: currentMinimum - 1,
-            } : {
-                limit,
-                offset: currentMinimum - 1,
-            };
-        await this.reload(reloadParams);
-        // reset the scroll position to the top on page changed only
-        if (state.limit === limit) {
-            this.trigger_up('scrollTo', { top: 0 });
-        }
     },
     /**
      * Returns true iff the given barcode matches the given record (candidate).
@@ -330,7 +322,7 @@ FormController.include({
                 }
             }
             if (prefixed && !hasCommand) {
-                self.do_warn(_t('Undefined barcode command'), barcode);
+                self.do_warn(_t('Error: Barcode command is undefined'), barcode);
             }
             return self.alive(Promise.all(defs)).then(function () {
                 if (!prefixed) {
@@ -366,7 +358,8 @@ FormController.include({
         }
 
         if (!_.compact(_.pluck(barcodeInfos, 'candidate')).length) {
-            return this.do_warn(false, _t('Scan a barcode to set the quantity'));
+            return this.do_warn(_t('Error: No last scanned barcode'),
+                _t('To set the quantity please scan a barcode first.'));
         }
 
         for (var k in this.activeBarcode) {

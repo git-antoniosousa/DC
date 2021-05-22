@@ -84,7 +84,7 @@ ActionManager.include({
                     // jQuery's BBQ plugin does some parsing on values that are valid integers
                     // which means that if there's only one item, it will do parseInt() on it,
                     // otherwise it will keep the comma seperated list as string
-                    context.active_ids = state.active_ids.split(',').map(function (id) {
+                    context.active_ids = state.active_ids.toString().split(',').map(function (id) {
                         return parseInt(id, 10) || id;
                     });
                 } else if (state.active_id) {
@@ -119,6 +119,7 @@ ActionManager.include({
             return this.doAction(action, options);
         }
         return _super.apply(this, arguments);
+
     },
 
     //--------------------------------------------------------------------------
@@ -488,7 +489,6 @@ ActionManager.include({
             // can't switch to an unknown view
             return Promise.reject();
         }
-
         var currentController = this.getCurrentController();
         var index;
         if (currentController.actionID !== action.jsID) {
@@ -547,7 +547,6 @@ ActionManager.include({
                     return Promise.resolve(controller.widget.willRestore()).then(function () {
                         viewOptions = _.extend({}, viewOptions, {
                             breadcrumbs: self._getBreadcrumbs(self.controllerStack.slice(0, index)),
-                            shouldUpdateSearchComponents: true,
                         });
                         return controller.widget.reload(viewOptions).then(function () {
                             return controller;
@@ -693,6 +692,7 @@ ActionManager.include({
             if (config.device.isMobile && actionData.mobile) {
                 options = Object.assign({}, options, actionData.mobile);
             }
+            action.flags = _.extend({}, action.flags, {searchPanelDefaultNoFilter: true});
             return self.doAction(action, options).then(ev.data.on_success, ev.data.on_fail);
         });
     },
@@ -709,15 +709,15 @@ ActionManager.include({
      */
     _onSwitchView: function (ev) {
         ev.stopPropagation();
-        const viewType = ev.data.view_type;
-        const currentController = this.getCurrentController();
+        var viewType = ev.data.view_type;
+        var currentController = this.getCurrentController();
         if (currentController.jsID === ev.data.controllerID) {
             // only switch to the requested view if the controller that
             // triggered the request is the current controller
-            const action = this.actions[currentController.actionID];
-            const currentControllerState = currentController.widget.exportState();
+            var action = this.actions[currentController.actionID];
+            var currentControllerState = currentController.widget.exportState();
             action.controllerState = _.extend({}, action.controllerState, currentControllerState);
-            const options = {
+            var options = {
                 controllerState: action.controllerState,
                 currentId: ev.data.res_id,
             };

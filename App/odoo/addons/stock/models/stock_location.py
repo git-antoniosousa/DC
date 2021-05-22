@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import _, api, fields, models
+from datetime import datetime
+from dateutil import relativedelta
 from odoo.exceptions import UserError
+
+from odoo import api, fields, models, _
 from odoo.osv import expression
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 
 class Location(models.Model):
@@ -112,7 +116,7 @@ class Location(models.Model):
                 children_quants = self.env['stock.quant'].search(['&', '|', ('quantity', '!=', 0), ('reserved_quantity', '!=', 0), ('location_id', 'in', internal_children_locations.ids)])
                 if children_quants and values['active'] == False:
                     raise UserError(_('You still have some product in locations %s') %
-                        (', '.join(children_quants.mapped('location_id.display_name'))))
+                        (', '.join(children_quants.mapped('location_id.name'))))
                 else:
                     super(Location, children_location - self).with_context(do_not_check_quant=True).write({
                         'active': values['active'],
@@ -130,7 +134,8 @@ class Location(models.Model):
             domain = [('barcode', operator, name), ('complete_name', operator, name)]
         else:
             domain = ['|', ('barcode', operator, name), ('complete_name', operator, name)]
-        return self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
+        location_ids = self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
+        return models.lazy_name_get(self.browse(location_ids).with_user(name_get_uid))
 
     def _get_putaway_strategy(self, product):
         ''' Returns the location where the product has to be put, if any compliant putaway strategy is found. Otherwise returns None.'''
@@ -161,7 +166,7 @@ class Location(models.Model):
 
     def should_bypass_reservation(self):
         self.ensure_one()
-        return self.usage in ('supplier', 'customer', 'inventory', 'production') or self.scrap_location or (self.usage == 'transit' and not self.company_id)
+        return self.usage in ('supplier', 'customer', 'inventory', 'production') or self.scrap_location
 
 
 class Route(models.Model):
@@ -212,3 +217,21 @@ class Route(models.Model):
         for route in self:
             route.with_context(active_test=False).rule_ids.filtered(lambda ru: ru.active == route.active).toggle_active()
         super(Route, self).toggle_active()
+
+    def view_product_ids(self):
+        return {
+            'name': _('Products'),
+            'view_mode': 'tree,form',
+            'res_model': 'product.template',
+            'type': 'ir.actions.act_window',
+            'domain': [('route_ids', 'in', self.ids)],
+        }
+
+    def view_categ_ids(self):
+        return {
+            'name': _('Product Categories'),
+            'view_mode': 'tree,form',
+            'res_model': 'product.category',
+            'type': 'ir.actions.act_window',
+            'domain': [('route_ids', 'in', self.ids)],
+        }

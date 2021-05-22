@@ -26,9 +26,7 @@ def normalize_keys_upper(data):
 class AcquirerBuckaroo(models.Model):
     _inherit = 'payment.acquirer'
 
-    provider = fields.Selection(selection_add=[
-        ('buckaroo', 'Buckaroo')
-    ], ondelete={'buckaroo': 'set default'})
+    provider = fields.Selection(selection_add=[('buckaroo', 'Buckaroo')])
     brq_websitekey = fields.Char('WebsiteKey', required_if_provider='buckaroo', groups='base.group_user')
     brq_secretkey = fields.Char('SecretKey', required_if_provider='buckaroo', groups='base.group_user')
 

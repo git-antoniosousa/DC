@@ -5,9 +5,9 @@ var core = require('web.core');
 var Dialog = require('web.Dialog');
 var websiteNavbarData = require('website.navbar');
 var wUtils = require('website.utils');
-var tour = require('web_tour.tour');
 
-const {qweb, _t} = core;
+var qweb = core.qweb;
+var _t = core._t;
 
 var enableFlag = 'enable_new_content';
 
@@ -48,7 +48,7 @@ var NewContentMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
             $el.data('original-index', index);
             if ($el.data('module-id')) {
                 $el.appendTo($el.parent());
-                $el.find('a i, a p').addClass('o_uninstalled_module');
+                $el.find('a i, a p').addClass('text-muted');
             }
         });
 
@@ -56,18 +56,8 @@ var NewContentMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
         this.$lastLink = this.$newContentMenuChoices.find('a:last');
 
         if ($.deparam.querystring()[enableFlag] !== undefined) {
-            Object.keys(tour.tours).forEach(
-                el => {
-                    let element = tour.tours[el];
-                    if (element.steps[0].trigger == '#new-content-menu > a'
-                        && !element.steps[0].extra_trigger) {
-                        element.steps[0].auto = true;
-                    }
-                }
-            );
             this._showMenu();
         }
-        this.$loader = $(qweb.render('website.new_content_loader'));
         return this._super.apply(this, arguments);
     },
 
@@ -104,9 +94,8 @@ var NewContentMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
                 return;
             }
             var url = '/website/add/' + encodeURIComponent(val);
-            const res = wUtils.sendRequest(url, {
-                add_menu: $dialog.find('input[type="checkbox"]').is(':checked') || '',
-            });
+            if ($dialog.find('input[type="checkbox"]').is(':checked')) url +='?add_menu=1';
+            document.location = url;
             return new Promise(function () {});
         });
     },
@@ -143,7 +132,6 @@ var NewContentMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
      * @private
      */
     _hideMenu: function () {
-        this.shown = false;
         this.$newContentMenuChoices.addClass('o_hidden');
         $('body').removeClass('o_new_content_open');
     },
@@ -180,30 +168,10 @@ var NewContentMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
             });
         }).then(function () {
             self.firstTab = true;
-            self.shown = true;
             self.$newContentMenuChoices.removeClass('o_hidden');
             $('body').addClass('o_new_content_open');
             self.$('> a').focus();
-
-            wUtils.removeLoader();
         });
-    },
-    /**
-     * Called to add loader element in DOM.
-     *
-     * @param {string} moduleName
-     * @private
-     */
-    _addLoader(moduleName) {
-        const newContentLoaderText = _.str.sprintf(_t("Building your %s"), moduleName);
-        this.$loader.find('#new_content_loader_text').replaceWith(newContentLoaderText);
-        $('body').append(this.$loader);
-    },
-    /**
-     * @private
-     */
-    _removeLoader() {
-        this.$loader.remove();
     },
 
     //--------------------------------------------------------------------------
@@ -235,13 +203,9 @@ var NewContentMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
      * @param {Event} ev
      */
     _onBackgroundKeydown: function (ev) {
-        if (!this.shown) {
-            return;
-        }
         switch (ev.which) {
             case $.ui.keyCode.ESCAPE:
                 this._hideMenu();
-                ev.stopPropagation();
                 break;
             case $.ui.keyCode.TAB:
                 if (ev.shiftKey) {
@@ -303,33 +267,25 @@ var NewContentMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
                         }).last();
                     if ($finalPosition) {
                         $el.fadeTo(400, 0, function () {
-                            // if once installed, button disapeear, don't need to move it.
-                            if (!$el.hasClass('o_new_content_element_once')) {
-                                $el.insertAfter($finalPosition);
-                            }
+                            $el.insertAfter($finalPosition);
                             // change style to use spinner
                             $i.removeClass()
-                                .addClass('fa fa-spin fa-spinner fa-pulse')
-                                .css('background-image', 'none');
-                            $p.removeClass('o_uninstalled_module')
+                                .addClass('fa fa-spin fa-spinner fa-pulse');
+                            $p.removeClass('text-muted')
                                 .text(_.str.sprintf(self.newContentText.installPleaseWait, name));
                             $el.fadeTo(1000, 1);
-                            self._addLoader(name);
                         });
                     }
 
                     self._install(moduleId).then(function () {
-                        var origin = window.location.origin;
-                        var redirectURL = $el.find('a').data('url') || (window.location.pathname + '?' + enableFlag);
-                        window.location.href = origin + redirectURL;
-                        self._removeLoader();
+                        window.location.href = window.location.origin + window.location.pathname + '?' + enableFlag;
                     }, function () {
                         $i.removeClass()
                             .addClass('fa fa-exclamation-triangle');
                         $p.text(_.str.sprintf(self.newContentText.failed, name));
                     });
                 }
-            }, {
+            },{
                 text: _t("Cancel"),
                 close: true,
             }];
@@ -338,7 +294,7 @@ var NewContentMenu = websiteNavbarData.WebsiteNavbarActionWidget.extend({
         new Dialog(this, {
             title: title,
             size: 'medium',
-            $content: $('<div/>', {text: content}),
+            $content: $('<p/>', {text: content}),
             buttons: buttons
         }).open();
     },

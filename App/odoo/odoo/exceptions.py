@@ -13,56 +13,52 @@ treated as a 'Server error'.
 """
 
 import logging
-import warnings
+from inspect import currentframe
+from .tools.func import frame_codeinfo
 
 _logger = logging.getLogger(__name__)
 
 
-class UserError(Exception):
+# kept for backward compatibility
+class except_orm(Exception):
+    def __init__(self, name, value=None):
+        if type(self) == except_orm:
+            caller = frame_codeinfo(currentframe(), 1)
+            _logger.warn('except_orm is deprecated. Please use specific exceptions like UserError or AccessError. Caller: %s:%s', *caller)
+        self.name = name
+        self.value = value
+        self.args = (name, value)
+
+
+class UserError(except_orm):
     """Generic error managed by the client.
 
     Typically when the user tries to do something that has no sense given the current
-    state of a record. Semantically comparable to the generic 400 HTTP status codes.
+    state of a record.
     """
+    def __init__(self, msg):
+        super(UserError, self).__init__(msg, value='')
 
-    def __init__(self, message):
-        """
-        :param message: exception message and frontend modal content
-        """
-        super().__init__(message)
 
-    @property
-    def name(self):
-        warnings.warn(
-            "UserError attribute 'name' is a deprecated alias to args[0]",
-            DeprecationWarning)
-        return self.args[0]
+# deprecated due to collision with builtins, kept for compatibility
+Warning = UserError
 
 
 class RedirectWarning(Exception):
     """ Warning with a possibility to redirect the user instead of simply
     displaying the warning message.
 
-    :param str message: exception message and frontend modal content
     :param int action_id: id of the action where to perform the redirection
     :param str button_text: text to put on the button that will trigger
         the redirection.
-    :param dict additional_context: parameter passed to action_id.
-           Can be used to limit a view to active_ids for example.
     """
-    def __init__(self, message, action, button_text, additional_context=None):
-        super().__init__(message, action, button_text, additional_context)
-
-    # using this RedirectWarning won't crash if used as an UserError
+    # using this RedirectWarning won't crash if used as an except_orm
     @property
     def name(self):
-        warnings.warn(
-            "RedirectWarning attribute 'name' is a deprecated alias to args[0]",
-            DeprecationWarning)
         return self.args[0]
 
 
-class AccessDenied(UserError):
+class AccessDenied(Exception):
     """Login/password error.
 
     .. note::
@@ -74,14 +70,14 @@ class AccessDenied(UserError):
         When you try to log with a wrong password.
     """
 
-    def __init__(self, message="Access Denied"):
-        super().__init__(message)
+    def __init__(self, message='Access denied'):
+        super(AccessDenied, self).__init__(message)
         self.with_traceback(None)
         self.__cause__ = None
         self.traceback = ('', '', '')
 
 
-class AccessError(UserError):
+class AccessError(except_orm):
     """Access rights error.
 
     .. admonition:: Example
@@ -89,8 +85,11 @@ class AccessError(UserError):
         When you try to read a record that you are not allowed to.
     """
 
+    def __init__(self, msg):
+        super(AccessError, self).__init__(msg)
 
-class CacheMiss(KeyError):
+
+class CacheMiss(except_orm, KeyError):
     """Missing value(s) in cache.
 
     .. admonition:: Example
@@ -99,10 +98,10 @@ class CacheMiss(KeyError):
     """
 
     def __init__(self, record, field):
-        super().__init__("%r.%s" % (record, field.name))
+        super(CacheMiss, self).__init__("%s.%s" % (str(record), field.name))
 
 
-class MissingError(UserError):
+class MissingError(except_orm):
     """Missing record(s).
 
     .. admonition:: Example
@@ -110,8 +109,11 @@ class MissingError(UserError):
         When you try to write on a deleted record.
     """
 
+    def __init__(self, msg):
+        super(MissingError, self).__init__(msg)
 
-class ValidationError(UserError):
+
+class ValidationError(except_orm):
     """Violation of python constraints.
 
     .. admonition:: Example
@@ -119,22 +121,24 @@ class ValidationError(UserError):
         When you try to create a new user with a login which already exist in the db.
     """
 
+    def __init__(self, msg):
+        super(ValidationError, self).__init__(msg)
 
-# Deprecated exceptions, only kept for backward compatibility, may be
-# removed in the future *without* any futher notice than the Deprecation
-# Warning.
 
-class except_orm(UserError):
-    def __init__(self, name, value=None):
-        warnings.warn("except_orm is a deprecated alias to UserError.", DeprecationWarning)
-        super().__init__(f"{name}: {value}")
+class DeferredException(Exception):
+    """ Exception object holding a traceback for asynchronous reporting.
 
-class Warning(UserError):
-    def __init__(self, *args, **kwargs):
-        warnings.warn("Warning is a deprecated alias to UserError.", DeprecationWarning)
-        super().__init__(*args, **kwargs)
+    Some RPC calls (database creation and report generation) happen with
+    an initial request followed by multiple, polling requests. This class
+    is used to store the possible exception occuring in the thread serving
+    the first request, and is then sent to a polling request.
+
+    ('Traceback' is misleading, this is really a exc_info() triple.)
+    """
+    def __init__(self, msg, tb):
+        self.message = msg
+        self.traceback = tb
+
 
 class QWebException(Exception):
-    def __init__(self, *args, **kwargs):
-        warnings.warn("qweb.QWebException is the exception you are looking for.", DeprecationWarning)
-        super().__init__(*args, **kwargs)
+    pass

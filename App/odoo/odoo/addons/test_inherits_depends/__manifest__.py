@@ -3,7 +3,7 @@
 {
     'name': 'test-inherits-depends',
     'version': '0.1',
-    'category': 'Hidden/Tests',
+    'category': 'Tests',
     'description': """A module to verify the inheritance using _inherits in non-original modules.""",
     'depends': ['test_inherits'],
     'data': [],

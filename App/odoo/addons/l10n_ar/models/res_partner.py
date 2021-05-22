@@ -42,7 +42,7 @@ class ResPartner(models.Model):
                 rec.l10n_ar_formatted_vat = stdnum.ar.cuit.format(rec.l10n_ar_vat)
             except Exception as error:
                 rec.l10n_ar_formatted_vat = rec.l10n_ar_vat
-                _logger.runbot("Argentinian VAT was not formatted: %s", repr(error))
+                _logger.log(25, "Argentinian VAT was not formatted: %s", repr(error))
         remaining = self - recs_ar_vat
         remaining.l10n_ar_formatted_vat = False
 
@@ -97,18 +97,18 @@ class ResPartner(models.Model):
                 module = rec._get_validation_module()
             except Exception as error:
                 module = False
-                _logger.runbot("Argentinian document was not validated: %s", repr(error))
+                _logger.log(25, "Argentinian document was not validated: %s", repr(error))
 
             if not module:
                 continue
             try:
                 module.validate(rec.vat)
             except module.InvalidChecksum:
-                raise ValidationError(_('The validation digit is not valid for "%s"', rec.l10n_latam_identification_type_id.name))
+                raise ValidationError(_('The validation digit is not valid for "%s"') % rec.l10n_latam_identification_type_id.name)
             except module.InvalidLength:
-                raise ValidationError(_('Invalid length for "%s"', rec.l10n_latam_identification_type_id.name))
+                raise ValidationError(_('Invalid length for "%s"') % rec.l10n_latam_identification_type_id.name)
             except module.InvalidFormat:
-                raise ValidationError(_('Only numbers allowed for "%s"', rec.l10n_latam_identification_type_id.name))
+                raise ValidationError(_('Only numbers allowed for "%s"') % rec.l10n_latam_identification_type_id.name)
             except Exception as error:
                 raise ValidationError(repr(error))
 

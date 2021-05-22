@@ -3,7 +3,6 @@
 
 from collections import OrderedDict
 from lxml import etree
-from odoo import tools
 
 import odoo.tests
 
@@ -18,11 +17,6 @@ class TestWebsiteSaleComparison(odoo.tests.TransactionCase):
         `_remove_copied_views`. The problematic view that has to be removed is
         `product_add_to_compare` because it has a reference to `add_to_compare`.
         """
-        # YTI TODO: Adapt this tour without demo data
-        # I still didn't figure why, but this test freezes on runbot
-        # without the demo data
-        if tools.config["without_demo"]:
-            return
 
         Website0 = self.env['website'].with_context(website_id=None)
         Website1 = self.env['website'].with_context(website_id=1)
@@ -45,9 +39,9 @@ class TestWebsiteSaleComparison(odoo.tests.TransactionCase):
         product.with_context(website_id=1).write({'name': 'Trigger COW'})
 
         # Verify initial state: the specific views exist
-        self.assertEqual(Website1.viewref('website_sale.product').website_id.id, 1)
-        self.assertEqual(Website1.viewref('website_sale_comparison.product_add_to_compare').website_id.id, 1)
-        self.assertEqual(Website1.viewref(test_view_key).website_id.id, 1)
+        self.assertEquals(Website1.viewref('website_sale.product').website_id.id, 1)
+        self.assertEquals(Website1.viewref('website_sale_comparison.product_add_to_compare').website_id.id, 1)
+        self.assertEquals(Website1.viewref(test_view_key).website_id.id, 1)
 
         # Remove the module (use `module_uninstall` because it is enough to test
         # what we want here, no need/can't use `button_immediate_uninstall`
@@ -110,15 +104,12 @@ class TestUi(odoo.tests.HttpCase):
             variant.product_template_attribute_value_ids.filtered(lambda ptav: ptav.attribute_id == self.attribute_vintage).price_extra = price
 
     def test_01_admin_tour_product_comparison(self):
-        # YTI FIXME: Adapt to work without demo data
-        if tools.config["without_demo"]:
-            return
         self.start_tour("/", 'product_comparison', login='admin')
 
     def test_02_attribute_multiple_lines(self):
         # Case product page with "Product attributes table" disabled (website_sale standard case)
         self.env['website'].viewref('website_sale_comparison.product_attributes_body').active = False
-        res = self.url_open('/shop/%d' % self.template_margaux.id)
+        res = self.url_open('/shop/product/%d' % self.template_margaux.id)
         self.assertEqual(res.status_code, 200)
         root = etree.fromstring(res.content, etree.HTMLParser())
 
@@ -128,7 +119,7 @@ class TestUi(odoo.tests.HttpCase):
 
         # Case product page with "Product attributes table" enabled
         self.env['website'].viewref('website_sale_comparison.product_attributes_body').active = True
-        res = self.url_open('/shop/%d' % self.template_margaux.id)
+        res = self.url_open('/shop/product/%d' % self.template_margaux.id)
         self.assertEqual(res.status_code, 200)
         root = etree.fromstring(res.content, etree.HTMLParser())
 

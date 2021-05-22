@@ -12,8 +12,6 @@
                 </xpath>
                 <xpath expr="//button[@name='unlink_action']" position="replace">
                 </xpath>
-                <xpath expr="//button[@name='run']" position="replace">
-                </xpath>
                 <xpath expr="//group[@name='action_content']" position="inside">
                     <field name="user_id"/>
                     <label for="interval_number" string="Execute Every"/>
@@ -21,7 +19,7 @@
                         <field name="interval_number" class="oe_inline"/>
                         <field name="interval_type" class="oe_inline"/>
                     </div>
-                    <field name="active" widget="boolean_toggle"/>
+                    <field name="active"/>
                     <field name="nextcall"/>
                     <field name="numbercall"/>
                     <field name="priority"/>
@@ -39,7 +37,6 @@
                 <tree string="Scheduled Actions" decoration-muted="(not active)">
                     <field name="priority"/>
                     <field name="name"/>
-                    <field name="model_id"/>
                     <field name="nextcall"/>
                     <field name="interval_number"/>
                     <field name="interval_type"/>
@@ -56,7 +53,6 @@
             <field name="arch" type="xml">
                 <calendar string="Scheduled Actions" date_start="nextcall" color="user_id">
                     <field name="name"/>
-                    <field name="user_id" filters="1" invisible="1"/>
                 </calendar>
             </field>
         </record>
@@ -67,7 +63,6 @@
                 <search string="Scheduled Actions">
                     <field name="name" string="Scheduled Action"/>
                     <field name="user_id"/>
-                    <field name="model_id"/>
                     <field name="nextcall"/>
                     <field name="active"/>
                     <separator/>
@@ -77,7 +72,6 @@
                     <group expand="0" string="Group By">
                         <filter string="User" name="user" domain="[]" context="{'group_by': 'user_id'}"/>
                         <filter string="Execution" name="execution" domain="[]" context="{'group_by': 'nextcall'}" />
-                        <filter string="Model" name="groupby_model_id" domain="[]" context="{'group_by': 'model_id'}"/>
                     </group>
                 </search>
             </field>

@@ -3,7 +3,6 @@
 from datetime import datetime, timedelta
 import logging
 import pytz
-from psycopg2 import sql, OperationalError, errorcodes
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
@@ -21,10 +20,10 @@ def _create_sequence(cr, seq_name, number_increment, number_next):
 
 def _drop_sequences(cr, seq_names):
     """ Drop the PostreSQL sequences if they exist. """
-    names = sql.SQL(',').join(map(sql.Identifier, seq_names))
+    names = ','.join(seq_names)
     # RESTRICT is the default; it prevents dropping the sequence if an
     # object depends on it.
-    cr.execute(sql.SQL("DROP SEQUENCE IF EXISTS {} RESTRICT").format(names))
+    cr.execute("DROP SEQUENCE IF EXISTS %s RESTRICT " % names)
 
 
 def _alter_sequence(cr, seq_name, number_increment=None, number_next=None):
@@ -35,45 +34,38 @@ def _alter_sequence(cr, seq_name, number_increment=None, number_next=None):
     if not cr.fetchone():
         # sequence is not created yet, we're inside create() so ignore it, will be set later
         return
-    statement = sql.SQL("ALTER SEQUENCE") + sql.Identifier(seq_name)
-    params = []
+    statement = "ALTER SEQUENCE %s" % (seq_name, )
     if number_increment is not None:
-        statement += sql.SQL("INCREMENT BY") + sql.Placeholder()
-        params.append(number_increment)
+        statement += " INCREMENT BY %d" % (number_increment, )
     if number_next is not None:
-        statement += sql.SQL("RESTART WITH") + sql.Placeholder()
-        params.append(number_next)
-    cr.execute(statement.join(' '), params)
+        statement += " RESTART WITH %d" % (number_next, )
+    cr.execute(statement)
 
 
 def _select_nextval(cr, seq_name):
-    cr.execute("SELECT nextval(%s)", [seq_name])
+    cr.execute("SELECT nextval('%s')" % seq_name)
     return cr.fetchone()
 
 
 def _update_nogap(self, number_increment):
     number_next = self.number_next
-    self._cr.execute("SELECT number_next FROM %s WHERE id=%%s FOR UPDATE NOWAIT" % self._table, [self.id])
-    self._cr.execute("UPDATE %s SET number_next=number_next+%%s WHERE id=%%s " % self._table, (number_increment, self.id))
+    self._cr.execute("SELECT number_next FROM %s WHERE id=%s FOR UPDATE NOWAIT" % (self._table, self.id))
+    self._cr.execute("UPDATE %s SET number_next=number_next+%s WHERE id=%s " % (self._table, number_increment, self.id))
     self.invalidate_cache(['number_next'], [self.id])
     return number_next
 
 def _predict_nextval(self, seq_id):
     """Predict next value for PostgreSQL sequence without consuming it"""
     # Cannot use currval() as it requires prior call to nextval()
-    seqname = 'ir_sequence_%s' % seq_id
-    seqtable = sql.Identifier(seqname)
-    query = sql.SQL("""SELECT last_value,
+    query = """SELECT last_value,
                       (SELECT increment_by
                        FROM pg_sequences
-                       WHERE sequencename = %s),
+                       WHERE sequencename = 'ir_sequence_%(seq_id)s'),
                       is_called
-               FROM {}""")
-    params = [seqname]
+               FROM ir_sequence_%(seq_id)s"""
     if self.env.cr._cnx.server_version < 100000:
-        query = sql.SQL("SELECT last_value, increment_by, is_called FROM {}")
-        params = []
-    self.env.cr.execute(query.format(seqtable), params)
+        query = "SELECT last_value, increment_by, is_called FROM ir_sequence_%(seq_id)s"
+    self.env.cr.execute(query % {'seq_id': seq_id})
     (last_value, increment_by, is_called) = self.env.cr.fetchone()
     if is_called:
         return last_value + increment_by
@@ -97,9 +89,7 @@ class IrSequence(models.Model):
         '''Return number from ir_sequence row when no_gap implementation,
         and number from postgres sequence when standard implementation.'''
         for seq in self:
-            if not seq.id:
-                seq.number_next_actual = 0
-            elif seq.implementation != 'standard':
+            if seq.implementation != 'standard':
                 seq.number_next_actual = seq.number_next
             else:
                 seq_id = "%03d" % seq.id
@@ -130,7 +120,7 @@ class IrSequence(models.Model):
     implementation = fields.Selection([('standard', 'Standard'), ('no_gap', 'No gap')],
                                       string='Implementation', required=True, default='standard',
                                       help="While assigning a sequence number to a record, the 'no gap' sequence implementation ensures that each previous sequence number has been assigned already. "
-                                      "While this sequence implementation will not skip any sequence number upon assignment, there can still be gaps in the sequence if records are deleted. "
+                                      "While this sequence implementation will not skip any sequence number upon assignation, there can still be gaps in the sequence if records are deleted. "
                                       "The 'no gap' implementation is slower than the standard one.")
     active = fields.Boolean(default=True)
     prefix = fields.Char(help="Prefix value of the record for the sequence", trim=False)
@@ -224,12 +214,13 @@ class IrSequence(models.Model):
 
             return res
 
+        self.ensure_one()
         d = _interpolation_dict()
         try:
             interpolated_prefix = _interpolate(self.prefix, d)
             interpolated_suffix = _interpolate(self.suffix, d)
         except ValueError:
-            raise UserError(_('Invalid prefix or suffix for sequence \'%s\'') % (self.get('name')))
+            raise UserError(_('Invalid prefix or suffix for sequence \'%s\'') % self.name)
         return interpolated_prefix, interpolated_suffix
 
     def get_next_char(self, number_next):
@@ -275,10 +266,18 @@ class IrSequence(models.Model):
             If several sequences with the correct code are available to the user
             (multi-company cases), the one from the user's current company will
             be used.
+
+            :param dict context: context dictionary may contain a
+                ``force_company`` key with the ID of the company to
+                use instead of the user's current company for the
+                sequence selection. A matching sequence for that
+                specific company will get higher priority.
         """
         self.check_access_rights('read')
-        company_id = self.env.company.id
-        seq_ids = self.search([('code', '=', sequence_code), ('company_id', 'in', [company_id, False])], order='company_id')
+        force_company = self._context.get('force_company')
+        if not force_company:
+            force_company = self.env.company.id
+        seq_ids = self.search([('code', '=', sequence_code), ('company_id', 'in', [force_company, False])], order='company_id')
         if not seq_ids:
             _logger.debug("No ir.sequence has been found for code '%s'. Please make sure a sequence is set for current company." % sequence_code)
             return False

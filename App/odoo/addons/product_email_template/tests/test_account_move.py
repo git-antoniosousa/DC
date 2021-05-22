@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.account.tests.account_test_savepoint import AccountTestInvoicingCommon
 from odoo.tests import tagged
 
 @tagged('post_install', '-at_install')
@@ -25,7 +25,7 @@ class TestAccountMove(AccountTestInvoicingCommon):
         else:
             id_max = 0
         invoice = self.env['account.move'].create({
-            'move_type': 'out_invoice',
+            'type': 'out_invoice',
             'partner_id': self.customer.id,
             'invoice_line_ids': [(0, 0, {
                 'name': 'Walter PPK',
@@ -34,7 +34,7 @@ class TestAccountMove(AccountTestInvoicingCommon):
                 'product_id': self.product_a.id
             })]
         })
-        invoice.action_post()
+        invoice.post()
         message_sent = self.env['mail.message'].search([('id', '>', id_max), ('subject', '=', 'YOUR PRODUCT')])
         self.assertEqual(len(message_sent), 1, 'Should send 1 message for product')
         self.assertTrue(message_sent[0].email_from, 'Should have from email address')
@@ -49,7 +49,7 @@ class TestAccountMove(AccountTestInvoicingCommon):
         else:
             id_max = 0
         invoice = self.env['account.move'].create({
-            'move_type': 'out_invoice',
+            'type': 'out_invoice',
             'partner_id': self.customer.id,
             'invoice_line_ids': [(0, 0, {
                 'name': 'Walter PPK',
@@ -64,7 +64,7 @@ class TestAccountMove(AccountTestInvoicingCommon):
             'email': False,
             'groups_id': [(6, 0, [self.env.ref('base.group_public').id])]
         })
-        invoice.with_user(pub_user).sudo().action_post()
+        invoice.with_user(pub_user).sudo().post()
         message_sent = self.env['mail.message'].search([('id', '>', id_max), ('subject', '=', 'YOUR PRODUCT')])
         self.assertEqual(len(message_sent), 1, 'Should send 1 message for product')
         self.assertTrue(message_sent[0].email_from, 'Should have from email address')

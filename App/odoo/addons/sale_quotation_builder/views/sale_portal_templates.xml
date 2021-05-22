@@ -10,7 +10,7 @@
                     <t t-set="product_tmpl_ids" t-value="product_tmpl_ids + [line.product_id.product_tmpl_id.id]"/>
                     <a t-att-id="line.id"/>
                     <div class="alert alert-info alert-dismissable mt16 css_non_editable_mode_hidden o_not_editable" t-ignore="True" role="status">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">&amp;times;</button>
                         Product: <strong t-esc="line.product_id.name"/>:
                         this content will appear on the quotation only if this
                         product is not removed.
@@ -88,7 +88,7 @@
                 <t t-set="_message">
                     An awesome <a target="_blank" href="https://www.odoo.com/page/crm?utm_source=db&amp;utm_medium=portal">Open Source CRM</a>
                 </t>
-                <t t-set="_utm_medium" t-valuef="portal"/>
+                <t t-set="_utm_medium">portal</t>
             </t>
         </xpath>
     </template>

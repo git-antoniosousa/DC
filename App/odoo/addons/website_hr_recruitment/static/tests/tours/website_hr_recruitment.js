@@ -5,14 +5,8 @@ odoo.define('website_hr_recruitment.tour', function(require) {
 
     tour.register('website_hr_recruitment_tour', {
         test: true,
-        url: '/jobs',
+        url: '/jobs/apply/3',
     }, [{
-        content: "Select Job",
-        trigger: ".oe_website_jobs h3 span:contains('A Test Job')"
-    }, {
-        content: "Apply",
-        trigger: ".js_hr_recruitment a:contains('Apply')"
-    }, {
         content: "Complete name",
         trigger: "input[name=partner_name]",
         run: "text John Smith"
@@ -30,7 +24,7 @@ odoo.define('website_hr_recruitment.tour', function(require) {
         run: "text ### HR RECRUITMENT TEST DATA ###"
     }, { // TODO: Upload a file ?
         content: "Send the form",
-        trigger: ".s_website_form_send"
+        trigger: ".o_website_form_send"
     }, {
         content: "Check the form is submited without errors",
         trigger: ".oe_structure:has(h1:contains('Congratulations'))"

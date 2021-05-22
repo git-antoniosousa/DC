@@ -133,7 +133,6 @@ class TestMultistepManufacturingWarehouse(TestMrpCommon):
             warehouse.manufacture_steps = 'pbm_sam'
             warehouse.delivery_steps = 'pick_pack_ship'
         self.warehouse.flush()
-        self.env.ref('stock.route_warehouse0_mto').active = True
         self.env['stock.quant']._update_available_quantity(self.raw_product, self.warehouse.lot_stock_id, 4.0)
         picking_customer = self.env['stock.picking'].create({
             'location_id': self.warehouse.wh_output_stock_loc_id.id,
@@ -181,7 +180,7 @@ class TestMultistepManufacturingWarehouse(TestMrpCommon):
 
         picking_stock_preprod.action_assign()
         picking_stock_preprod.move_line_ids.qty_done = 4
-        picking_stock_preprod._action_done()
+        picking_stock_preprod.action_done()
 
         self.assertFalse(sum(self.env['stock.quant']._gather(self.raw_product, self.warehouse.lot_stock_id).mapped('quantity')))
         self.assertTrue(self.env['stock.quant']._gather(self.raw_product, self.warehouse.pbm_loc_id))
@@ -190,9 +189,13 @@ class TestMultistepManufacturingWarehouse(TestMrpCommon):
         self.assertEqual(production_order.reservation_state, 'assigned')
         self.assertEqual(picking_stock_postprod.state, 'waiting')
 
-        produce_form = Form(production_order)
+        produce_form = Form(self.env['mrp.product.produce'].with_context({
+            'active_id': production_order.id,
+            'active_ids': [production_order.id],
+        }))
         produce_form.qty_producing = production_order.product_qty
-        production_order = produce_form.save()
+        product_produce = produce_form.save()
+        product_produce.do_produce()
         production_order.button_mark_done()
 
         self.assertFalse(sum(self.env['stock.quant']._gather(self.raw_product, self.warehouse.pbm_loc_id).mapped('quantity')))
@@ -254,7 +257,7 @@ class TestMultistepManufacturingWarehouse(TestMrpCommon):
         self.assertEqual(move_stock_postprod.state, 'waiting')
 
         move_stock_preprod._action_cancel()
-        self.assertEqual(production_order.state, 'confirmed')
+        self.assertEquals(production_order.state, 'confirmed')
         production_order.action_cancel()
         self.assertTrue(move_stock_postprod.state, 'cancel')
 
@@ -276,35 +279,108 @@ class TestMultistepManufacturingWarehouse(TestMrpCommon):
         self.assertEqual(production.state, 'confirmed')
         self.assertEqual(production.reservation_state, 'assigned')
 
-    def test_manufacturing_3_steps_flexible(self):
-        """ Test MO/picking before manufacturing/picking after manufacturing
-        components and move_orig/move_dest. Ensure that additional moves are put
-        in picking before manufacturing too.
+    def test_manufacturing_complex_product_3_steps(self):
+        """ Test MO/picking after manufacturing a complex product which uses
+        manufactured components. Ensure that everything is created and picked
+        correctly.
         """
+
+        # Creating complex product which trigger another manifacture
+
+        product_form = Form(self.env['product.product'])
+        product_form.name = 'Arrow'
+        product_form.type = 'product'
+        product_form.route_ids.clear()
+        product_form.route_ids.add(self.warehouse.manufacture_pull_id.route_id)
+        product_form.route_ids.add(self.warehouse.mto_pull_id.route_id)
+        self.complex_product = product_form.save()
+
+        ## Create raw product for manufactured product
+        product_form = Form(self.env['product.product'])
+        product_form.name = 'Raw Iron'
+        product_form.type = 'product'
+        product_form.uom_id = self.uom_unit
+        product_form.uom_po_id = self.uom_unit
+        self.raw_product_2 = product_form.save()
+
+        ## Create bom for manufactured product
+        bom_product_form = Form(self.env['mrp.bom'])
+        bom_product_form.product_id = self.complex_product
+        bom_product_form.product_tmpl_id = self.complex_product.product_tmpl_id
+        with bom_product_form.bom_line_ids.new() as line:
+            line.product_id = self.finished_product
+            line.product_qty = 1.0
+        with bom_product_form.bom_line_ids.new() as line:
+            line.product_id = self.raw_product_2
+            line.product_qty = 1.0
+
+        self.complex_bom = bom_product_form.save()
+
         with Form(self.warehouse) as warehouse:
             warehouse.manufacture_steps = 'pbm_sam'
-        bom = self.env['mrp.bom'].search([
-            ('product_id', '=', self.finished_product.id)
-        ])
-        new_product = self.env['product.product'].create({
-            'name': 'New product',
-            'type': 'product',
-        })
-        bom.consumption = 'flexible'
+
         production_form = Form(self.env['mrp.production'])
-        production_form.product_id = self.finished_product
+        production_form.product_id = self.complex_product
         production_form.picking_type_id = self.warehouse.manu_type_id
         production = production_form.save()
-
         production.action_confirm()
 
-        production_form = Form(production)
-        with production_form.move_raw_ids.new() as move:
-            move.product_id = new_product
-            move.product_uom_qty = 2
-        production = production_form.save()
         move_raw_ids = production.move_raw_ids
         self.assertEqual(len(move_raw_ids), 2)
-        pbm_move = move_raw_ids.move_orig_ids
-        self.assertEqual(len(pbm_move), 2)
-        self.assertTrue(new_product in pbm_move.product_id)
+        sfp_move_raw_id, raw_move_raw_id = move_raw_ids
+        self.assertEqual(sfp_move_raw_id.product_id, self.finished_product)
+        self.assertEqual(raw_move_raw_id.product_id, self.raw_product_2)
+
+        for move_raw_id in move_raw_ids:
+            self.assertEqual(move_raw_id.picking_type_id, self.warehouse.manu_type_id)
+
+            pbm_move = move_raw_id.move_orig_ids
+            self.assertEqual(len(pbm_move), 1)
+            self.assertEqual(pbm_move.location_id, self.warehouse.lot_stock_id)
+            self.assertEqual(pbm_move.location_dest_id, self.warehouse.pbm_loc_id)
+            self.assertEqual(pbm_move.picking_type_id, self.warehouse.pbm_type_id)
+
+        # Check move locations
+        move_finished_ids = production.move_finished_ids
+        self.assertEqual(len(move_finished_ids), 1)
+        self.assertEqual(move_finished_ids.product_id, self.complex_product)
+        self.assertEqual(move_finished_ids.picking_type_id, self.warehouse.manu_type_id)
+        sam_move = move_finished_ids.move_dest_ids
+        self.assertEqual(len(sam_move), 1)
+        self.assertEqual(sam_move.location_id, self.warehouse.sam_loc_id)
+        self.assertEqual(sam_move.location_dest_id, self.warehouse.lot_stock_id)
+        self.assertEqual(sam_move.picking_type_id, self.warehouse.sam_type_id)
+        self.assertFalse(sam_move.move_dest_ids)
+
+        subproduction = self.env['mrp.production'].browse(production.id+1)
+        sfp_pickings = subproduction.picking_ids.sorted('id')
+
+        # SFP Production: 2 pickings, 1 group
+        self.assertEqual(len(sfp_pickings), 2)
+        self.assertEqual(sfp_pickings.mapped('group_id'), subproduction.procurement_group_id)
+
+        ## Move Raw Stick - Stock -> Preprocessing
+        picking = sfp_pickings[0]
+        self.assertEqual(len(picking.move_lines), 1)
+        picking.move_lines[0].product_id = self.raw_product
+
+        ## Move SFP - PostProcessing -> Stock
+        picking = sfp_pickings[1]
+        self.assertEqual(len(picking.move_lines), 1)
+        picking.move_lines[0].product_id = self.finished_product
+
+        # Main production 2 pickings, 1 group
+        pickings = production.picking_ids.sorted('id')
+        self.assertEqual(len(pickings), 2)
+        self.assertEqual(pickings.mapped('group_id'), production.procurement_group_id)
+
+        ## Move 2 components Stock -> Preprocessing
+        picking = pickings[0]
+        self.assertEqual(len(picking.move_lines), 2)
+        picking.move_lines[0].product_id = self.finished_product
+        picking.move_lines[1].product_id = self.raw_product_2
+
+        ## Move FP PostProcessing -> Stock
+        picking = pickings[1]
+        self.assertEqual(len(picking.move_lines), 1)
+        picking.product_id = self.complex_product

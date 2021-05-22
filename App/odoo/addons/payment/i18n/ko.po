@@ -3,18 +3,21 @@
 # 	* payment
 # 
 # Translators:
-# Martin Trigaux, 2020
-# Link Up링크업 <linkup.way@gmail.com>, 2020
-# Linkup <link-up@naver.com>, 2020
-# Seongseok Shin <shinss61@hotmail.com>, 2020
+# Spike Lee <rurouni24@gmail.com>, 2019
+# Mark Lee <odoos@soti.33mail.com>, 2019
+# Martin Trigaux, 2019
+# Linda Stockelova <stockeloval@btlnet.com>, 2019
+# Link Up링크업 <linkup.way@gmail.com>, 2019
+# Linkup <link-up@naver.com>, 2019
+# Seongseok Shin <shinss61@hotmail.com>, 2019
 # JH CHOI <hwangtog@gmail.com>, 2020
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-27 14:12+0000\n"
-"PO-Revision-Date: 2020-09-07 08:15+0000\n"
+"POT-Creation-Date: 2020-04-27 09:22+0000\n"
+"PO-Revision-Date: 2019-08-26 09:12+0000\n"
 "Last-Translator: JH CHOI <hwangtog@gmail.com>, 2020\n"
 "Language-Team: Korean (https://www.transifex.com/odoo/teams/41243/ko/)\n"
 "MIME-Version: 1.0\n"
@@ -24,14 +27,14 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard___data_fetched
-msgid " Data Fetched"
-msgstr ""
-
-#. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__invoice_ids_nbr
 msgid "# of Invoices"
 msgstr "# 송장"
+
+#. module: payment
+#: model_terms:ir.ui.view,arch_db:payment.payment_confirmation_status
+msgid "&amp;times;"
+msgstr "&amp;times;"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__html_3ds
@@ -107,6 +110,13 @@ msgid "<i class=\"fa fa-trash\"/> Delete"
 msgstr "<i class=\"fa fa-trash\"/> 삭제하기"
 
 #. module: payment
+#. openerp-web
+#: code:addons/payment/static/src/js/payment_form.js:0
+#, python-format
+msgid "<p>This card is currently linked to the following records:<p/>"
+msgstr "<p>이 카드는 현재 다음 레코드에 연결되어 있습니다 :<p/>"
+
+#. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_tokens_list
 msgid "<small class=\"text-muted\">(Some fees may apply)</small>"
 msgstr "<small class=\"text-muted\">(일부 수수료가 적용될 수 있습니다)</small>"
@@ -148,8 +158,8 @@ msgstr ""
 #. module: payment
 #: code:addons/payment/models/account_invoice.py:0
 #, python-format
-msgid "A journal must be specified for the acquirer %s."
-msgstr ""
+msgid "A journal must be specified of the acquirer %s."
+msgstr "%s 매입사에 대한 분개장을 지정해야 합니다."
 
 #. module: payment
 #: code:addons/payment/models/account_invoice.py:0
@@ -199,9 +209,15 @@ msgid "Access Token"
 msgstr "사용 권한 토큰"
 
 #. module: payment
+#: code:addons/payment/wizards/payment_acquirer_onboarding_wizard.py:0
+#, python-format
+msgid "Account"
+msgstr "계정"
+
+#. module: payment
 #: model:ir.model,name:payment.model_account_chart_template
 msgid "Account Chart Template"
-msgstr "계정과목 일람표 서식"
+msgstr "회계 계정 서식"
 
 #. module: payment
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_transfer
@@ -274,7 +290,7 @@ msgstr "주소"
 #. module: payment
 #: model:payment.acquirer,name:payment.payment_acquirer_adyen
 msgid "Adyen"
-msgstr "Adyen"
+msgstr "아디옌"
 
 #. module: payment
 #: model:payment.acquirer,name:payment.payment_acquirer_alipay
@@ -319,7 +335,7 @@ msgstr "적용"
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_token_view_search
 msgid "Archived"
-msgstr "아카이브됨"
+msgstr "보존"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.account_invoice_view_form_inherit_payment
@@ -327,7 +343,7 @@ msgstr "아카이브됨"
 msgid ""
 "Are you sure you want to void the authorized transaction? This action can't "
 "be undone."
-msgstr "승인된 거래를 취소 하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+msgstr "승인된 거래를 취소 하시겠습니까? 이 작업은 취소할 수 없습니다."
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__authorize_implemented
@@ -350,16 +366,20 @@ msgid "Authorized"
 msgstr "승인됨"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_bank_statement_line__authorized_transaction_ids
 #: model:ir.model.fields,field_description:payment.field_account_move__authorized_transaction_ids
-#: model:ir.model.fields,field_description:payment.field_account_payment__authorized_transaction_ids
 msgid "Authorized Transactions"
 msgstr "승인된 거래"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_form
 msgid "Availability"
-msgstr "가용성"
+msgstr "사용 가능성"
+
+#. module: payment
+#: code:addons/payment/wizards/payment_acquirer_onboarding_wizard.py:0
+#, python-format
+msgid "Bank"
+msgstr "은행"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__journal_name
@@ -483,7 +503,7 @@ msgstr "확인 페이지로 이동하려면 여기를 클릭하십시오."
 #: model_terms:ir.ui.view,arch_db:payment.payment_confirmation_status
 #: model_terms:ir.ui.view,arch_db:payment.payment_link_wizard_view_form
 msgid "Close"
-msgstr "마감"
+msgstr "닫기"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__color
@@ -493,11 +513,10 @@ msgstr "색상"
 #. module: payment
 #: model:ir.model,name:payment.model_res_company
 msgid "Companies"
-msgstr "회사들"
+msgstr "회사"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__company_id
-#: model:ir.model.fields,field_description:payment.field_payment_link_wizard__company_id
 #: model:ir.model.fields,field_description:payment.field_payment_token__company_id
 msgid "Company"
 msgstr "회사"
@@ -505,7 +524,7 @@ msgstr "회사"
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_form
 msgid "Configuration"
-msgstr "구성"
+msgstr "환경 설정"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_kanban
@@ -574,7 +593,7 @@ msgstr "저장된 결제 데이타 만들기"
 #: model:ir.model.fields,field_description:payment.field_payment_token__create_uid
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__create_uid
 msgid "Created by"
-msgstr "작성자"
+msgstr "작성인"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__create_date
@@ -617,11 +636,6 @@ msgid "Credit Card (powered by Ingenico)"
 msgstr "신용 카드 (Ingenico 제공)"
 
 #. module: payment
-#: model:payment.acquirer,display_as:payment.payment_acquirer_odoo_by_adyen
-msgid "Credit Card (powered by Odoo Payments)"
-msgstr ""
-
-#. module: payment
 #: model:payment.acquirer,display_as:payment.payment_acquirer_payulatam
 msgid "Credit Card (powered by PayU Latam)"
 msgstr "신용 카드 (PayU Latam 제공)"
@@ -650,7 +664,7 @@ msgstr "신용 카드 (Stripe를 통해)"
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__currency_id
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__currency_id
 msgid "Currency"
-msgstr "환율"
+msgstr "통화"
 
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_acquirer__provider__manual
@@ -670,7 +684,7 @@ msgstr "고객"
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__description
 msgid "Description"
-msgstr "내용"
+msgstr "설명"
 
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_acquirer__sequence
@@ -689,20 +703,14 @@ msgid "Dismiss"
 msgstr "해산"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_chart_template__display_name
-#: model:ir.model.fields,field_description:payment.field_account_move__display_name
-#: model:ir.model.fields,field_description:payment.field_account_payment__display_name
-#: model:ir.model.fields,field_description:payment.field_ir_http__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_icon__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_token__display_name
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__display_name
-#: model:ir.model.fields,field_description:payment.field_res_company__display_name
-#: model:ir.model.fields,field_description:payment.field_res_partner__display_name
 msgid "Display Name"
-msgstr "이름 표시"
+msgstr "표시 이름"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__display_as
@@ -723,7 +731,7 @@ msgstr "완료 메시지"
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_transaction__state__draft
 msgid "Draft"
-msgstr "임시"
+msgstr "초안"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.transaction_form
@@ -737,21 +745,10 @@ msgstr "전자"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__paypal_email_account
-#: model:ir.model.fields,field_description:payment.field_payment_link_wizard__partner_email
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__partner_email
 #: model_terms:ir.ui.view,arch_db:payment.payment_acquirer_onboarding_wizard_form
 msgid "Email"
 msgstr "이메일"
-
-#. module: payment
-#: model:ir.model.fields,field_description:payment.field_payment_acquirer__qr_code
-msgid "Enable QR Codes"
-msgstr ""
-
-#. module: payment
-#: model:ir.model.fields,help:payment.field_payment_acquirer__qr_code
-msgid "Enable the use of QR-codes for payments made on this provider."
-msgstr ""
 
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_acquirer__state__enabled
@@ -807,6 +804,11 @@ msgid "Fixed international fees"
 msgstr "고정 국외 수수료"
 
 #. module: payment
+#: model:ir.model.fields,field_description:payment.field_payment_acquirer__inbound_payment_method_ids
+msgid "For Incoming Payments"
+msgstr "입금"
+
+#. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_transaction__type__form
 msgid "Form"
 msgstr "양식"
@@ -824,7 +826,7 @@ msgstr "토큰화가 있는 양식"
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.confirm
 msgid "From"
-msgstr "보낸 사람"
+msgstr "시작"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_link_wizard_view_form
@@ -877,18 +879,12 @@ msgid "I have a Paypal account"
 msgstr "Paypal 계정이 있습니다"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_chart_template__id
-#: model:ir.model.fields,field_description:payment.field_account_move__id
-#: model:ir.model.fields,field_description:payment.field_account_payment__id
-#: model:ir.model.fields,field_description:payment.field_ir_http__id
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__id
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__id
 #: model:ir.model.fields,field_description:payment.field_payment_icon__id
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__id
 #: model:ir.model.fields,field_description:payment.field_payment_token__id
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__id
-#: model:ir.model.fields,field_description:payment.field_res_company__id
-#: model:ir.model.fields,field_description:payment.field_res_partner__id
 msgid "ID"
 msgstr "ID"
 
@@ -927,11 +923,6 @@ msgstr ""
 "생산 모드에는 서로 다른 자격 증명이 필요합니다."
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_payment_acquirer__inbound_payment_method_ids
-msgid "Inbound Payment Methods"
-msgstr ""
-
-#. module: payment
 #: model:payment.acquirer,name:payment.payment_acquirer_ingenico
 msgid "Ingenico"
 msgstr "Ingenico"
@@ -940,7 +931,7 @@ msgstr "Ingenico"
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_form
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_kanban
 msgid "Install"
-msgstr "설치하기"
+msgstr "설치"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__module_state
@@ -986,12 +977,12 @@ msgstr "송장"
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__invoice_ids
 #, python-format
 msgid "Invoices"
-msgstr "청구서"
+msgstr "송장"
 
 #. module: payment
 #: model:ir.model,name:payment.model_account_move
-msgid "Journal Entry"
-msgstr "분개"
+msgid "Journal Entries"
+msgstr "분개장 기입 항목"
 
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_acquirer__journal_id
@@ -1006,23 +997,17 @@ msgstr "즉시 완료"
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__partner_lang
 msgid "Language"
-msgstr "사용 언어"
+msgstr "언어"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_chart_template____last_update
-#: model:ir.model.fields,field_description:payment.field_account_move____last_update
-#: model:ir.model.fields,field_description:payment.field_account_payment____last_update
-#: model:ir.model.fields,field_description:payment.field_ir_http____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_icon____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_token____last_update
 #: model:ir.model.fields,field_description:payment.field_payment_transaction____last_update
-#: model:ir.model.fields,field_description:payment.field_res_company____last_update
-#: model:ir.model.fields,field_description:payment.field_res_partner____last_update
 msgid "Last Modified on"
-msgstr "최근 수정"
+msgstr "최근 수정일"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__write_uid
@@ -1042,7 +1027,7 @@ msgstr "최근 갱신한 사람"
 #: model:ir.model.fields,field_description:payment.field_payment_token__write_date
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__write_date
 msgid "Last Updated on"
-msgstr "최근 갱신 날짜"
+msgstr "최근 갱신일"
 
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_acquirer__save_token__ask
@@ -1081,9 +1066,9 @@ msgid ""
 "Electronic: Get paid automatically through a payment acquirer by requesting a transaction on a card saved by the customer when buying or subscribing online (payment token).\n"
 "Batch Deposit: Encase several customer checks at once by generating a batch deposit to submit to your bank. When encoding the bank statement in Odoo,you are suggested to reconcile the transaction with the batch deposit. Enable this option from the settings."
 msgstr ""
-"수동: Odoo 외에서 현금, 수표 또는 기타 다른 방식으로 지급받습니다.\n"
-"자동: 온라인에서 매입/구독할 때 고객이 저장한 카드에 대해 거래를 요청한 후 결제를 통해 자동으로 지급받습니다(결제 토큰).\n"
-"일괄 예금: 은행에 예치할 일괄 예금을 생성하여 여러 고객의 전표를 한 번에 묶습니다. Odoo에서 예금거래 명세서를 인코딩할 때는 일괄 예금으로 거래를 조정하는 것이 좋습니다. 이 옵션은 설정에서 활성화합니다."
+"수동 : Odoo 외에서 현금, 수표 또는 기타 다른 방식으로 지급받습니다.\n"
+"자동 : 온라인에서 매입/구독할 때 고객이 저장한 카드에 대해 거래를 요청한 후 결제를 통해 자동으로 지급받습니다(결제 토큰).\n"
+"일괄 예금 : 은행에 예치할 일괄 예금을 생성하여 여러 고객의 전표를 한 번에 묶습니다. Odoo에서 예금거래 명세서를 인코딩할 때는 일괄 예금으로 거래를 조정하는 것이 좋습니다. 이 옵션은 설정에서 활성화합니다."
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__paypal_seller_account
@@ -1162,6 +1147,14 @@ msgid "Never"
 msgstr "하지않음"
 
 #. module: payment
+#: model_terms:ir.ui.view,arch_db:payment.payment_link_wizard_view_form
+msgid ""
+"This partner has no email, which may cause issues with some payment "
+"acquirers. Setting an email for this partner is advised."
+msgstr ""
+"이 파트너에게는 이메일이 없으므로 일부 결제 매입사에게 문제가 발생할 수 있습니다. 이 파트너의 이메일을 설정하는 것이 좋습니다."
+
+#. module: payment
 #: code:addons/payment/wizards/payment_acquirer_onboarding_wizard.py:0
 #, python-format
 msgid ""
@@ -1214,11 +1207,6 @@ msgid "Odoo Enterprise Module"
 msgstr "Odoo Enterprise 모듈"
 
 #. module: payment
-#: model:payment.acquirer,name:payment.payment_acquirer_odoo_by_adyen
-msgid "Odoo Payments by Adyen"
-msgstr ""
-
-#. module: payment
 #. openerp-web
 #: code:addons/payment/static/src/js/payment_form.js:0
 #, python-format
@@ -1234,8 +1222,8 @@ msgstr "관리자만 이 데이터에 접근할 수 있습니다."
 #. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
 #, python-format
-msgid "Only transactions having the authorized status can be captured."
-msgstr ""
+msgid "Only transactions having the capture status can be captured."
+msgstr "포착 상태의 거래만 포착할 수 있습니다."
 
 #. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
@@ -1357,12 +1345,12 @@ msgstr "결제 링크"
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard__payment_method
 #: model_terms:ir.ui.view,arch_db:payment.onboarding_payment_acquirer_step
 msgid "Payment Method"
-msgstr "지급 방법"
+msgstr "걸제 방법"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.pay_methods
 msgid "Payment Methods"
-msgstr "지급 방법"
+msgstr "결제 방법"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_link_wizard__description
@@ -1388,7 +1376,7 @@ msgstr "결제 토큰"
 #: model:ir.model,name:payment.model_payment_transaction
 #: model:ir.model.fields,field_description:payment.field_account_payment__payment_transaction_id
 msgid "Payment Transaction"
-msgstr "결제 처리"
+msgstr "결제 거래"
 
 #. module: payment
 #: model:ir.actions.act_window,name:payment.action_payment_transaction
@@ -1419,7 +1407,7 @@ msgstr "결제 방법 설정 완료!"
 #: model:ir.model,name:payment.model_account_payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_token_form_view
 msgid "Payments"
-msgstr "지급금"
+msgstr "결제 관리"
 
 #. module: payment
 #. openerp-web
@@ -1448,7 +1436,7 @@ msgstr "페이팔 사용자 유형"
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_transaction__state__pending
 msgid "Pending"
-msgstr "대기 중"
+msgstr "보류"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__pending_msg
@@ -1458,7 +1446,7 @@ msgstr "보류 메시지"
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__partner_phone
 msgid "Phone"
-msgstr "전화번호"
+msgstr "전화"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.pay
@@ -1521,7 +1509,7 @@ msgstr "공급업체"
 #: code:addons/payment/static/src/xml/payment_processing.xml:0
 #, python-format
 msgid "Reason:"
-msgstr "사유 :"
+msgstr "이유 :"
 
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_acquirer__payment_flow__form
@@ -1555,11 +1543,6 @@ msgid "Related Document Model"
 msgstr "관련 문서 모델"
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_payment__related_partner_ids
-msgid "Related Partner"
-msgstr "관련된 협력사"
-
-#. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
 #, python-format
 msgid "Required fields not filled: %s"
@@ -1578,7 +1561,7 @@ msgstr "S2S 양식 서식"
 #. module: payment
 #: model:payment.acquirer,name:payment.payment_acquirer_sepa_direct_debit
 msgid "SEPA Direct Debit"
-msgstr "SEPA 출금 이체"
+msgstr "SEPA 자동 이체"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__save_token
@@ -1619,7 +1602,7 @@ msgstr "선택된 온보딩 결제 방법 "
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__sequence
 msgid "Sequence"
-msgstr "순차적"
+msgstr "순서"
 
 #. module: payment
 #. openerp-web
@@ -1672,7 +1655,7 @@ msgstr "Sips"
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__state
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_search
 msgid "State"
-msgstr "상태"
+msgstr "시/도"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_res_company__payment_acquirer_onboarding_state
@@ -1682,7 +1665,7 @@ msgstr "결제 매입사 단계 온보딩 상태"
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__state
 msgid "Status"
-msgstr "상태"
+msgstr "단계"
 
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__res_company__payment_onboarding_payment_method__stripe
@@ -1722,6 +1705,12 @@ msgstr "테스트 모드"
 #, python-format
 msgid "The %s payment acquirers are not allowed to manual capture mode!"
 msgstr "%s 결제 매입사는 수동 포착 모드를 사용할 수 없습니다!"
+
+#. module: payment
+#: model_terms:ir.ui.view,arch_db:payment.confirm
+#: model_terms:ir.ui.view,arch_db:payment.payment_confirmation_status
+msgid "The SEPA QR Code informations are not set correctly."
+msgstr "SEPA QR 코드 정보가 올바르게 설정되지 않았습니다."
 
 #. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
@@ -1788,13 +1777,6 @@ msgid ""
 msgstr "이 거래는 새 신용 카드를 승인하기 위해 자동으로 처리 및 환불되었습니다."
 
 #. module: payment
-#. openerp-web
-#: code:addons/payment/static/src/js/payment_form.js:0
-#, python-format
-msgid "This card is currently linked to the following records:"
-msgstr ""
-
-#. module: payment
 #: model:ir.model.fields,help:payment.field_payment_icon__image
 msgid ""
 "This field holds the image used for this payment icon, limited to "
@@ -1811,14 +1793,6 @@ msgid ""
 msgstr ""
 "이 옵션을 사용하면 고객이 신용 카드를 결제 토큰으로 저장하고 나중에 구입할 때 재사용할 수 있습니다. 구독을 관리하는 경우(송장 청구)"
 " 송장을 발급할 때 고객에게 자동으로 요금을 청구해야 합니다."
-
-#. module: payment
-#: model_terms:ir.ui.view,arch_db:payment.payment_link_wizard_view_form
-msgid ""
-"This partner has no email, which may cause issues with some payment "
-"acquirers. Setting an email for this partner is advised."
-msgstr ""
-"이 파트너에게는 이메일이 없으므로 일부 결제 매입사에게 문제가 발생할 수 있습니다. 이 파트너의 이메일을 설정하는 것이 좋습니다."
 
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_acquirer__country_ids
@@ -1864,9 +1838,7 @@ msgid "This transaction has been cancelled."
 msgstr "이 거래는 취소되었습니다."
 
 #. module: payment
-#: model:ir.model.fields,field_description:payment.field_account_bank_statement_line__transaction_ids
 #: model:ir.model.fields,field_description:payment.field_account_move__transaction_ids
-#: model:ir.model.fields,field_description:payment.field_account_payment__transaction_ids
 msgid "Transactions"
 msgstr "거래"
 
@@ -1896,6 +1868,11 @@ msgstr "Odoo 서버에 접속할 수 없습니다."
 #: model_terms:ir.ui.view,arch_db:payment.acquirer_kanban
 msgid "Upgrade"
 msgstr "업그레이드"
+
+#. module: payment
+#: model:ir.model.fields,field_description:payment.field_payment_acquirer__qr_code
+msgid "Use SEPA QR Code"
+msgstr "SEPA QR 코드 사용"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__date
@@ -1956,10 +1933,16 @@ msgstr "경고!"
 #. module: payment
 #. openerp-web
 #: code:addons/payment/static/src/js/payment_form.js:0
-#: code:addons/payment/static/src/js/payment_form.js:0
 #, python-format
 msgid "We are not able to add your payment method at the moment."
 msgstr "현재 결제 방법을 추가할 수 없습니다."
+
+#. module: payment
+#. openerp-web
+#: code:addons/payment/static/src/js/payment_form.js:0
+#, python-format
+msgid "We are not able to add your payment method at the moment.</p>"
+msgstr "현재 결제 방법을 추가할 수 없습니다.</p>"
 
 #. module: payment
 #. openerp-web
@@ -2065,7 +2048,6 @@ msgstr "주문이 처리 중입니다. 잠시만 기다려주십시오 ..."
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_payulatam
@@ -2075,7 +2057,7 @@ msgstr "주문이 처리 중입니다. 잠시만 기다려주십시오 ..."
 #: model_terms:payment.acquirer,auth_msg:payment.payment_acquirer_transfer
 #, python-format
 msgid "Your payment has been authorized."
-msgstr "귀하의 결제가 승인되었습니다."
+msgstr "결제가 승인되었습니다."
 
 #. module: payment
 #: code:addons/payment/models/payment_acquirer.py:0
@@ -2084,7 +2066,6 @@ msgstr "귀하의 결제가 승인되었습니다."
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_payulatam
@@ -2094,7 +2075,7 @@ msgstr "귀하의 결제가 승인되었습니다."
 #: model_terms:payment.acquirer,cancel_msg:payment.payment_acquirer_transfer
 #, python-format
 msgid "Your payment has been cancelled."
-msgstr "귀하의 결제가 취소되었습니다."
+msgstr "결제가 취소되었습니다."
 
 #. module: payment
 #. openerp-web
@@ -2110,7 +2091,6 @@ msgstr "결제가 접수되었지만 수동으로 확인해야 합니다."
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_payulatam
@@ -2129,7 +2109,6 @@ msgstr "결제가 성공적으로 처리되었지만 승인 대기 중입니다.
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_authorize
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_buckaroo
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_ingenico
-#: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_odoo_by_adyen
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_paypal
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_payu
 #: model_terms:payment.acquirer,done_msg:payment.payment_acquirer_payulatam

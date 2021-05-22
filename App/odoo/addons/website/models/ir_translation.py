@@ -6,14 +6,13 @@ from odoo import models
 class IrTranslation(models.Model):
     _inherit = "ir.translation"
 
-    def _load_module_terms(self, modules, langs, overwrite=False):
+    def _load_module_terms(self, modules, langs):
         """ Add missing website specific translation """
-        res = super()._load_module_terms(modules, langs, overwrite=overwrite)
+        res = super()._load_module_terms(modules, langs)
 
         if not langs or not modules:
             return res
-
-        if overwrite:
+        if self.env.context.get('overwrite'):
             conflict_clause = """
                    ON CONFLICT {}
                    DO UPDATE SET (name, lang, res_id, src, type, value, module, state, comments) =

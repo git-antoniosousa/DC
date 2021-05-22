@@ -146,7 +146,7 @@
                           <p>The computed price is expressed in the default Unit of Measure of the product.</p>
                       </div>
                       <group name="pricelist_rule_advanced" col="6" attrs="{'invisible':[('compute_price', '!=', 'formula')]}" groups="product.group_sale_pricelist">
-                          <label for="base" string="New Price = "/>
+                          <label for="" string="New Price ="/>
                           <div>
                               <span attrs="{'invisible':[('base', '!=', 'list_price')]}">Sales Price  -  </span>
                               <span attrs="{'invisible':[('base', '!=', 'standard_price')]}">Cost  -  </span>
@@ -186,7 +186,7 @@
             <field name="name">product.pricelist.tree</field>
             <field name="model">product.pricelist</field>
             <field name="arch" type="xml">
-                <tree string="Products Price List" sample="1">
+                <tree string="Products Price List">
                     <field name="sequence" widget="handle" />
                     <field name="name"/>
                     <field name="discount_policy" groups="product.group_discount_per_so_line"/>
@@ -200,7 +200,7 @@
             <field name="name">product.pricelist.kanban</field>
             <field name="model">product.pricelist</field>
             <field name="arch" type="xml">
-                <kanban class="o_kanban_mobile" sample="1">
+                <kanban class="o_kanban_mobile">
                     <templates>
                         <t t-name="kanban-box">
                             <div t-attf-class="oe_kanban_global_click">

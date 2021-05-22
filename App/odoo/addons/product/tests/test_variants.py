@@ -219,18 +219,18 @@ class TestVariants(common.TestProductCommon):
         company_b = self.env['res.company'].create({'name': 'CB', 'currency_id': self.env.ref('base.VEF').id})
 
         self.assertEqual(one_variant_product.cost_currency_id, company_a.currency_id)
-        self.assertEqual(one_variant_product.with_company(company_b).cost_currency_id, company_b.currency_id)
+        self.assertEqual(one_variant_product.with_context(force_company=company_b.id).cost_currency_id, company_b.currency_id)
 
         one_variant_template = one_variant_product.product_tmpl_id
         self.assertEqual(one_variant_product.standard_price, one_variant_template.standard_price)
-        one_variant_product.with_company(company_b).standard_price = 500.0
+        one_variant_product.with_context(force_company=company_b.id).standard_price = 500.0
         self.assertEqual(
-            one_variant_product.with_company(company_b).standard_price,
-            one_variant_template.with_company(company_b).standard_price
+            one_variant_product.with_context(force_company=company_b.id).standard_price,
+            one_variant_template.with_context(force_company=company_b.id).standard_price
         )
         self.assertEqual(
             500.0,
-            one_variant_template.with_company(company_b).standard_price
+            one_variant_template.with_context(force_company=company_b.id).standard_price
         )
 
     def test_archive_variant(self):

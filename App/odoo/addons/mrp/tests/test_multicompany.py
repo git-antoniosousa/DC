@@ -113,7 +113,7 @@ class TestMrpMulticompany(common.TransactionCase):
     def test_product_produce_1(self):
         """Check that using a finished lot of company b in the produce wizard of a production
         of company a is not allowed """
-
+        
         product = self.env['product.product'].create({
             'name': 'p1',
             'tracking': 'lot',
@@ -133,10 +133,15 @@ class TestMrpMulticompany(common.TransactionCase):
         })
         mo_form = Form(self.env['mrp.production'].with_user(self.user_a))
         mo_form.product_id = product
-        mo_form.lot_producing_id = lot_b
         mo = mo_form.save()
+        mo.with_user(self.user_b).action_confirm()
+        produce_form = Form(self.env['mrp.product.produce'].with_user(self.user_b).with_context({
+            'active_id': mo.id,
+            'active_ids': [mo.id],
+        }))
+        produce_form.finished_lot_id = lot_b
         with self.assertRaises(UserError):
-            mo.with_user(self.user_b).action_confirm()
+            produce_form.save()
 
     def test_product_produce_2(self):
         """Check that using a component lot of company b in the produce wizard of a production
@@ -163,17 +168,33 @@ class TestMrpMulticompany(common.TransactionCase):
         mo_form.product_id = product
         mo = mo_form.save()
         mo.with_user(self.user_b).action_confirm()
-        mo_form = Form(mo)
-        mo_form.qty_producing = 1
-        mo = mo_form.save()
-        details_operation_form = Form(mo.move_raw_ids[0], view=self.env.ref('stock.view_stock_move_operations'))
-        with details_operation_form.move_line_ids.edit(0) as ml:
-            ml.lot_id = lot_b
-            ml.qty_done = 1
-        details_operation_form.save()
+        produce_form = Form(self.env['mrp.product.produce'].with_user(self.user_b).with_context({
+            'active_id': mo.id,
+            'active_ids': [mo.id],
+        }))
+        with produce_form.raw_workorder_line_ids.edit(0) as line:
+            line.lot_id = lot_b
         with self.assertRaises(UserError):
-            mo.button_mark_done()
+            produce_form.save()
 
+    def test_workcenter_1(self):
+        """Check it is not possible to use a routing of Company B in a
+        workcenter of Company A. """
+
+        workcenter = self.env['mrp.workcenter'].create({
+            'name': 'WC1',
+            'company_id': self.company_a.id,
+            'resource_calendar_id': self.company_a.resource_calendar_id.id,
+        })
+        with self.assertRaises(UserError):
+            self.env['mrp.routing'].create({
+                'name': 'WC1',
+                'company_id': self.company_b.id,
+                'operation_ids': [(0, 0, {
+                    'name': 'operation_1',
+                    'workcenter_id': workcenter.id,
+                })]
+            })
 
     def test_partner_1(self):
         """ On a product without company, as a user of Company B, check it is not possible to use a

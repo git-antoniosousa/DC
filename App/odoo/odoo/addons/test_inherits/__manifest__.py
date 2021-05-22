@@ -2,7 +2,7 @@
 {
     'name': 'test-inherits',
     'version': '0.1',
-    'category': 'Hidden/Tests',
+    'category': 'Tests',
     'description': """A module to verify the inheritance using _inherits.""",
     'author': 'Camptocamp',
     'website': 'http://www.camptocamp.com',

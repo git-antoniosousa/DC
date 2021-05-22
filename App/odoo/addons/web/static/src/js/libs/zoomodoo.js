@@ -186,8 +186,8 @@ ZoomOdoo.prototype.show = function (e, testMouseOver) {
         this.$flyout.css('max-width', rightAvailableSpace);
     }
 
-    w1 = this.$target[0].offsetWidth;
-    h1 = this.$target[0].offsetHeight;
+    w1 = this.$target.width();
+    h1 = this.$target.height();
 
     w2 = this.$flyout.width();
     h2 = this.$flyout.height();
@@ -309,7 +309,7 @@ ZoomOdoo.prototype._move = function (e) {
     var xl = Math.ceil(pl * rw);
 
     // Close if outside
-    if (!this.opts.attachToTarget && (xl < 0 || xt < 0 || xl > dw || xt > dh || lx > (offset.left + this.$target.outerWidth()))) {
+    if (!this.opts.attachToTarget && (xl < 0 || xt < 0 || xl > dw || xt > dh || lx > (offset.left + this.$target.width()))) {
         this.hide();
     } else {
         var top = xt * -1;

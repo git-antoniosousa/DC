@@ -34,7 +34,7 @@ WITH forecast_qty AS (
             WHEN (whs.id IS NOT NULL AND whd.id IS NULL) OR ls.usage = 'transit' THEN 'out'
             WHEN (whs.id IS NULL AND whd.id IS NOT NULL) OR ld.usage = 'transit' THEN 'in'
         END AS state,
-        m.date::date AS date,
+        m.date_expected::date AS date,
         CASE
             WHEN (whs.id IS NOT NULL AND whd.id IS NULL) OR ls.usage = 'transit' THEN -product_qty
             WHEN (whs.id IS NULL AND whd.id IS NOT NULL) OR ld.usage = 'transit' THEN product_qty
@@ -55,10 +55,9 @@ WITH forecast_qty AS (
     WHERE
         pt.type = 'product' AND
         product_qty != 0 AND
-        (whs.id IS NOT NULL OR whd.id IS NOT NULL) AND
-        (whs.id IS NULL OR whd.id IS NULL OR whs.id != whd.id) AND
+        (whs.id IS NULL or whd.id IS NULL OR whs.id != whd.id) AND
         m.state NOT IN ('cancel', 'draft', 'done')
-    UNION ALL
+    UNION
     SELECT
         -q.id as id,
         q.product_id,
@@ -74,9 +73,8 @@ WITH forecast_qty AS (
     LEFT JOIN stock_location l on (l.id=q.location_id)
     LEFT JOIN stock_warehouse wh ON l.parent_path like concat('%/', wh.view_location_id, '/%')
     WHERE
-        (l.usage = 'internal' AND wh.id IS NOT NULL) OR
-        l.usage = 'transit'
-    UNION ALL
+        l.usage = 'internal'
+    UNION
     SELECT
         m.id,
         m.product_id,
@@ -84,7 +82,7 @@ WITH forecast_qty AS (
         GENERATE_SERIES(
         CASE
             WHEN m.state = 'done' THEN (now() at time zone 'utc')::date - interval '3month'
-            ELSE m.date::date
+            ELSE m.date_expected::date
         END,
         CASE
             WHEN m.state != 'done' THEN (now() at time zone 'utc')::date + interval '3 month'
@@ -112,10 +110,9 @@ WITH forecast_qty AS (
     WHERE
         pt.type = 'product' AND
         product_qty != 0 AND
-        (whs.id IS NOT NULL OR whd.id IS NOT NULL) AND
         (whs.id IS NULL or whd.id IS NULL OR whs.id != whd.id) AND
         m.state NOT IN ('cancel', 'draft')
-) -- /forecast_qty
+)
 SELECT
     MIN(id) as id,
     product_id,

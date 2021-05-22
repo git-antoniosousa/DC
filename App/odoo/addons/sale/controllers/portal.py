@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import binascii
+from datetime import date
 
 from odoo import fields, http, _
 from odoo.exceptions import AccessError, MissingError
@@ -14,55 +15,24 @@ from odoo.osv import expression
 
 class CustomerPortal(CustomerPortal):
 
-    def _prepare_home_portal_values(self, counters):
-        values = super()._prepare_home_portal_values(counters)
+    def _prepare_home_portal_values(self):
+        values = super(CustomerPortal, self)._prepare_home_portal_values()
         partner = request.env.user.partner_id
 
         SaleOrder = request.env['sale.order']
-        if 'quotation_count' in counters:
-            values['quotation_count'] = SaleOrder.search_count([
-                ('message_partner_ids', 'child_of', [partner.commercial_partner_id.id]),
-                ('state', 'in', ['sent', 'cancel'])
-            ]) if SaleOrder.check_access_rights('read', raise_exception=False) else 0
-        if 'order_count' in counters:
-            values['order_count'] = SaleOrder.search_count([
-                ('message_partner_ids', 'child_of', [partner.commercial_partner_id.id]),
-                ('state', 'in', ['sale', 'done'])
-            ]) if SaleOrder.check_access_rights('read', raise_exception=False) else 0
+        quotation_count = SaleOrder.search_count([
+            ('message_partner_ids', 'child_of', [partner.commercial_partner_id.id]),
+            ('state', 'in', ['sent', 'cancel'])
+        ]) if SaleOrder.check_access_rights('read', raise_exception=False) else 0
+        order_count = SaleOrder.search_count([
+            ('message_partner_ids', 'child_of', [partner.commercial_partner_id.id]),
+            ('state', 'in', ['sale', 'done'])
+        ]) if SaleOrder.check_access_rights('read', raise_exception=False) else 0
 
-        return values
-
-    def _order_get_page_view_values(self, order, access_token, **kwargs):
-        values = {
-            'sale_order': order,
-            'token': access_token,
-            'return_url': '/shop/payment/validate',
-            'bootstrap_formatting': True,
-            'partner_id': order.partner_id.id,
-            'report_type': 'html',
-            'action': order._get_portal_return_action(),
-        }
-        if order.company_id:
-            values['res_company'] = order.company_id
-
-        if order.has_to_be_paid():
-            domain = expression.AND([
-                ['&', ('state', 'in', ['enabled', 'test']), ('company_id', '=', order.company_id.id)],
-                ['|', ('country_ids', '=', False), ('country_ids', 'in', [order.partner_id.country_id.id])]
-            ])
-            acquirers = request.env['payment.acquirer'].sudo().search(domain)
-
-            values['acquirers'] = acquirers.filtered(lambda acq: (acq.payment_flow == 'form' and acq.view_template_id) or
-                                                     (acq.payment_flow == 's2s' and acq.registration_view_template_id))
-            values['pms'] = request.env['payment.token'].search([('partner_id', '=', order.partner_id.id)])
-            values['acq_extra_fees'] = acquirers.get_acquirer_extra_fees(order.amount_total, order.currency_id, order.partner_id.country_id.id)
-
-        if order.state in ('draft', 'sent', 'cancel'):
-            history = request.session.get('my_quotations_history', [])
-        else:
-            history = request.session.get('my_orders_history', [])
-        values.update(get_records_pager(history, order))
-
+        values.update({
+            'quotation_count': quotation_count,
+            'order_count': order_count,
+        })
         return values
 
     #
@@ -91,6 +61,7 @@ class CustomerPortal(CustomerPortal):
             sortby = 'date'
         sort_order = searchbar_sortings[sortby]['order']
 
+        archive_groups = self._get_archive_groups('sale.order', domain) if values.get('my_details') else []
         if date_begin and date_end:
             domain += [('create_date', '>', date_begin), ('create_date', '<=', date_end)]
 
@@ -113,6 +84,7 @@ class CustomerPortal(CustomerPortal):
             'quotations': quotations.sudo(),
             'page_name': 'quote',
             'pager': pager,
+            'archive_groups': archive_groups,
             'default_url': '/my/quotes',
             'searchbar_sortings': searchbar_sortings,
             'sortby': sortby,
@@ -140,6 +112,7 @@ class CustomerPortal(CustomerPortal):
             sortby = 'date'
         sort_order = searchbar_sortings[sortby]['order']
 
+        archive_groups = self._get_archive_groups('sale.order', domain) if values.get('my_details') else []
         if date_begin and date_end:
             domain += [('create_date', '>', date_begin), ('create_date', '<=', date_end)]
 
@@ -153,7 +126,7 @@ class CustomerPortal(CustomerPortal):
             page=page,
             step=self._items_per_page
         )
-        # content according to pager
+        # content according to pager and archive selected
         orders = SaleOrder.search(domain, order=sort_order, limit=self._items_per_page, offset=pager['offset'])
         request.session['my_orders_history'] = orders.ids[:100]
 
@@ -162,6 +135,7 @@ class CustomerPortal(CustomerPortal):
             'orders': orders.sudo(),
             'page_name': 'order',
             'pager': pager,
+            'archive_groups': archive_groups,
             'default_url': '/my/orders',
             'searchbar_sortings': searchbar_sortings,
             'sortby': sortby,
@@ -182,24 +156,53 @@ class CustomerPortal(CustomerPortal):
         # only if he knows the private token
         # Log only once a day
         if order_sudo:
-            # store the date as a string in the session to allow serialization
             now = fields.Date.today().isoformat()
             session_obj_date = request.session.get('view_quote_%s' % order_sudo.id)
+            if isinstance(session_obj_date, date):
+                session_obj_date = session_obj_date.isoformat()
             if session_obj_date != now and request.env.user.share and access_token:
                 request.session['view_quote_%s' % order_sudo.id] = now
-                body = _('Quotation viewed by customer %s', order_sudo.partner_id.name)
+                body = _('Quotation viewed by customer %s') % order_sudo.partner_id.name
                 _message_post_helper(
                     "sale.order",
                     order_sudo.id,
                     body,
                     token=order_sudo.access_token,
                     message_type="notification",
-                    subtype_xmlid="mail.mt_note",
+                    subtype="mail.mt_note",
                     partner_ids=order_sudo.user_id.sudo().partner_id.ids,
                 )
 
-        values = self._order_get_page_view_values(order_sudo, access_token, **kw)
-        values['message'] = message
+        values = {
+            'sale_order': order_sudo,
+            'message': message,
+            'token': access_token,
+            'return_url': '/shop/payment/validate',
+            'bootstrap_formatting': True,
+            'partner_id': order_sudo.partner_id.id,
+            'report_type': 'html',
+            'action': order_sudo._get_portal_return_action(),
+        }
+        if order_sudo.company_id:
+            values['res_company'] = order_sudo.company_id
+
+        if order_sudo.has_to_be_paid():
+            domain = expression.AND([
+                ['&', ('state', 'in', ['enabled', 'test']), ('company_id', '=', order_sudo.company_id.id)],
+                ['|', ('country_ids', '=', False), ('country_ids', 'in', [order_sudo.partner_id.country_id.id])]
+            ])
+            acquirers = request.env['payment.acquirer'].sudo().search(domain)
+
+            values['acquirers'] = acquirers.filtered(lambda acq: (acq.payment_flow == 'form' and acq.view_template_id) or
+                                                     (acq.payment_flow == 's2s' and acq.registration_view_template_id))
+            values['pms'] = request.env['payment.token'].search([('partner_id', '=', order_sudo.partner_id.id)])
+            values['acq_extra_fees'] = acquirers.get_acquirer_extra_fees(order_sudo.amount_total, order_sudo.currency_id, order_sudo.partner_id.country_id.id)
+
+        if order_sudo.state in ('draft', 'sent', 'cancel'):
+            history = request.session.get('my_quotations_history', [])
+        else:
+            history = request.session.get('my_orders_history', [])
+        values.update(get_records_pager(history, order_sudo))
 
         return request.render('sale.sale_order_portal_template', values)
 
@@ -231,7 +234,7 @@ class CustomerPortal(CustomerPortal):
             order_sudo.action_confirm()
             order_sudo._send_order_confirmation_mail()
 
-        pdf = request.env.ref('sale.action_report_saleorder').sudo()._render_qweb_pdf([order_sudo.id])[0]
+        pdf = request.env.ref('sale.action_report_saleorder').sudo().render_qweb_pdf([order_sudo.id])[0]
 
         _message_post_helper(
             'sale.order', order_sudo.id, _('Order signed by %s') % (name,),
@@ -264,7 +267,7 @@ class CustomerPortal(CustomerPortal):
 
         return request.redirect(order_sudo.get_portal_url(query_string=query_string))
 
-    # note: website_sale code
+    # note dbo: website_sale code
     @http.route(['/my/orders/<int:order_id>/transaction/'], type='json', auth="public", website=True)
     def payment_transaction_token(self, acquirer_id, order_id, save_token=False, access_token=None, **kwargs):
         """ Json method that creates a payment.transaction, used to create a

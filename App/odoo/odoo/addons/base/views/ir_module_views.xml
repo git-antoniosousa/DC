@@ -48,9 +48,6 @@
                         <filter string="Category" name="category" domain="[]" context="{'group_by':'category_id'}"/>
                         <filter string="State" name="state" domain="[]" context="{'group_by':'state'}"/>
                     </group>
-                    <searchpanel>
-                        <field name="category_id" string="Categories" enable_counters="1"/>
-                    </searchpanel>
                </search>
             </field>
         </record>
@@ -79,14 +76,12 @@
                             <button name="button_upgrade_cancel" states="to upgrade" string="Cancel Upgrade" type="object" class="btn btn-secondary mr-1"/>
                             <button name="button_install_cancel" states="to install" string="Cancel Install" type="object" class="btn btn-secondary mr-1"/>
                         </div>
-                        <h6 class="text-muted mt-2" attrs="{'invisible': [('has_iap', '=', False)]}">Contains In-App Purchases</h6>
                     </div>
                     <div class="oe_clear"/>
                     <notebook groups="base.group_no_one">
-                        <page string="Information" name="information">
+                        <page string="Information">
                             <group>
                                 <group>
-                                    <field name="has_iap" invisible="1"/>
                                     <field name="website" widget="url" attrs="{'invisible':[('website','=',False)]}"/>
                                     <field name="category_id" widget="selection"/>
                                     <field name="summary"/>
@@ -99,7 +94,7 @@
                                 </group>
                             </group>
                         </page>
-                        <page string="Technical Data" name="technical_data">
+                        <page string="Technical Data">
                             <group col="4">
                                 <field name="demo"/>
                                 <field name="application"/>
@@ -125,7 +120,7 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Installed Features" name="installed_features" attrs="{'invisible':[('state','!=','installed')]}">
+                        <page string="Installed Features" attrs="{'invisible':[('state','!=','installed')]}">
                             <group string="Created Menus"/>
                             <p class="oe_grey" attrs="{'invisible': [('menus_by_module','not in',[None,False])]}"> -This module does not create menu.</p>
                             <field name="menus_by_module"/>
@@ -144,9 +139,6 @@
             <field name="model">ir.module.module</field>
             <field name="arch" type="xml">
                 <tree decoration-info="state=='to upgrade' or state=='to install'" decoration-danger="state=='uninstalled'" decoration-muted="state=='uninstallable'" create="false" string="Apps">
-                    <header>
-                        <button name="button_immediate_install" type="object" string="Install"/>
-                    </header>
                     <field name="shortdesc"/>
                     <field name="name" groups="base.group_no_one"/>
                     <field name="author"/>

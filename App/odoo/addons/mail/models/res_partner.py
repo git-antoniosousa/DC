@@ -3,10 +3,9 @@
 
 import logging
 
-from odoo import _, api, fields, models, tools
+from odoo import _, api, fields, models
 from odoo.addons.bus.models.bus_presence import AWAY_TIMER
 from odoo.addons.bus.models.bus_presence import DISCONNECTION_TIMER
-from odoo.exceptions import AccessError
 from odoo.osv import expression
 
 _logger = logging.getLogger(__name__)
@@ -19,19 +18,9 @@ class Partner(models.Model):
     _inherit = ['res.partner', 'mail.activity.mixin', 'mail.thread.blacklist']
     _mail_flat_thread = False
 
-    email = fields.Char(tracking=1)
-    phone = fields.Char(tracking=2)
-
     channel_ids = fields.Many2many('mail.channel', 'mail_channel_partner', 'partner_id', 'channel_id', string='Channels', copy=False)
     # override the field to track the visibility of user
     user_id = fields.Many2one(tracking=True)
-
-    def _compute_im_status(self):
-        super()._compute_im_status()
-        odoobot_id = self.env['ir.model.data'].xmlid_to_res_id('base.partner_root')
-        odoobot = self.env['res.partner'].browse(odoobot_id)
-        if odoobot in self:
-            odoobot.im_status = 'bot'
 
     def _message_get_suggested_recipients(self):
         recipients = super(Partner, self)._message_get_suggested_recipients()
@@ -45,40 +34,6 @@ class Partner(models.Model):
             'email_to': False,
             'email_cc': False}
             for r in self}
-
-    @api.model
-    @api.returns('self', lambda value: value.id)
-    def find_or_create(self, email, assert_valid_email=False):
-        """ Override to use the email_normalized field. """
-        if not email:
-            raise ValueError(_('An email is required for find_or_create to work'))
-
-        parsed_name, parsed_email = self._parse_partner_name(email)
-        if parsed_email:
-            email_normalized = tools.email_normalize(parsed_email)
-            if email_normalized:
-                partners = self.search([('email_normalized', '=', email_normalized)], limit=1)
-                if partners:
-                    return partners
-
-        return super(Partner, self).find_or_create(email, assert_valid_email=assert_valid_email)
-
-    def mail_partner_format(self):
-        self.ensure_one()
-        internal_users = self.user_ids - self.user_ids.filtered('share')
-        main_user = internal_users[0] if len(internal_users) else self.user_ids[0] if len(self.user_ids) else self.env['res.users']
-        res = {
-            "id": self.id,
-            "display_name": self.display_name,
-            "name": self.name,
-            "email": self.email,
-            "active": self.active,
-            "im_status": self.im_status,
-            "user_id": main_user.id,
-        }
-        if main_user:
-            res["is_internal_user"] = not main_user.share
-        return res
 
     @api.model
     def get_needaction_count(self):
@@ -107,46 +62,30 @@ class Partner(models.Model):
 
     @api.model
     def get_static_mention_suggestions(self):
-        """Returns static mention suggestions of partners, loaded once at
-        webclient initialization and stored client side.
-        By default all the internal users are returned.
-
-        The return format is a list of lists. The first level of list is an
-        arbitrary split that allows overrides to return their own list.
-        The second level of list is a list of partner data (as per returned by
-        `mail_partner_format()`).
-        """
-        suggestions = []
-        try:
-            suggestions.append([partner.mail_partner_format() for partner in self.env.ref('base.group_user').users.partner_id])
-        except AccessError:
-            pass
-        return suggestions
+        """ To be overwritten to return the id, name and email of partners used as static mention
+            suggestions loaded once at webclient initialization and stored client side. """
+        return []
 
     @api.model
-    def get_mention_suggestions(self, search, limit=8, channel_id=None):
+    def get_mention_suggestions(self, search, limit=8):
         """ Return 'limit'-first partners' id, name and email such that the name or email matches a
-            'search' string. Prioritize users, and then extend the research to all partners.
-            If channel_id is given, only members of this channel are returned.
-        """
+            'search' string. Prioritize users, and then extend the research to all partners. """
         search_dom = expression.OR([[('name', 'ilike', search)], [('email', 'ilike', search)]])
-        search_dom = expression.AND([[('active', '=', True), ('type', '!=', 'private')], search_dom])
-        if channel_id:
-            search_dom = expression.AND([[('channel_ids', 'in', channel_id)], search_dom])
+        search_dom = expression.AND([[('active', '=', True)], search_dom])
+        fields = ['id', 'name', 'email']
 
         # Search users
         domain = expression.AND([[('user_ids.id', '!=', False), ('user_ids.active', '=', True)], search_dom])
-        users = self.search(domain, limit=limit)
+        users = self.search_read(domain, fields, limit=limit)
 
         # Search partners if less than 'limit' users found
-        partners = self.env['res.partner']
+        partners = []
         if len(users) < limit:
-            partners = self.search(expression.AND([[('id', 'not in', users.ids)], search_dom]), limit=limit)
+            partners = self.search_read(search_dom, fields, limit=limit)
+            # Remove duplicates
+            partners = [p for p in partners if not len([u for u in users if u['id'] == p['id']])] 
 
-        return [
-            [partner.mail_partner_format() for partner in users],
-            [partner.mail_partner_format() for partner in partners],
-        ]
+        return [users, partners]
 
     @api.model
     def im_search(self, name, limit=20):
@@ -182,3 +121,4 @@ class Partner(models.Model):
             return self.env.cr.dictfetchall()
         else:
             return {}
+

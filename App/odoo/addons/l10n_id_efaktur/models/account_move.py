@@ -20,6 +20,7 @@ def _csv_row(data, delimiter=',', quote='"'):
 class AccountMove(models.Model):
     _inherit = "account.move"
 
+    country_code = fields.Char(related='company_id.country_id.code', string='Country Code')
     l10n_id_tax_number = fields.Char(string="Tax Number", copy=False)
     l10n_id_replace_invoice_id = fields.Many2one('account.move', string="Replace Invoice",  domain="['|', '&', '&', ('state', '=', 'posted'), ('partner_id', '=', partner_id), ('reversal_move_id', '!=', False), ('state', '=', 'cancel')]", copy=False)
     l10n_id_attachment_id = fields.Many2one('ir.attachment', readonly=True, copy=False)
@@ -45,7 +46,7 @@ class AccountMove(models.Model):
     @api.onchange('l10n_id_tax_number')
     def _onchange_l10n_id_tax_number(self):
         for record in self:
-            if record.l10n_id_tax_number and record.move_type not in self.get_purchase_types():
+            if record.l10n_id_tax_number and record.type not in self.get_purchase_types():
                 raise UserError(_("You can only change the number manually for a Vendor Bills and Credit Notes"))
 
     @api.depends('l10n_id_attachment_id')
@@ -56,17 +57,17 @@ class AccountMove(models.Model):
     @api.depends('partner_id')
     def _compute_need_kode_transaksi(self):
         for move in self:
-            move.l10n_id_need_kode_transaksi = move.partner_id.l10n_id_pkp and not move.l10n_id_tax_number and move.move_type == 'out_invoice' and move.country_code == 'ID'
+            move.l10n_id_need_kode_transaksi = move.partner_id.l10n_id_pkp and not move.l10n_id_tax_number and move.type == 'out_invoice' and move.country_code == 'ID'
 
     @api.constrains('l10n_id_kode_transaksi', 'line_ids')
     def _constraint_kode_ppn(self):
         ppn_tag = self.env.ref('l10n_id.ppn_tag')
         for move in self.filtered(lambda m: m.l10n_id_kode_transaksi != '08'):
-            if any(ppn_tag.id in line.tax_tag_ids.ids for line in move.line_ids if line.exclude_from_invoice_tab is False and not line.display_type) \
-                    and any(ppn_tag.id not in line.tax_tag_ids.ids for line in move.line_ids if line.exclude_from_invoice_tab is False and not line.display_type):
+            if any(ppn_tag.id in line.tag_ids.ids for line in move.line_ids if line.exclude_from_invoice_tab is False and not line.display_type) \
+                    and any(ppn_tag.id not in line.tag_ids.ids for line in move.line_ids if line.exclude_from_invoice_tab is False and not line.display_type):
                 raise UserError(_('Cannot mix VAT subject and Non-VAT subject items in the same invoice with this kode transaksi.'))
         for move in self.filtered(lambda m: m.l10n_id_kode_transaksi == '08'):
-            if any(ppn_tag.id in line.tax_tag_ids.ids for line in move.line_ids if line.exclude_from_invoice_tab is False and not line.display_type):
+            if any(ppn_tag.id in line.tag_ids.ids for line in move.line_ids if line.exclude_from_invoice_tab is False and not line.display_type):
                 raise UserError('Kode transaksi 08 is only for non VAT subject items.')
 
     @api.constrains('l10n_id_tax_number')
@@ -81,7 +82,7 @@ class AccountMove(models.Model):
             elif record.l10n_id_tax_number[2] not in ('0', '1'):
                 raise UserError(_('The third digit of a tax number must be 0 or 1'))
 
-    def _post(self, soft=True):
+    def post(self):
         """Set E-Faktur number after validation."""
         for move in self:
             if move.l10n_id_need_kode_transaksi:
@@ -97,13 +98,13 @@ class AccountMove(models.Model):
                     if not efaktur:
                         raise ValidationError(_('There is no Efaktur number available.  Please configure the range you get from the government in the e-Faktur menu. '))
                     move.l10n_id_tax_number = '%s0%013d' % (str(move.l10n_id_kode_transaksi), efaktur)
-        return super()._post(soft)
+        return super(AccountMove, self).post()
 
     def reset_efaktur(self):
         """Reset E-Faktur, so it can be use for other invoice."""
         for move in self:
             if move.l10n_id_attachment_id:
-                raise UserError(_('You have already generated the tax report for this document: %s', move.name))
+                raise UserError(_('You have already generated the tax report for this document: %s') % move.name)
             self.env['l10n_id_efaktur.efaktur.range'].push_number(move.company_id.id, move.l10n_id_tax_number[3:])
             move.message_post(
                 body='e-Faktur Reset: %s ' % (move.l10n_id_tax_number),
@@ -126,7 +127,7 @@ class AccountMove(models.Model):
                 raise ValidationError(_('Could not download E-faktur in draft state'))
 
             if record.partner_id.l10n_id_pkp and not record.l10n_id_tax_number:
-                raise ValidationError(_('Connect %(move_number)s with E-faktur to download this report', move_number=record.name))
+                raise ValidationError(_('Connect ') + record.name + _(' with E-faktur to download this report'))
 
         self._generate_efaktur(',')
         return self.download_csv()
@@ -281,7 +282,7 @@ class AccountMove(models.Model):
     def _generate_efaktur(self, delimiter):
         if self.filtered(lambda x: not x.l10n_id_kode_transaksi):
             raise UserError(_('Some documents don\'t have a transaction code'))
-        if self.filtered(lambda x: x.move_type != 'out_invoice'):
+        if self.filtered(lambda x: x.type != 'out_invoice'):
             raise UserError(_('Some documents are not Customer Invoices'))
 
         output_head = self._generate_efaktur_invoice(delimiter)
