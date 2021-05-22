@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- ========= -->
+        <!-- G O L O S -->
+        <!-- ========= -->
+
+        <!-- Form -->
+        <record id="jogo_golo_view_form" model="ir.ui.view">
+            <field name="name">jogo_golo_view_form</field>
+            <field name="model">ges.jogo_golo</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="jogo"/>
+                            <field name="parte"/>
+                            <field name="minuto" widget="float_time"/>
+                            <field name="a_favor"/>
+                            <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_golo_view_tree" model="ir.ui.view">
+            <field name="name">jogo_golo_view_tree</field>
+            <field name="model">ges.jogo_golo</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Tree (List) -->
+        <record id="jogo_golo_view_tree_sem_jogo" model="ir.ui.view">
+            <field name="name">jogo_golo_view_tree</field>
+            <field name="model">ges.jogo_golo</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Search options -->
+        <record id="jogo_golo_view_search" model="ir.ui.view">
+            <field name="name">jogo_golo_view_search</field>
+            <field name="model">ges.jogo_golo</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Lista de golos -->
+        <record model="ir.actions.act_window" id="lista_jogo_golos_action">
+            <field name="name">Golos em Jogos</field>
+            <field name="res_model">ges.jogo_golo</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- =================== -->
+        <!-- S U S P E N S O E S -->
+        <!-- =================== -->
+
+        <!-- Form -->
+        <record id="jogo_suspensao_view_form" model="ir.ui.view">
+            <field name="name">jogo_suspensao_view_form</field>
+            <field name="model">ges.jogo_suspensao</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="jogo"/>
+                            <field name="parte"/>
+                            <field name="minuto" widget="float_time"/>
+                            <field name="a_favor"/>
+                            <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                            <field name="tipo"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_suspensao_view_tree" model="ir.ui.view">
+            <field name="name">jogo_suspensao_view_tree</field>
+            <field name="model">ges.jogo_suspensao</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="tipo"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Tree (List) -->
+        <record id="jogo_suspensao_view_tree_sem_jogo" model="ir.ui.view">
+            <field name="name">jogo_suspensao_view_tree</field>
+            <field name="model">ges.jogo_suspensao</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="tipo"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Search options -->
+        <record id="jogo_suspensao_view_search" model="ir.ui.view">
+            <field name="name">jogo_suspensao_view_search</field>
+            <field name="model">ges.jogo_suspensao</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="tipo"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Lista de suspensoes -->
+        <record model="ir.actions.act_window" id="lista_jogo_suspensoes_action">
+            <field name="name">Suspensoes em Jogos</field>
+            <field name="res_model">ges.jogo_suspensao</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- ============= -->
+        <!-- C A R T O E S -->
+        <!-- ============= -->
+
+        <!-- Form -->
+        <record id="jogo_cartao_view_form" model="ir.ui.view">
+            <field name="name">jogo_cartao_view_form</field>
+            <field name="model">ges.jogo_cartao</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="jogo"/>
+                            <field name="parte"/>
+                            <field name="minuto" widget="float_time"/>
+                            <field name="a_favor"/>
+                            <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                            <field name="tipo"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_cartao_view_tree" model="ir.ui.view">
+            <field name="name">jogo_cartao_view_tree</field>
+            <field name="model">ges.jogo_cartao</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="tipo"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_cartao_view_tree_sem_jogo" model="ir.ui.view">
+            <field name="name">jogo_cartao_view_tree</field>
+            <field name="model">ges.jogo_cartao</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="tipo"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Search options -->
+        <record id="jogo_cartao_view_search" model="ir.ui.view">
+            <field name="name">jogo_cartao_view_search</field>
+            <field name="model">ges.jogo_cartao</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="tipo"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Lista de cartoes -->
+        <record model="ir.actions.act_window" id="lista_jogo_cartoes_action">
+            <field name="name">Cartões em Jogos</field>
+            <field name="res_model">ges.jogo_cartao</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- ============= -->
+        <!-- R E M A T E S -->
+        <!-- ============= -->
+
+        <!-- Form -->
+        <record id="jogo_remate_view_form" model="ir.ui.view">
+            <field name="name">jogo_remate_view_form</field>
+            <field name="model">ges.jogo_remate</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="jogo"/>
+                            <field name="parte"/>
+                            <field name="minuto" widget="float_time"/>
+                            <field name="zona"/>
+                            <field name="a_favor"/>
+                            <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                            <field name="resultado"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_remate_view_tree" model="ir.ui.view">
+            <field name="name">jogo_remate_view_tree</field>
+            <field name="model">ges.jogo_remate</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="zona"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="resultado"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_remate_view_tree_sem_jogo" model="ir.ui.view">
+            <field name="name">jogo_remate_view_tree</field>
+            <field name="model">ges.jogo_remate</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="zona"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="resultado"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Search options -->
+        <record id="jogo_remate_view_search" model="ir.ui.view">
+            <field name="name">jogo_remate_view_search</field>
+            <field name="model">ges.jogo_remate</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="zona"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="resultado"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Lista de remates -->
+        <record model="ir.actions.act_window" id="lista_jogo_remates_action">
+            <field name="name">Remates em jogos</field>
+            <field name="res_model">ges.jogo_remate</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- =========================== -->
+        <!-- A C Ç Ã O   O F E N S I V A -->
+        <!-- =========================== -->
+
+        <!-- Form -->
+        <record id="jogo_accao_ofensiva_view_form" model="ir.ui.view">
+            <field name="name">jogo_accao_ofensiva_view_form</field>
+            <field name="model">ges.jogo_accao_ofensiva</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="jogo"/>
+                            <field name="parte"/>
+                            <field name="minuto" widget="float_time"/>
+                            <field name="zona"/>
+                            <field name="a_favor"/>
+                            <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                            <field name="resultado"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_accao_ofensiva_view_tree" model="ir.ui.view">
+            <field name="name">jogo_accao_ofensiva_view_tree</field>
+            <field name="model">ges.jogo_accao_ofensiva</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="zona"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="resultado"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_accao_ofensiva_view_tree_sem_jogo" model="ir.ui.view">
+            <field name="name">jogo_accao_ofensiva_view_tree</field>
+            <field name="model">ges.jogo_accao_ofensiva</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="zona"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="resultado"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Search options -->
+        <record id="jogo_accao_ofensiva_view_search" model="ir.ui.view">
+            <field name="name">jogo_accao_ofensiva_view_search</field>
+            <field name="model">ges.jogo_accao_ofensiva</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="resultado"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Lista de accoes_ofensivas -->
+        <record model="ir.actions.act_window"
+                id="lista_jogo_accoes_ofensivas_action">
+            <field name="name">Acções ofensivas em jogos</field>
+            <field name="res_model">ges.jogo_accao_ofensiva</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- ========= -->
+        <!-- A C Ç Ã O -->
+        <!-- ========= -->
+
+        <!-- Form -->
+        <record id="jogo_accao_view_form" model="ir.ui.view">
+            <field name="name">jogo_accao_view_form</field>
+            <field name="model">ges.jogo_accao</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="jogo"/>
+                            <field name="parte"/>
+                            <field name="minuto" widget="float_time"/>
+                            <field name="zona"/>
+                            <field name="a_favor"/>
+                            <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                            <field name="tipo"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_accao_view_tree" model="ir.ui.view">
+            <field name="name">jogo_accao_view_tree</field>
+            <field name="model">ges.jogo_accao</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="zona"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="tipo"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Tree (List) -->
+        <record id="jogo_accao_view_tree_sem_jogo" model="ir.ui.view">
+            <field name="name">jogo_accao_view_tree</field>
+            <field name="model">ges.jogo_accao</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="zona"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="tipo"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Search options -->
+        <record id="jogo_accao_view_search" model="ir.ui.view">
+            <field name="name">jogo_accao_view_search</field>
+            <field name="model">ges.jogo_accao</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                    <field name="tipo"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Lista de acções -->
+        <record model="ir.actions.act_window" id="lista_jogo_accoes_action">
+            <field name="name">Acções em Jogos</field>
+            <field name="res_model">ges.jogo_accao</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        
+        <!-- =========== -->
+        <!-- F A L T A S -->
+        <!-- =========== -->
+
+        <!-- Form -->
+        <record id="jogo_falta_view_form" model="ir.ui.view">
+            <field name="name">jogo_falta_view_form</field>
+            <field name="model">ges.jogo_falta</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="jogo"/>
+                            <field name="parte"/>
+                            <field name="minuto" widget="float_time"/>
+                            <field name="zona"/>
+                            <field name="a_favor"/>
+                            <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_falta_view_tree" model="ir.ui.view">
+            <field name="name">jogo_falta_view_tree</field>
+            <field name="model">ges.jogo_falta</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="zona"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Tree (List) -->
+        <record id="jogo_falta_view_tree_sem_jogo" model="ir.ui.view">
+            <field name="name">jogo_falta_view_tree</field>
+            <field name="model">ges.jogo_falta</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="zona"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Search options -->
+        <record id="jogo_falta_view_search" model="ir.ui.view">
+            <field name="name">jogo_falta_view_search</field>
+            <field name="model">ges.jogo_falta</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="a_favor"/>
+                    <field name="atleta" domain="[('id', 'in', parent.atletas_dentro)]" attrs="{'invisible':[('a_favor', '=', 'c')]}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Lista de faltas -->
+        <record model="ir.actions.act_window" id="lista_jogo_faltas_action">
+            <field name="name">Faltas em jogos</field>
+            <field name="res_model">ges.jogo_falta</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- ========================= -->
+        <!-- S U B S T I T U I C O E S -->
+        <!-- ========================= -->
+
+        <!-- Form -->
+        <record id="jogo_substituicao_view_form" model="ir.ui.view">
+            <field name="name">jogo_substituicao_view_form</field>
+            <field name="model">ges.jogo_substituicao</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="jogo"/>
+                            <field name="parte"/>
+                            <field name="minuto" widget="float_time"/>
+                            <field name="atleta_entrou" domain="[('id', 'in', parent.atletas_fora)]"/>
+                            <field name="atleta_saiu" domain="[('id', 'in', parent.atletas_dentro)]"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="jogo_substituicao_view_tree" model="ir.ui.view">
+            <field name="name">jogo_substituicao_view_tree</field>
+            <field name="model">ges.jogo_substituicao</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="atleta_entrou" domain="[('id', 'in', parent.atletas_fora)]"/>
+                    <field name="atleta_saiu" domain="[('id', 'in', parent.atletas_dentro)]"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Tree (List) -->
+        <record id="jogo_substituicao_view_tree_sem_jogo" model="ir.ui.view">
+            <field name="name">jogo_substituicao_view_tree</field>
+            <field name="model">ges.jogo_substituicao</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="atleta_entrou" domain="[('id', 'in', parent.atletas_fora)]"/>
+                    <field name="atleta_saiu" domain="[('id', 'in', parent.atletas_dentro)]"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Search options -->
+        <record id="jogo_substituicao_view_search" model="ir.ui.view">
+            <field name="name">jogo_substituicao_view_search</field>
+            <field name="model">ges.jogo_substituicao</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="jogo"/>
+                    <field name="parte"/>
+                    <field name="minuto" widget="float_time"/>
+                    <field name="atleta_entrou" domain="[('id', 'in', parent.atletas_fora)]"/>
+                    <field name="atleta_saiu" domain="[('id', 'in', parent.atletas_dentro)]"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Lista de faltas -->
+        <record model="ir.actions.act_window" id="lista_jogo_substituicoes_action">
+            <field name="name">Substituições em jogos</field>
+            <field name="res_model">ges.jogo_substituicao</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+    </data>
+</odoo>

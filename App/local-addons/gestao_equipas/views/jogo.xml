@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- Form -->
+        <record id="jogo_view_form" model="ir.ui.view">
+            <field name="name">jogo_view_form</field>
+            <field name="model">ges.jogo</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button string="Alterar a minha disponibilidade" type="object"
+                                name="alterar_disponibilidade"
+                                class="oe_highlight oe_read_only"
+                                style="margin: 10px 5px;"
+                                attrs="{'invisible':[('state', '!=', 'aberto')]}"
+                                groups="gestao_equipas.ges_user_atleta"/>
+                        <button string="Exportar folha de convocatórias"
+                                type="object" name="gen_folha_convocatorias"
+                                class="oe_highlight oe_read_only"
+                                style="margin: 10px 5px;"
+                                groups="gestao_equipas.ges_membro_equipa_tecnica"/>
+                        <button string="Exportar folha de convocatórias (FPP)"
+                                type="object" name="gen_folha_convocatorias_fpp"
+                                class="oe_highlight oe_read_only"
+                                style="margin: 10px 5px;"
+                                groups="gestao_equipas.ges_membro_equipa_tecnica"/>
+                        <button string="Marcar presenças" type="object"
+                                name="marcar_presencas"
+                                class="oe_highlight oe_read_only"
+                                style="margin: 10px 5px;"
+                                confirm="Tem a certeza que pretende marcar as presenças? As convocatórias ficarão fechadas e não será possível voltar atrás."
+                                attrs="{'invisible':[('state', '!=', 'aberto')]}"
+                                groups="gestao_equipas.ges_membro_equipa_tecnica"/>
+                        <button string="Exportar registo de presenças"
+                                type="object" name="gen_registo_presencas"
+                                class="oe_highlight oe_read_only"
+                                style="margin: 10px 5px;"
+                                attrs="{'invisible':[('state', '=', 'aberto')]}"
+                                groups="gestao_equipas.ges_membro_equipa_tecnica"/>
+                        <button string="Fechar jogo" type="object"
+                                name="fechar_evento"
+                                class="oe_highlight oe_read_only"
+                                style="margin: 10px 5px;"
+                                confirm="Tem a certeza que pretende fechar o jogo? Não será mais possível alterar as presenças."
+                                attrs="{'invisible':[('state', '!=', 'convocatorias_fechadas')]}"
+                                groups="gestao_equipas.ges_membro_equipa_tecnica"/>
+                        <!--
+                        <button string="Enviar Convocatória por email" type="object"
+                                name="enviar_convocatoria"
+                                class="oe_highlight oe_read_only"
+                                style="margin: 10px 5px;"
+                                confirm="Tem a certeza que pretende enviar a convocatória por email?"
+                                attrs="{'invisible':[('state', '!=', 'aberto')]}"
+                                groups="gestao_equipas.ges_membro_equipa_tecnica"/>
+                        -->
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+
+                        <h1>Jogo</h1>
+
+                        <group>
+                            <group>
+                                <field name="competicao"/>
+                                <field name="numero"/>
+                            </group>
+                            <group>
+                                <field name="equipa_adversaria"/>
+                            </group>
+                        </group>
+
+                        <h3>Horário e local de realização</h3>
+                        <group>
+                            <group>
+                                <field name="start"/>
+                                <field name="stop"/>
+                            </group>
+                            <group>
+                                <field name="duracao"/>
+                                 <field name="antecedencia"/>
+                            </group>
+                            <group>
+                                <field name="em_casa" widget="radio"/>
+                                <field name="local"/>
+                            </group>
+                        </group>
+
+                        <group>
+                            <group>
+                                <field name="epoca"/>
+                                <field name="treinador_principal"  domain="[('id', 'in', treinador)]"/>
+                            </group>
+                        </group>
+
+                        <hr/>
+
+                        <h3>Convocatórias</h3>
+                        <group>
+                            <field name="treinador" options="{'no_create': True}"/>
+
+                            <field name="seccionistas" options="{'no_create': True}"/>
+                            <!-- <field name="seccionistas" widget="many2many_tags" options="{'no_create': True}"/> -->
+
+                            <field name="massagista" options="{'no_create': True}"/>
+                        </group>
+                        <notebook>
+                            <page string="Atletas" groups="gestao_equipas.ges_membro_equipa_tecnica">
+                                <group>
+                                    <field name="escalao"/>
+                                    <field name="atletas" attrs="{'readonly':[('state', '!=', 'aberto')]}"/>
+                                </group>
+                            </page>
+                            <page string="Controlo de disponibilidade">
+                                <group>
+                                    <field name="convocatorias">
+                                        <tree editable="bottom" create="false" delete="false">
+                                            <field name="atleta"/>
+                                            <field name="disponivel"/>
+                                            <field name="numero"/>
+                                        </tree>
+                                    </field>
+                                    <group colspan="4" col="8">
+                                        <field name="n_convocados" readonly="1"/>
+                                        <field name="n_indisponiveis" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Controlo de Presenças" attrs="{'invisible':[('state', '=', 'aberto')]}"
+                                  groups="gestao_equipas.ges_membro_equipa_tecnica">
+                                <group>
+                                    <field name="presencas" nolabel="1">
+                                        <tree editable="bottom" create="false" delete="false">
+                                            <field name="atleta"/>
+                                            <field name="presente"/>
+                                            <field name="atrasado"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group colspan="4" col="6">
+                                    <field name="n_faltas" readonly="1"/>
+                                    <field name="n_atrasos" readonly="1"/>
+                                    <field name="n_presentes" readonly="1"/>
+                                </group>
+                            </page>
+
+                        </notebook>
+
+                        <h3>Estatísticas de jogo</h3>
+
+                        <group>
+                            <group>
+                                <field name="usar_estatisticas"/>
+                            </group>
+                        </group>
+
+
+                        <group attrs="{'invisible':[('usar_estatisticas', '=', False)]}"
+                               groups="gestao_equipas.ges_membro_equipa_tecnica">
+                            <field name="alinhamento_inicial" domain="[('id', 'in', atletas)]"
+                                   attrs="{'required': [('usar_estatisticas', '=', True)]}"/>
+                        </group>
+
+                        <group>
+                            <group>
+                                <field name="duracao_parte" attrs="{'required': [('usar_estatisticas', '=', True)]}"/>
+                                <field name="numero_partes" attrs="{'required': [('usar_estatisticas', '=', True)]}"/>
+                            </group>
+                        </group>
+
+                        <notebook
+                                attrs="{'invisible':['|', ('state', '=', 'aberto'), ('usar_estatisticas', '=', False)]}">
+                            <page string="Golos">
+                                <field name="golos"
+                                       context="{'tree_view_ref': 'gestao_equipas.jogo_golo_view_tree_sem_jogo', 'default_jogo': id}"/>
+                            </page>
+                            <page string="Suspensões">
+                                <field name="suspensoes"
+                                       context="{'tree_view_ref': 'gestao_equipas.jogo_suspensao_view_tree_sem_jogo', 'default_jogo': id}"/>
+                            </page>
+                            <page string="Cartões">
+                                <field name="cartoes"
+                                       context="{'tree_view_ref': 'gestao_equipas.jogo_cartao_view_tree_sem_jogo', 'default_jogo': id}"/>
+                            </page>
+                            <page string="Remates">
+                                <field name="remates"
+                                       context="{'tree_view_ref': 'gestao_equipas.jogo_remate_view_tree_sem_jogo', 'default_jogo': id}"/>
+                            </page>
+                            <page string="Ações ofensivas">
+                                <field name="accoes_ofensivas"
+                                       context="{'tree_view_ref': 'gestao_equipas.jogo_accao_ofensiva_view_tree_sem_jogo', 'default_jogo': id}"/>
+                            </page>
+                            <page string="Ações">
+                                <field name="accoes"
+                                       context="{'tree_view_ref': 'gestao_equipas.jogo_accao_view_tree_sem_jogo', 'default_jogo': id}"/>
+                            </page>
+                            <page string="Faltas">
+                                <field name="faltas"
+                                       context="{'tree_view_ref': 'gestao_equipas.jogo_falta_view_tree_sem_jogo', 'default_jogo': id}"/>
+                            </page>
+
+                            <page string="Substituições">
+                                <field name="substituicoes"
+                                       context="{'tree_view_ref': 'gestao_equipas.jogo_substituicao_view_tree_sem_jogo', 'default_jogo': id}"/>
+                            </page>
+                        </notebook>
+
+                        <group invisible="1">
+                            <group>
+                                <field name="atletas_dentro" widget="many2many_tags"/>
+                            </group>
+                            <group>
+                                <field name="atletas_fora" widget="many2many_tags"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Tree (List) -->
+        <record id="jogo_view_tree" model="ir.ui.view">
+            <field name="name">jogo_view_tree</field>
+            <field name="model">ges.jogo</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="start"/>
+                    <field name="stop"/>
+                    <field name="equipa_adversaria"/>
+                    <field name="local"/>
+                    <field name="escalao"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Calendar -->
+        <record id="jogo_view_calendar" model="ir.ui.view">
+            <field name="name">jogo_view_calendar</field>
+            <field name="model">ges.jogo</field>
+            <field name="arch" type="xml">
+                <calendar date_start="start" date_stop="stop" quick_add="false">
+                    <field name="treinador"/>
+                    <field name="local"/>
+                    <field name="escalao"/>
+                </calendar>
+            </field>
+        </record>
+
+
+        <!-- Search options -->
+        <record id="jogo_view_search" model="ir.ui.view">
+            <field name="name">jogo_view_search</field>
+            <field name="model">ges.jogo</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="equipa_adversaria"/>
+                    <field name="start"/>
+                    <field name="local"/>
+                    <field name="escalao"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="marcar_presencas_jogo_action" model="ir.actions.server">
+            <field name="name">Marcar presenças</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="gestao_equipas.model_ges_jogo"/>
+            <field name="binding_model_id" ref="gestao_equipas.model_ges_jogo"/>
+            <field name="state">code</field>
+            <field name="code">
+                records.marcar_presencas_from_list()
+            </field>
+        </record>
+
+        <record id="fechar_jogo_action" model="ir.actions.server">
+            <field name="name">Fechar jogo</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="gestao_equipas.model_ges_jogo"/>
+            <field name="binding_model_id" ref="gestao_equipas.model_ges_jogo"/>
+            <field name="state">code</field>
+            <field name="code">
+                records.fechar_evento_from_list()
+            </field>
+        </record>
+
+        <!-- Presenças por marcar -->
+        <record model="ir.actions.act_window"
+                id="lista_jogos_em_aberto_action">
+            <field name="name">Presenças por marcar</field>
+            <field name="res_model">ges.jogo</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">
+                [('state','=', 'aberto')]
+            </field>
+        </record>
+
+        <!-- Por fechar -->
+        <record model="ir.actions.act_window"
+                id="lista_jogos_convocatorias_fechadas_action">
+            <field name="name">Jogos não fechados</field>
+            <field name="res_model">ges.jogo</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">
+                [('state','=', 'convocatorias_fechadas')]
+            </field>
+        </record>
+
+        <!-- Lista de jogos -->
+        <record model="ir.actions.act_window" id="lista_jogos_action">
+            <field name="name">Lista de jogos</field>
+            <field name="res_model">ges.jogo</field>
+            <field name="view_mode">tree,calendar,form</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_carga_fisica_report_form" model="ir.ui.view">
+            <field name="name">carga_fisica_report_form</field>
+            <field name="model">carga_fisica.report</field>
+            <field name="arch" type="xml">
+                <form string="Horário" version="7.0">
+                    <sheet>
+                        <div>
+                            <group>
+                                <group>
+                                    <field name="data_inicio"/>
+                                </group>
+                                <group>
+                                    <field name="data_fim"/>
+                                </group>
+                                <group>
+                                    <field name="atleta"/>
+                                </group>
+
+                            </group>
+                        </div>
+                    </sheet>
+                    <footer>
+                        <span groups="base.group_user">
+                            <button string="Gerar horário"
+                                    type="object"
+                                    name="gen_carga_fisica_report"
+                                    class="oe_highlight"/>
+                            <button special="cancel"
+                                    string="Cancelar"
+                                    type="object"/>
+                        </span>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window"
+                id="act_ges_carga_fisica_report_view">
+            <field name="name">Exportar carga física</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">carga_fisica.report</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view"
+                id="act_ges_carga_fisica_report_view_form">
+            <field name="act_window_id" ref="act_ges_carga_fisica_report_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_carga_fisica_report_form"/>
+        </record>
+    </data>
+</odoo>

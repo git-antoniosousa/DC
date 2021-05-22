@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <report id="report_presencas_geral_generate"
+                model="ges.evento_desportivo"
+                string="Mapa de presenças"
+                report_type="qweb-pdf"
+                name="gestao_equipas.report_mapa_presencas_generate"
+                file="gestao_equipas.report_mapa_presencas_generate"
+                attachment_use="False"
+                menu="False"
+                paperformat="gestao_equipas.paperformat_mapa_report"
+        />
+
+        <template id="report_mapa_presencas_generate">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="font">
+                            <div class="page">
+                                <style>
+                                    .font{
+                                    font-size:16px;
+                                    font-family:"Helvetica"
+                                    }
+                                    @page{
+                                    size: A4;
+                                    }
+                                    table.center {
+                                    width:80%;
+                                    margin-left:10%;
+                                    }
+                                    td.spacer1{
+                                    padding-right:320px;
+                                    }
+                                    .table.gridtable {
+                                    font-size:11px;
+                                    border-width: 1px;
+                                    border-color: #cccccc;
+                                    border-collapse: collapse;
+                                    }
+                                    table.gridtable th {
+                                    border-width: 1px;
+                                    padding: 10px;
+                                    border-style: solid;
+                                    border-color: #cccccc;
+                                    }
+                                    table.gridtable td {
+                                    border-width: 1px;
+                                    padding: 10px;
+                                    border-style: solid;
+                                    border-color: #cccccc;
+                                    }
+                                    thead {
+                                    display: table-header-group !important;
+                                    }
+                                    tfoot {
+                                    display: table-row-group !important;
+                                    }
+                                    tr {
+                                    page-break-inside: avoid !important;
+                                    }
+                                    thead:before, thead:after {
+                                    display: none;
+                                    }
+                                </style>
+                                <div class="row text-center">
+                                    <h3>Mapa de presenças</h3>
+                                </div>
+
+                                <br/>
+
+                                <table width="100%">
+                                    <tbody>
+                                        <tr>
+                                            <b>Período de </b>
+                                            <span t-esc="data['data_inicio']"/>
+                                            <b> a </b>
+                                            <span t-esc="data['data_fim']"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <br/>
+
+                                <small>
+                                    Legenda:
+                                    P - Presente
+                                    <span style="color: white;">___</span>
+                                    <span style="background-color: #fff2b2; color: #fff2b2;">__</span>
+                                    I - Indisponível;
+                                    <span style="color: white;">___</span>
+                                    <span style="background-color: #ffb2b2; color: #ffb2b2;">__</span>
+                                    F - Faltou;
+                                    <span style="color: white;">___</span>
+                                    <span style="background-color: #ffcfb2; color: #ffcfb2;">__</span>
+                                    A - Atrasado
+                                </small>
+
+                                <table width="100%" class="table table-bordered">
+                                    <thead>
+                                        <tr t-raw="get_heading(eventos)">
+                                        </tr>
+                                        <tr t-raw="get_row_escalao(eventos)">
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="atletas" t-as="atleta" t-raw="get_row_atleta(atleta, eventos)">
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+
+        </template>
+    </data>
+</odoo>

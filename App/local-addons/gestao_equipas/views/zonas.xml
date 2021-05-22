@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- Form -->
+        <record id="zona_view_form" model="ir.ui.view">
+            <field name="name">zona_view_form</field>
+            <field name="model">ges.zona</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="nome"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="zona_view_tree" model="ir.ui.view">
+            <field name="name">zona_view_tree</field>
+            <field name="model">ges.zona</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="nome"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Search options -->
+        <record id="zona_view_search" model="ir.ui.view">
+            <field name="name">zona_view_search</field>
+            <field name="model">ges.zona</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="nome"/>
+                </search>
+            </field>
+        </record>
+
+
+        <!-- Lista de zonas -->
+        <record model="ir.actions.act_window" id="lista_zonas_action">
+            <field name="name">Lista de zonas de campo</field>
+            <field name="res_model">ges.zona</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

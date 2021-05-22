@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <report id="report_folha_convoc_generate"
+                model="ges.treino"
+                string="Folha de convocatória"
+                report_type="qweb-pdf"
+                name="gestao_equipas.report_folha_convoc_evento_generate"
+                file="gestao_equipas.report_folha_convoc_evento_generate"
+                attachment_use="False"
+                menu="False"
+                paperformat="gestao_equipas.paperformat_report"
+        />
+
+        <template id="report_folha_convoc_evento_generate">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="font">
+                            <div class="page">
+                                <style>
+                                    .font{
+                                    font-size:16px;
+                                    font-family:"Helvetica"
+                                    }
+                                    @page{
+                                    size: A4;
+                                    }
+                                    table, th, td, tr {
+                                        border: 2px solid black;
+                                    }
+                                    table.center {
+                                    width:80%;
+                                    margin-left:10%;
+                                    }
+                                    td.spacer1{
+                                    padding-right:320px;
+                                    }
+                                    .table.gridtable {
+                                    font-size:11px;
+                                    border-width: 1px;
+                                    border-collapse: collapse;
+                                    }
+                                    table.gridtable th {
+                                    border-width: 1px;
+                                    padding: 10px;
+                                    border-style: solid;
+                                    border-collapse: collapse;
+                                    }
+                                    table.gridtable td {
+                                    border-width: 1px;
+                                    padding: 10px;
+                                    border-style: solid;
+                                    border-collapse: collapse;
+                                    }
+                                    thead {
+                                    display: table-header-group !important;
+                                    }
+                                    tfoot {
+                                    display: table-row-group !important;
+                                    }
+                                    tr {
+                                    page-break-inside: avoid !important;
+                                    }
+                                    thead:before, thead:after {
+                                    display: none;
+                                    }
+                                    tfoot:before, tfoot:after {
+                                    display: none;
+                                    }
+                                </style>
+                                <div class="row text-center">
+                                    <t t-raw="get_doc_cab(jogo)">
+                                    </t>
+                                </div>
+
+                                <br/>
+
+                                <table width="100%" class="table table-bordered" style="margin-top: 10px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 20%;"></th>
+                                            <th style="width: 30%;"></th>
+                                            <th style="width: 20%;"></th>
+                                            <th style="width: 30%;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody t-raw="get_info_jogo(jogo)">
+                                    </tbody>
+                                    <tfoot></tfoot>
+                                </table>
+
+                                <table width="100%" class="table table-bordered" style="margin-top: 20px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%">Atleta</th>
+                                            <th style="width: 10%">Licença</th>
+                                            <th style="width: 10%;">Camisola</th>
+                                            <th style="width: 25%">Assinatura</th>
+                                            <th style="width: 25%">Observações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="linhas_convocatoria.sorted(key=lambda r: r.numero)" t-as="linha" t-raw="get_table_row(linha)">
+                                        </tr>
+                                    </tbody>
+                                    <tfoot/>
+                                </table>
+
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+
+        </template>
+    </data>
+</odoo>

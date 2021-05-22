@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- Form -->
+        <record id="equipas_view_form" model="ir.ui.view">
+            <field name="name">equipas_view_form</field>
+            <field name="model">ges.equipa</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <h1>Equipa</h1>
+                        </group>
+                        <group>
+                            <field name="name"/>
+                            <field name="epoca"/>
+                            <field name="escalao"/>
+                        </group>
+                        <group>
+                            <field name="atletas"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="equipas_view_tree" model="ir.ui.view">
+            <field name="name">equipas_view_tree</field>
+            <field name="model">ges.equipa</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="atletas"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Search options -->
+        <record id="equipas_view_search" model="ir.ui.view">
+            <field name="name">equipas_view_search</field>
+            <field name="model">ges.equipa</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+
+
+        <!-- Lista de equipas -->
+        <record model="ir.actions.act_window" id="lista_equipas_action">
+            <field name="name">Lista de equipas</field>
+            <field name="res_model">ges.equipa</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

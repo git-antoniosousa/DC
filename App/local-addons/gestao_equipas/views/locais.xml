@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- Form -->
+        <record id="local_view_form" model="ir.ui.view">
+            <field name="name">local_view_form</field>
+            <field name="model">ges.local</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="descricao"/>
+                            <field name="coordenadas"/>
+                            <field name="googlemaps" widget="url"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="local_view_tree" model="ir.ui.view">
+            <field name="name">local_view_tree</field>
+            <field name="model">ges.local</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="descricao"/>
+                    <field name="coordenadas"/>
+                            <field name="googlemaps" widget="url"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Search options -->
+        <record id="local_view_search" model="ir.ui.view">
+            <field name="name">local_view_search</field>
+            <field name="model">ges.local</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="descricao"/>
+                </search>
+            </field>
+        </record>
+
+
+        <!-- Lista de locais -->
+        <record model="ir.actions.act_window" id="lista_locais_action">
+            <field name="name">Lista de locais para realização de treinos e jogos</field>
+            <field name="res_model">ges.local</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

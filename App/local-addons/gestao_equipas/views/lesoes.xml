@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <act_window id="lista_lesoes_action" name="Lista de lesões"
+                    res_model="ges.lesao"/>
+
+        <!-- Form -->
+        <record id="lesao_view_form" model="ir.ui.view">
+            <field name="name">lesao_view_form</field>
+            <field name="model">ges.lesao</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button string="Marcar como diagnosticada" type="object"
+                                name="diagnosticar"
+                                class="oe_highlight"
+                                style="margin: 10px 5px;"
+                                attrs="{'invisible':[('state', '!=', 'diagnostico')]}"/>
+                        <button string="Marcar como tratada" type="object"
+                                name="concluir"
+                                class="oe_highlight"
+                                style="margin: 10px 5px;"
+                                attrs="{'invisible':[('state', '!=', 'tratamento')]}"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+
+                        <h1>Registo de Lesão</h1>
+
+                        <group>
+                            <group>
+                                <field name="atleta"/>
+                            </group>
+                            <group>
+                                <field name="create_date"/>
+                            </group>
+                        </group>
+
+                        <hr/>
+                        <h3>Dados da ocorrência</h3>
+
+                        <group colspan="4" col="2">
+                            <group>
+                                <field name="ocorreu_num"/>
+                            </group>
+                            <group>
+                                <field name="treino"
+                                       attrs="{'required': [('ocorreu_num','=','treino')],
+                                               'invisible':[('ocorreu_num', '!=', 'treino')]}"/>
+                                <field name="jogo"
+                                       attrs="{'required': [('ocorreu_num','=','jogo')],
+                                               'invisible':[('ocorreu_num', '!=', 'jogo')]}"/>
+                                <field name="outro"
+                                       attrs="{'invisible':[('ocorreu_num', '!=', 'outro')]}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="data_ocorrencia"/>
+                            <field name="observacoes_ocor"/>
+                        </group>
+
+                        <hr/>
+                        <h3 attrs="{'invisible':[('state', '=', 'diagnostico')]}">Dados clínicos</h3>
+
+                        <group attrs="{'invisible':[('state', '=', 'diagnostico')]}">
+                            <group>
+                                <field name="data_diagnostico"/>
+                            </group>
+                            <group>
+                                <field name="tempo_paragem"/>
+                            </group>
+                        </group>
+                        <group attrs="{'invisible':[('state', '=', 'diagnostico')]}">
+                            <field name="tipo_lesao"/>
+                        </group>
+                        <group attrs="{'invisible':[('state', '=', 'diagnostico')]}">
+                            <field name="diagnostico"/>
+                        </group>
+
+                        <hr/>
+                        <h3 attrs="{'invisible':[('state', '=', 'diagnostico')]}">Tratamento</h3>
+
+                        <group attrs="{'invisible':[('state', '=', 'diagnostico')]}">
+                            <field name="responsaveis" widget="many2many_tags" />
+                            <field name="plano_tratamento"/>
+                            <field name="data_conclusao" attrs="{'invisible':[('state', '!=', 'tratada')]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="lesao_view_tree" model="ir.ui.view">
+            <field name="name">lesao_view_tree</field>
+            <field name="model">ges.lesao</field>
+            <field name="arch" type="xml">
+                <tree>
+
+                    <field name="atleta"/>
+                    <field name="tipo_lesao"/>
+                    <field name="state"/>
+
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="lesao_view_tree_sem_atleta" model="ir.ui.view">
+            <field name="name">lesao_view_tree_sem_atleta</field>
+            <field name="model">ges.lesao</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="state"/>
+                    <field name="tipo_lesao"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Lista de lesões em diagnóstico -->
+
+        <record model="ir.actions.act_window"
+                id="lista_lesoes_diagnostico_action">
+            <field name="name">Lista de lesões em diagnóstico</field>
+            <field name="res_model">ges.lesao</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('lesao_view_tree')}),]"/>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">
+                [('state', '=', 'diagnostico')]
+            </field>
+        </record>
+
+
+        <!-- Lista de lesões em tratamento -->
+
+        <record model="ir.actions.act_window"
+                id="lista_lesoes_tratamento_action">
+            <field name="name">Lista de lesões em tratamento</field>
+            <field name="res_model">ges.lesao</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('lesao_view_tree')}),]"/>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">
+                [('state', '=', 'tratamento')]
+            </field>
+        </record>
+
+
+        <!-- Lista de lesões tratadas -->
+
+        <record model="ir.actions.act_window"
+                id="lista_lesoes_tratadas_action">
+            <field name="name">Lista de lesões tratadas</field>
+            <field name="res_model">ges.lesao</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('lesao_view_tree')}),]"/>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">
+                [('state', '=', 'tratada')]
+            </field>
+        </record>
+    </data>
+</odoo>

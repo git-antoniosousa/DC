@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <report id="report_treinador_horario_generate"
+                model="ges.treino"
+                string="Horário"
+                report_type="qweb-pdf"
+                name="gestao_equipas.report_horario_treinador_generate"
+                file="gestao_equipas.report_horario_treinador_generate"
+                attachment_use="False"
+                menu="False"
+                paperformat="gestao_equipas.paperformat_report"
+        />
+
+        <template id="report_horario_treinador_generate">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="font">
+                            <div class="page">
+                                <style>
+                                    .font{
+                                    font-size:16px;
+                                    font-family:"Helvetica"
+                                    }
+                                    @page{
+                                    size: A4;
+                                    }
+                                    table.center {
+                                    width:80%;
+                                    margin-left:10%;
+                                    }
+                                    td.spacer1{
+                                    padding-right:320px;
+                                    }
+                                    .table.gridtable {
+                                    font-size:11px;
+                                    border-width: 1px;
+                                    border-color: #cccccc;
+                                    border-collapse: collapse;
+                                    }
+                                    table.gridtable th {
+                                    border-width: 1px;
+                                    padding: 10px;
+                                    border-style: solid;
+                                    border-color: #cccccc;
+                                    }
+                                    table.gridtable td {
+                                    border-width: 1px;
+                                    padding: 10px;
+                                    border-style: solid;
+                                    border-color: #cccccc;
+                                    }
+                                    thead {
+                                    display: table-header-group !important;
+                                    }
+                                    tfoot {
+                                    display: table-row-group !important;
+                                    }
+                                    tr {
+                                    page-break-inside: avoid !important;
+                                    }
+                                    thead:before, thead:after {
+                                    display: none;
+                                    }
+                                </style>
+                                <div class="row text-center">
+                                    <h1>Horário</h1>
+                                </div>
+
+                                <br/>
+
+                                <table width="100%">
+                                    <tbody>
+                                        <tr>
+                                            <b>Período de </b>
+                                            <span t-esc="data['data_inicio']"/>
+                                            <b> a </b>
+                                            <span t-esc="data['data_fim']"/>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <b>Nome do treinador:</b>
+                                                <span t-esc="treinador.name"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <br/>
+                                <table width="100%" class="table table-bordered" style="margin-bottom: 0px;">
+                                    <thead>
+                                        <tr>
+                                            <td t-foreach="get_heading()" t-as="dia" style="width: 14.2%"
+                                                class="text-center">
+                                                <b>
+                                                    <span t-esc="dia[1]"/>
+                                                </b>
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+                                <table class="table table-bordered" width="100%">
+                                    <tr>
+                                        <td t-foreach="get_heading()" t-as="dia"
+                                            style="width: 14.2%; padding: 0px; height: 900px;">
+                                            <table width="100%" class="table table-bordered"
+                                                   style="position: relative;">
+                                                <tbody>
+                                                    <tr t-foreach="get_eventos_of_day(eventos, dia[0])" t-as="evento"
+                                                        t-raw="gen_box(evento, first_hour)">
+
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+
+        </template>
+
+
+    </data>
+</odoo>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+        <!-- Form -->
+        <record id="competicao_view_form" model="ir.ui.view">
+            <field name="name">competicao_view_form</field>
+            <field name="model">ges.competicao</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <h1>Competição</h1>
+                        </group>
+                        <group>
+                            <field name="designacao"/>
+                        </group>
+                        <group>
+                            <field name="epoca"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="competicao_view_tree" model="ir.ui.view">
+            <field name="name">competicao_view_tree</field>
+            <field name="model">ges.competicao</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="designacao"/>
+                    <field name="epoca"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Kanban -->
+        <record model="ir.ui.view" id="competicao_view_kanban">
+            <field name="name">competicao_view_kanban</field>
+            <field name="model">ges.competicao</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="epoca"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div>
+                                <h4>
+                                    <a type="edit">
+                                        <field name="designacao"/>
+                                    </a>
+                                </h4>
+                                <small>
+                                    <a type="delete" style="color: rgb(122, 0, 0);">Apagar</a>
+                                </small>
+
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+
+        <!-- Search options -->
+        <record id="competicao_view_search" model="ir.ui.view">
+            <field name="name">competicao_view_search</field>
+            <field name="model">ges.competicao</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="designacao"/>
+                    <group expand="0" string="Agrupar por...">
+                        <filter name="group_by_epoca" string="Época" context="{'group_by':'epoca'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <!-- Lista de competições -->
+        <record model="ir.actions.act_window" id="lista_competicoes_action">
+            <field name="name">Lista de competições</field>
+            <field name="res_model">ges.competicao</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('competicao_view_kanban')})]"/>
+            <field name="context">{'search_default_group_by_epoca': 1}</field>
+        </record>
+    </data>
+</odoo>

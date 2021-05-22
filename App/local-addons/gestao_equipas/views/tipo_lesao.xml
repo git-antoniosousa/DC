@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- Form -->
+        <record id="tipo_lesao_view_form" model="ir.ui.view">
+            <field name="name">tipo_lesao_view_form</field>
+            <field name="model">ges.tipo_lesao</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="descricao"/>
+                            <field name="lesoes"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="tipo_lesao_view_tree" model="ir.ui.view">
+            <field name="name">tipo_lesao_view_tree</field>
+            <field name="model">ges.tipo_lesao</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="descricao"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Lista de tipos de lesão -->
+        <record model="ir.actions.act_window" id="lista_tipos_lesao_action">
+            <field name="name">Tipos lesão</field>
+            <field name="res_model">ges.tipo_lesao</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

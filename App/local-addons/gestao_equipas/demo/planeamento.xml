@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="linha_plano_treinos_jogos_1" model="ges.linha_plano_treinos_jogos">
+            <field name="dia">0</field>
+            <field name="hora_inicio">18</field>
+            <field name="hora_fim">20</field>
+            <field name="treinador" eval="ref('treinador_1')"/>
+            <field name="local" eval="ref('local_zona_a1')"/>
+            <field name="escalao" eval="ref('escalao_bambi')"/>
+            <field name="seccionistas" eval="[(4,ref('seccionista_1'))]"/>
+            <field name="equipas" eval="[(4,ref('equipa_bambis'))]"/>
+        </record>
+
+        <record id="plano_treino_1" model="ges.plano_treinos_jogos">
+            <field name="name">Plano 1</field>
+            <field name="data_inicio">2018-08-28</field>
+            <field name="data_fim">2018-11-28</field>
+            <field name="epoca" eval="ref('epoca_17_18')"/>
+            <field name="linhas_plano_treinos_jogos" eval="[(4,ref('linha_plano_treinos_jogos_1'))]"/>
+        </record>
+
+    </data>
+</odoo>

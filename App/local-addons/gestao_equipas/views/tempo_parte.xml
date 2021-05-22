@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- Form -->
+        <record id="tempo_parte_view_form" model="ir.ui.view">
+            <field name="name">tempo_parte_view_form</field>
+            <field name="model">ges.tempo_parte</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="tempo_parte"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Tree (List) -->
+        <record id="tempo_parte_view_tree" model="ir.ui.view">
+            <field name="name">tipo_lesao_tempo_parte</field>
+            <field name="model">ges.tempo_parte</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="tempo_parte"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Kanban -->
+        <record model="ir.ui.view" id="tempo_jogo_view_kanban">
+            <field name="name">tempo_parte_view_kanban</field>
+            <field name="model">ges.tempo_parte</field>
+            <field name="arch" type="xml">
+                <kanban>
+
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div>
+                                <h4>
+                                    <a type="edit">
+                                        <field name="tempo_parte"/>
+                                    </a>
+                                </h4>
+                                <small>
+                                    <a type="delete" style="color: rgb(122, 0, 0);">Apagar</a>
+                                </small>
+
+                            </div>
+                        </t>
+                    </templates>
+
+                    <!--
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div>
+                                <h4>
+                                    <a type="edit">
+                                        <field name="designacao"/>
+                                    </a>
+                                </h4>
+                                <small>
+                                    <a type="delete" style="color: rgb(122, 0, 0);">Apagar</a>
+                                </small>
+
+                            </div>
+                        </t>
+                    </templates>
+                    -->
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Lista de tipos de lesão -->
+        <record model="ir.actions.act_window" id="lista_tempos_parte_action">
+            <field name="name">Tempos parte</field>
+            <field name="res_model">ges.tempo_parte</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!-- Lista de tipos de lesão -->
+        <record model="ir.actions.act_window" id="lista_tempos_parte_kanban_action">
+            <field name="name">Tempos parte</field>
+            <field name="res_model">ges.tempo_parte</field>
+            <field name="view_mode">kanban,form,tree</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('tempo_jogo_view_kanban')})]"/>
+        </record>
+    </data>
+</odoo>

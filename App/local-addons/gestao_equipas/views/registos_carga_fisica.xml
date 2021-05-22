@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+        <!-- Tree view -->
+        <record id="linha_registo_view_tree" model="ir.ui.view">
+            <field name="name">linha_registo_view_tree</field>
+            <field name="model">ges.linha_registo_carga_fisica</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="categoria"/>
+                    <field name="n_minutos"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Search options -->
+        <record id="linha_registo_view_search" model="ir.ui.view">
+            <field name="name">linha_registo_view_search</field>
+            <field name="model">ges.linha_registo_carga_fisica</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="registo_carga_fisica"/>
+                    <group expand="0" string="Agrupar por...">
+                        <filter name="group_by_categoria" string="Categoria" context="{'group_by':'categoria'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Graph -->
+        <record id="linha_registo_atleta_view_graph" model="ir.ui.view">
+            <field name="name">linha_registo_atleta_view_graph</field>
+            <field name="model">ges.linha_registo_carga_fisica</field>
+            <field name="arch" type="xml">
+                <graph string="Gráfico" type="pie">
+                    <field name="categoria" type="row"/>
+                    <field name="n_minutos" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+
+        <!-- Action for graph view -->
+        <record model="ir.actions.act_window"
+                id="graph_registos_carga_fisica_atleta_action">
+            <field name="name">Registos de carga física</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ges.linha_registo_carga_fisica</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="gestao_equipas.linha_registo_atleta_view_graph"/>
+        </record>
+    </data>
+</odoo>

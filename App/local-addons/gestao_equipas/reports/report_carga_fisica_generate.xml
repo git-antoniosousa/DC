@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <report id="report_carga_fisica_generate"
+                model="ges.atleta"
+                string="Relatório de carga física"
+                report_type="qweb-pdf"
+                name="gestao_equipas.report_carga_fisica_evento_generate"
+                file="gestao_equipas.report_carga_fisica_evento_generate"
+                attachment_use="False"
+                menu="False"
+                paperformat="gestao_equipas.paperformat_report"/>
+
+        <template id="report_carga_fisica_evento_generate">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="font">
+                            <div class="page">
+                                <style>
+                                    .font{
+                                    font-size:16px;
+                                    font-family:"Helvetica"
+                                    }
+                                    @page{
+                                    size: A4;
+                                    }
+                                    table.center {
+                                    width:80%;
+                                    margin-left:10%;
+                                    }
+                                    td.spacer1{
+                                    padding-right:320px;
+                                    }
+                                    .table.gridtable {
+                                    font-size:11px;
+                                    border-width: 1px;
+                                    border-color: #cccccc;
+                                    border-collapse: collapse;
+                                    }
+                                    table.gridtable th {
+                                    border-width: 1px;
+                                    padding: 10px;
+                                    border-style: solid;
+                                    border-color: #cccccc;
+                                    }
+                                    table.gridtable td {
+                                    border-width: 1px;
+                                    padding: 10px;
+                                    border-style: solid;
+                                    border-color: #cccccc;
+                                    }
+                                    thead {
+                                    display: table-header-group !important;
+                                    }
+                                    tfoot {
+                                    display: table-row-group !important;
+                                    }
+                                    tr {
+                                    page-break-inside: avoid !important;
+                                    }
+                                    thead:before, thead:after {
+                                    display: none;
+                                    }
+                                </style>
+
+                                <div class="row text-center">
+                                    <h2>Relatório de carga física</h2>
+                                </div>
+
+                                <br />
+
+                                <table width="100%">
+                                    <tbody>
+                                        <tr>
+                                            <b>Período de </b>
+                                            <span t-esc="data['data_inicio']"/>
+                                            <b> a </b>
+                                            <span t-esc="data['data_fim']"/>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <b>Nome do atleta:</b>
+                                                <span t-esc="atleta.name"/>
+                                            </td>
+                                            <td>
+                                                <b>Escalão:</b>
+                                                <span t-esc="atleta.escalao.designacao"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <br/>
+                                <!-- Tabela com informação geral -->
+                                <table width="100%">
+                                    <tbody>
+                                        <tr>
+                                            <td>Nº jogos</td>
+                                            <td t-esc="n_jogos"></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Nº treinos</td>
+                                            <td t-esc="n_treinos"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+
+        </template>
+    </data>
+</odoo>

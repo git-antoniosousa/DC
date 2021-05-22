@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_presencas_report_form" model="ir.ui.view">
+            <field name="name">presencas_report_form</field>
+            <field name="model">presencas.report</field>
+            <field name="arch" type="xml">
+                <form string="Presenças" version="7.0">
+                    <sheet>
+                        <div>
+                            <group>
+                                <group>
+                                    <field name="mes"/>
+                                </group>
+                                <group>
+                                    <field name="ano"/>
+                                </group>
+                            </group>
+                            <group colspan="4" col="2">
+                                <group>
+                                    <field name="mapa_de" invisible="context.get('hide_mapa_de',False)"/>
+                                </group>
+                                <group>
+                                    <field name="atleta" invisible="context.get('hide_atleta',False)"
+                                           attrs="{'required': [('mapa_de','=','atleta')],
+                                                   'invisible':[('mapa_de', '!=', 'atleta')]}"/>
+                                    <field name="escalao" invisible="context.get('hide_escalao',False)"
+                                           attrs="{'required': [('mapa_de','=','escalao')],
+                                                   'invisible':[('mapa_de', '!=', 'escalao')]}"/>
+                                </group>
+                            </group>
+                        </div>
+                    </sheet>
+                    <footer>
+                        <span groups="base.group_user">
+                            <button string="Gerar mapa de presenças" type="object"
+                                    name="gen_presencas_report" class="oe_highlight"/>
+                            <button special="cancel" string="Cancelar" type="object"/>
+                        </span>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_ges_presencas_report_view">
+            <field name="name">Exportar mapa de presenças</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">presencas.report</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_ges_presencas_report_view_form">
+            <field name="act_window_id" ref="act_ges_presencas_report_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_presencas_report_form"/>
+        </record>
+    </data>
+</odoo>
