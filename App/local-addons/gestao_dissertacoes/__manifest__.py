@@ -9,12 +9,11 @@
     'category': 'Uncategorized',
     'version': '1.0.0',
     'depends': ['base', 'report_py3o'],
-    'depends': ['base',],
     'license': "LGPL-3",
     'data': [
              'views/gestao_diss_processo.xml',
-             'views/gestao_diss_membro.xml',
-             #'views/gestao_diss_docente.xml',
+             #'views/gestao_diss_membro.xml',
+             'views/gestao_diss_docente.xml',
              'views/gestao_diss_dashboard.xml'
              ],
     'demo': [
