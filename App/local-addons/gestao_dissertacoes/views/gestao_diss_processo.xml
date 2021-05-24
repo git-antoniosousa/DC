@@ -101,8 +101,7 @@
                 <sheet>
                     <!-- Pin da informação do aluno -->
                     <group attrs="{'invisible': [('estado', 'in', ['registo_inicial'])]}">
-                        <group>
-                            <h2>Aluno</h2>
+                        <group string="Aluno">
                             <field name="nome" readonly="1"/>
                             <field name="numero" readonly="1"/>
                             <field name="curso" readonly="1"/>
@@ -114,8 +113,7 @@
                         <group>
                             <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/>
                         </group>
-                        <group attrs="{'invisible': [('estado', 'in', ['registo_inicial','correcoes','proposta_juri'])]}">
-                            <h2>Júri</h2>
+                        <group string="Júri" attrs="{'invisible': [('estado', 'in', ['registo_inicial','correcoes','proposta_juri'])]}">
                             <field name="juri_presidente_id" readonly="1"/>
                             <field name="juri_arguente_id" readonly="1"/>
                             <field name="juri_vogal_id" readonly="1"/>
@@ -124,20 +122,14 @@
                     <hr/>
                     <group>
                         <!-- Registo Inicial -->
-                        <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
-                            <sheet>
-                                <h1 style="margin-bottom: 20px"><u>Aluno</u></h1>
-                            </sheet>
+                        <group string="Aluno" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
                             <field name="nome"/>
                             <field name="numero"/>
                             <field name="curso"/>
                             <field name="email"/>
                             <field name="diss_titulo"/>
                         </group>
-                        <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
-                            <sheet>
-                                <h1 style="margin-bottom: 20px"><u>Orientador(es)</u></h1>
-                            </sheet>
+                        <group string="Orientadores" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
                             <field name="orientador_id"/>
                             <field name="coorientador_id"/>
                         </group>
@@ -158,10 +150,7 @@
                             </sheet>
                         </group>
                         <!-- Proposta do Júri  -->
-                        <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
-                            <sheet>
-                                <h1 style="margin-bottom: 20px"><u>Júri</u></h1>
-                            </sheet>
+                        <group string="Júri" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
                             <field name="juri_presidente_id"/>
                             <field name="juri_arguente_id"/>
                             <field name="juri_vogal_id"/>
@@ -178,10 +167,7 @@
                                 <h1 style="margin-bottom: 20px"><u>Aguardar pela Homologação</u></h1>
                             </sheet>
                         </group>
-                        <group attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
-                            <sheet>
-                                <h1 style="margin-bottom: 20px"><u>Defesa</u></h1>
-                            </sheet>
+                        <group string="Defesa" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
                             <field name="data_hora"/>
                             <field name="local"/>
                             <field name="sala"/>

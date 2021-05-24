@@ -2,12 +2,12 @@ from odoo import api, models, fields
 from validate_email import validate_email
 from phonenumbers import is_valid_number, parse as parse_number
 
+
 class Filiacao(models.Model):
     _name = 'gest_diss.filiacao'
     _description = 'Filiacao dos Arguentes e Docentes'
     _order = 'name'
     _rec_name = 'name'
-
 
     filiacao = fields.Many2one('gest_diss.filiacao', 'Filiacao')
 
