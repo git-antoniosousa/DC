@@ -8,7 +8,8 @@ class Aluno(models.Model):
 
     nome = fields.Char(string="Nome")
     numero = fields.Char(string="Número")
-    curso = fields.Selection([('miei', 'MIEI'), ('miebiom', 'MIEBIOM')])
+    curso = fields.Selection([('Mestrado Integrado em Engenharia Informática', 'MIEI'),
+                              ('Mestrado Integrado em Engenharia Biomédica', 'MIEBIOM')])
     email = fields.Char(string="Email")
 
     # ficha de um aluno pode ser um res partner
