@@ -15,11 +15,11 @@
             <search>
                 <field name="nome"/>
                 <field name="numero"/>
-                <field name="curso"/>
+                <field name="curso" widget="many2one"/>
                 <field name="email"/>
-                <field name="juri_presidente_id"/>
-                <field name="juri_arguente_id"/>
-                <field name="juri_vogal_id"/>
+                <field name="juri_presidente_id" widget="many2one"/>
+                <field name="juri_arguente_id" widget="many2one"/>
+                <field name="juri_vogal_id" widget="many2one"/>
                 <field name="estado"/>
                 <field name="orientador_id" widget="many2one"/>
                 <field name="coorientador_id" widget="many2one"/>
@@ -65,7 +65,7 @@
     </record>
 
     <menuitem name="Gestão de Dissertações" id="gestao_diss_menu_base" />
-    <menuitem name="Processos" id="gestao_diss_processo_menu" parent="gestao_diss_menu_base" action="gestao_diss_processo_action"/>
+    <menuitem name="Processos" id="gestao_diss_processo_menu" parent="gestao_diss_menu_base" action="gestao_diss_processo_action" sequence="1"/>
 
     <!-- Action Gerar Edital
     <record id="model_gest_diss_processo_gerar_edital_action" model="ir.actions.server">
@@ -208,11 +208,11 @@
             <tree>
                 <field name="nome"/>
                 <field name="numero"/>
-                <field name="curso"/>
+                <field name="curso" widget="many2one"/>
                 <field name="email"/>
-                <field name="juri_presidente_id"/>
-                <field name="juri_arguente_id"/>
-                <field name="juri_vogal_id"/>
+                <field name="juri_presidente_id" widget="many2one"/>
+                <field name="juri_arguente_id" widget="many2one"/>
+                <field name="juri_vogal_id" widget="many2one"/>
                 <field name="orientador_id" widget="many2one"/>
                 <field name="coorientador_id" widget="many2one"/>
                 <field name="data_hora" optional="hide"/>

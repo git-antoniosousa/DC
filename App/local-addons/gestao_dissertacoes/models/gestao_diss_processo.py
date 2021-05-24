@@ -8,9 +8,8 @@ class Processo(models.Model):
     _inherit = ['gest_diss.aluno', 'gest_diss.defesa', 'gest_diss.juri', 'mail.thread']
     _description = 'Processo de gestão da dissertação'
 
-    # --- orientadores ---
-    orientador_id = fields.Many2one('res.partner', 'Orientador')
-    coorientador_id = fields.Many2one('res.partner', 'Co-orientador')
+    orientador_id = fields.Many2one('gest_diss.membro', 'Orientador')
+    coorientador_id = fields.Many2one('gest_diss.membro', 'Co-orientador')
 
     # --- titulo e nota ---
     diss_titulo = fields.Char(string="Título da Tese")

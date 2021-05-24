@@ -2,48 +2,32 @@ from odoo import api, models, fields
 from validate_email import validate_email
 from phonenumbers import is_valid_number, parse as parse_number
 
-class Membro(models.Model):
-    _name = 'gest_diss.membro'
-    _description = 'Arguentes e Docentes'
+class Filiacao(models.Model):
+    _name = 'gest_diss.filiacao'
+    _description = 'Filiacao dos Arguentes e Docentes'
     _order = 'name'
     _rec_name = 'name'
 
-    categoria = fields.Selection([
-        ('prof_auxiliar', 'Professor Auxiliar'),
-        ('associado', 'Professor Associado'),
-        ('investigador_senior', 'Investigador Sénior'),
-        ('investigador_junior', 'Investigador Júnior'),
-    ], string='Categoria')
 
-    filiacao_id = fields.Many2one('gest_diss.filiacao', 'Filiacao', domain = "[('tipo_de_filiacao','in',['u', 'e'])]")
+    filiacao = fields.Many2one('gest_diss.filiacao', 'Filiacao')
 
-    departamento = fields.Many2one('gest_diss.filiacao', 'Departamento', domain = "[('tipo_de_filiacao','=','d')]")
-
-    centro_investigacao = fields.Many2one('gest_diss.filiacao', 'Centro de Investigação', domain = "[('tipo_de_filiacao','=','c')]")
+    tipo_de_filiacao = fields.Selection([('u', 'Universidade'), ('e', 'Empresa'), ('d', 'Departamento'), ('c', 'Centro de Investigação')], string="Tipo de Filiação", default='d', required=True)
 
     name = fields.Char(string="Nome")
-
-    phone = fields.Char(string="Número de Contacto")
 
     email = fields.Char(string="Email")
 
     email_facultativo = fields.Char(string="Email Facultativo")
 
+    phone = fields.Char(string="Número de Contacto")
+
     website = fields.Char(string="Website")
 
-    tipo_de_membro = fields.Selection([('dc', 'Docente'), ('arg', 'Arguente')], string="Tipo de membro", default='dc',required=True)
+    street = fields.Char(string="Rua")
 
-    '''
-    colocar tag de docente
+    city = fields.Char(string="Cidade")
 
-    variavel_indica se é docente, arguente
-    universidade
-    escola_faculdade
-    departamento
-    centro de investigação
-    '''
-
-
+    zip = fields.Char(string="Zip")
 
     @api.constrains('phone')
     @api.depends('phone')
@@ -61,7 +45,7 @@ class Membro(models.Model):
             if rec.email and not validate_email(rec.email):
                 raise models.ValidationError(
                     'O email \'{}\' não é um email válido.'.format(rec.email))
-
+    
     @api.constrains('email_facultativo')
     @api.depends('email_facultativo')
     def _check_email(self):
