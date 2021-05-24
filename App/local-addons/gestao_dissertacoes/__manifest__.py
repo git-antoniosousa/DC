@@ -8,17 +8,18 @@
     'author': "Joel Ferreira, João Linhares, Rui Azevedo",
     'category': 'Uncategorized',
     'version': '1.0.0',
-    'depends': ['base', 'report_py3o'],
+    'depends': ['base', 'report_py3o', 'mail'],
     'license': "LGPL-3",
     'data': [
              'views/gestao_diss_processo.xml',
              #'views/gestao_diss_membro.xml',
              'views/gestao_diss_docente.xml',
-             'views/gestao_diss_dashboard.xml'
+             'views/gestao_diss_dashboard.xml',
+             #'data/processos.xml'
              ],
     'demo': [
-        'demo/alunos.xml',
-        'demo/processos.xml'
+        #'demo/alunos.xml',
+        #'demo/processos.xml'
     ],
     'css': [
         'static/src/css/aluno.css',
