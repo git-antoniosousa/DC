@@ -13,13 +13,14 @@
     'data': [
              'views/gestao_diss_processo.xml',
              'views/gestao_diss_membro.xml',
-             #'views/gestao_diss_docente.xml',
+             'views/gestao_diss_filiacao.xml',
+             'views/gestao_diss_curso.xml',
              'views/gestao_diss_dashboard.xml',
-             'reports/report_proposta_juri.xml',
-             ],
+             'reports/report_proposta_juri.xml'           
+			],
     'demo': [
-        'demo/alunos.xml',
-        'demo/processos.xml'
+        #'demo/alunos.xml',
+        #'demo/processos.xml'
     ],
     'css': [
         'static/src/css/aluno.css',

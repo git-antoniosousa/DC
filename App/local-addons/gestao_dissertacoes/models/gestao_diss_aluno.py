@@ -8,16 +8,15 @@ class Aluno(models.Model):
 
     nome = fields.Char(string="Nome")
     numero = fields.Char(string="Número")
-    curso = fields.Selection([('Mestrado Integrado em Engenharia Informática', 'MIEI'),
-                              ('Mestrado Integrado em Engenharia Biomédica', 'MIEBIOM')])
+    curso = fields.Many2one('gest_diss.curso', 'Curso')
     email = fields.Char(string="Email")
 
     # ficha de um aluno pode ser um res partner
 
-    # def name_get(self):
-    #     data = []
-    #     for obj in self:
-    #         f = f"({obj.numero}) {obj.nome} | {obj.curso}"
-    #         data.append((obj.id, f))
-    #     return data
+    def name_get(self):
+        data = []
+        for obj in self:
+            f = f"({obj.numero}) {obj.nome} | {obj.curso}"
+            data.append((obj.id, f))
+        return data
 

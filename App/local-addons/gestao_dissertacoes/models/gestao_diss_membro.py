@@ -3,8 +3,7 @@ from validate_email import validate_email
 from phonenumbers import is_valid_number, parse as parse_number
 
 class Membro(models.Model):
-    _name = 'res.partner'
-    _inherit = 'res.partner'
+    _name = 'gest_diss.membro'
     _description = 'Arguentes e Docentes'
     _order = 'name'
     _rec_name = 'name'
@@ -16,9 +15,23 @@ class Membro(models.Model):
         ('investigador_junior', 'Investigador Júnior'),
     ], string='Categoria')
 
-    departamento = fields.Char(string="Departamento")
+    filiacao_id = fields.Many2one('gest_diss.filiacao', 'Filiacao', domain = "[('tipo_de_filiacao','in',['u', 'e'])]")
 
-    tipo_de_membro = fields.Selection([('dc', 'Docente'), ('arg', 'Arguente')], string="Tipo de membro")
+    departamento = fields.Many2one('gest_diss.filiacao', 'Departamento', domain = "[('tipo_de_filiacao','=','d')]")
+
+    centro_investigacao = fields.Many2one('gest_diss.filiacao', 'Centro de Investigação', domain = "[('tipo_de_filiacao','=','c')]")
+
+    name = fields.Char(string="Nome")
+
+    phone = fields.Char(string="Número de Contacto")
+
+    email = fields.Char(string="Email")
+
+    email_facultativo = fields.Char(string="Email Facultativo")
+
+    website = fields.Char(string="Website")
+
+    tipo_de_membro = fields.Selection([('dc', 'Docente'), ('arg', 'Arguente')], string="Tipo de membro", default='dc',required=True)
 
     '''
     colocar tag de docente
@@ -48,3 +61,11 @@ class Membro(models.Model):
             if rec.email and not validate_email(rec.email):
                 raise models.ValidationError(
                     'O email \'{}\' não é um email válido.'.format(rec.email))
+
+    @api.constrains('email_facultativo')
+    @api.depends('email_facultativo')
+    def _check_email(self):
+        for rec in self:
+            if rec.email_facultativo and not validate_email(rec.email_facultativo):
+                raise models.ValidationError(
+                    'O email \'{}\' não é um email válido.'.format(rec.email_facultativo))
