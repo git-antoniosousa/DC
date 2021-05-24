@@ -12,8 +12,9 @@
     'license': "LGPL-3",
     'data': [
              'views/gestao_diss_processo.xml',
-             #'views/gestao_diss_membro.xml',
-             'views/gestao_diss_docente.xml',
+             'views/gestao_diss_membro.xml',
+             'views/gestao_diss_filiacao.xml',
+             'views/gestao_diss_curso.xml',
              'views/gestao_diss_dashboard.xml'
              ],
     'demo': [

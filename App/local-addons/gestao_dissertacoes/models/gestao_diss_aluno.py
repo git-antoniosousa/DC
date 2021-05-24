@@ -8,7 +8,7 @@ class Aluno(models.Model):
 
     nome = fields.Char(string="Nome")
     numero = fields.Char(string="Número")
-    curso = fields.Selection([('miei', 'MIEI'), ('miebiom', 'MIEBIOM')])
+    curso = fields.Many2one('gest_diss.curso', 'Curso')
     email = fields.Char(string="Email")
 
     # ficha de um aluno pode ser um res partner
