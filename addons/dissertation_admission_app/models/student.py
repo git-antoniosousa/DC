@@ -1,9 +1,6 @@
 from odoo import api, fields, models, exceptions
 import logging
-from . import dissertation_user
-
-_logger = logging.getLogger(__name__)
-
+from . import user
 
 class Student(models.Model):
     _name = 'dissertation_admission.student'
@@ -15,14 +12,14 @@ class Student(models.Model):
 
     @api.model
     def create(self, values):
-        user = self.env['res.users'].browse(values['user_id'])
-        values['login'] = user.email
+        assoc_user = self.env['res.users'].browse(values['user_id'])
+        values['login'] = assoc_user.login
         values['tz'] = 'Europe/Lisbon'
-        dissertation_user.check_already_assigned(user)
+        user.check_already_assigned(assoc_user)
 
         res = super(Student, self).create(values)
 
-        dissertation_user.recalculate_permissions(self.env, user, 'student')
+        user.recalculate_permissions(self.env, assoc_user, 'student')
 
         return res
 
@@ -31,5 +28,5 @@ class Student(models.Model):
         return super(Student, self).write(vals)
 
     def unlink(self):
-        dissertation_user.recalculate_permissions(self.env, self.user_id, None)
+        user.recalculate_permissions(self.env, self.user_id, None)
         return super(Student, self).unlink()

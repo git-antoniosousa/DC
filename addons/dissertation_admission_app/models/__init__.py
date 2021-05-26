@@ -1,6 +1,7 @@
 from . import dissertation
+from . import dissertation_review
 
-from . import dissertation_user
+from . import user
 from . import student
 from . import adviser
 from . import direction

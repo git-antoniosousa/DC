@@ -1,8 +1,9 @@
 from odoo import api, fields, models, exceptions
 import logging
-from . import dissertation_user
+from . import user
 
 _logger = logging.getLogger(__name__)
+
 
 class Adviser(models.Model):
     perms = [
@@ -24,21 +25,23 @@ class Adviser(models.Model):
 
     @api.model
     def create(self, values):
-        user = self.env['res.users'].browse(values['user_id'])
-        values['login'] = user.email
+        if 'password' in values and values['password'] is False:
+            del values['password']
+        assoc_user = self.env['res.users'].browse(values['user_id'])
+        values['login'] = assoc_user.login
         values['tz'] = 'Europe/Lisbon'
-        dissertation_user.check_already_assigned(user)
+        user.check_already_assigned(assoc_user)
         res = super(Adviser, self).create(values)
-        dissertation_user.recalculate_permissions(self.env, user, res.perms)
+        user.recalculate_permissions(self.env, assoc_user, res.perms)
         return res
 
     def write(self, vals):
         res = super(Adviser, self).write(vals)
         _logger.info('\n\n\n\n\n')
         _logger.info(str(self.perms))
-        dissertation_user.recalculate_permissions(self.env, self.user_id, self.perms)
+        user.recalculate_permissions(self.env, self.user_id, self.perms)
         return res
 
     def unlink(self):
-        dissertation_user.recalculate_permissions(self.env, self.user_id, None)
+        user.recalculate_permissions(self.env, self.user_id, None)
         return super(Adviser, self).unlink()

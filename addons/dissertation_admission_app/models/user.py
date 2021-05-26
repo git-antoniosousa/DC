@@ -5,7 +5,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 def check_already_assigned(user):
-    if user.student_uid or user.adviser_uid or user.direction_uid:
+    if user.student_uid or user.adviser_uid or user.direction_uid or user.company_employee_uid:
         raise exceptions.UserError('O utilizador já tem permissões atribuídas para admissões de dissertação.')
 
 
@@ -15,7 +15,8 @@ def recalculate_permissions(env, user, perms):
               env.ref('dissertation_admission_app.dissertation_admission_group_coadviser'),
               env.ref('dissertation_admission_app.dissertation_admission_group_adviser'),
               env.ref('dissertation_admission_app.dissertation_admission_group_direction'),
-              env.ref('dissertation_admission_app.dissertation_admission_group_course_director')]
+              env.ref('dissertation_admission_app.dissertation_admission_group_course_director'),
+              env.ref('dissertation_admission_app.dissertation_admission_group_company_employee')]
     for group in groups:
         group.write({'users': [(3, user.id)]})
 
@@ -29,6 +30,8 @@ def recalculate_permissions(env, user, perms):
         groups[4].write({'users': [(4, user.id)]})
     elif perms == 'director':
         groups[5].write({'users': [(4, user.id)]})
+    elif perms == 'company_employee':
+        groups[6].write({'users': [(4, user.id)]})
 
 
 class StudentUser(models.Model):
@@ -65,3 +68,14 @@ class DirectionUser(models.Model):
                 self.env['dissertation_admission.direction'].sudo().search([('user_id', '=', self.id)])[0].id
         except:
             self.direction_uid = None
+
+class CompanyEmployeeUser(models.Model):
+    _inherit = 'res.users'
+    company_employee_uid = fields.Many2one('dissertation_admission.company_employee', compute='_get_employee_id')
+
+    def _get_employee_id(self):
+        try:
+            self.company_employee_uid = \
+                self.env['dissertation_admission.company_employee'].sudo().search([('user_id', '=', self.id)])[0].id
+        except:
+            self.company_employee_uid = None

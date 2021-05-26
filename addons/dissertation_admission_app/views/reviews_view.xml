@@ -1,0 +1,31 @@
+<odoo>
+
+    <!-- Student Form -->
+    <record id="view_dissertation_admission_student_form" model="ir.ui.view">
+        <field name="name">review_view_form</field>
+        <field name="model">dissertation_admission.dissertation_review</field>
+        <field name="priority" eval="16"/>
+        <field name="arch" type="xml">
+            <form>
+                <sheet string="Revisão" >
+                    <group>
+                        <field String="" name="text" required="True" id="text"/>
+                        <field name="dissertation" required="True" id="dissertation" invisible="True"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree view -->
+    <record id="view_dissertation_admission_review_tree" model="ir.ui.view">
+        <field name="name">review_view_tree</field>
+        <field name="model">dissertation_admission.dissertation_review</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="text"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>

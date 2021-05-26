@@ -10,9 +10,11 @@
 			<form >
 				<sheet string="Dissertação">
 					<group>
+						<field name="id" required="True" id="id" invisible="True"/>
 						<field name="name" required="True" id="name"/>
 						<field name="description" required="True" colspan="4" id="description"/>
 						<field name="state" required="True" id="state"/>
+						<field name="school_year" required="True" id="school_year"/>
 						<field name="is_public" id="is_public"/>
 						<field name="course" id="course" required="True" widget="many2many_tags"/>
 						<field name="adviser_id" id="adviser_id"/>
@@ -20,7 +22,10 @@
 						<field name="student_id" id="student_id"/>
 						<field name="candidates" id="candidates" widget="many2many_tags"/>
 						<field name="create_uid" id="create_uid"/>
-						<field name="reviews" colspan="2" id="reviews"/>
+						<field name="reviews" colspan="2" id="reviews" widget="many2many"
+							   context="{'default_dissertation': id}" domain="[('dissertation.id', '=', id)]">
+						   <tree><field name="text"/></tree>
+						</field>
 					</group>
 					<button string="Candidatar" name="register_candidate" type="object"
 							confirm="Tem a certeza que quer candidatar-se a esta dissertação?"
