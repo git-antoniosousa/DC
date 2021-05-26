@@ -15,7 +15,9 @@
      'views/dissertation_admission_menu.xml',
      'demo/course.xml',
      'demo/department.xml',
-     'demo/investigation_center.xml'
+     'demo/investigation_center.xml',
+     'demo/user.xml',
+     'demo/student.xml'
  ],
  'application': True,
  'installable': True,

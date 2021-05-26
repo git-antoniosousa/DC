@@ -79,3 +79,15 @@ class CompanyEmployeeUser(models.Model):
                 self.env['dissertation_admission.company_employee'].sudo().search([('user_id', '=', self.id)])[0].id
         except:
             self.company_employee_uid = None
+
+class UserCourses(models.Model):
+    _inherit = 'res.users'
+    delegated_courses = fields.Many2many('dissertation_admission.course', compute='_get_courses',
+                              relation='dissertation_admission_dissertation_user_course_rel')
+
+    def _get_courses(self):
+        try:
+            self.delegated_courses = \
+                (self.company_employee_uid or self.direction_uid or self.adviser_uid).courses
+        except:
+            self.delegated_courses = None
