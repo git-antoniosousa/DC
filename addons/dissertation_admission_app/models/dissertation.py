@@ -17,7 +17,7 @@ class Dissertation(models.Model):
     name_en = fields.Char('Titulo Inglês', required=True)
     description = fields.Text(string='Descrição', required=True)
     state = fields.Selection(states, string='Estado', required=True, default='pending')
-    school_year = fields.Selection([(str(num), str(num) + '/' + str(num + 1))
+    school_year = fields.Selection([(str(num) + '/' + str(num + 1), str(num) + '/' + str(num + 1))
                                     for num in range(2020, datetime.datetime.now().year)]
                                    , required=True)
     is_public = fields.Boolean(string='Publico?', required=True, default=False)
@@ -32,6 +32,9 @@ class Dissertation(models.Model):
     reviews = fields.Many2many('dissertation_admission.dissertation_review'
                                , relation='dissertation_admission_dissertation_review_rel')
 
+    work_plan_id = fields.Many2one('dissertation_admission.work_plan', string='Plano de Trabalho',
+                                   compute="_get_work_plan")
+
     @api.model
     def create(self, vals):
         ret = super(Dissertation, self).create(vals)
@@ -42,6 +45,11 @@ class Dissertation(models.Model):
         ret = super(Dissertation, self).write(vals)
         self.check_unique_coadvisers()
         self.check_valid_courses(vals)
+        logging.info(vals)
+        if not self.work_plan_id and 'student_id' in vals and vals['student_id']:
+            return ret and self.env['dissertation_admission.work_plan'].sudo().create({
+                'dissertation': self.id,
+                'student': vals['student_id']})
         return ret
 
     def register_candidate(self):
@@ -70,3 +78,10 @@ class Dissertation(models.Model):
     def _get_reviews(self):
         self.reviews = self.env['dissertation_admission.dissertation_review'].sudo() \
             .search([('dissertation', '=', self.id)])
+
+    def _get_work_plan(self):
+        try:
+            self.work_plan_id = self.env['dissertation_admission.work_plan'].sudo() \
+                .search([('dissertation', '=', self.id)])[0]
+        except:
+            self.work_plan_id = False

@@ -1,0 +1,77 @@
+\documentclass[a4paper, 12pt]{article} 
+\usepackage[a4paper, total={6.5in, 10in}]{geometry}
+\usepackage[most]{tcolorbox}
+
+\newtcolorbox{textbox}[1][]{%
+    colback=white,sharp corners, height from=9cm to 100cm,  boxrule=.5pt, #1
+}
+
+\begin{document}
+   
+\begin{textbox}[halign=center, valign=center, fit to height=3cm, width=0.2\textwidth, after=, frame hidden, boxrule=-1pt]
+    \begin{minipage}[t]{\linewidth}
+    \vspace*{0pt}
+        \includegraphics[height=3cm,width=\linewidth, keepaspectratio]{EEUMLOGO.png}
+    \end{minipage}
+\end{textbox}
+\negthickspace
+\begin{textbox}[halign=center, valign=center, fit to height=3cm, width=0.8\textwidth, before=, frame hidden, boxrule=-1pt]
+    \large\textbf{Pedido de Admissão à Dissertação/Projeto} \\
+    Plano de Trabalho 
+\end{textbox}
+    
+\begin{textbox}[halign=center, valign=center, fit to height=3cm, width=0.2\textwidth, after=]
+    \textbf{Ano Letivo:} \\
+    $year$
+\end{textbox}
+\negthickspace
+\begin{textbox}[valign=center, fit to height=3cm, width=0.8\textwidth, before=]
+    \small{\textbf{Nome:}} $name$ \\
+    \small{\textbf{Número :}} $number$\\
+    \textbf{Título} \small(em Português): $title$ \\
+    \textbf{Título} \small(em Inglês): $titleen$
+\end{textbox}
+
+
+\begin{textbox}
+\small{\textbf{Enquadramento e Motivação}} \tiny{(150-200 palavras)} \small
+
+%{Text here.}
+\end{textbox}
+
+\begin{textbox}
+\small{\textbf{Objetivos e Resultados Esperados}} \tiny{(150-200 palavras)} \small
+
+%{Text here.}
+\end{textbox}
+
+\begin{textbox}
+\small{\textbf{Calendarização}}\tiny{} \small
+
+%{Text here.}
+\end{textbox}
+
+\begin{textbox}
+\small{\textbf{Referências Bibliográficas}} \tiny{(5-10 referências)} \small
+
+%{Text here.}
+\end{textbox}
+
+\clearpage
+
+\begin{table}[h!]
+   \begin{tabular}{| p{16.1cm} |}\hline
+       \small{\textbf{Assinaturas}} \tiny{}
+       \\[1em]
+       \begin{tabular}{| p{7.62cm} | p{7.62cm} | }
+           \hline
+           \small{\textbf{Estudante}} &  \small{\textbf{Orientador}}
+           \\[10em]\hline
+           
+           \small{\textbf{Diretor do Ciclo de Estudos}} & \small{\textbf{Coorientador} (se aplicável)}
+           \\[10em]\hline
+       \end{tabular}
+       \\[10.5em]\hline
+   \end{tabular}
+\end{table}
+\end{document}
