@@ -5,7 +5,7 @@ from odoo.tools.translate import _
 
 class Processo(models.Model):
     _name = "gest_diss.processo"
-    _inherit = ['gest_diss.aluno', 'gest_diss.defesa', 'gest_diss.juri', 'mail.thread']
+    _inherit = ['gest_diss.aluno', 'gest_diss.defesa', 'gest_diss.juri']
     _description = 'Processo de gestão da dissertação'
 
     orientador_id = fields.Many2one('gest_diss.membro', 'Orientador')
