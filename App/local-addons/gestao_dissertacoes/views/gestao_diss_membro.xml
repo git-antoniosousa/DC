@@ -13,16 +13,11 @@
                 <field name="centro_investigacao" widget="many2one"/>
                 <field name="phone"/>
                 <field name="email"/>
-                <field name="categoria"/>
+                <field name="categoria" widget="many2one"/>
                 <newline/>
                 <group>
                     <filter name="filter_uminho" string="Universidade do Minho" domain="[('filiacao_id', '=', 'Universidade do Minho')]"/>
                     <filter name="filter_di" string="Departamento de Informática" domain="[('departamento', '=', 'Departamento de Informática')]"/>
-                    <newline/>
-                    <filter name="filter_prof_auxiliar" string="Professor Auxiliar" domain="[('categoria', '=', 'prof_auxiliar')]"/>
-                    <filter name="filter_associado" string="Professor Associado" domain="[('categoria', '=', 'associado')]"/>
-                    <filter name="filter_inv_junior" string="Investigador Júnior" domain="[('categoria', '=', 'investigador_junior')]"/>
-                    <filter name="filter_inv_senior" string="Investigador Sênior" domain="[('categoria', '=', 'investigador_senior')]"/>
                     <newline/>
                     <filter name="filter_docente" string="Docentes" domain="[('tipo_de_membro', '=', 'dc')]"/>
                     <filter name="filter_arguente" string="Arguentes" domain="[('tipo_de_membro', '=', 'arg')]"/>
@@ -53,13 +48,13 @@
                         <field name="email" required="True"/>
                         <field name="email_facultativo"/>
                         <field name="phone" required="True"/>
-                        <field name="website"/>
+                        <field name="website" widget ="url"/>
                     </group>
                     <group string="Filiação">
                         <field name="filiacao_id" placeholder="Empresa ou Universidade associada" class="o_address_street"/>
                         <field name="departamento" placeholder="Departamento" class="o_address_street"/>
                         <field name="centro_investigacao" placeholder="Centro de Investigação" class="o_address_street"/>
-                        <field name="categoria" class="o_address_street"/>
+                        <field name="categoria" placeholder="Categoria" class="o_address_street"/>
                     </group>
                     <group>
                         <field name="tipo_de_membro" widget="radio" required="True"/>
@@ -78,6 +73,7 @@
                 <field name="name"/>
                 <field name="email"/>
                 <field name="phone"/>
+                <field name="categoria" widget="many2one" optional="show"/>
                 <field name="filiacao_id" widget="many2one"/>
                 <field name="departamento" widget="many2one" optional="show"/>
                 <field name="centro_investigacao" widget="many2one" optional="show"/>

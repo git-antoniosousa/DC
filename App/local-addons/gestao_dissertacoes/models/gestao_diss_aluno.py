@@ -16,7 +16,7 @@ class Aluno(models.Model):
     def name_get(self):
         data = []
         for obj in self:
-            f = f"({obj.numero}) {obj.nome} | {obj.curso.nome}"
+            f = f"({obj.numero}) {obj.nome} | {obj.curso.codigo}"
             data.append((obj.id, f))
         return data
 

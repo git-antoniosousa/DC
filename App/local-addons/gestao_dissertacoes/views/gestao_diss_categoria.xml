@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Search options -->
+    <record id="gestao_diss_categoria_view_search" model="ir.ui.view">
+        <field name="name">gestao_diss_categoria_view_search</field>
+        <field name="model">gest_diss.categoria</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="nome"/>
+            </search>
+        </field>
+    </record>
+
+     <!-- Form -->
+    <record id="gestao_diss_categoria_view_form" model="ir.ui.view">
+        <field name="name">categoria_view_form</field>
+        <field name="model">gest_diss.categoria</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <h1 class="oe_inline">Ficha Categoria</h1>
+                    </group>
+                    <group string="Informação da Categorias">
+                        <field name="nome" required="True"/>
+                        <field name="descricao"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree(list) View -->
+    <record id="gestao_diss_categoria_view_tree" model="ir.ui.view">
+        <field name="name">Listagem de Categorias</field>
+        <field name="model">gest_diss.categoria</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="nome"/>
+                <field name="descricao"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id='gestao_diss_categoria_action' model='ir.actions.act_window'>
+        <field name="name">Gestão de Dissertações - Categorias</field>
+        <field name="res_model">gest_diss.categoria</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('gestao_diss_categoria_view_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('gestao_diss_categoria_view_form')})]"/>
+        <field name="search_view_id" ref="gestao_diss_categoria_view_search"/>
+    </record>
+
+    <menuitem name="Categorias" id="gestao_diss_categoria_menu" parent="gestao_diss_menu_base" action="gestao_diss_categoria_action" sequence="5"/>
+
+</odoo>
