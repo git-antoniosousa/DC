@@ -16,11 +16,10 @@ class Adviser(models.Model):
     _description = 'Orientador'
     user_id = fields.Many2one('res.users', ondelete='restrict', required=True)
     university_id = fields.Char(required=True)
-    department = fields.Many2one('dissertation_admission.department', required=True)
+    department = fields.Char()
     courses = fields.Many2many('dissertation_admission.course', required=True,
                                relation="dissertation_admission_adviser_course_rel")
-    investigation_center = fields.Many2many('dissertation_admission.investigation_center', required=True,
-                                            relation="dissertation_admission_adviser_investigation_center_rel")
+    investigation_center = fields.Char()
     perms = fields.Selection(perms, required=True, default='pending')
 
     @api.model

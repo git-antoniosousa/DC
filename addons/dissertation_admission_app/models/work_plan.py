@@ -22,10 +22,10 @@ class WorkPlan(models.Model):
             .replace('$titleen$', self.dissertation.name_en)
         result = base64.b64encode(bytes(text, 'utf-8'))
 
-        base_url = self.env['ir.config_parameter'].get_param('web.base.url')
+        base_url = self.sudo().env['ir.config_parameter'].get_param('web.base.url')
         attachment_obj = self.env['ir.attachment']
 
-        attachment_id = attachment_obj.create(
+        attachment_id = attachment_obj.sudo().create(
             {'name': 'plano_trabalho_' + self.student.university_id + '.tex', 'datas': result})
 
         download_url = '/web/content/' + str(attachment_id.id) + '?download=true'

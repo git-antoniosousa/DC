@@ -52,6 +52,11 @@ class Dissertation(models.Model):
                 'student': vals['student_id']})
         return ret
 
+    def unlink(self):
+        for review in self.reviews:
+            review.unlink()
+        super(Dissertation, self).unlink()
+
     def register_candidate(self):
         student_uid = self._context.get('uid')
         student = self.env['dissertation_admission.student'].sudo().search([('user_id', '=', student_uid)])[0]
@@ -59,6 +64,18 @@ class Dissertation(models.Model):
 
     def ask_revision(self):
         self.sudo().write({'state': 'pending'})
+
+    def approve(self):
+        self.state = 'approved'
+
+    def disapprove(self):
+        self.state = 'disapproved'
+
+    def publish(self):
+        self.is_public = True
+
+    def unpublish(self):
+        self.is_public = False
 
     def check_unique_coadvisers(self):
         if len(self.coadviser_id_external) + len(self.coadviser_id_internal) >= 2:
@@ -74,6 +91,7 @@ class Dissertation(models.Model):
             raise exceptions.ValidationError("Cursos não delegados pelo criador foram selecionados.")
         except Exception:
             pass
+
 
     def _get_reviews(self):
         self.reviews = self.env['dissertation_admission.dissertation_review'].sudo() \

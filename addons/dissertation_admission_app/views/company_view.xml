@@ -9,11 +9,13 @@
             <form>
                 <sheet string="Empresa" >
                     <group>
+                        <field name="create_uid" id="create_uid" invisible="True"/>
                         <field string="Nome" name="name" required="True" id="name"/>
                         <field string="Email" name="email" required="True" id="email"/>
                         <field string="Telefone" name="phone" id="phone"/>
                         <field string="Website" name="website" id="website"/>
-                        <field string="Funcionarios" name="employees" required="True" id="employees"/>
+                        <field string="Funcionarios" name="employees" readonly="True" id="employees"
+                               attrs="{'invisible': [('create_uid', '=', False)]}" />
                     </group>
                 </sheet>
             </form>

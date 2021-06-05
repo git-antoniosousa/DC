@@ -11,8 +11,8 @@
                         <field name="student" required="True" id="student"/>
                     </group>
                     <button string="Transferir template latex" name="download_latex" type="object"
-                            class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"/>
-                            <!--groups="dissertation_admission_app.dissertation_admission_group_student"/>-->
+                            class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
+                            groups="dissertation_admission_app.dissertation_admission_group_student"/>
                 </sheet>
             </form>
         </field>
@@ -22,7 +22,7 @@
         <field name="name">Plano de Estudos</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">dissertation_admission.work_plan</field>
-        <field name="view_mode">form</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
     <menuitem id="menu_dissertation_admission_work_plan_student"
@@ -32,14 +32,14 @@
               parent="dissertation_admission_menu" />
 
     <record id="action_dissertation_admission_work_plan" model="ir.actions.act_window">
-        <field name="name">Plano de Estudos</field>
+        <field name="name">Planos de Estudos</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">dissertation_admission.work_plan</field>
         <field name="view_mode">tree,form</field>
     </record>
 
     <menuitem id="menu_dissertation_admission_work_plan"
-              name="Plano de Estudos"
+              name="Planos de Estudos"
               groups="dissertation_admission_group_coadviser"
               action="action_dissertation_admission_work_plan"
               parent="dissertation_admission_menu" />

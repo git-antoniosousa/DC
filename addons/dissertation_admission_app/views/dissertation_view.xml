@@ -16,26 +16,42 @@
 						<field name="name" required="True" id="name" readonly="True"/>
 						<field name="name_en" required="True" id="name" readonly="True"/>
 						<field name="description" required="True" colspan="4" id="description" readonly="True"/>
-						<field name="state" required="True" id="state"/>
+						<field name="state" required="True" id="state" readonly="True"/>
 						<field name="school_year" required="True" id="school_year" readonly="True"/>
-						<field name="is_public" id="is_public"/>
-						<field name="course" id="course" required="True" widget="many2many_tags"/>
+						<field name="is_public" id="is_public" readonly="True"/>
+						<field name="course" id="course" required="True" widget="many2many_tags" readonly="True"/>
 						<field string="Autor" name="create_uid" id="create_uid"/>
 						<field name="adviser_id" id="adviser_id"
-							   domain="['|',('perms','=','adviser'),('perms','=','director')]"/>
+							   domain="['|',('perms','=','adviser'),('perms','=','director')]" readonly="True"/>
 						<field string="Coorientador Interno" name="coadviser_id_internal"
-							   id="coadviser_internal_id"/>
+							   id="coadviser_internal_id" readonly="True"/>
 						<field string="Coorientador Externo" name="coadviser_id_external"
 							   id="coadviser_external_id"
-							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+							   attrs="{'readonly': [('state', '=', 'approved')]}" readonly="True"/>
 						<field name="student_id" id="student_id"
-							   domain="[('id', 'in', candidates)]"/>
+							   domain="[('id', 'in', candidates)]" readonly="True"/>
 						<field name="candidates" id="candidates" widget="many2many_tags"/>
 						<field name="reviews" colspan="2" id="reviews" widget="many2many"
 							   context="{'default_dissertation': id}" domain="[('dissertation.id', '=', id)]">
 							<tree><field name="text"/></tree>
 						</field>
 					</group>
+					<button string="Publicar" name="publish" type="object"
+							confirm="Tem a certeza que quer publicar esta dissertação?"
+							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
+							attrs="{'invisible': ['|', ('is_public', '=', True), ('state', '!=', 'approved')]}"/>
+					<button string="Cancelar Publicação" name="unpublish" type="object"
+							confirm="Tem a certeza que quer cancelar a publicação desta dissertação?"
+							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
+							attrs="{'invisible': [('is_public', '==', False)]}" />
+					<button string="Aprovar" name="approve" type="object"
+							confirm="Tem certeza que quer aprovar esta dissertação?"
+							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
+							attrs="{'invisible': [('state', '==', 'approved')]}" />
+					<button string="Reprovar" name="disapprove" type="object"
+							confirm="Tem a certeza que quer reprovar esta dissertação?"
+							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
+							attrs="{'invisible': ['|', ('state', '==', 'disapproved'), ('is_public', '=', True)]}" />
 				</sheet>
 			</form>
 		</field>
@@ -150,7 +166,7 @@
 		</field>
 	</record>
 
-	<!-- Tree view -->
+	<!-- Director view -->
 	<record id="view_dissertation_admission_dissertation_director_tree" model="ir.ui.view">
 		<field name="name">dissertation_view_tree</field>
 		<field name="model">dissertation_admission.dissertation</field>
@@ -162,6 +178,9 @@
 				<field name="state" string="Estado"/>
 				<field name="is_public" string="Publico?"/>
 				<field name="school_year" string="Ano Letivo"/>
+				<button string="Publicar" name="publish" type="object"
+						class="oe_highlight oe_read_only"
+						attrs="{'invisible': ['|', ('is_public', '=', True), ('state', '!=', 'approved')]}"/>
 			</tree>
 		</field>
 	</record>

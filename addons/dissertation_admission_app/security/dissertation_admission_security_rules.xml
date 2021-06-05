@@ -1,10 +1,22 @@
 <?xml version="1.0" ?>
 <odoo>
 
-    <record model="ir.rule" id="only_see_active_in_course">
-        <field name="name">Can Only See Dissertations In Its Course</field>
+    <record model="ir.rule" id="student_dissertation_rule">
+        <field name="name">Can Only See Public Dissertations In Its Course</field>
         <field name="model_id" ref="model_dissertation_admission_dissertation"/>
-        <field name="domain_force">[('course','in', user.student_uid.course.id)]</field>
+        <field name="domain_force">
+            ['&amp;', ('course', 'in', user.student_uid.course.id)
+                , ('is_public', '=', True)]
+        </field>
+        <field name="groups" eval="[(4, ref('dissertation_admission_group_student'))]"/>
+    </record>
+
+    <record model="ir.rule" id="student_work_plan_rule">
+        <field name="name">Can only see his own work plan</field>
+        <field name="model_id" ref="model_dissertation_admission_work_plan"/>
+        <field name="domain_force">
+            [( 'student', '=', user.student_uid[0].id)]
+        </field>
         <field name="groups" eval="[(4, ref('dissertation_admission_group_student'))]"/>
     </record>
 
@@ -13,7 +25,13 @@
       <field name="model_id" ref="model_dissertation_admission_dissertation"/>
       <field name="domain_force">['|',('create_uid','=',False),('create_uid','=',user.id)]</field>
       <field name="groups" eval="[(4, ref('dissertation_admission_group_adviser'))]"/>
-      <field name="perm_read">False</field>
+    </record>
+
+    <record model="ir.rule" id="admin_dissertation_rule">
+        <field name="name">Has full permissions on dissertations</field>
+        <field name="model_id" ref="model_dissertation_admission_dissertation"/>
+        <field name="domain_force">[]</field>
+        <field name="groups" eval="[(4, ref('dissertation_admission_group_adviser'))]"/>
     </record>
 
 </odoo>
