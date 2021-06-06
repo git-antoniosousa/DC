@@ -35,8 +35,9 @@ class Processo(models.Model):
     ], string='Estado', readonly=True, copy=False, index=True, tracking=3, default='registo_inicial')
 
     # --- anexar documentos ---
-    attachment_ids = fields.Many2many('ir.attachment', 'attachment_id', string="Documentos")
+    attachment_ids = fields.Many2many('ir.attachment', 'attachment_id', string="Outros Documentos")
 
+    dissertacao = fields.Many2one('ir.attachment', string="Dissertação")
     # --- wizards de erros ---
     error_filled = {
         'name': 'Mensagem de Erro',
@@ -141,3 +142,13 @@ class Processo(models.Model):
 
     def enviar_correcoes_action(self):
         pass
+
+    def convite(self, resposta, juri):
+        if resposta != '':
+            if juri == 'p':
+                return self.write({'convite_presidente': resposta})
+            if juri == 'v':
+                return self.write({'convite_vogal': resposta})
+            if juri == 'a':
+                return self.write({'convite_arguente': resposta})
+        return self

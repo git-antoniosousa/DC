@@ -16,7 +16,8 @@
              'views/gestao_diss_filiacao.xml',
              'views/gestao_diss_curso.xml',
              'views/gestao_diss_categoria.xml',
-             'views/gestao_diss_dashboard.xml'
+             'views/gestao_diss_dashboard.xml',
+             'views/invite_template.xml'
              ],
     'demo': [
         #'demo/alunos.xml',
