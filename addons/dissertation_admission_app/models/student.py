@@ -12,18 +12,12 @@ class Student(models.Model):
 
     @api.model
     def create(self, values):
-        if 'password' in values and values['password'] is False:
-            del values['password']
-        assoc_user = self.env['res.users'].browse(values['user_id'])
-        values['login'] = assoc_user.login
-        values['tz'] = 'Europe/Lisbon'
-        user.check_already_assigned(assoc_user)
+        user.dissertation_user_create(self.env, values)
         res = super(Student, self).create(values)
-        user.recalculate_permissions(self.env, assoc_user, 'student')
+        user.recalculate_permissions(self.env, self.env['res.users'].browse(values['user_id']), 'student')
         return res
 
     def write(self, vals):
-        vals['user_id'] = self.user_id  # Can't alter associated user
         return super(Student, self).write(vals)
 
     def unlink(self):

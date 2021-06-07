@@ -11,8 +11,6 @@ class WorkPlan(models.Model):
     dissertation = fields.Many2one('dissertation_admission.dissertation', required=True)
     student = fields.Many2one('dissertation_admission.student', required=True)
 
-    # plan = fields.Many2one('ir.attachment')
-
     def download_latex(self):
         text = open("/mnt/templates/work_plan.tex", "r").read() \
             .replace('$year$', self.dissertation.school_year) \

@@ -3,7 +3,8 @@
  'depends': ['base'],
  'data': [
      'security/dissertation_admission_security_groups.xml',
-     'security/dissertation_admission_security_rules.xml',
+     'security/dissertation_admission_security_dissertation.xml',
+     'security/dissertation_admission_security_work_plan.xml',
      'security/ir.model.access.csv',
      'views/dissertation_admission_menu.xml',
      'views/student_view.xml',

@@ -24,20 +24,13 @@ class Adviser(models.Model):
 
     @api.model
     def create(self, values):
-        if 'password' in values and values['password'] is False:
-            del values['password']
-        assoc_user = self.env['res.users'].browse(values['user_id'])
-        values['login'] = assoc_user.login
-        values['tz'] = 'Europe/Lisbon'
-        user.check_already_assigned(assoc_user)
+        user.dissertation_user_create(self.env, values)
         res = super(Adviser, self).create(values)
-        user.recalculate_permissions(self.env, assoc_user, res.perms)
+        user.recalculate_permissions(self.env, self.env['res.users'].browse(values['user_id']), res.perms)
         return res
 
     def write(self, vals):
         res = super(Adviser, self).write(vals)
-        _logger.info('\n\n\n\n\n')
-        _logger.info(str(self.perms))
         user.recalculate_permissions(self.env, self.user_id, self.perms)
         return res
 

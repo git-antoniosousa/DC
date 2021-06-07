@@ -8,8 +8,12 @@
         <field name="arch" type="xml">
             <form>
                 <sheet string="Secretaria de Curso" >
-                    <group col="4" modifiers="{}">
-                        <field string="Utilizador" name="user_id" on_change="1" required="True" id="user_id"/>
+                    <field name="create_uid" id="user_id" invisible="True"/>
+                    <group>
+                        <field string="Utilizador" name="user_id" on_change="1" required="True" id="user_id"
+                               attrs="{'readonly': [('create_uid', '!=', False)]}"/>
+                        <field string="Identificação universitaria" name="university_id" id="university_id"/>
+                        <field string="Cursos" name="courses" required="True" id="courses" widget="many2many_tags" />
                     </group>
                 </sheet>
             </form>
@@ -28,6 +32,6 @@
               name="Secretaria de Curso"
               groups="dissertation_admission_group_admin"
               action="action_dissertation_admission_direction"
-              parent="dissertation_admission_menu" />
+              parent="dissertation_admission_manage_menu" />
 
 </odoo>

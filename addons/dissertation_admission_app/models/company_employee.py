@@ -11,19 +11,12 @@ class CompanyEmployee(models.Model):
                                relation="dissertation_admission_employee_course_rel")
     @api.model
     def create(self, values):
-        assoc_user = self.env['res.users'].browse(values['user_id'])
-        values['login'] = assoc_user.login
-        values['tz'] = 'Europe/Lisbon'
-        user.check_already_assigned(assoc_user)
-
+        user.dissertation_user_create(self.env, values)
         res = super(CompanyEmployee, self).create(values)
-
-        assoc_user.recalculate_permissions(self.env, assoc_user, 'company_employee')
-
+        user.recalculate_permissions(self.env, self.env['res.users'].browse(values['user_id']), 'company_employee')
         return res
 
     def write(self, vals):
-        vals['user_id'] = self.user_id  # Can't alter associated user
         return super(CompanyEmployee, self).write(vals)
 
     def unlink(self):

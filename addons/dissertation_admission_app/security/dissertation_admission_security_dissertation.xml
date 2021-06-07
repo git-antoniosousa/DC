@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<odoo>
+
+    <record model="ir.rule" id="student_dissertation_rule">
+        <field name="name">Alunos só podem interagir com dissertações publicas no seu curso</field>
+        <field name="model_id" ref="model_dissertation_admission_dissertation"/>
+        <field name="domain_force">
+            ['&amp;', ('course', 'in', user.student_uid.course.id)
+            , ('is_public', '=', True)]
+        </field>
+        <field name="groups" eval="[(4, ref('dissertation_admission_group_student'))]"/>
+    </record>
+
+    <record model="ir.rule" id="adviser_dissertation_rule">
+        <field name="name">Pode ver dissertações em que é coorientador</field>
+        <field name="model_id" ref="model_dissertation_admission_dissertation"/>
+        <field name="domain_force">
+            ['|', ('coadviser_id_internal', '=', user.id), ('coadviser_id_external', '=', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('dissertation_admission_group_coadviser')),
+                                    (4, ref('dissertation_admission_group_company_employee'))]"/>
+        <field name='perm_create' eval='False'/>
+        <field name='perm_write' eval='False'/>
+        <field name='perm_unlink' eval='False'/>
+    </record>
+
+    <record model="ir.rule" id="adviser_dissertation_rule">
+        <field name="name">Só pode interagir com dissertações criadas por si</field>
+        <field name="model_id" ref="model_dissertation_admission_dissertation"/>
+        <field name="domain_force">['|',('create_uid','=',False),('create_uid','=',user.id)]</field>
+        <field name="groups" eval="[(4, ref('dissertation_admission_group_adviser')),
+                                    (4, ref('dissertation_admission_group_company_employee'))]"/>
+    </record>
+
+    <record model="ir.rule" id="admin_dissertation_rule">
+        <field name="name">Pode ver dissertações dentro do curso</field>
+        <field name="model_id" ref="model_dissertation_admission_dissertation"/>
+        <field name="domain_force">[('course', 'in', [c.id for c in user.delegated_courses])]</field>
+        <field name="groups" eval="[(4, ref('dissertation_admission_group_course_director'))]"/>
+        <field name='perm_write' eval='False'/>
+    </record>
+
+</odoo>

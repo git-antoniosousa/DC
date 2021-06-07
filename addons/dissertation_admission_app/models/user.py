@@ -1,8 +1,17 @@
 from odoo import api, fields, models, exceptions
 import logging
 
-
 _logger = logging.getLogger(__name__)
+
+
+def dissertation_user_create(env, values):
+    if 'password' in values and values['password'] is False:
+        del values['password']
+    assoc_user = env['res.users'].browse(values['user_id'])
+    values['login'] = assoc_user.login
+    values['tz'] = 'Europe/Lisbon'
+    check_already_assigned(assoc_user)
+
 
 def check_already_assigned(user):
     if user.student_uid or user.adviser_uid or user.direction_uid or user.company_employee_uid:
@@ -69,6 +78,7 @@ class DirectionUser(models.Model):
         except:
             self.direction_uid = None
 
+
 class CompanyEmployeeUser(models.Model):
     _inherit = 'res.users'
     company_employee_uid = fields.Many2one('dissertation_admission.company_employee', compute='_get_employee_id')
@@ -80,14 +90,18 @@ class CompanyEmployeeUser(models.Model):
         except:
             self.company_employee_uid = None
 
+
 class UserCourses(models.Model):
     _inherit = 'res.users'
     delegated_courses = fields.Many2many('dissertation_admission.course', compute='_get_courses',
-                              relation='dissertation_admission_dissertation_user_course_rel')
+                                         relation='dissertation_admission_dissertation_user_course_rel')
 
     def _get_courses(self):
         try:
+            logging.info("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
             self.delegated_courses = \
                 (self.company_employee_uid or self.direction_uid or self.adviser_uid).courses
+            logging.info(self.delegated_courses)
         except:
+            logging.info("\n\n\n\nFrick2\n\n\n\n\n\n\n\n\n\n\n\n")
             self.delegated_courses = None

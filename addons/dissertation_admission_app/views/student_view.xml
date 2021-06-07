@@ -31,8 +31,10 @@
 		<field name="arch" type="xml">
 			<form>
 				<sheet string="Estudante" >
-					<group col="4" modifiers="{}">
-						<field string="Utilizador" name="user_id" on_change="1" required="True" id="user_id"/>
+					<field name="create_uid" id="user_id" invisible="True"/>
+					<group>
+						<field string="Utilizador" name="user_id" on_change="1" required="True" id="user_id"
+							   attrs="{'readonly': [('create_uid', '!=', False)]}"/>
 						<field string="Palavra-Passe" name="password" id="password" password="True"/>
 						<field string="Número Mecanográfico" name="university_id" required="True" id="university_id"/>
 						<field string="Curso" name="course" required="True" id="course"/>
@@ -71,5 +73,5 @@
 			  name="Estudantes"
 			  groups="dissertation_admission_group_course_director"
 			  action="action_dissertation_admission_student"
-			  parent="dissertation_admission_menu" />
+			  parent="dissertation_admission_manage_menu" />
 </odoo>

@@ -92,7 +92,6 @@ class Dissertation(models.Model):
         except Exception:
             pass
 
-
     def _get_reviews(self):
         self.reviews = self.env['dissertation_admission.dissertation_review'].sudo() \
             .search([('dissertation', '=', self.id)])
@@ -103,3 +102,4 @@ class Dissertation(models.Model):
                 .search([('dissertation', '=', self.id)])[0]
         except:
             self.work_plan_id = False
+
