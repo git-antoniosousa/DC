@@ -6,8 +6,16 @@ class Juri(models.Model):
     _description = 'Júri'
 
     juri_presidente_id = fields.Many2one('gest_diss.membro', 'Presidente')
+
+    convite_presidente = fields.Selection([('aguardar', 'A aguardar resposta.'), ('aceitado', 'Convite aceite.'), ('rejeitado', 'Convite rejeitado.')], string="Convite Presidente", default='aguardar')
+
     juri_vogal_id = fields.Many2one('gest_diss.membro', 'Vogal')
+
+    convite_vogal = fields.Selection([('aguardar', 'A aguardar resposta.'), ('aceitado', 'Convite aceite.'), ('rejeitado', 'Convite rejeitado.')], string="Convite Vogal", default='aguardar')
+
     juri_arguente_id = fields.Many2one('gest_diss.membro', 'Arguente')
+
+    convite_arguente = fields.Selection([('aguardar', 'A aguardar resposta.'), ('aceitado', 'Convite aceite.'), ('rejeitado', 'Convite rejeitado.')], string="Convite Arguente", default='aguardar')
 
    # def name_get(self):
    #     data = []

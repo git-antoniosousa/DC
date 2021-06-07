@@ -15,10 +15,11 @@
              'views/gestao_diss_membro.xml',
              'views/gestao_diss_filiacao.xml',
              'views/gestao_diss_curso.xml',
-			 'views/gestao_diss_categoria.xml',
+             'views/gestao_diss_categoria.xml',
              'views/gestao_diss_dashboard.xml',
-             'reports/report_ata_primeira_reuniao.xml'
-			],
+             'views/invite_template.xml',
+			 'reports/report_ata_primeira_reuniao.xml'
+             ],
     'demo': [
         #'demo/alunos.xml',
         #'demo/processos.xml'
