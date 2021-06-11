@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<odoo>
+    <record model="ir.ui.view" id="sign_wizard_form_1">
+        <field name="name">dissertation_admission_sign_wizard_form</field>
+        <field name="model">dissertation_admission.sign_wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml" >
+            <form string="Selecionar dissertações" create="false" edit="false">
+                <group>
+                    <field string="Planos de Trabalho" name="work_plans"/>
+                    <field string="Numero de Telemovel" name="phone"/>
+                    <field string="Pin" name="pin" password="True"/>
+                </group>
+            </form>
+            <div class="alert alert-info" role="alert" style="height: 40px; margin-bottom:0px;">
+                Após confirmar deve aguardar o próximo passo.
+            </div>
+            <footer>
+                <button string="Confirmar" name="confirm_1"
+                        type="object" class="oe_highlight oe_read_only"/>
+                <button string="Cancelar" special="cancel"/>
+            </footer>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="sign_wizard_form_2">
+        <field name="name">dissertation_admission_sign_wizard_form</field>
+        <field name="model">dissertation_admission.sign_wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml" >
+            <form create="false" edit="false">
+                <group>
+                    <field string="OTP" name="otp"/>
+                </group>
+            </form>
+            <footer>
+                <button string="Confirmar" name="confirm_2"
+                        type="object" class="oe_highlight oe_read_only"/>
+                <button string="Cancelar" special="cancel"/>
+            </footer>
+        </field>
+    </record>
+
+</odoo>

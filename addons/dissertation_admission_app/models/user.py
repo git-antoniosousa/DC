@@ -98,10 +98,8 @@ class UserCourses(models.Model):
 
     def _get_courses(self):
         try:
-            logging.info("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
             self.delegated_courses = \
                 (self.company_employee_uid or self.direction_uid or self.adviser_uid).courses
             logging.info(self.delegated_courses)
         except:
-            logging.info("\n\n\n\nFrick2\n\n\n\n\n\n\n\n\n\n\n\n")
             self.delegated_courses = None

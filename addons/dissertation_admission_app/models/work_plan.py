@@ -1,4 +1,4 @@
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 import base64
 import logging
 import random
@@ -55,3 +55,14 @@ class WorkPlan(models.Model):
 
     def _get_name(self):
         self.name = self.dissertation.name
+
+    def open_sign_wizard(self):
+        return {
+            'name': _('Assinar Planos de Tese (Passo 1 em 2)'),
+            'view_mode': 'form',
+            'view_id': self.env.ref('dissertation_admission_app.sign_wizard_form_1').id,
+            'view_type': 'form',
+            'res_model': 'dissertation_admission.sign_wizard',
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+        }

@@ -103,13 +103,3 @@ class Dissertation(models.Model):
                 .search([('dissertation', '=', self.id)])[0]
         except:
             self.work_plan_id = False
-
-    def show_publish_wizard(self):
-        return {'type': 'ir.actions.act_window',
-                'name': ('Publish Dissertation Wizard View'),
-                'res_model': 'dissertation_admission.publish_dissertation_wizard',
-                'target': 'new',
-                'view_id': self.env.ref('dissertation_admission.publish_dissertation_wizard_view').id,
-                'view_mode': 'form',
-                'context': {}
-                }
