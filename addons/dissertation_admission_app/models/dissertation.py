@@ -35,6 +35,9 @@ class Dissertation(models.Model):
     work_plan_id = fields.Many2one('dissertation_admission.work_plan', string='Plano de Trabalho',
                                    compute="_get_work_plan")
 
+    create_uid_internal = fields.Many2one('dissertation_admission.adviser', compute='_get_create_uid_internal')
+    create_uid_external = fields.Many2one('dissertation_admission.company_employee', compute='_get_create_uid_external')
+
     @api.model
     def create(self, vals):
         ret = super(Dissertation, self).create(vals)
@@ -66,17 +69,17 @@ class Dissertation(models.Model):
         self.sudo().write({'state': 'pending'})
 
     def approve(self):
-        self.state = 'approved'
+        self.sudo().write({'state': 'approved'})
 
     def disapprove(self):
-        self.state = 'disapproved'
+        self.sudo().write({'state': 'disapproved'})
 
     def publish(self):
         if self.state == 'approved':
-            self.is_public = True
+            self.sudo().write({'is_public': True})
 
     def unpublish(self):
-        self.is_public = False
+        self.sudo().write({'is_public': False})
 
     def check_unique_coadvisers(self):
         if len(self.coadviser_id_external) + len(self.coadviser_id_internal) >= 2:
@@ -103,3 +106,17 @@ class Dissertation(models.Model):
                 .search([('dissertation', '=', self.id)])[0]
         except:
             self.work_plan_id = False
+
+    def _get_create_uid_internal(self):
+        try:
+            self.sudo().create_uid_internal = self.env['dissertation_admission.adviser'].sudo() \
+                .search([('user_id.id', '=', self.create_uid.id)])[0]
+        except:
+            self.sudo().create_uid_internal = False
+
+    def _get_create_uid_external(self):
+        try:
+            self.sudo().create_uid_external = self.env['dissertation_admission.company_employee'].sudo() \
+                .search([('user_id.id', '=', self.create_uid.id)])[0]
+        except:
+            self.sudo().create_uid_external = False

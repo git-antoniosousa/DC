@@ -19,10 +19,15 @@ class Direction(models.Model):
 
     @api.model
     def create(self, values):
+        user.check_can_write_courses(self, values)
         user.dissertation_user_create(self.env, values)
         res = self.sudo().super_create(values)
         user.recalculate_permissions(self.env, self.env['res.users'].browse(values['user_id']), 'direction')
         return res
+
+    def write(self, vals):
+        user.check_can_write_courses(self, vals)
+        super(Direction, self).write(vals)
 
     def unlink(self):
         user.recalculate_permissions(self.env, self.user_id, None)

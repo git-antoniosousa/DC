@@ -18,6 +18,22 @@ def check_already_assigned(user):
         raise exceptions.UserError('O utilizador já tem permissões atribuídas para admissões de dissertação.')
 
 
+def check_can_write_courses(self, values):
+    is_admin = self.env.user.id == 1 or self.env.user.has_group(
+        'dissertation_admission_app.dissertation_admission_group_admin')
+    current_courses = set([x.id for x in self.courses])
+    try:
+        future_courses = set(values['courses'][0][2])
+    except:
+        future_courses = current_courses
+    removed_courses = current_courses - future_courses
+    inserted_courses = future_courses - current_courses
+    delegated_courses = [x.id for x in self.env.user.delegated_courses]
+    can_write_courses = is_admin or all([c in delegated_courses for c in removed_courses.union(inserted_courses)])
+    if not can_write_courses:
+        raise exceptions.UserError('Não tem permissões para alterar para este conjunto de cursos.')
+
+
 def recalculate_permissions(env, user, perms):
     groups = [env.ref('dissertation_admission_app.dissertation_admission_group_user'),
               env.ref('dissertation_admission_app.dissertation_admission_group_student'),

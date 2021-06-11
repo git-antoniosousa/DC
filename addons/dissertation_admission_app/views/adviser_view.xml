@@ -12,6 +12,8 @@
                     <group>
                         <field string="Utilizador" name="user_id" on_change="1" required="True" id="user_id"
                                attrs="{'readonly': [('create_uid', '!=', False)]}"/>
+                        <field string="Email" name="email" readonly="True"
+                               attrs="{'invisible': [('create_uid', '=', False)]}"/>
                         <field string="Número Mecanográfico" name="university_id" required="True" id="university_id"/>
                         <field string="Cursos" name="courses" required="True" id="courses" widget="many2many_tags" />
                         <field string="Centro de Investigação" name="investigation_center" id="investigation_center" />
@@ -20,6 +22,20 @@
                     </group>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <record id="view_dissertation_admission_adviser" model="ir.ui.view">
+        <field name="name">adviser_view_tree</field>
+        <field name="model">dissertation_admission.adviser</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field string="Nome" name="name"/>
+                <field string="Email" name="email"/>
+                <field string="Identificação Universitaria" name="university_id"/>
+                <field string="Permissões" name="perms"/>
+                <field string="Cursos" name="courses"/>
+            </tree>
         </field>
     </record>
 

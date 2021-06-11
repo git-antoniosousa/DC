@@ -26,19 +26,12 @@ class Adviser(models.Model):
         return super(Adviser, self).create(values)
 
     def check_can_write(self, values):
+        user.check_can_write_courses(self, values)
         is_admin = self.env.user.id == 1 or self.env.user.has_group('dissertation_admission_app.dissertation_admission_group_admin')
-        current_courses = set([x.id for x in self.courses])
-        try:
-            future_courses = set(values['courses'][0][2])
-        except:
-            future_courses = current_courses
-        removed_courses = current_courses - future_courses
-        inserted_courses = future_courses - current_courses
-        delegated_courses = [x.id for x in self.env.user.delegated_courses]
-        can_write_courses = is_admin or all([c in delegated_courses for c in removed_courses.union(inserted_courses)])
-        if not can_write_courses:
-            raise exceptions.UserError('Não tem permissões para alterar para este conjunto de cursos.')
-        fut_perms = values['perms'] or self.perms
+        if 'perms' in values:
+            fut_perms = values['perms']
+        else:
+            fut_perms = self.perms
         can_write_perms = is_admin or self.perms == fut_perms or (self.perms != 'director' and fut_perms != 'director')
         if not can_write_perms:
             raise exceptions.UserError('Não tem permissões para alterar as permissões deste utilizador.')
