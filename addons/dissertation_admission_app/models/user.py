@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 def dissertation_user_create(env, values):
     if 'password' in values and values['password'] is False:
         del values['password']
-    assoc_user = env['res.users'].browse(values['user_id'])
+    assoc_user = env['res.users'].sudo().browse(values['user_id'])
     values['login'] = assoc_user.login
     values['tz'] = 'Europe/Lisbon'
     check_already_assigned(assoc_user)
@@ -27,20 +27,20 @@ def recalculate_permissions(env, user, perms):
               env.ref('dissertation_admission_app.dissertation_admission_group_course_director'),
               env.ref('dissertation_admission_app.dissertation_admission_group_company_employee')]
     for group in groups:
-        group.write({'users': [(3, user.id)]})
+        group.sudo().write({'users': [(3, user.id)]})
 
     if perms == 'student':
-        groups[1].write({'users': [(4, user.id)]})
+        groups[1].sudo().write({'users': [(4, user.id)]})
     elif perms == 'coadviser':
-        groups[2].write({'users': [(4, user.id)]})
+        groups[2].sudo().write({'users': [(4, user.id)]})
     elif perms == 'adviser':
-        groups[3].write({'users': [(4, user.id)]})
+        groups[3].sudo().write({'users': [(4, user.id)]})
     elif perms == 'direction':
-        groups[4].write({'users': [(4, user.id)]})
+        groups[4].sudo().write({'users': [(4, user.id)]})
     elif perms == 'director':
-        groups[5].write({'users': [(4, user.id)]})
+        groups[5].sudo().write({'users': [(4, user.id)]})
     elif perms == 'company_employee':
-        groups[6].write({'users': [(4, user.id)]})
+        groups[6].sudo().write({'users': [(4, user.id)]})
 
 
 class StudentUser(models.Model):

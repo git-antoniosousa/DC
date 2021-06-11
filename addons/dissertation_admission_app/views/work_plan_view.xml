@@ -6,17 +6,28 @@
             <form>
                 <header>
                     <button string="Assinar Planos de Estudo" type="object"
-                            name="open_sign_wizard" class="oe_highlight oe_read_only" />
+                            name="open_sign_wizard" class="oe_highlight oe_read_only"
+                            groups="dissertation_admission_app.dissertation_admission_group_direction"/>
+                    <button string="Upload Plano de Trabalho" type="action"
+                            name="%(upload_work_plan_wizard_action)d" class="oe_highlight oe_read_only"
+                            groups="dissertation_admission_app.dissertation_admission_group_student"/>
+                    <button string="Transferir template latex" name="download_latex" type="object"
+                            class="oe_highlight oe_read_only"
+                            groups="dissertation_admission_app.dissertation_admission_group_student"/>
                 </header>
                 <sheet string="Plano de Estudos">
                     <group>
-                        <field name="name" required="True" id="name"/>
-                        <field name="dissertation" required="True" id="name"/>
-                        <field name="student" required="True" id="student"/>
+                        <field string="Nome" name="name" required="True"/>
+                        <field string="Dissertação" name="dissertation" required="True"/>
+                        <field string="Aluno" name="student" required="True"/>
+                        <field string="Plano de Trabalho" name="pdf" filename="pdf_fname"/>
+                        <field name="pdf_fname" invisible="True"/>
+                        <field string="Plano de Trabalho Assinado" name="pdf_signed" filename="pdf_signed_fname"/>
+                        <field name="pdf_signed_fname" invisible="True"/>
+                        <field string="Verificado" name="verified"
+                               groups="dissertation_admission_app.dissertation_admission_group_direction"/>
+                        <field string="Assinado Diretor de Curso" name="signed_director"/>
                     </group>
-                    <button string="Transferir template latex" name="download_latex" type="object"
-                            class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
-                            groups="dissertation_admission_app.dissertation_admission_group_student"/>
                 </sheet>
             </form>
         </field>
@@ -36,15 +47,15 @@
               parent="dissertation_admission_menu" />
 
     <record id="action_dissertation_admission_work_plan" model="ir.actions.act_window">
-        <field name="name">Planos de Estudos</field>
+        <field name="name">Planos de Trabalho</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">dissertation_admission.work_plan</field>
         <field name="view_mode">tree,form</field>
     </record>
 
     <menuitem id="menu_dissertation_admission_work_plan"
-              name="Planos de Estudos"
-              groups="dissertation_admission_group_coadviser"
+              name="Planos de Trabalho"
+              groups="dissertation_admission_group_direction,dissertation_admission_group_coadviser"
               action="action_dissertation_admission_work_plan"
               parent="dissertation_admission_menu" />
 </odoo>

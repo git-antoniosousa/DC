@@ -12,8 +12,15 @@ class WorkPlan(models.Model):
     _description = 'Plano de Trabalho'
 
     name = fields.Char(compute='_get_name')
-    dissertation = fields.Many2one('dissertation_admission.dissertation', required=True)
-    student = fields.Many2one('dissertation_admission.student', required=True)
+    dissertation = fields.Many2one('dissertation_admission.dissertation', readonly=True, required=True)
+    student = fields.Many2one('dissertation_admission.student', readonly=True, required=True)
+
+    pdf = fields.Binary(readonly=True)
+    pdf_fname = fields.Char(compute="_get_pdf_fname")
+    pdf_signed = fields.Binary()
+    pdf_signed_fname = fields.Char(compute="_get_pdf_signed_fname")
+    verified = fields.Boolean(default=False)
+    signed_director = fields.Boolean(default=False)
 
     def download_latex(self):
         working_dir = '/tmp/work_plan_' + str(random.getrandbits(128))
@@ -55,6 +62,12 @@ class WorkPlan(models.Model):
 
     def _get_name(self):
         self.name = self.dissertation.name
+
+    def _get_pdf_fname(self):
+        self.pdf_fname = 'plano_de_trabalho.pdf'
+
+    def _get_pdf_signed_fname(self):
+        self.pdf_signed_fname = 'plano_de_trabalho_assinado.pdf'
 
     def open_sign_wizard(self):
         return {

@@ -22,6 +22,7 @@
      'views/investigation_center_view.xml',
      'wizards/publish_dissertation_wizard.xml',
      'wizards/sign_wizard.xml',
+     'wizards/upload_work_plan_wizard.xml',
      'demo/course.xml',
      'demo/department.xml',
      'demo/investigation_center.xml',

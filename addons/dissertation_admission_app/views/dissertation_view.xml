@@ -9,11 +9,23 @@
 		<field name="model">dissertation_admission.dissertation</field>
 		<field name="priority" eval="1"/>
 		<field name="arch" type="xml">
-			<header>
+			<header groups="dissertation_admission_app.dissertation_admission_group_course_director">
 				<button string="Publicar Multiplas Dissertações" type="action"
 						name="%(publish_dissertation_wizard_action)d" class="oe_highlight oe_read_only" />
+				<button string="Publicar" name="publish" type="object" class="oe_highlight oe_read_only"
+						confirm="Tem a certeza que quer publicar esta dissertação?"
+						attrs="{'invisible': ['|', ('is_public', '=', True), ('state', '!=', 'approved')]}"/>
+				<button string="Cancelar Publicação" name="unpublish" type="object" class="oe_highlight oe_read_only"
+						confirm="Tem a certeza que quer cancelar a publicação desta dissertação?"
+						attrs="{'invisible': [('is_public', '==', False)]}" />
+				<button string="Aprovar" name="approve" type="object" class="oe_highlight oe_read_only"
+						confirm="Tem certeza que quer aprovar esta dissertação?"
+						attrs="{'invisible': [('state', '==', 'approved')]}" />
+				<button string="Reprovar" name="disapprove" type="object" class="oe_highlight oe_read_only"
+						confirm="Tem a certeza que quer reprovar esta dissertação?"
+						attrs="{'invisible': ['|', ('state', '==', 'disapproved'), ('is_public', '=', True)]}" />
 			</header>
-			<form create="false" duplicate="false">
+			<form create="false" edit="false" duplicate="false">
 				<sheet string="Dissertação" >
 					<group>
 						<field name="id" required="True" id="id" invisible="True"/>
@@ -40,22 +52,6 @@
 							<tree><field name="text"/></tree>
 						</field>
 					</group>
-					<button string="Publicar" name="publish" type="object"
-							confirm="Tem a certeza que quer publicar esta dissertação?"
-							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
-							attrs="{'invisible': ['|', ('is_public', '=', True), ('state', '!=', 'approved')]}"/>
-					<button string="Cancelar Publicação" name="unpublish" type="object"
-							confirm="Tem a certeza que quer cancelar a publicação desta dissertação?"
-							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
-							attrs="{'invisible': [('is_public', '==', False)]}" />
-					<button string="Aprovar" name="approve" type="object"
-							confirm="Tem certeza que quer aprovar esta dissertação?"
-							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
-							attrs="{'invisible': [('state', '==', 'approved')]}" />
-					<button string="Reprovar" name="disapprove" type="object"
-							confirm="Tem a certeza que quer reprovar esta dissertação?"
-							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
-							attrs="{'invisible': ['|', ('state', '==', 'disapproved'), ('is_public', '=', True)]}" />
 				</sheet>
 			</form>
 		</field>
@@ -249,7 +245,7 @@
 
 	<menuitem id="menu_dissertation_admission_dissertation_director"
 			  name="Gerir Dissertações"
-			  groups="dissertation_admission_group_course_director"
+			  groups="dissertation_admission_group_direction"
 			  action="action_dissertation_admission_dissertation_director"
 			  parent="dissertation_admission_menu" />
 
