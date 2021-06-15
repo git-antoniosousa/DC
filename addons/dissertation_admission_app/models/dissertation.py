@@ -30,7 +30,7 @@ class Dissertation(models.Model):
     candidates = fields.Many2many('dissertation_admission.student', readonly=True
                                   , relation='dissertation_admission_dissertation_candidates_rel')
     reviews = fields.Many2many('dissertation_admission.dissertation_review'
-                               , relation='dissertation_admission_dissertation_review_rel')
+                               , compute='_get_reviews')
 
     work_plan_id = fields.Many2one('dissertation_admission.work_plan', string='Plano de Trabalho',
                                    compute="_get_work_plan")
@@ -56,9 +56,12 @@ class Dissertation(models.Model):
         return ret
 
     def unlink(self):
+        self.unlink_reviews()
+        super(Dissertation, self).unlink()
+
+    def unlink_reviews(self):
         for review in self.reviews:
             review.unlink()
-        super(Dissertation, self).unlink()
 
     def register_candidate(self):
         student_uid = self._context.get('uid')
@@ -97,8 +100,11 @@ class Dissertation(models.Model):
             pass
 
     def _get_reviews(self):
-        self.reviews = self.env['dissertation_admission.dissertation_review'].sudo() \
-            .search([('dissertation', '=', self.id)])
+        try:
+            self.reviews = self.env['dissertation_admission.dissertation_review'].sudo() \
+                .search([('dissertation', '=', self.id)])
+        except:
+            self.sudo().reviews = None
 
     def _get_work_plan(self):
         try:

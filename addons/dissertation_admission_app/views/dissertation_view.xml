@@ -11,8 +11,14 @@
 		<field name="arch" type="xml">
 			<form create="false" edit="false" duplicate="false">
 				<header groups="dissertation_admission_app.dissertation_admission_group_course_director">
-					<button string="publicar multiplas dissertações" type="action"
+					<button string="Publicar multiplas dissertações" type="action"
 							name="%(publish_dissertation_wizard_action)d" class="oe_highlight oe_read_only" />
+					<button string="Rever dissertação" type="action"
+							name="%(make_review_wizard_action)d" class="oe_highlight oe_read_only"
+							context="{'dissertation': id}"/>
+					<button string="Limpar Revisões" type="object"
+							name="unlink_reviews" class="oe_highlight oe_read_only"
+							confirm="Tem a certeza que quer limpar as revisões para esta dissertação?"/>
 					<button string="Publicar" name="publish" type="object" class="oe_highlight oe_read_only"
 							confirm="Tem a certeza que quer publicar esta dissertação?"
 							attrs="{'invisible': ['|', ('is_public', '=', True), ('state', '!=', 'approved')]}"/>
