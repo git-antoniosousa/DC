@@ -6,5 +6,4 @@ class Review(models.Model):
     _description = 'Dissertação'
 
     text = fields.Text(required=True)
-    dissertation = fields.Many2one('dissertation_admission.dissertation', required=True
-                                   , relation='dissertation_admission_review_dissertation_rel')
+    dissertation = fields.Many2one('dissertation_admission.dissertation', required=True)
