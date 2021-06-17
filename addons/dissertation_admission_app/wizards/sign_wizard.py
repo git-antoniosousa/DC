@@ -1,4 +1,7 @@
+import base64
+import io
 import json
+import re
 import sys
 
 import requests
@@ -34,56 +37,28 @@ class SignWizard(models.TransientModel):
 
         os.makedirs(working_dir)
         try:
+            files = []
             for work_plan in self.work_plans:
-                with open(working_dir + "/" + str(work_plan.id) + ".pdf", "wb") as wpf:
-                    wpf.write(work_plan.pdf)
+                files.append(
+                    ('file', (str(work_plan.id) + '.pdf', base64.decodebytes(work_plan.pdf), 'application/pdf')))
 
-            with zipfile.ZipFile(working_dir + '/work_plan.zip', 'w') as ziph:
-                for work_plan in self.work_plans:
-                    ziph.write(working_dir + "/" + str(work_plan.id) + ".pdf", arcname=str(work_plan.id) + '.pdf')
+            cfg = self.get_cfg()
 
-            with zipfile.ZipFile(working_dir + '/work_plan.zip', 'r') as ziph:
-                logging.info(ziph.namelist())
+            endpoint = "/requestsign"
+            params = {
+                'userid': str(self.phone),
+                'pin': str(self.pin),
+                'x': int(cfg["signature_server"]["x_sig"]),
+                'y': int(cfg["signature_server"]["y_sig"]),
+            }
+            r = self.server_request(endpoint, lambda url: requests.post(url, files=[
+                ('params', ('params', bytes(json.dumps(params), 'UTF-8'), 'application/json')),
+                *files,
+            ]))
 
-            try:
-                with open("/mnt/config/config.json", "r") as fconfig:
-                    cfg = json.loads(fconfig.read())
-                assert "host" in cfg["signature_server"]
-                assert "port" in cfg["signature_server"]
-                assert "x_sig" in cfg["signature_server"]
-                assert "y_sig" in cfg["signature_server"]
-            except:
-                raise exceptions.ValidationError("Erro na configuração da localização do servidor de assinaturas.\n"
-                                           "Por favor contacte um administrador.")
-
-            try:
-                # TODO change endpoint
-                url = cfg["signature_server"]["host"] + ":" + str(cfg["signature_server"]["port"]) + "/sign"
-                r = requests.post(url
-                                  , files={
-                        'params' : json.dumps({
-                        'userid': str(self.phone),
-                        'pin': str(self.pin),
-                        'x': str(cfg["signature_server"]["x_sig"]),
-                        'y': str(cfg["signature_server"]["y_sig"]),
-                        }),
-                        'file': open(working_dir + '/work_plan.zip', 'rb')
-                    })
-            except Exception as e:
-                raise exceptions.ValidationError("Erro na comunicação com o servidor de assinaturas.\n"
-                                                 "Contacte um administrador.\n" + str(e))
-            if not 200 <= r.status_code < 300:
-                raise exceptions.ValidationError("Servidor de assinaturas reportou um erro.\n"
-                                                 "Por favor verifique os dados introduzidos ou contacte um administrador.")
-
-
-
-            # TODO: send thing to server
-            token = "beautifultoken"
-            ###################
+            token = r.json()['operationID']
         finally:
             shutil.rmtree(working_dir)
-        time.sleep(1)
 
         return {
             'name': _('Assinar Planos de Tese (Passo 2 em 2)'),
@@ -97,11 +72,54 @@ class SignWizard(models.TransientModel):
         }
 
     def confirm_2(self):
-        logging.info("Amazing token : " + self._context.get('token'))
+        token = self._context.get('token')
 
-        #################
-        # TODO: send otp to server
-        # TODO: recieve signed docs
-        #################
+        endpoint = "/fetchsign"
 
-        time.sleep(1)
+        r = self.server_request(endpoint, lambda url: requests.post(url, json={
+            'operationID': token,
+            'otp': self.otp,
+        }))
+
+        with zipfile.ZipFile(io.BytesIO(r.content), "r") as zipf:
+            pdf_regex = re.compile("[0-9]+.*\\.pdf")
+            id_regex = re.compile("[0-9]+")
+            logging.info(zipf.namelist())
+            for name in zipf.namelist():
+                if pdf_regex.match(name):
+                    try:
+                        wp_id = int(name[slice(*id_regex.match(name).span())])
+                        self.env['dissertation_admission.work_plan'].sudo().search([('id', '=', wp_id)])[0].write({
+                            'pdf_signed': base64.b64encode(zipf.read(name))
+                        })
+                    except Exception as _e:
+                        pass
+
+    def get_cfg(self):
+        try:
+            with open("/mnt/config/config.json", "r") as fconfig:
+                cfg = json.loads(fconfig.read())
+            assert "host" in cfg["signature_server"]
+            assert "port" in cfg["signature_server"]
+            assert "x_sig" in cfg["signature_server"]
+            assert "y_sig" in cfg["signature_server"]
+            return cfg
+        except:
+            raise exceptions.ValidationError("Erro na configuração da localização do servidor de assinaturas.\n"
+                                             "Por favor contacte um administrador.")
+
+    def server_request(self, endpoint, req_fn):
+        cfg = self.get_cfg()
+
+        try:
+            url = cfg["signature_server"]["host"] + ":" + str(cfg["signature_server"]["port"]) + endpoint
+            r = req_fn(url)
+        except Exception as e:
+            raise exceptions.ValidationError("Erro na comunicação com o servidor de assinaturas.\n"
+                                             "Contacte um administrador.\n" + str(e))
+
+        if not 200 <= r.status_code < 300:
+            raise exceptions.ValidationError("Servidor de assinaturas reportou um erro.\n"
+                                             "Por favor verifique os dados introduzidos ou contacte um administrador.")
+
+        return r

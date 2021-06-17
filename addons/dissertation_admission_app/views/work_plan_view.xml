@@ -17,7 +17,6 @@
                 </header>
                 <sheet string="Plano de Estudos">
                     <group>
-                        <field string="Nome" name="name" required="True"/>
                         <field string="Dissertação" name="dissertation" required="True"/>
                         <field string="Aluno" name="student" required="True"/>
                         <field string="Plano de Trabalho" name="pdf" filename="pdf_fname"/>
@@ -30,6 +29,17 @@
                     </group>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <record id="view_dissertation_admission_work_plan_view_tree" model="ir.ui.view">
+        <field name="name">work_plan_view_tree</field>
+        <field name="model">dissertation_admission.work_plan</field>
+        <field name="arch" type="xml">
+            <tree create="false">
+                <field name="dissertation" string="Tema"/>
+                <field name="student" string="Aluno"/>
+            </tree>
         </field>
     </record>
 

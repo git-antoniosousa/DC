@@ -11,7 +11,6 @@ class WorkPlan(models.Model):
     _name = 'dissertation_admission.work_plan'
     _description = 'Plano de Trabalho'
 
-    name = fields.Char(compute='_get_name')
     dissertation = fields.Many2one('dissertation_admission.dissertation', readonly=True, required=True)
     student = fields.Many2one('dissertation_admission.student', readonly=True, required=True)
 
@@ -69,9 +68,6 @@ class WorkPlan(models.Model):
             "url": str(base_url) + str(download_url),
             "target": "new",
         }
-
-    def _get_name(self):
-        self.name = self.dissertation.name
 
     def _get_pdf_fname(self):
         self.pdf_fname = 'plano_de_trabalho.pdf'
