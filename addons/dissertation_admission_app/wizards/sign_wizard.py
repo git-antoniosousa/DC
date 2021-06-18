@@ -5,13 +5,9 @@ import re
 import sys
 
 import requests
-from odoo import models, fields, _, exceptions, api
-import time
-import random
+from odoo import models, fields, _, exceptions
 import logging
 import zipfile
-import shutil
-import os
 
 
 class SignWizard(models.TransientModel):
@@ -29,36 +25,30 @@ class SignWizard(models.TransientModel):
         pass
 
     def confirm_1(self):
-        working_dir = '/tmp/sign_wizard_' + str(random.getrandbits(128))
         if not self.phone or not self.pin:
             raise exceptions.UserError("Falta de número telefonico ou pin.")
         if len(self.work_plans) > 50:
             raise exceptions.UserError("Só pode selecionar um máximo de 50 planos para assinar de cada vez.")
 
-        os.makedirs(working_dir)
-        try:
-            files = []
-            for work_plan in self.work_plans:
-                files.append(
-                    ('file', (str(work_plan.id) + '.pdf', base64.decodebytes(work_plan.pdf), 'application/pdf')))
+        files = []
+        for work_plan in self.work_plans:
+            files.append(('file', (str(work_plan.id) + '.pdf', base64.decodebytes(work_plan.pdf), 'application/pdf')))
 
-            cfg = self.get_cfg()
+        cfg = self.get_cfg()
 
-            endpoint = "/requestsign"
-            params = {
-                'userid': str(self.phone),
-                'pin': str(self.pin),
-                'x': int(cfg["signature_server"]["x_sig"]),
-                'y': int(cfg["signature_server"]["y_sig"]),
-            }
-            r = self.server_request(endpoint, lambda url: requests.post(url, files=[
-                ('params', ('params', bytes(json.dumps(params), 'UTF-8'), 'application/json')),
-                *files,
-            ]))
+        endpoint = "/requestsign"
+        params = {
+            'userid': str(self.phone),
+            'pin': str(self.pin),
+            'x': int(cfg["signature_server"]["x_sig"]),
+            'y': int(cfg["signature_server"]["y_sig"]),
+        }
+        r = self.server_request(endpoint, lambda url: requests.post(url, files=[
+            ('params', ('params', bytes(json.dumps(params), 'UTF-8'), 'application/json')),
+            *files,
+        ]))
 
-            token = r.json()['operationID']
-        finally:
-            shutil.rmtree(working_dir)
+        token = r.json()['operationID']
 
         return {
             'name': _('Assinar Planos de Tese (Passo 2 em 2)'),
