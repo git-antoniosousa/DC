@@ -5,11 +5,11 @@
         <field name="model">dissertation_admission.upload_work_plan_wizard</field>
         <field name="type">form</field>
         <field name="arch" type="xml" >
-            <form string="Selecionar dissertações" create="false" edit="false">
+            <form string="Upload Plano de Estudo" create="false" edit="false">
                 <field name="pdf"/>
             </form>
             <footer>
-                <button string="Confirmar" name="confirm"
+                <button string="Confirmar" name="confirm_work_plan"
                         type="object" class="oe_highlight oe_read_only"/>
                 <button string="Cancelar" special="cancel"/>
             </footer>
@@ -23,6 +23,32 @@
         <field name="view_mode">form</field>
         <field name="target">inline</field>
         <field name="view_id" ref="upload_work_plan_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <record model="ir.ui.view" id="upload_pre_thesis_wizard_form">
+        <field name="name">dissertation_admission_upload_pre_thesis_wizard_view</field>
+        <field name="model">dissertation_admission.upload_work_plan_wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml" >
+            <form string="Upload Pré Tese" create="false" edit="false">
+                <field name="pdf"/>
+            </form>
+            <footer>
+                <button string="Confirmar" name="confirm_pre_thesis"
+                        type="object" class="oe_highlight oe_read_only"/>
+                <button string="Cancelar" special="cancel"/>
+            </footer>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="upload_pre_thesis_wizard_action">
+        <field name="name">Upload Pré Tese</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">dissertation_admission.upload_work_plan_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="view_id" ref="upload_pre_thesis_wizard_form"/>
         <field name="target">new</field>
     </record>
 

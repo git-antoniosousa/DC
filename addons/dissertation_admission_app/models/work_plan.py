@@ -2,11 +2,7 @@ import io
 
 from odoo import api, fields, exceptions, models, _
 import base64
-import logging
-import random
-import os
 import zipfile
-import shutil
 
 
 class WorkPlan(models.Model):
@@ -22,6 +18,8 @@ class WorkPlan(models.Model):
     pdf_signed_fname = fields.Char(compute="_get_pdf_signed_fname")
     verified = fields.Boolean(default=False)
     signed_director = fields.Boolean(default=False)
+    pdf_pre_thesis = fields.Binary(default=None)
+    pdf_pre_thesis_fname = fields.Char(compute="_get_pdf_pre_thesis_fname")
 
     def create(self, vals):
         ndiss = len(self.env['dissertation_admission.work_plan'].sudo() \
@@ -68,6 +66,9 @@ class WorkPlan(models.Model):
 
     def _get_pdf_signed_fname(self):
         self.pdf_signed_fname = 'plano_de_trabalho_assinado.pdf'
+
+    def _get_pdf_pre_thesis_fname(self):
+        self.pdf_pre_thesis_fname = 'pre_tese.pdf'
 
     def open_sign_wizard(self):
         return {

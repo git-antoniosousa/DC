@@ -6,7 +6,7 @@ class UploadWorkPlanWizard(models.TransientModel):
 
     pdf = fields.Binary(required=True, attachment=True)
 
-    def confirm(self):
+    def confirm_work_plan(self):
         uid = self._context.get('uid')
         work_plan = self.env['dissertation_admission.work_plan'].sudo() \
             .search([('student.user_id.id', '=', uid)])
@@ -15,4 +15,12 @@ class UploadWorkPlanWizard(models.TransientModel):
             "pdf_signed": None,
             "signed_director": False,
             "verified": False,
+        })
+
+    def confirm_pre_thesis(self):
+        uid = self._context.get('uid')
+        work_plan = self.env['dissertation_admission.work_plan'].sudo() \
+            .search([('student.user_id.id', '=', uid)])
+        work_plan.sudo().write({
+            "pdf_pre_thesis": self.pdf,
         })
