@@ -1,3 +1,5 @@
+import io
+
 from odoo import api, fields, exceptions, models, _
 import base64
 import logging
@@ -31,29 +33,21 @@ class WorkPlan(models.Model):
         super(WorkPlan, self).create(vals)
 
     def download_latex(self):
-        working_dir = '/tmp/work_plan_' + str(random.getrandbits(128))
-        os.makedirs(working_dir)
+        with open("/mnt/templates/work_plan.tex", "r") as ftext:
+            text = ftext.read() \
+                .replace('$year$', self.dissertation.school_year) \
+                .replace('$name$', self.student.name) \
+                .replace('$number$', self.student.university_id) \
+                .replace('$title$', self.dissertation.name) \
+                .replace('$titleen$', self.dissertation.name_en)
 
-        try:
-            with open("/mnt/templates/work_plan.tex", "r") as ftext:
-                text = ftext.read() \
-                    .replace('$year$', self.dissertation.school_year) \
-                    .replace('$name$', self.student.name) \
-                    .replace('$number$', self.student.university_id) \
-                    .replace('$title$', self.dissertation.name) \
-                    .replace('$titleen$', self.dissertation.name_en)
+        zip_buf = io.BytesIO()
+        with zipfile.ZipFile(zip_buf, 'w') as zip_h:
+            zip_h.write('/mnt/templates/logo.png', arcname='logo.png')
+            zip_h.writestr('work_plan.tex', text)
 
-            with open(working_dir + '/work_plan.tex', 'w') as wp_file:
-                wp_file.write(text)
-
-            with zipfile.ZipFile(working_dir + '/work_plan.zip', 'w') as ziph:
-                ziph.write('/mnt/templates/logo.png', arcname='logo.png')
-                ziph.write(working_dir + '/work_plan.tex', arcname='work_plan.tex')
-
-            with open(working_dir + '/work_plan.zip', 'rb') as zipf:
-                result = base64.b64encode(zipf.read())
-        finally:
-            shutil.rmtree(working_dir)
+        zip_buf.seek(0)
+        result = base64.b64encode(zip_buf.read())
 
         base_url = self.sudo().env['ir.config_parameter'].get_param('web.base.url')
         attachment_obj = self.env['ir.attachment']

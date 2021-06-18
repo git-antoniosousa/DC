@@ -18,8 +18,6 @@ class SignWizard(models.TransientModel):
     pin = fields.Char()
     otp = fields.Char()
 
-    warning = fields.Integer(default=0)
-
     def work_plan_calc_fname(self, work_plan):
         return str(work_plan.id) + ".pdf"
         pass
