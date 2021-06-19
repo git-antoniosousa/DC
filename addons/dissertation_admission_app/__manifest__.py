@@ -22,11 +22,7 @@
      'views/reviews_view.xml',
      'views/work_plan_view.xml',
      'views/course_view.xml',
-     'views/department_view.xml',
-     'views/investigation_center_view.xml',
      'demo/course.xml',
-     'demo/department.xml',
-     'demo/investigation_center.xml',
      'demo/user.xml',
      'demo/student.xml'
  ],
