@@ -45,13 +45,20 @@ class WorkPlan(models.Model):
             zip_h.writestr('work_plan.tex', text)
 
         zip_buf.seek(0)
-        result = base64.b64encode(zip_buf.read())
 
+        return self.create_attachment(base64.b64encode(zip_buf.read()),
+                                      'work_plan_' + self.student.university_id + '.zip')
+
+    def download_word(self):
+        return self.create_attachment(base64.b64encode(open("/mnt/templates/work_plan.docx", "rb").read()),
+                                      'work_plan_' + self.student.university_id + '.docx')
+
+    def create_attachment(self, result, name):
         base_url = self.sudo().env['ir.config_parameter'].get_param('web.base.url')
         attachment_obj = self.env['ir.attachment']
 
         attachment_id = attachment_obj.sudo().create(
-            {'name': 'work_plan_' + self.student.university_id + '.zip', 'datas': result})
+            {'name': name, 'datas': result})
 
         download_url = '/web/content/' + str(attachment_id.id) + '?download=true'
 
