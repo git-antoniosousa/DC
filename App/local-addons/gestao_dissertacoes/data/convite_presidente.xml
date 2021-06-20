@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="convite_presidente" model="mail.template">
+        <field name="name">Convite para o Presidente do Júri</field>
+        <field name="email_from">${object.env['ir.config_parameter'].get_param( "di_email") }</field>
+        <field name="email_to">rui.azevedo1905@gmail.com</field>
+        <field name="subject">Convite para Presidente do Júri de Dissertação de 2ºciclo</field>
+        <field name="model_id" ref="gestao_dissertacoes.model_gest_diss_processo"/>
+        <field name="body_html"><![CDATA[
+            <p></p>
+            <p></p>
+            <p></p>
+            <p></p>
+            <p></p>
+            <p>Estimado(a) Doutor(a) ${object.juri_presidente_id.name}</p>
+            <p><br></p>
+            <p>Vem por este meio a Comissão Diretiva do ${object.curso.nome} da Universidade do Minho convidá-lo(a) oficialmente para presidente do júri de dissertação de mestrado que se segue, agradecendo desde já a sua disponibilidade manifestada:</p>
+            <p><br></p>
+            <p>Pode confirmar o convite aqui</p>
+            <p><br></p>
+            <p></p>
+            <p></p>
+            <hr>
+            <p></p>
+            <br><b>Aluno:</b> ${object.nome}
+            <p></p>
+            <p><b>Título:</b> ${object.diss_titulo}</p>
+            <p><b>Data da Defesa:</b> ${object.data_defesa}</p>
+            <p><b>Hora da Defesa:</b> ${object.hora_defesa}</p>
+            <p><b>Tipo da Defesa: </b>${object.local}</p>
+            <p>&nbsp; &nbsp;<br></p>
+            <hr>
+            <p></p>
+            <br>A prova durará 55 minutos repartidos da forma seguinte: candidato: 15 minutos; arguição: 30 minutos; outros membros do júri: 10 minutos.<br><br>
+            <p></p>
+            <p>Mais informamos que deverá preencher, na reunião final de avaliação realizada imediatamente após as provas, a Grelha de Avaliação que se anexa. Esta fará parte integrante da ata, incluindo a Justificação Individual da Avaliação que, de acordo com a legislação em vigor, é obrigatória.</p>
+            <p><br></p>
+            <p> Muito agradece esta Comissão Directiva que confirme, com a brevidade possível, a sua disponibilidade para colaborar neste acto académico. Com os melhores cumprimentos, </p>
+            <p><br></p>
+            <p>A Comissão Directiva de Mestrado<br></p>
+            ]]></field>
+    </record>
+
+</odoo>

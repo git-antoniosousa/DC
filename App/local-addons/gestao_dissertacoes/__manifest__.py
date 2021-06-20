@@ -16,7 +16,10 @@
              'views/gestao_diss_filiacao.xml',
              'views/gestao_diss_curso.xml',
              'views/gestao_diss_categoria.xml',
-             'views/gestao_diss_dashboard.xml'
+             'views/gestao_diss_dashboard.xml',
+             'data/convite_presidente.xml',
+             'data/convite_arguente.xml',
+             'data/convite_vogal.xml',
              ],
     'demo': [
         #'demo/alunos.xml',

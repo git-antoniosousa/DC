@@ -4,7 +4,9 @@ import base64
 import binascii
 import io
 
-from PIL import Image, ImageOps
+# from PIL import Image, ImageOps
+from PIL import Image
+from PIL import ImageOps
 # We can preload Ico too because it is considered safe
 from PIL import IcoImagePlugin
 

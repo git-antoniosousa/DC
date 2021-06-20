@@ -1,12 +1,17 @@
+import werkzeug
+
 from odoo import api, models, fields
-from odoo.exceptions import ValidationError, UserError
-from odoo.tools.translate import _
+from odoo.odoo import exceptions
+import sys
 
 
 class Processo(models.Model):
     _name = "gest_diss.processo"
     _inherit = ['gest_diss.aluno', 'gest_diss.defesa', 'gest_diss.juri', 'mail.thread']
     _description = 'Processo de gestão da dissertação'
+
+    # --- desativa o trackback ---
+    sys.tracebacklimit = 0
 
     orientador_id = fields.Many2one('gest_diss.membro', 'Orientador')
     coorientador_id = fields.Many2one('gest_diss.membro', 'Co-orientador')
@@ -32,21 +37,16 @@ class Processo(models.Model):
         ('registo_nota', 'Registo de Nota'),
         ('aguardar_versao_final', 'A Aguardar Versão Final'),
         ('finalizado', 'Finalizado')
-    ], string='Estado', readonly=True, copy=False, index=True, tracking=3, default='registo_inicial')
+    ], string='Estado', readonly=False, copy=False, index=True, tracking=3, default='registo_inicial')
 
     # --- anexar documentos ---
     attachment_ids = fields.Many2many('ir.attachment', 'attachment_id', string="Documentos")
 
-    # --- wizards de erros ---
-    error_filled = {
-        'name': 'Mensagem de Erro',
-        'type': 'ir.actions.act_window',
-        'res_model': 'gest.wizard',
-        'view_mode': 'form',
-        'target': 'new',
-        'flags': {'form': {'action_buttons': False}}
-    }
+    # --- verificacao de emails ---
+    # true se os convites para o juri foram enviados, false caso contrario
+    convites_juri_enviados = fields.Boolean(string="Convites Enviados", default=False)
 
+    # --- wizards de erros ---
     error_state = {
         'name': 'Mensagem de Erro',
         'type': 'ir.actions.act_window',
@@ -56,78 +56,103 @@ class Processo(models.Model):
         'flags': {'form': {'action_buttons': False}}
     }
 
+    def send_email(self):
+        # verificar se o url de callback já existe, só depois enviar email
+        # ou verificar se ao carregar no botao de enviar email, todos os campos desse estado estao preenchidos
+        # template_id = self.env.ref('gestao_dissertacoes.convite_presidente')
+        # self.message_post_with_template(template_id.id)
+        self.write({'convites_juri_enviados': 'sim'})
+
+    def write(self, vals):
+        if self.estado == 'proposta_juri' and self.data_hora:
+            dh = str(self.data_hora).split(" ")
+            d = dh[0]
+            h = ":".join(dh[1].split(":")[:2])
+            vals['data_defesa'] = d
+            vals['hora_defesa'] = h
+        return super(Processo, self).write(vals)
+
     # --- ações dos butões dos estados ---
     def registo_aluno_action(self):
-        if self.nome and self.numero and self.curso and self.email \
-                and self.diss_titulo and self.orientador_id and self.coorientador_id:
-            return self.write({'estado': 'correcoes'})
-        else:
-            return self.error_filled
+        return self.write({'estado': 'correcoes'})
 
+    # --- correções ---
     def correcoes_action(self):
-        if self.estado != 'correcoes':
-            return self.error_state
         return self.write({'estado': 'proposta_juri'})
 
-    def prop_juri_action(self):
-        if self.estado != 'proposta_juri':
-            return self.error_state
-        if self.juri_presidente_id and self.juri_vogal_id and self.juri_vogal_id \
-                and self.data_hora and self.local and self.sala:
-            return self.write({'estado': 'aguardar_confirmacao_juri'})
-        else:
-            return self.error_filled
+    def undo_correcoes_action(self):
+        return self.write({'estado': 'registo_inicial'})
 
+    # --- proposta do juri ---
+    def prop_juri_action(self):
+        return self.write({'estado': 'aguardar_confirmacao_juri'})
+
+    def undo_prop_juri_action(self):
+        return self.write({'estado': 'correcoes'})
+
+    # --- confirmação do juri ---
     def juri_confirmado_action(self):
-        if self.estado != 'aguardar_confirmacao_juri':
-            return self.error_state
         return self.write({'estado': 'aguardar_homologacao'})
 
+    def undo_juri_confirmado_action(self):
+        return self.write({'estado': 'proposta_juri'})
+
+    # --- aguardar homologacao ---
     def aguardar_homologacao_action(self):
-        if self.estado != 'aguardar_homologacao':
-            return self.error_state
         return self.write({'estado': 'homologacao'})
 
-    def homologacao_action(self):
-        if self.estado != 'homologacao':
-            return self.error_state
-        if self.data_homologacao:
-            return self.write({'estado': 'ata_primeira_reuniao'})
-        return self.error_filled
+    def undo_aguardar_homologacao_action(self):
+        return self.write({'estado': 'aguardar_confirmacao_juri'})
 
+    # --- homologacaco ---
+    def homologacao_action(self):
+        return self.write({'estado': 'ata_primeira_reuniao'})
+
+    def undo_homologacao_action(self):
+        return self.write({'estado': 'aguardar_homologacao'})
+
+    # --- ata primeira reuniao ---
     def ata_primeira_reuniao_action(self):
-        if self.estado != 'ata_primeira_reuniao':
-            return self.error_state
         return self.write({'estado': 'declaracao_aluno'})
 
+    def undo_ata_primeira_reuniao_action(self):
+        return self.write({'estado': 'homologacao'})
+
+    # --- declaracao do aluno ---
     def declaracao_aluno_action(self):
-        if self.estado != 'declaracao_aluno':
-            return self.error_state
         return self.write({'estado': 'ata_prova'})
 
+    def undo_declaracao_aluno_action(self):
+        return self.write({'estado': 'ata_primeira_reuniao'})
+
+    # --- ata da prova ---
     def ata_prova_action(self):
-        if self.estado != 'ata_prova':
-            return self.error_state
         return self.write({'estado': 'registo_nota'})
 
-    def registo_nota_action(self):
-        if self.estado != 'registo_nota':
-            return self.error_state
-        if self.nota:
-            return self.write({'estado': 'aguardar_versao_final'})
-        return self.error_filled
+    def undo_ata_prova_action(self):
+        return self.write({'estado': 'declaracao_aluno'})
 
+    # --- registo da nota ---
+    def registo_nota_action(self):
+        return self.write({'estado': 'aguardar_versao_final'})
+
+    def undo_registo_nota_action(self):
+        return self.write({'estado': 'ata_prova'})
+
+    # --- aguardar versao final ---
     def aguardar_versao_final_action(self):
-        if self.estado != 'aguardar_versao_final':
-            return self.error_state
         return self.write({'estado': 'finalizado'})
 
+    def undo_aguardar_versao_final_action(self):
+        return self.write({'estado': 'registo_nota'})
+
+    # --- finalizar ---
     def finalizar_action(self):
         if self.estado != 'finalizado':
             return self.error_state
 
-    def desfazer_estado_action(self):
-        pass
+    def undo_finalizar_action(self):
+        return self.write({'estado': 'aguardar_versao_final'})
 
     # --- ---
     def gerar_edital_action(self):
@@ -141,3 +166,4 @@ class Processo(models.Model):
 
     def enviar_correcoes_action(self):
         pass
+
