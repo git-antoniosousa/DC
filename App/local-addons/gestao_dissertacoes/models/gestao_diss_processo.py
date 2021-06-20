@@ -75,6 +75,9 @@ class Processo(models.Model):
             return self.error_state
         if self.juri_presidente_id and self.juri_vogal_id and self.juri_vogal_id \
                 and self.data_hora and self.local and self.sala:
+            self.link_presidente()
+            self.link_arguente()
+            self.link_vogal()
             return self.write({'estado': 'aguardar_confirmacao_juri'})
         else:
             return self.error_filled
@@ -173,7 +176,6 @@ class Processo(models.Model):
         self.update_estado()
         return self
 
-    @api.onchange('juri_presidente_id')
     def link_presidente(self):
         key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
         fernet = Fernet(key)
@@ -181,11 +183,8 @@ class Processo(models.Model):
         print(link)
         token = (fernet.encrypt(link.encode())).decode()
         url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
-        _my_object = self.env['gest_diss.processo'].sudo().search([('id', 'ilike', self._origin.id)])
-        _my_object.write({'convite_presidente_url' : url})
-        print(_my_object.convite_presidente_url)
+        self.write({'convite_presidente_url' : url})
 
-    @api.onchange('juri_vogal_id')
     def link_vogal(self):
         key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
         fernet = Fernet(key)
@@ -193,11 +192,8 @@ class Processo(models.Model):
         print(link)
         token = (fernet.encrypt(link.encode())).decode()
         url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
-        _my_object = self.env['gest_diss.processo'].sudo().search([('id', 'ilike', self._origin.id)])
-        _my_object.write({'convite_vogal_url' : url})
-        print(_my_object.convite_vogal_url)
+        self.write({'convite_vogal_url' : url})
 
-    @api.onchange('juri_arguente_id')
     def link_arguente(self):
         key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
         fernet = Fernet(key)
@@ -205,6 +201,4 @@ class Processo(models.Model):
         print(link)
         token = (fernet.encrypt(link.encode())).decode()
         url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
-        _my_object = self.env['gest_diss.processo'].sudo().search([('id', 'ilike', self._origin.id)])
-        _my_object.write({'convite_arguente_url' : url})
-        print(_my_object.convite_arguente_url)
+        self.write({'convite_arguente_url' : url})

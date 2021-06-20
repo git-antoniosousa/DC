@@ -12,6 +12,7 @@ class Invite(http.Controller):
         except InvalidToken:
             return http.request.render('gestao_dissertacoes.not-found', {'code': 403,'msg': "Não tem acesso a este processo"})
         params = url.split("-/-")
+        print(url)
         if len(params) != 3: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo"})
         id = params[1]
         juri = params[0]
