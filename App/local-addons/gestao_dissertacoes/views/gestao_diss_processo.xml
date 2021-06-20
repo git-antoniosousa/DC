@@ -118,6 +118,9 @@
                             <field name="juri_presidente_id" readonly="1"/>
                             <field name="juri_arguente_id" readonly="1"/>
                             <field name="juri_vogal_id" readonly="1"/>
+                            <field name="convite_presidente_url" readonly="1" widget ="url"/>
+                            <field name="convite_vogal_url" readonly="1" widget ="url"/>
+                            <field name="convite_arguente_url" readonly="1" widget ="url"/>
                         </group>
                     </group>
                     <hr/>
@@ -135,7 +138,7 @@
                             <field name="coorientador_id"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
-                            <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]"/>
+                            <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]" context="{'default_public': True}"/>
                             <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/>
                         </group>
                         <!-- Correções  -->
@@ -212,6 +215,7 @@
                 <field name="local" optional="hide"/>
                 <field name="sala" optional="hide"/>
                 <field name="data_homologacao" optional="hide"/>
+                <field name="convites_aceites" optional="hide"/>
                 <field name="estado"/>
             </tree>
         </field>

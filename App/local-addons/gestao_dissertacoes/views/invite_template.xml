@@ -88,7 +88,40 @@
         </template>
 
         <template id="not-found">
-            <h1>404 - Processo não encontrado</h1>
+            <head>
+                <title>Convocatória para Prova</title>
+            </head>
+            <!-- Latest compiled and minified CSS -->
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+
+            <!-- jQuery library -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+            <!-- Popper JS -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+            <!-- Latest compiled JavaScript -->
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <div class="container pt-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Convocatória para Prova</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-around">
+                            <h1><t t-esc="code"/> - <t t-esc="msg"/></h1>
+                        </div>
+                    </div>
+                    <div class="card-footer"><p class="text-center" id="footer"></p></div>
+                </div>
+            </div>
+            <script>
+
+            var year = new Date().getFullYear();
+
+            document.getElementById("footer").innerHTML = "Gestão de Dissertações - " + year
+
+            </script>
         </template>
     </data>
 </odoo>

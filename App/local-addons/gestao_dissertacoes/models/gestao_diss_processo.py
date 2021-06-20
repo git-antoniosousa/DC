@@ -1,7 +1,7 @@
 from odoo import api, models, fields
 from odoo.exceptions import ValidationError, UserError
 from odoo.tools.translate import _
-
+from cryptography.fernet import Fernet
 
 class Processo(models.Model):
     _name = "gest_diss.processo"
@@ -142,13 +142,69 @@ class Processo(models.Model):
 
     def enviar_correcoes_action(self):
         pass
+    
+    def update_estado(self):
+        if self.convite_presidente == 'aceitado' and self.convite_vogal == 'aceitado' and self.convite_arguente == 'aceitado':
+            if self.estado == 'aguardar_confirmacao_juri':
+                return self.write({'estado': 'aguardar_homologacao'})
+
+    def update_numero_convites_aceites(self):
+        num = 0
+        if self.convite_presidente == 'aceitado':
+            num +=1
+        if self.convite_vogal == 'aceitado':
+            num +=1
+        if self.convite_arguente == 'aceitado':
+            num +=1
+        self.convites_aceites = num
 
     def convite(self, resposta, juri):
+        print(self.convite_arguente_url)
+        print(self.convite_presidente_url)
+        print(self.convite_vogal_url)
         if resposta != '':
             if juri == 'p':
-                return self.write({'convite_presidente': resposta})
+                self.write({'convite_presidente': resposta})
             if juri == 'v':
-                return self.write({'convite_vogal': resposta})
+                self.write({'convite_vogal': resposta})
             if juri == 'a':
-                return self.write({'convite_arguente': resposta})
+                self.write({'convite_arguente': resposta})
+        self.update_numero_convites_aceites()
+        self.update_estado()
         return self
+
+    @api.onchange('juri_presidente_id')
+    def link_presidente(self):
+        key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
+        fernet = Fernet(key)
+        link = f"p-/-{self._origin.id}-/-{self.juri_presidente_id.name}"
+        print(link)
+        token = (fernet.encrypt(link.encode())).decode()
+        url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
+        _my_object = self.env['gest_diss.processo'].sudo().search([('id', 'ilike', self._origin.id)])
+        _my_object.write({'convite_presidente_url' : url})
+        print(_my_object.convite_presidente_url)
+
+    @api.onchange('juri_vogal_id')
+    def link_vogal(self):
+        key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
+        fernet = Fernet(key)
+        link = f"v-/-{self._origin.id}-/-{self.juri_vogal_id.name}"
+        print(link)
+        token = (fernet.encrypt(link.encode())).decode()
+        url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
+        _my_object = self.env['gest_diss.processo'].sudo().search([('id', 'ilike', self._origin.id)])
+        _my_object.write({'convite_vogal_url' : url})
+        print(_my_object.convite_vogal_url)
+
+    @api.onchange('juri_arguente_id')
+    def link_arguente(self):
+        key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
+        fernet = Fernet(key)
+        link = f"a-/-{self._origin.id}-/-{self.juri_arguente_id.name}"
+        print(link)
+        token = (fernet.encrypt(link.encode())).decode()
+        url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
+        _my_object = self.env['gest_diss.processo'].sudo().search([('id', 'ilike', self._origin.id)])
+        _my_object.write({'convite_arguente_url' : url})
+        print(_my_object.convite_arguente_url)
