@@ -8,7 +8,7 @@ class Membro(models.Model):
     _order = 'name'
     _rec_name = 'name'
 
-    categoria = fields.Many2one('gest_diss.categoria', "Categoria",required=True)
+    categoria = fields.Many2one('gest_diss.categoria', "Categoria", required=True)
 
     filiacao_id = fields.Many2one('gest_diss.filiacao', 'Filiacao', domain = "[('tipo_de_filiacao','in',['u', 'e'])]")
 

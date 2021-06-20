@@ -126,12 +126,16 @@
                             <field name="coorientador_id" readonly="1"/>
                         </group>
                         <group>
+                            <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]"/>
                             <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/>
                         </group>
                         <group string="Júri" attrs="{'invisible': [('estado', 'in', ['registo_inicial','correcoes','proposta_juri'])]}">
                             <field name="juri_presidente_id" readonly="1"/>
                             <field name="juri_arguente_id" readonly="1"/>
                             <field name="juri_vogal_id" readonly="1"/>
+                            <field name="convite_presidente_url" readonly="1" widget ="url"/>
+                            <field name="convite_vogal_url" readonly="1" widget ="url"/>
+                            <field name="convite_arguente_url" readonly="1" widget ="url"/>
                         </group>
                         <group string="Convites">
                             <field label="Convites Enviados aos Membros do Júri" name="convites_juri_enviados" widget="checkbox" readonly="1"/>
@@ -152,6 +156,7 @@
                             <field name="coorientador_id"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
+                            <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]" context="{'default_public': True}"/>
                             <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/>
                         </group>
                         <!-- Correções  -->
@@ -177,6 +182,11 @@
                         <group attrs="{'invisible': [('estado', 'not in', ['aguardar_confirmacao_juri'])]}">
                             <sheet>
                                 <h1 style="margin-bottom: 20px"><u>Aguardar pela resposta do Júri</u></h1>
+                                <group string="Convites">
+                                    <field name="convite_presidente" readonly="1"/>
+                                    <field name="convite_vogal" readonly="1"/>
+                                    <field name="convite_arguente" readonly="1"/>
+                                </group>
                             </sheet>
                         </group>
                         <!-- Aguardar pela Homologação  -->
@@ -223,6 +233,7 @@
                 <field name="local" optional="hide"/>
                 <field name="sala" optional="hide"/>
                 <field name="data_homologacao" optional="hide"/>
+                <field name="convites_aceites" optional="hide"/>
                 <field name="estado"/>
             </tree>
         </field>
