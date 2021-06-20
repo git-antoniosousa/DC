@@ -9,7 +9,7 @@ class Filiacao(models.Model):
     _order = 'name'
     _rec_name = 'name'
 
-    filiacao = fields.Many2one('gest_diss.filiacao', 'Filiacao')
+    filiacao = fields.Many2one('gest_diss.filiacao', 'Filiação')
 
     tipo_de_filiacao = fields.Selection([('u', 'Universidade'), ('e', 'Empresa'), ('d', 'Departamento'), ('c', 'Centro de Investigação')], string="Tipo de Filiação", default='d', required=True)
 
