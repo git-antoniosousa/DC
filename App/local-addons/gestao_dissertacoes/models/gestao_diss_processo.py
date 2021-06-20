@@ -1,5 +1,5 @@
 import werkzeug
-
+import sys
 from odoo import api, models, fields
 from odoo.exceptions import ValidationError, UserError
 from odoo.tools.translate import _
@@ -7,7 +7,7 @@ from cryptography.fernet import Fernet
 
 class Processo(models.Model):
     _name = "gest_diss.processo"
-    _inherit = ['gest_diss.aluno', 'gest_diss.defesa', 'gest_diss.juri']
+    _inherit = ['gest_diss.aluno', 'gest_diss.defesa', 'gest_diss.juri', 'mail.thread']
     _description = 'Processo de gestão da dissertação'
 
     # --- desativa o trackback ---
