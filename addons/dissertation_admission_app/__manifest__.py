@@ -22,9 +22,8 @@
      'views/reviews_view.xml',
      'views/work_plan_view.xml',
      'views/course_view.xml',
-     'demo/course.xml',
-     'demo/user.xml',
-     'demo/student.xml'
+#     'demo/course.xml',
+#     'demo/user.xml',
  ],
  'application': True,
  'installable': True,

@@ -124,6 +124,12 @@
 		<field name="model">dissertation_admission.dissertation</field>
 		<field name="arch" type="xml">
 			<form create="false" edit="false" delete="false" duplicate="false">
+				<header>
+					<button string="Candidatar" name="register_candidate" type="object"
+							class="oe_highlight oe_read_only"
+							confirm="Tem a certeza que quer candidatar-se a esta dissertação?"
+							groups="dissertation_admission_app.dissertation_admission_group_student"/>
+				</header>
 				<sheet string="Dissertação">
 					<group>
 						<field name="name" required="True" id="name"/>
@@ -137,10 +143,6 @@
 						<field name="coadviser_id_external" attrs="{'invisible': [('coadviser_id_external', '=', False)]}"/>
 						<field name="candidates" id="candidates" widget="many2many_tags" readonly="True"/>
 					</group>
-					<button string="Candidatar" name="register_candidate" type="object"
-							confirm="Tem a certeza que quer candidatar-se a esta dissertação?"
-							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
-							groups="dissertation_admission_app.dissertation_admission_group_student"/>
 				</sheet>
 			</form>
 		</field>

@@ -17,7 +17,7 @@ class WorkPlan(models.Model):
     pdf_signed = fields.Binary(default=None)
     pdf_signed_fname = fields.Char(compute="_get_pdf_signed_fname")
     verified = fields.Boolean(default=False)
-    signed_director = fields.Boolean(default=False)
+    signed_director = fields.Boolean(compute="_get_signed_director")
     pdf_pre_thesis = fields.Binary(default=None)
     pdf_pre_thesis_fname = fields.Char(compute="_get_pdf_pre_thesis_fname")
 
@@ -76,6 +76,9 @@ class WorkPlan(models.Model):
 
     def _get_pdf_pre_thesis_fname(self):
         self.pdf_pre_thesis_fname = 'pre_tese.pdf'
+
+    def _get_signed_director(self):
+        self.signed_director = self.pdf_signed is not None
 
     def open_sign_wizard(self):
         return {
