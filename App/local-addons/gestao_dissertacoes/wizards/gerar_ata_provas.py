@@ -22,7 +22,8 @@ class DocAtaProvas(models.TransientModel):
                     or processo.estado == 'aguardar_confirmacao_juri' or processo.estado == 'aguardar_homologacao'\
                     or processo.estado == 'aguardar_homologacao' or processo.estado == 'homologacao' or processo.estado == 'ata_primeira_reuniao'\
                     or processo.estado == 'declaracao_aluno':
-                raise ValidationError("Não está num estado válido para gerar a Ata da Prova em alguns processos!")
+                raise ValidationError("Não está num estado válido para gerar a Ata da Prova em alguns processos! "
+                                      "Só pode gerar a ata da prova após ter concluído o estado da \"Declaração do Aluno\"")
 
         processos = self._context.get('active_ids')
 
