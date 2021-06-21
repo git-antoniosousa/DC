@@ -10,14 +10,19 @@
     'author': "Joel Ferreira, João Linhares, Rui Azevedo",
     'category': 'Gestão',
     'version': '1.0.0',
-    'depends': ['base', 'report_py3o'],
+    'depends': ['base', 'report_py3o', 'mail'],
     'license': "LGPL-3",
     'data': [
+        ########################## SECURITY #############################
+        'security/funcionario_security.xml',
+        'security/ir.model.access.csv',
+
         ############################# VIEWS #############################
         'views/gestao_diss_processo.xml',
         'views/gestao_diss_membro.xml',
         'views/gestao_diss_filiacao.xml',
         'views/gestao_diss_curso.xml',
+        'views/gestao_diss_ano_letivo.xml',
         'views/gestao_diss_categoria.xml',
         'views/gestao_diss_dashboard.xml',
         'views/invite_template.xml',
@@ -40,6 +45,14 @@
         'wizards/gerar_form_candidato_wizard.xml',
         'wizards/gerar_ata_provas.xml',
         'wizards/gerar_ata_primeira_reuniao.xml',
+
+        ############################# EMAILS #############################
+		'data/convite_presidente.xml',
+        'data/convite_arguente.xml',
+        'data/convite_vogal.xml',
+        'data/ata_primeira_reuniao.xml',
+        'data/declaracao_aluno.xml',
+        'data/ata_prova.xml'
     ],
     'demo': [
         #'demo/alunos.xml',

@@ -3,6 +3,8 @@
         <template id="processo">
             <head>
                 <title>Convocatória para Prova</title>
+
+                <script type="text/javascript" src="https://addevent.com/libs/atc/1.6.1/atc.min.js"></script>
             </head>
             <!-- Latest compiled and minified CSS -->
             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
@@ -15,6 +17,7 @@
 
             <!-- Latest compiled JavaScript -->
             <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
             <div class="container pt-3">
                 <div class="card">
                     <div class="card-header">
@@ -37,7 +40,7 @@
                                     <p class="mx-3 mt-3"><b>Presidente:</b> <t t-esc="invite_processo.juri_presidente_id.name"/></p>
                                     <p class="mx-3"><b>Arguente:</b> <t t-esc="invite_processo.juri_arguente_id.name"/></p>
                                     <p class="mx-3"><b>Vogal:</b> <t t-esc="invite_processo.juri_vogal_id.name"/></p>
-                                    <p class="mx-3"><b>Data:</b> <t t-esc="invite_processo.data_hora"/></p>
+                                    <p class="mx-3"><b>Data:</b> <t t-esc="data"/></p>
                                     <t t-if="invite_processo.local == 'presencial'">
                                         <p class="mx-3"><b>Tipo de Defesa:</b> Presencial</p>
                                         <p class="mx-3 mb-3"><b>Local:</b> <t t-esc="invite_processo.sala"/></p>
@@ -51,28 +54,130 @@
                         </div>
                         <div class="d-flex">
                             <div class="p-2 mr-auto">
-                                <p><b>Dissertação:</b> <a t-attf-href="/web/content/#{invite_processo.dissertacao.id}?access_token=#{invite_processo.dissertacao.access_token}" target="_blank"> Pré-visualizar</a> <a t-attf-href="/web/content/#{invite_processo.dissertacao.id}?download=true&amp;access_token=#{invite_processo.dissertacao.access_token}" target="_blank"> Download</a></p>
+                                <p><b>Dissertação:</b> <a t-attf-href="/web/content/#{invite_processo.dissertacao.id}" target="_blank"> Pré-visualizar</a> <a t-attf-href="/web/content/#{invite_processo.dissertacao.id}?download=true" target="_blank"> Download</a></p>
+                                <!-- Button code -->
+                                <div title="Adicionar ao calendário" class="addeventatc">
+                                    Adicionar ao calendário
+                                    <span class="start"><t t-esc="data_inicio"/></span>
+                                    <span class="end"><t t-esc="data_fim"/></span>
+                                    <span class="timezone">Europe/Lisbon</span>
+                                    <span class="title">Defesa Dissertação - Aluno <t t-esc="invite_processo.numero"/></span>
+                                    <t t-if="invite_processo.local == 'presencial'">
+                                        <span class="description">Defesa presencial da dissertação do aluno <t t-esc="invite_processo.numero"/> no <t t-esc="invite_processo.sala"/> da Universidade do Minho </span>
+                                    </t>
+                                    <t t-if="invite_processo.local == 'virtual'">
+                                        <span class="description">Defesavirtual da dissertação do aluno <t t-esc="invite_processo.numero"/> através do link <t t-esc="invite_processo.sala"/></span>
+                                    </t>
+                                </div>
                             </div>
                             <t t-if="existe">
                                 <div class="p-2">
                                     <t t-if="status == 'aguardar'">
-                                        <form>
-                                            <button type="submit" name="convite" class="btn btn-success" value="aceitado">Aceitar</button>
-                                            <button type="submit" name="convite" class="btn btn-danger" value="rejeitado">Rejeitar</button>
-                                        </form>
+                                        <button class="btn btn-success" data-toggle="modal" data-target="#modalAceitar">Aceitar</button>
+                                        <button class="btn btn-danger" data-toggle="modal" data-target="#modalRejeitar">Rejeitar</button>
                                     </t>
                                     <t t-if="status == 'aceitado'">
-                                        <form>
-                                            <button type="submit" name="convite" class="btn btn-danger" value="rejeitado">Rejeitar</button>
-                                        </form>
+                                        <p>Convite Aceite</p>
                                     </t>
                                     <t t-if="status == 'rejeitado'">
-                                        <form>
-                                            <button type="submit" name="convite" class="btn btn-success" value="aceitado">Aceitar</button>
-                                        </form>
+                                        <p>Convite Rejeitado. Pretende mudar decisão?</p>
+                                        <button class="btn btn-success" data-toggle="modal" data-target="#modalAceitar">Aceitar</button>
                                     </t>
                                 </div>
                             </t>
+                        </div>
+                    </div>
+                    <div class="card-footer"><p class="text-center" id="footer"></p></div>
+                </div>
+                <!-- Modal Aceitar -->
+                <div class="modal fade" id="modalAceitar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Confirmação convite</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Pretende aceitar o convite?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                <form>
+                                    <button type="submit" name="convite" class="btn btn-success" value="aceitado">Aceitar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal Rejeitar -->
+                <div class="modal fade" id="modalRejeitar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Confirmação convite</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Pretende rejeitar o convite?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                <form>
+                                    <button type="submit" name="convite" class="btn btn-danger" value="rejeitado">Rejeitar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+            var ics = '<t t-esc="ics"/>';
+
+            console.log(ics)
+
+            var year = new Date().getFullYear();
+
+            document.getElementById("footer").innerHTML = "Gestão de Dissertações - " + year
+            </script>
+            <!-- Remove "AddEvent" from the dropdown with the following CSS -->
+                <style type="text/css">
+                .addeventatc_dropdown {padding:6px 0px;}
+                .addeventatc_dropdown .copyx {display:none;}
+                </style>
+                <script type="text/javascript">
+                window.addeventasync = function(){
+                    addeventatc.settings({
+                        dropdown   : {order:"google,appleical,office365,outlook,yahoo,outlookcom"}
+                    });
+                };
+                </script>
+        </template>
+
+        <template id="not-found">
+            <head>
+                <title>Convocatória para Prova</title>
+            </head>
+            <!-- Latest compiled and minified CSS -->
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+
+            <!-- jQuery library -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+            <!-- Popper JS -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+            <!-- Latest compiled JavaScript -->
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <div class="container pt-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Convocatória para Prova</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-around">
+                            <h1><t t-esc="code"/> - <t t-esc="msg"/></h1>
                         </div>
                     </div>
                     <div class="card-footer"><p class="text-center" id="footer"></p></div>
@@ -85,10 +190,6 @@
             document.getElementById("footer").innerHTML = "Gestão de Dissertações - " + year
 
             </script>
-        </template>
-
-        <template id="not-found">
-            <h1>404 - Processo não encontrado</h1>
         </template>
     </data>
 </odoo>
