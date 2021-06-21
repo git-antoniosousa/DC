@@ -17,6 +17,7 @@
              'views/gestao_diss_membro.xml',
              'views/gestao_diss_filiacao.xml',
              'views/gestao_diss_curso.xml',
+             'views/gestao_diss_ano_letivo.xml',
              'views/gestao_diss_categoria.xml',
              'views/gestao_diss_dashboard.xml',
              'views/invite_template.xml',

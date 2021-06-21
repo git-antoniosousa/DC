@@ -17,6 +17,7 @@
                 <field name="numero"/>
                 <field name="curso" widget="many2one"/>
                 <field name="email"/>
+                <field name="ano_letivo" widget="many2one"/>
                 <field name="juri_presidente_id" widget="many2one"/>
                 <field name="juri_arguente_id" widget="many2one"/>
                 <field name="juri_vogal_id" widget="many2one"/>
@@ -150,6 +151,7 @@
                             <field name="curso" readonly="1"/>
                             <field name="email" readonly="1"/>
                             <field name="diss_titulo" readonly="1"/>
+                            <field name="ano_letivo" readonly="1"/>
                             <field name="orientador_id" readonly="1"/>
                             <field name="coorientador_id" readonly="1"/>
                         </group>
@@ -177,6 +179,7 @@
                             <field name="numero" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                             <field name="curso" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                             <field name="email" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <field name="ano_letivo" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                             <field name="diss_titulo" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                         </group>
                         <group string="Orientadores" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
@@ -250,8 +253,9 @@
             <tree>
                 <field name="nome"/>
                 <field name="numero"/>
-                <field name="curso" widget="many2one"/>
                 <field name="email"/>
+                <field name="curso" widget="many2one"/>
+                <field name="ano_letivo" widget="many2one"/>
                 <field name="juri_presidente_id" widget="many2one"/>
                 <field name="juri_arguente_id" widget="many2one"/>
                 <field name="juri_vogal_id" widget="many2one"/>
