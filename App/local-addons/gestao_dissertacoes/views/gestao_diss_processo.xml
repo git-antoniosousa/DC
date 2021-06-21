@@ -96,7 +96,7 @@
                     <button name="ata_prova_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}"/>
                     <button name="registo_nota_action" string="Registar Nota" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}"/>
                     <button name="aguardar_versao_final_action" string="Registar Versão Final" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_versao_final'])]}"/>
-                    <field name="estado" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}"/>
+                    <field name="estado" widget="statusbar"/>
                 </header>
                 <sheet>
                     <!-- Pin da informação do aluno -->
@@ -182,6 +182,11 @@
                         <!-- Homologação  -->
                         <group attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}">
                             <field name="data_homologacao"/>
+                        </group>
+                        <!-- Ata Primeira Reunião -->
+                        <group attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}">
+                            <field name="data_hora_primeira_reuniao" attrs="{'required' :[('estado','in',['ata_primeira_reuniao'])]}"/>
+                            <h6>Adcionar ficheiro da ata com o seguinte nome: ata-primeira-reuniao.pdf</h6>
                         </group>
                         <!-- Registo de Nota  -->
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">

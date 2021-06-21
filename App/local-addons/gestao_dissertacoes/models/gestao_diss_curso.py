@@ -11,7 +11,9 @@ class Curso(models.Model):
 
     codigo = fields.Char(string="Código", required=True)
 
-    nome = fields.Char(string="Nome de Curso", required=True)
+    nome = fields.Char(string="Nome do Curso", required=True)
+
+    nome_ingles = fields.Char(string="Nome do Curso em Inglês", required=True)
 
     local = fields.Char(string="Local")
 
