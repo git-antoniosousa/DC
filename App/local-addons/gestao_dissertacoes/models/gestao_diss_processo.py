@@ -1,15 +1,12 @@
-from typing import DefaultDict
 import sys
 
-import werkzeug
 import datetime
-import calendar, time
+import calendar
 import locale
 from num2words import num2words
 from datetime import datetime
 from odoo import api, models, fields
 from odoo.exceptions import ValidationError, UserError
-from odoo.tools.translate import _
 from cryptography.fernet import Fernet
 
 # Definir o locale PT
