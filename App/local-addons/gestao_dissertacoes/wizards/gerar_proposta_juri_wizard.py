@@ -29,7 +29,9 @@ class DocHomologacao(models.TransientModel):
                 raise ValidationError("Para gerar um conjunto de Propostas de Júri o Curso tem de ser o mesmo em todos os "
                                       "processos!")
             if processo.estado == 'registo_inicial' or processo.estado == 'correcoes':
-                raise ValidationError("Não está num estado válido para gerar a Proposta de Júri em alguns processos!")
+                raise ValidationError("Não está num estado válido para gerar a Proposta de Júri em alguns processos! "
+                                      "Não pode gerar a Proposta de Júri quando está no estado de \"Correções\" ou "
+                                      "Registo inicial.")
 
         if self.tipo_ficheiro == 'pdf':
             return self.env.ref('gestao_dissertacoes.gerar_proposta_juri_report_pdf').report_action(self)

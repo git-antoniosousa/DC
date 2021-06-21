@@ -26,7 +26,8 @@ class DocAtaPrimeiraReuniao(models.TransientModel):
             if processo.estado == 'registo_inicial' or processo.estado == 'correcoes' or processo.estado == 'proposta_juri'\
                     or processo.estado == 'aguardar_confirmacao_juri' or processo.estado == 'aguardar_homologacao'\
                     or processo.estado == 'aguardar_homologacao' or processo.estado == 'homologacao':
-                raise ValidationError("Não está num estado válido para gerar a Ata da Primeira Reunião em alguns processos!")
+                raise ValidationError("Não está num estado válido para gerar a Ata da Primeira Reunião em alguns processos! "
+                                      "Só pode gerar esta Ata após ter o processo Homologado!")
 
         processos = self._context.get('active_ids')
 
