@@ -1,4 +1,5 @@
 from odoo import fields, models, api
+from odoo.exceptions import ValidationError
 
 
 class DocFormCandidato(models.TransientModel):
@@ -23,6 +24,11 @@ class DocFormCandidato(models.TransientModel):
     def gerar_doc(self):
 
         processos = self._context.get('active_ids')
+
+        for processo in self.processos_ids:
+            if processo.estado == 'registo_inicial' or processo.estado == 'correcoes' or processo.estado == 'proposta_juri'\
+                    or processo.estado == 'aguardar_confirmacao_juri' or processo.estado == 'aguardar_homologacao':
+                raise ValidationError("Não está num estado válido para gerar o Formulário do Candidato em alguns processos!")
 
         if self.linguagem == 'pt':
             if self.tipo_ficheiro == 'pdf':

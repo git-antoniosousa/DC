@@ -1,6 +1,5 @@
 import sys
 
-import datetime
 import calendar
 import locale
 from num2words import num2words
@@ -20,7 +19,7 @@ class Processo(models.Model):
     # --- ano letivo ---
     @api.model
     def _default_ano_letivo(self):
-        now = datetime.datetime.now()
+        now = datetime.now()
         ano = now.year
         mes = now.month
         if mes <= 8: ano -= 1
@@ -99,7 +98,7 @@ class Processo(models.Model):
             data_words, hora_words = self.converter_data_hora_para_words(str(self.data_hora_primeira_reuniao))
             vals['data_primeira_reuniao_words'] = data_words
             vals['hora_primeira_reuniao_words'] = hora_words
-        elif self.estado == 'homologacao':
+        elif self.estado == 'homologacao' and self.data_homologacao:
             data_homologacao_words = self.converter_data_para_words(str(self.data_homologacao))
             vals['data_homologacao_words'] = data_homologacao_words
         return super(Processo, self).write(vals)

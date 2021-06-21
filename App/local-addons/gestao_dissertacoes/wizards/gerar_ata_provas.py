@@ -17,9 +17,12 @@ class DocAtaProvas(models.TransientModel):
 
     def gerar_doc(self):
 
-        # Validação do curso e Validação do estado
         for processo in self.processos_ids:
-            break
+            if processo.estado == 'registo_inicial' or processo.estado == 'correcoes' or processo.estado == 'proposta_juri'\
+                    or processo.estado == 'aguardar_confirmacao_juri' or processo.estado == 'aguardar_homologacao'\
+                    or processo.estado == 'aguardar_homologacao' or processo.estado == 'homologacao' or processo.estado == 'ata_primeira_reuniao'\
+                    or processo.estado == 'declaracao_aluno':
+                raise ValidationError("Não está num estado válido para gerar a Ata da Prova em alguns processos!")
 
         processos = self._context.get('active_ids')
 

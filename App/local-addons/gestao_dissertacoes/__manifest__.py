@@ -8,7 +8,7 @@
         é automatizar este processo e descomplicar grande parte das tarefas monótonas.
     """,
     'author': "Joel Ferreira, João Linhares, Rui Azevedo",
-    'category': 'Gestão',
+    'category': 'Processo',
     'version': '1.0.0',
     'depends': ['base', 'report_py3o', 'mail'],
     'license': "LGPL-3",
