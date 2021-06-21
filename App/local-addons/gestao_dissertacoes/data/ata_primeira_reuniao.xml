@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="ata_primeira_reuniao" model="mail.template">
+        <field name="name">Ata da Primeira Reunião</field>
+        <field name="email_from">${object.env['ir.config_parameter'].get_param( "di_email") }</field>
+        <field name="email_to">${object.juri_presidente_id.email}</field>
+        <field name="subject">Ata da Primeira Reunião</field>
+        <field name="model_id" ref="gestao_dissertacoes.model_gest_diss_processo"/>
+        <field name="body_html"><![CDATA[
+                Ata da primeira reunião
+            ]]></field>
+    </record>
+
+</odoo>

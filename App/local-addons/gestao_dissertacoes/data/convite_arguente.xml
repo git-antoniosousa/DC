@@ -3,10 +3,11 @@
     <record id="convite_arguente" model="mail.template">
         <field name="name">Convite para o Arguente do Júri</field>
         <field name="email_from">${object.env['ir.config_parameter'].get_param( "di_email") }</field>
-        <field name="email_to">rui.azevedo1905@gmail.com</field>
-        <field name="subject">Convite para Vogal do Júri de Dissertação de 2ºciclo</field>
+        <field name="email_to">${object.juri_arguente_id.email}</field>
+        <field name="subject">Convite para Arguente do Júri de Dissertação de 2ºciclo</field>
         <field name="model_id" ref="gestao_dissertacoes.model_gest_diss_processo"/>
         <field name="body_html"><![CDATA[
+
             <p></p>
             <p></p>
             <p></p>
@@ -16,8 +17,9 @@
             <p><br></p>
             <p>Vem por este meio a Comissão Diretiva do ${object.curso.nome} da Universidade do Minho convidá-lo(a) oficialmente para arguente do júri de dissertação de mestrado que se segue, agradecendo desde já a sua disponibilidade manifestada:</p>
             <p><br></p>
-            <p>Pode confirmar o convite aqui</p>
-            <p><br></p>
+            <p>Pode confirmar o convite <a href="${object.convite_arguente_url}" data-original-title="" title="" aria-describedby="tooltip736786">aqui<br></a></p><p><br></p>
+            <p>Pode obter a dissertação <a href="${object.dissertacao_url}" data-original-title="" title="" aria-describedby="tooltip736786">aqui<br></a></p><p><br></p>
+
             <p></p>
             <p></p>
             <hr>

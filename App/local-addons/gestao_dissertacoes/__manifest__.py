@@ -8,7 +8,7 @@
     'author': "Joel Ferreira, João Linhares, Rui Azevedo",
     'category': 'Uncategorized',
     'version': '1.0.0',
-    'depends': ['base', 'report_py3o'],
+    'depends': ['base', 'report_py3o', 'mail'],
     'license': "LGPL-3",
     'data': [
              'views/gestao_diss_processo.xml',
@@ -22,6 +22,9 @@
              'data/convite_presidente.xml',
              'data/convite_arguente.xml',
              'data/convite_vogal.xml',
+             'data/ata_primeira_reuniao.xml',
+             'data/declaracao_aluno.xml',
+             'data/ata_prova.xml'
              ],
     'demo': [
         #'demo/alunos.xml',
