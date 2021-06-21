@@ -1,7 +1,4 @@
 from odoo import api, fields, models, exceptions
-import logging
-
-_logger = logging.getLogger(__name__)
 
 
 def dissertation_user_create(env, values):
@@ -116,6 +113,5 @@ class UserCourses(models.Model):
         try:
             self.delegated_courses = \
                 (self.company_employee_uid or self.direction_uid or self.adviser_uid).courses
-            logging.info(self.delegated_courses)
         except:
             self.delegated_courses = None

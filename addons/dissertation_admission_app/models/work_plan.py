@@ -3,7 +3,6 @@ import io
 from odoo import api, fields, exceptions, models, _
 import base64
 import zipfile
-import logging
 
 
 class WorkPlan(models.Model):
@@ -79,7 +78,6 @@ class WorkPlan(models.Model):
         self.pdf_pre_thesis_fname = 'pre_tese.pdf'
 
     def _get_signed_director(self):
-        logging.info(self.pdf_signed)
         self.signed_director = not not self.pdf_signed
 
     def open_sign_wizard(self):

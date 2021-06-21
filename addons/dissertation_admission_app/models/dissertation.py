@@ -1,7 +1,6 @@
 from odoo import api, fields, models
 from odoo import exceptions
 import datetime
-import logging
 
 
 class Dissertation(models.Model):
@@ -48,7 +47,6 @@ class Dissertation(models.Model):
         ret = super(Dissertation, self).write(vals)
         self.check_unique_coadvisers()
         self.check_valid_courses(vals)
-        logging.info(vals)
         if not self.work_plan_id and 'student_id' in vals and vals['student_id']:
             return ret and self.env['dissertation_admission.work_plan'].sudo().create({
                 'dissertation': self.id,

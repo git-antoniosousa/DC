@@ -1,5 +1,4 @@
 from odoo import api, fields, models, exceptions
-import logging
 
 class Company(models.Model):
     _name = 'dissertation_admission.company'

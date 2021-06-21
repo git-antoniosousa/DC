@@ -35,25 +35,25 @@
 				<sheet string="Dissertação" >
 					<group>
 						<field name="id" required="True" id="id" invisible="True"/>
-						<field name="name" required="True" id="name" readonly="True"/>
-						<field name="name_en" required="True" id="name" readonly="True"/>
-						<field name="description" required="True" colspan="4" id="description" readonly="True"/>
-						<field name="state" required="True" id="state" readonly="True"/>
-						<field name="school_year" required="True" id="school_year" readonly="True"/>
-						<field name="is_public" id="is_public" readonly="True"/>
-						<field name="course" id="course" required="True" widget="many2many_tags" readonly="True"/>
+						<field string="Titulo" name="name" required="True" id="name" readonly="True"/>
+						<field string="Titulo Inglês" name="name_en" required="True" id="name" readonly="True"/>
+						<field string="Descrição" name="description" required="True" colspan="4" id="description" readonly="True"/>
+						<field string="Estado" name="state" required="True" id="state" readonly="True"/>
+						<field string="Ano Letivo" name="school_year" required="True" id="school_year" readonly="True"/>
+						<field string="Publico?" name="is_public" id="is_public" readonly="True"/>
+						<field string="Cursos" name="course" id="course" required="True" widget="many2many_tags" readonly="True"/>
 						<field string="Autor" name="create_uid" id="create_uid"/>
-						<field name="adviser_id" id="adviser_id"
+						<field string="Orientador" name="adviser_id" id="adviser_id"
 							   domain="['|',('perms','=','adviser'),('perms','=','director')]" readonly="True"/>
 						<field string="Coorientador Interno" name="coadviser_id_internal"
 							   id="coadviser_internal_id" readonly="True"/>
 						<field string="Coorientador Externo" name="coadviser_id_external"
 							   id="coadviser_external_id"
 							   attrs="{'readonly': [('state', '=', 'approved')]}" readonly="True"/>
-						<field name="student_id" id="student_id"
+						<field string="Estudante" name="student_id" id="student_id"
 							   domain="[('id', 'in', candidates)]" readonly="True"/>
-						<field name="candidates" id="candidates" widget="many2many_tags"/>
-						<field name="reviews" colspan="2" id="reviews" widget="many2many"
+						<field string="Candidatos" name="candidates" id="candidates" widget="many2many_tags"/>
+						<field string="Revisões" name="reviews" colspan="2" id="reviews" widget="many2many"
 							   context="{'default_dissertation': id}" domain="[('dissertation.id', '=', id)]">
 							<tree><field name="text"/></tree>
 						</field>
@@ -73,23 +73,23 @@
 				<sheet>
 					<group string="Dissertação">
 						<field name="id" required="True" id="id" invisible="True"/>
-						<field name="name" required="True" id="name"
+						<field string="Titulo" name="name" required="True" id="name"
 							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
-						<field name="name_en" required="True" id="name"
+						<field string="Titulo Inglês" name="name_en" required="True" id="name"
 							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
-						<field name="description" required="True" colspan="4" id="description"
+						<field string="Descrição" name="description" required="True" colspan="4" id="description"
 							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
-						<field name="state" required="True" id="state" readonly="True"
+						<field string="Estado" name="state" required="True" id="state" readonly="True"
 								attrs="{'invisible': [('create_uid', '=', False)]}"/>
-						<field name="school_year" required="True" id="school_year"
+						<field string="Ano Letivo" name="school_year" required="True" id="school_year"
 							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
-						<field name="is_public" id="is_public" readonly="True"
+						<field string="Publico?" name="is_public" id="is_public" readonly="True"
 								attrs="{'invisible': [('create_uid', '=', False)]}"/>
-						<field name="course" id="course" required="True" widget="many2many_tags"
+						<field string="Cursos" name="course" id="course" required="True" widget="many2many_tags"
 							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
 						<field string="Autor" name="create_uid" id="create_uid"
 							   attrs="{'invisible': [('create_uid', '=', False)]}"/>
-						<field name="adviser_id" id="adviser_id"
+						<field string="Orientador" name="adviser_id" id="adviser_id"
 							   domain="['|',('perms','=','adviser'),('perms','=','director')]"
 							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
 						<field string="Coorientador Interno" name="coadviser_id_internal"
@@ -98,12 +98,12 @@
 						<field string="Coorientador Externo" name="coadviser_id_external"
 							   id="coadviser_external_id"
 							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
-						<field name="work_plan_id" id="work_plan_id" invisible="True"/>
-						<field name="student_id" id="student_id" domain="[('id', 'in', candidates)]"
+						<field string="Plano de Trabalho" name="work_plan_id" id="work_plan_id" invisible="True"/>
+						<field string="Estudante" name="student_id" id="student_id" domain="[('id', 'in', candidates)]"
 							   attrs="{'readonly': [('work_plan_id', '!=', False)], 'invisible': [('create_uid', '=', False)]}"/>
-						<field name="candidates" id="candidates" widget="many2many"
+						<field string="Candidatos" name="candidates" id="candidates" widget="many2many"
 								attrs="{'invisible': [('create_uid', '=', False)]}"/>
-						<field name="reviews" colspan="2" id="reviews" widget="many2many"
+						<field string="Revisões" name="reviews" colspan="2" id="reviews" widget="many2many"
 							   context="{'default_dissertation': id}" domain="[('dissertation.id', '=', id)]"
                                readonly="True" attrs="{'invisible': [('create_uid', '=', False)]}">
 							<tree><field name="text"/></tree>
@@ -132,16 +132,16 @@
 				</header>
 				<sheet string="Dissertação">
 					<group>
-						<field name="name" required="True" id="name"/>
-						<field name="name_en" required="True" id="name"/>
-						<field name="description" required="True"  colspan="4" id="description"/>
-						<field name="course" id="course" required="True" widget="many2many_tags"/>
+						<field string="Titulo" name="name" required="True" id="name"/>
+						<field string="Titulo Inglês" name="name_en" required="True" id="name"/>
+						<field string="Descrição" name="description" required="True"  colspan="4" id="description"/>
+						<field string="Curso" name="course" id="course" required="True" widget="many2many_tags"/>
 						<field string="Autor" name="create_uid_internal" attrs="{'invisible': [('create_uid_internal', '=', False)]}"/>
 						<field string="Autor" name="create_uid_external" attrs="{'invisible': [('create_uid_external', '=', False)]}"/>
-						<field name="adviser_id" id="adviser_id"/>
-						<field name="coadviser_id_internal" attrs="{'invisible': [('coadviser_id_internal', '=', False)]}"/>
-						<field name="coadviser_id_external" attrs="{'invisible': [('coadviser_id_external', '=', False)]}"/>
-						<field name="candidates" id="candidates" widget="many2many_tags" readonly="True"/>
+						<field string="Orientador" name="adviser_id" id="adviser_id"/>
+						<field string="Coorientador" name="coadviser_id_internal" attrs="{'invisible': [('coadviser_id_internal', '=', False)]}"/>
+						<field string="Coorientador" name="coadviser_id_external" attrs="{'invisible': [('coadviser_id_external', '=', False)]}"/>
+						<field string="Candidatos" name="candidates" id="candidates" widget="many2many_tags" readonly="True"/>
 					</group>
 				</sheet>
 			</form>

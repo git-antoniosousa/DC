@@ -1,8 +1,6 @@
 from odoo import api, fields, models, exceptions
-import logging
 from . import user
 
-_logger = logging.getLogger(__name__)
 
 
 class Adviser(models.Model):

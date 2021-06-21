@@ -1,5 +1,4 @@
 from odoo import api, fields, models, exceptions
-import logging
 from . import user
 
 class Student(models.Model):
