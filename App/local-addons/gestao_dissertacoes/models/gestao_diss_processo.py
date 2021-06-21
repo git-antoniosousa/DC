@@ -58,34 +58,6 @@ class Processo(models.Model):
     # true se a declaracao do aluno foi enviada, false caso contrario
     declaracao_aluno_enviada = fields.Boolean(string="Declaração do aluno", default=False)
 
-    # --- wizards de erros ---
-    error_filled = {
-        'name': 'Mensagem de Erro',
-        'type': 'ir.actions.act_window',
-        'res_model': 'gest.wizard',
-        'view_mode': 'form',
-        'target': 'new',
-        'flags': {'form': {'action_buttons': False}}
-    }
-
-    error_state = {
-        'name': 'Mensagem de Erro',
-        'type': 'ir.actions.act_window',
-        'res_model': 'gest.state_error.wizard',
-        'view_mode': 'form',
-        'target': 'new',
-        'flags': {'form': {'action_buttons': False}}
-    }
-
-    juri_nao_preenchido = {
-        'name': 'Mensagem de Erro',
-        'type': 'ir.actions.act_window',
-        'res_model': 'gest.juri_nao_preenchido.wizard',
-        'view_mode': 'form',
-        'target': 'new',
-        'flags': {'form': {'action_buttons': False}}
-    }
-
     def write(self, vals):
         if self.estado == 'proposta_juri' and self.data_hora:
             dh = str(self.data_hora).split(" ")
@@ -108,21 +80,15 @@ class Processo(models.Model):
 
     # --- proposta do juri ---
     def prop_juri_action(self):
-        if self.estado != 'proposta_juri':
-            return self.error_state
-        if self.juri_presidente_id and self.juri_vogal_id and self.juri_vogal_id \
-                and self.data_hora and self.local and self.sala:
-            # cria o url da dissertacao
-            base_url = self.env['ir.config_parameter'].get_param('web.base.url')
-            full_url = base_url + "/web/content/" + str(self.dissertacao.id) + "?download=true"
-            # convites do juri
-            self.write({'dissertacao_url': full_url})
-            self.link_presidente()
-            self.link_arguente()
-            self.link_vogal()
-            return self.write({'estado': 'aguardar_confirmacao_juri'})
-        else:
-            return self.error_filled
+        # cria o url da dissertacao
+        base_url = self.env['ir.config_parameter'].get_param('web.base.url')
+        full_url = base_url + "/web/content/" + str(self.dissertacao.id) + "?download=true"
+        # convites do juri
+        self.write({'dissertacao_url': full_url})
+        self.link_presidente()
+        self.link_arguente()
+        self.link_vogal()
+        return self.write({'estado': 'aguardar_confirmacao_juri'})
 
     def undo_prop_juri_action(self):
         return self.write({'estado': 'correcoes'})
@@ -176,6 +142,9 @@ class Processo(models.Model):
             self.message_post_with_template(template_id.id)
             template_id.attachment_ids = [(3, id)]
             self.write({'primeira_ata_enviada': True})
+        else:
+            raise ValidationError("O ficheiro da ata da primeira reunião não foi encontrado."
+                                  " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
 
     # --- declaracao do aluno ---
     def declaracao_aluno_action(self):
@@ -196,6 +165,9 @@ class Processo(models.Model):
             self.message_post_with_template(template_id.id)
             template_id.attachment_ids = [(3, id)]
             self.write({'declaracao_aluno_enviada': True})
+        else:
+            raise ValidationError("O ficheiro da declaração do aluno não foi encontrado."
+                                  " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
 
     # --- ata da prova ---
     def ata_prova_action(self):
@@ -216,6 +188,9 @@ class Processo(models.Model):
             self.message_post_with_template(template_id.id)
             template_id.attachment_ids = [(3, id)]
             self.write({'ata_prova_enviada': True})
+        else:
+            raise ValidationError("O ficheiro da ata da prova não foi encontrado."
+                                  " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
 
     # --- registo da nota ---
     def registo_nota_action(self):
@@ -233,9 +208,8 @@ class Processo(models.Model):
 
     # --- finalizar ---
     def finalizar_action(self):
-        if self.estado != 'finalizado':
-            return self.error_state
-
+        pass
+    
     def undo_finalizar_action(self):
         return self.write({'estado': 'aguardar_versao_final'})
 

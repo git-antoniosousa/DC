@@ -20,7 +20,6 @@ class ReportController(main.ReportController):
                 reportname=reportname, docids=docids, converter=converter, **data
             )
         context = dict(request.env.context)
-
         if docids:
             docids = [int(i) for i in docids.split(",")]
         if data.get("options"):
