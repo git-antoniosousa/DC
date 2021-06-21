@@ -1,4 +1,6 @@
 from typing import DefaultDict
+import sys
+
 import werkzeug
 import sys
 from odoo import api, models, fields
@@ -56,36 +58,18 @@ class Processo(models.Model):
     attachment_ids = fields.Many2many('ir.attachment', 'attachment_id', string="Outros Documentos")
 
     dissertacao = fields.Many2one('ir.attachment', string="Dissertação")
-    # --- wizards de erros ---
-    error_filled = {
-        'name': 'Mensagem de Erro',
-        'type': 'ir.actions.act_window',
-        'res_model': 'gest.wizard',
-        'view_mode': 'form',
-        'target': 'new',
-        'flags': {'form': {'action_buttons': False}}
-    }
+
+    dissertacao_url = fields.Char(string="URL da Dissertacao")
 
     # --- verificacao de emails ---
     # true se os convites para o juri foram enviados, false caso contrario
     convites_juri_enviados = fields.Boolean(string="Convites Enviados", default=False)
-
-    # --- wizards de erros ---
-    error_state = {
-        'name': 'Mensagem de Erro',
-        'type': 'ir.actions.act_window',
-        'res_model': 'gest.state_error.wizard',
-        'view_mode': 'form',
-        'target': 'new',
-        'flags': {'form': {'action_buttons': False}}
-    }
-
-    def send_email(self):
-        # verificar se o url de callback já existe, só depois enviar email
-        # ou verificar se ao carregar no botao de enviar email, todos os campos desse estado estao preenchidos
-        # template_id = self.env.ref('gestao_dissertacoes.convite_presidente')
-        # self.message_post_with_template(template_id.id)
-        self.write({'convites_juri_enviados': 'sim'})
+    # true se a ata da primeira reunião foi enviada, false caso contrario
+    primeira_ata_enviada = fields.Boolean(string="Ata da Primeira Reunião", default=False)
+    # true se a ata da prova foi enviada, false caso contrario
+    ata_prova_enviada = fields.Boolean(string="Ata da Prova", default=False)
+    # true se a declaracao do aluno foi enviada, false caso contrario
+    declaracao_aluno_enviada = fields.Boolean(string="Declaração do aluno", default=False)
 
     def write(self, vals):
         if self.estado == 'proposta_juri' and self.data_hora:
@@ -109,19 +93,27 @@ class Processo(models.Model):
 
     # --- proposta do juri ---
     def prop_juri_action(self):
-        if self.estado != 'proposta_juri':
-            return self.error_state
-        if self.juri_presidente_id and self.juri_vogal_id and self.juri_vogal_id \
-                and self.data_hora and self.local and self.sala:
-            self.link_presidente()
-            self.link_arguente()
-            self.link_vogal()
-            return self.write({'estado': 'aguardar_confirmacao_juri'})
-        else:
-            return self.error_filled
+        # cria o url da dissertacao
+        base_url = self.env['ir.config_parameter'].get_param('web.base.url')
+        full_url = base_url + "/web/content/" + str(self.dissertacao.id) + "?download=true"
+        # convites do juri
+        self.write({'dissertacao_url': full_url})
+        self.link_presidente()
+        self.link_arguente()
+        self.link_vogal()
+        return self.write({'estado': 'aguardar_confirmacao_juri'})
 
     def undo_prop_juri_action(self):
         return self.write({'estado': 'correcoes'})
+
+    def enviar_convites_juri(self):
+        presidente = self.env.ref('gestao_dissertacoes.convite_presidente')
+        arguente = self.env.ref('gestao_dissertacoes.convite_arguente')
+        vogal = self.env.ref('gestao_dissertacoes.convite_vogal')
+        self.message_post_with_template(presidente.id)
+        self.message_post_with_template(arguente.id)
+        self.message_post_with_template(vogal.id)
+        self.write({'convites_juri_enviados': True})
 
     # --- confirmação do juri ---
     def juri_confirmado_action(self):
@@ -151,6 +143,22 @@ class Processo(models.Model):
     def undo_ata_primeira_reuniao_action(self):
         return self.write({'estado': 'homologacao'})
 
+    def enviar_ata_primeira_reuniao(self):
+        id = None
+        for obj in self.attachment_ids:
+            if obj.name == "ata-primeira-reuniao.pdf":
+                id = obj.id
+                break
+        if id:
+            template_id = self.env.ref('gestao_dissertacoes.ata_primeira_reuniao')
+            template_id.attachment_ids = [(4, id)]
+            self.message_post_with_template(template_id.id)
+            template_id.attachment_ids = [(3, id)]
+            self.write({'primeira_ata_enviada': True})
+        else:
+            raise ValidationError("O ficheiro da ata da primeira reunião não foi encontrado."
+                                  " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
+
     # --- declaracao do aluno ---
     def declaracao_aluno_action(self):
         return self.write({'estado': 'ata_prova'})
@@ -158,12 +166,44 @@ class Processo(models.Model):
     def undo_declaracao_aluno_action(self):
         return self.write({'estado': 'ata_primeira_reuniao'})
 
+    def enviar_declaracao_aluno(self):
+        id = None
+        for obj in self.attachment_ids:
+            if obj.name == "declaracao-aluno.pdf":
+                id = obj.id
+                break
+        if id:
+            template_id = self.env.ref('gestao_dissertacoes.declaracao_aluno')
+            template_id.attachment_ids = [(4, id)]
+            self.message_post_with_template(template_id.id)
+            template_id.attachment_ids = [(3, id)]
+            self.write({'declaracao_aluno_enviada': True})
+        else:
+            raise ValidationError("O ficheiro da declaração do aluno não foi encontrado."
+                                  " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
+
     # --- ata da prova ---
     def ata_prova_action(self):
         return self.write({'estado': 'registo_nota'})
 
     def undo_ata_prova_action(self):
         return self.write({'estado': 'declaracao_aluno'})
+
+    def enviar_ata_prova(self):
+        id = None
+        for obj in self.attachment_ids:
+            if obj.name == "ata-prova.pdf":
+                id = obj.id
+                break
+        if id:
+            template_id = self.env.ref('gestao_dissertacoes.ata_prova')
+            template_id.attachment_ids = [(4, id)]
+            self.message_post_with_template(template_id.id)
+            template_id.attachment_ids = [(3, id)]
+            self.write({'ata_prova_enviada': True})
+        else:
+            raise ValidationError("O ficheiro da ata da prova não foi encontrado."
+                                  " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
 
     # --- registo da nota ---
     def registo_nota_action(self):
@@ -181,9 +221,8 @@ class Processo(models.Model):
 
     # --- finalizar ---
     def finalizar_action(self):
-        if self.estado != 'finalizado':
-            return self.error_state
-
+        pass
+    
     def undo_finalizar_action(self):
         return self.write({'estado': 'aguardar_versao_final'})
 

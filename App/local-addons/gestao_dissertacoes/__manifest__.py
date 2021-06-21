@@ -25,6 +25,9 @@
              'data/convite_presidente.xml',
              'data/convite_arguente.xml',
              'data/convite_vogal.xml',
+             'data/ata_primeira_reuniao.xml',
+             'data/declaracao_aluno.xml',
+             'data/ata_prova.xml'
              ],
     'demo': [
         #'demo/alunos.xml',
