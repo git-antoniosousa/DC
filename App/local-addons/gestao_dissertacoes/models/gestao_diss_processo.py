@@ -22,8 +22,8 @@ class Processo(models.Model):
         now = datetime.now()
         ano = now.year
         mes = now.month
-        if mes <= 8: ano -= 1
-        return self.env['gest_diss.ano_letivo'].search([('ano_letivo', 'like', str(ano))], limit=1)
+        if mes <= 8: return self.env['gest_diss.ano_letivo'].search([('ano_letivo', 'like', f"{ano - 1}/{ano}")], limit=1)
+        return self.env['gest_diss.ano_letivo'].search([('ano_letivo', 'like', f"{ano}/{ano + 1}")], limit=1)
 
     ano_letivo = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo', default=_default_ano_letivo)
 
