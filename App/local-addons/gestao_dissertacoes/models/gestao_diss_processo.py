@@ -1,3 +1,4 @@
+from typing import DefaultDict
 import sys
 
 import werkzeug
@@ -6,11 +7,23 @@ from odoo import api, models, fields
 from odoo.exceptions import ValidationError, UserError
 from odoo.tools.translate import _
 from cryptography.fernet import Fernet
+import datetime
 
 class Processo(models.Model):
     _name = "gest_diss.processo"
     _inherit = ['gest_diss.aluno', 'gest_diss.defesa', 'gest_diss.juri', 'mail.thread']
     _description = 'Processo de gestão da dissertação'
+
+    # --- ano letivo ---
+    @api.model
+    def _default_ano_letivo(self):
+        now = datetime.datetime.now()
+        ano = now.year
+        mes = now.month
+        if mes <= 8: ano -= 1
+        return self.env['gest_diss.ano_letivo'].search([('ano_letivo', 'like', str(ano))], limit=1)
+
+    ano_letivo = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo', default=_default_ano_letivo)
 
     # --- desativa o trackback ---
     sys.tracebacklimit = 0
@@ -284,5 +297,4 @@ class Processo(models.Model):
         print(link)
         token = (fernet.encrypt(link.encode())).decode()
         url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
-        self.write({'convite_arguente_url' : url})
         self.write({'convite_arguente_url' : url})
