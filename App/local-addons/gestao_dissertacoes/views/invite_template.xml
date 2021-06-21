@@ -3,8 +3,6 @@
         <template id="processo">
             <head>
                 <title>Convocatória para Prova</title>
-
-                <script type="text/javascript" src="https://addevent.com/libs/atc/1.6.1/atc.min.js"></script>
             </head>
             <!-- Latest compiled and minified CSS -->
             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
@@ -55,20 +53,7 @@
                         <div class="d-flex">
                             <div class="p-2 mr-auto">
                                 <p><b>Dissertação:</b> <a t-attf-href="/web/content/#{invite_processo.dissertacao.id}" target="_blank"> Pré-visualizar</a> <a t-attf-href="/web/content/#{invite_processo.dissertacao.id}?download=true" target="_blank"> Download</a></p>
-                                <!-- Button code -->
-                                <div title="Adicionar ao calendário" class="addeventatc">
-                                    Adicionar ao calendário
-                                    <span class="start"><t t-esc="data_inicio"/></span>
-                                    <span class="end"><t t-esc="data_fim"/></span>
-                                    <span class="timezone">Europe/Lisbon</span>
-                                    <span class="title">Defesa Dissertação - Aluno <t t-esc="invite_processo.numero"/></span>
-                                    <t t-if="invite_processo.local == 'presencial'">
-                                        <span class="description">Defesa presencial da dissertação do aluno <t t-esc="invite_processo.numero"/> no <t t-esc="invite_processo.sala"/> da Universidade do Minho </span>
-                                    </t>
-                                    <t t-if="invite_processo.local == 'virtual'">
-                                        <span class="description">Defesavirtual da dissertação do aluno <t t-esc="invite_processo.numero"/> através do link <t t-esc="invite_processo.sala"/></span>
-                                    </t>
-                                </div>
+                                <button class="btn btn-secondary" onclick="download()">Adicionar ao Calendário</button>
                             </div>
                             <t t-if="existe">
                                 <div class="p-2">
@@ -132,27 +117,28 @@
                     </div>
                 </div>
             </div>
-            <script>
-            var ics = '<t t-esc="ics"/>';
+            <script text="text/javascript">
+                var ics = `<t t-esc="ics"/>`
+                var numero = "<t t-esc="invite_processo.numero"/>"
+                console.log(ics)
+                console.log("teste")
+                var year = new Date().getFullYear();
 
-            console.log(ics)
+                document.getElementById("footer").innerHTML = "Gestão de Dissertações - " + year
+                function download(){
+                    console.log("download")
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics));
+                    element.setAttribute('download', numero + '.ics');
 
-            var year = new Date().getFullYear();
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
 
-            document.getElementById("footer").innerHTML = "Gestão de Dissertações - " + year
+                    element.click();
+
+                    document.body.removeChild(element);
+                }
             </script>
-            <!-- Remove "AddEvent" from the dropdown with the following CSS -->
-                <style type="text/css">
-                .addeventatc_dropdown {padding:6px 0px;}
-                .addeventatc_dropdown .copyx {display:none;}
-                </style>
-                <script type="text/javascript">
-                window.addeventasync = function(){
-                    addeventatc.settings({
-                        dropdown   : {order:"google,appleical,office365,outlook,yahoo,outlookcom"}
-                    });
-                };
-                </script>
         </template>
 
         <template id="not-found">
