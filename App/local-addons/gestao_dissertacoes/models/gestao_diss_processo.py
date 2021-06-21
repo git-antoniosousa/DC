@@ -25,6 +25,9 @@ class Processo(models.Model):
     # --- homologacao ---
     data_homologacao = fields.Date(string="Data de Homologação")
 
+    # --- data primeira reuniao ---
+    data_primeira_reuniao = fields.Date(string="Data da Primeira Reunião")
+
     # --- estados do processo ---
     estado = fields.Selection([
         ('registo_inicial', 'Registo Inicial'),
@@ -209,7 +212,7 @@ class Processo(models.Model):
     # --- finalizar ---
     def finalizar_action(self):
         pass
-    
+
     def undo_finalizar_action(self):
         return self.write({'estado': 'aguardar_versao_final'})
 
