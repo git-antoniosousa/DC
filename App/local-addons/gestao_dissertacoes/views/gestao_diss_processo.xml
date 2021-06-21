@@ -76,6 +76,34 @@
         <field name="code">action = records.gerar_edital_action()</field>
     </record>
      -->
+    <!-- Attachment -->
+        <record id="view_dissertacao_form" model="ir.ui.view">
+            <field name="model">ir.attachment</field>
+            <field name="arch" type="xml">
+                <form string="Dissertação">
+                   <sheet>
+                    <label for="name" class="oe_edit_only" string="Nome"/>
+                    <h1>
+                        <field name="name" string="Nome Ficheiro"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="type" string="Tipo"/>
+                            <field string="Ficheiro" name="datas" filename="name" attrs="{'invisible':[('type','=','url')]}"/>
+                            <field string="Link" name="url" widget="url" attrs="{'invisible':[('type','=','binary')]}"/>
+                            <field name="mimetype" groups="base.group_no_one"/>
+                        </group>
+                        <group string="Privacidade" groups="base.group_no_one">
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" position="attributes">
+                                <attribute name="invisible">1</attribute>
+                            </field>
+                            <field string="Público" name="public" help="Se não estiver a público, outros utilizadores não têm acesso à dissertação"/>
+                        </group>
+                    </group>
+                  </sheet>
+                </form>
+            </field>
+        </record>
 
     <!-- Form View -->
     <record id="gestao_diss_processo_view_form" model="ir.ui.view">
@@ -134,8 +162,8 @@
                             <field name="coorientador_id" readonly="1"/>
                         </group>
                         <group>
-                            <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]"/>
-                            <field name="attachment_ids" widget="many2many_binary" class="oe_inline" />
+                            <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]" context="{'form_view_ref': 'gestao_dissertacoes.view_dissertacao_form', 'default_public': True}"/>
+                            <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/>
                         </group>
                         <group string="Júri" attrs="{'invisible': [('estado', 'in', ['registo_inicial','correcoes','proposta_juri'])]}">
                             <field name="juri_presidente_id" readonly="1"/>
@@ -167,7 +195,7 @@
                             <field name="coorientador_id"/>
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
-                            <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]" context="{'default_public': True}"/>
+                            <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]" context="{'form_view_ref': 'gestao_dissertacoes.view_dissertacao_form', 'default_public': True}"/>
                             <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/>
                         </group>
                         <!-- Correções  -->

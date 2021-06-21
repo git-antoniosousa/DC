@@ -6,11 +6,13 @@
         Write some description
     """,
     'author': "Joel Ferreira, João Linhares, Rui Azevedo",
-    'category': 'Uncategorized',
+    'category': 'Processo',
     'version': '1.0.0',
     'depends': ['base', 'report_py3o', 'mail'],
     'license': "LGPL-3",
     'data': [
+             'security/funcionario_security.xml',
+             'security/ir.model.access.csv',
              'views/gestao_diss_processo.xml',
              'views/gestao_diss_membro.xml',
              'views/gestao_diss_filiacao.xml',

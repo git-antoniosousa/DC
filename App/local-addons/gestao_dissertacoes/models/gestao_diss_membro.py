@@ -10,7 +10,7 @@ class Membro(models.Model):
 
     categoria = fields.Many2one('gest_diss.categoria', "Categoria", required=True)
 
-    filiacao_id = fields.Many2one('gest_diss.filiacao', 'Filiacao', domain = "[('tipo_de_filiacao','in',['u', 'e'])]")
+    filiacao_id = fields.Many2one('gest_diss.filiacao', 'Filiação', domain = "[('tipo_de_filiacao','in',['u', 'e'])]")
 
     departamento = fields.Many2one('gest_diss.filiacao', 'Departamento', domain = "[('tipo_de_filiacao','=','d')]")
 
