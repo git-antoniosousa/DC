@@ -3,11 +3,24 @@
     <record id="ata_primeira_reuniao" model="mail.template">
         <field name="name">Ata da Primeira Reunião</field>
         <field name="email_from">${object.env['ir.config_parameter'].get_param( "di_email") }</field>
-        <field name="email_to">${object.juri_presidente_id.email}</field>
-        <field name="subject">Ata da Primeira Reunião</field>
+        <field name="email_to">${object.juri_presidente_id.email}, ${object.juri_arguente_id.email}, ${object.juri_vogal_id.email}</field>
+        <field name="subject">${object.curso.codigo} - Provas de Mestrado - ${object.nome} – Proposta de Ata da 1ª Reunião do Júri</field>
         <field name="model_id" ref="gestao_dissertacoes.model_gest_diss_processo"/>
         <field name="body_html"><![CDATA[
-                Ata da primeira reunião
+        <p>Caros membros do júri,</p>
+        <p><br></p>
+        <p>junto segue para validação e assinatura a proposta de ata da 1ª reunião que antecede as provas requeridas pelo candidato ${object.nome}.</p>
+        <p><br></p>
+        <p>Solicito a sua verificação e assinatura se possível ainda hoje, por favor.</p>
+        <p><br></p>
+        <p>Tenham por favor em atenção ao ponto:</p>
+        <p>&nbsp; &nbsp; <i>iii) As atas de todas as reuniões do júri decorrentes destas provas públicas serão assinadas pelo Presidente do Júri e pelos vogais.</i></p>
+        <p><i><br></i></p>
+        <p>Devem, por favor, gerar PDF depois de verificação e devolver-me a versão final com assinaturas digitais (com cartão de cidadão ou chave móvel digital)</p>
+        <p><br></p>
+        <p>Muito obrigada.</p>
+        <p><br></p>
+        <p><br></p>
             ]]></field>
     </record>
 
