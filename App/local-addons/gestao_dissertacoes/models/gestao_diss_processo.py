@@ -169,7 +169,7 @@ class Processo(models.Model):
     def enviar_ata_primeira_reuniao(self):
         id = None
         for obj in self.attachment_ids:
-            if obj.name == "ata-primeira-reuniao.pdf":
+            if obj.name.split('.')[0] == "ata-primeira-reuniao":
                 id = obj.id
                 break
         if id:
@@ -192,7 +192,7 @@ class Processo(models.Model):
     def enviar_declaracao_aluno(self):
         id = None
         for obj in self.attachment_ids:
-            if obj.name == "declaracao-aluno.pdf":
+            if obj.name.split('.')[0] == "declaracao-aluno":
                 id = obj.id
                 break
         if id:
@@ -215,7 +215,7 @@ class Processo(models.Model):
     def enviar_ata_prova(self):
         id = None
         for obj in self.attachment_ids:
-            if obj.name == "ata-prova.pdf":
+            if obj.name.split('.')[0] == "ata-prova":
                 id = obj.id
                 break
         if id:
@@ -350,5 +350,4 @@ class Processo(models.Model):
         date_object = datetime.strptime(data, "%Y-%m-%d")
         mes = calendar.month_name[date_object.month]
         data_str = str(date_object.day) + '.' + mes[:3] + '.' + str(date_object.year)
-        return data_str
         return data_str
