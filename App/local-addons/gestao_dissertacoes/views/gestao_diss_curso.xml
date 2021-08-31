@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Search options -->
+    <record id="gestao_diss_curso_view_search" model="ir.ui.view">
+        <field name="name">gestao_diss_curso_view_search</field>
+        <field name="model">gest_diss.curso</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="codigo"/>
+                <field name="nome"/>
+                <field name="phone"/>
+                <field name="email"/>
+            </search>
+        </field>
+    </record>
+
+     <!-- Form -->
+    <record id="gestao_diss_curso_view_form" model="ir.ui.view">
+        <field name="name">curso_view_form</field>
+        <field name="model">gest_diss.curso</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <h1 class="oe_inline">Ficha Curso</h1>
+                    </group>
+                    <group string="Informação do Curso">
+                        <field name="nome" required="True"/>
+                        <field name="nome_ingles" required="True"/>
+                        <field name="codigo" required="True"/>
+                        <field name="area_cientifica_predominante"/>
+                        <field name="descricao"/>
+                        <field name="local"/>
+                        <field name="website" widget ="url"/>
+                    </group>
+                    <group string="Contactos">
+                        <field name="email" placeholder="Email de contacto" class="o_address_street"/>
+                        <field name="phone" placeholder="Número de contacto" class="o_address_street"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree(list) View -->
+    <record id="gestao_diss_curso_view_tree" model="ir.ui.view">
+        <field name="name">Listagem de Cursos</field>
+        <field name="model">gest_diss.curso</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="codigo"/>
+                <field name="nome"/>
+                <field name="descricao"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id='gestao_diss_curso_action' model='ir.actions.act_window'>
+        <field name="name">Gestão de Dissertações - Cursos</field>
+        <field name="res_model">gest_diss.curso</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('gestao_diss_curso_view_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('gestao_diss_curso_view_form')})]"/>
+        <field name="search_view_id" ref="gestao_diss_curso_view_search"/>
+    </record>
+
+    <menuitem name="Cursos" id="gestao_diss_curso_menu" parent="gestao_diss_menu_base" action="gestao_diss_curso_action" sequence="4"/>
+
+</odoo>

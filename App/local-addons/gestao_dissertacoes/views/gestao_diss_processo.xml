@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_backend" name="company logo assets" inherit_id="web.assets_backend">
+        <xpath expr="//link[last()]" position="after">
+            <link rel="stylesheet" href="/gestao_dissertacoes/static/src/css/aluno.css"/>
+            <link rel="stylesheet" href="/gestao_dissertacoes/static/src/css/processo.css"/>
+        </xpath>
+    </template>
+
+    <!-- Search options -->
+    <record id="gestao_diss_processo_view_search" model="ir.ui.view">
+        <field name="name">gestao_diss_processo_view_search</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="nome"/>
+                <field name="numero"/>
+                <field name="curso" widget="many2one"/>
+                <field name="email"/>
+                <field name="ano_letivo" widget="many2one"/>
+                <field name="juri_presidente_id" widget="many2one"/>
+                <field name="juri_arguente_id" widget="many2one"/>
+                <field name="juri_vogal_id" widget="many2one"/>
+                <field name="estado"/>
+                <field name="orientador_id" widget="many2one"/>
+                <field name="coorientador_id" widget="many2one"/>
+                <field name="data_hora"/>
+                <field name="local"/>
+                <field name="sala"/>
+                <field name="data_homologacao"/>
+                <group string="Datas">
+                    <filter string="Data de Homologação" name="filter_data_homologacao" date="data_homologacao"/>
+                    <filter string="Data de Defesa" name="filter_data_defesa" date="data_hora"/>
+                </group>
+                <newline/>
+                <group string="Estado">
+                    <filter name="filter_estado_registo_incial" string="Registo Inicial" domain="[('estado', '=', 'registo_inicial')]"/>
+                    <filter name="filter_estado_correcoes" string="Correções" domain="[('estado', '=', 'correcoes')]"/>
+                    <filter name="filter_estado_proposta_juri" string="Proposta Júri" domain="[('estado', '=', 'proposta_juri')]"/>
+                    <filter name="filter_estado_espera_confirmacao_juri" string="Aguardar Confirmação do Júri" domain="[('estado', '=', 'aguardar_confirmacao_juri')]"/>
+                    <filter name="filter_estado_espera_homologacao" string="Aguardar Homologação" domain="[('estado', '=', 'aguardar_homologacao')]"/>
+                    <filter name="filter_estado_homologacao" string="Homologação" domain="[('estado', '=', 'homologacao')]"/>
+                    <filter name="filter_estado_ata_primeira_reuniao" string="Ata da Primeira Reunião" domain="[('estado', '=', 'ata_primeira_reuniao')]"/>
+                    <filter name="filter_estado_declaracao_aluno" string="Declaração do Aluno" domain="[('estado', '=', 'declarao_aluno')]"/>
+                    <filter name="filter_estado_ata_prova" string="Ata da Prova" domain="[('estado', '=', 'ata_prova')]"/>
+                    <filter name="filter_estado_registo_nota" string="Registo de Nota" domain="[('estado', '=', 'registo_nota')]"/>
+                    <filter name="filter_estado_aguardar_versao_final" string="Aguardar Versão Final" domain="[('estado', '=', 'aguardar_versao_final')]"/>
+                    <filter name="filter_estado_finalizado" string="Finalizado" domain="[('estado', '=', 'finalizado')]"/>
+                </group>
+                <group expand="0" string="Agrupar por...">
+                    <filter name="group_by_estado" string="Estado" context="{'group_by':'estado'}"/>
+                    <filter name="group_by_orientador" string="Orientador" context="{'group_by':'orientador_id'}"/>
+                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="gestao_diss_processo_action" model="ir.actions.act_window">
+        <field name="name">Gestão de Dissertações - Processos</field>
+        <field name="res_model">gest_diss.processo</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="context">{'search_default_group_by_curso': 1}</field>
+        <field name="search_view_id" ref="gestao_diss_processo_view_search"/>
+    </record>
+
+    <menuitem name="Gestão de Dissertações" id="gestao_diss_menu_base" />
+    <menuitem name="Processos" id="gestao_diss_processo_menu" parent="gestao_diss_menu_base" action="gestao_diss_processo_action" sequence="1"/>
+
+    <!-- Action Gerar Edital
+    <record id="model_gest_diss_processo_gerar_edital_action" model="ir.actions.server">
+        <field name="name">Gerar Edital</field>
+        <field name="model_id" ref="gest_diss.processo"/>
+        <field name="binding_model_id" ref="gest_diss.processo"/>
+        <field name="binding_view_types">form,list</field>
+        <field name="code">action = records.gerar_edital_action()</field>
+    </record>
+     -->
+    <!-- Attachment -->
+        <record id="view_dissertacao_form" model="ir.ui.view">
+            <field name="model">ir.attachment</field>
+            <field name="arch" type="xml">
+                <form string="Dissertação">
+                   <sheet>
+                    <label for="name" class="oe_edit_only" string="Nome"/>
+                    <h1>
+                        <field name="name" string="Nome Ficheiro"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="type" string="Tipo"/>
+                            <field string="Ficheiro" name="datas" filename="name" attrs="{'invisible':[('type','=','url')]}"/>
+                            <field string="Link" name="url" widget="url" attrs="{'invisible':[('type','=','binary')]}"/>
+                            <field name="mimetype" groups="base.group_no_one"/>
+                        </group>
+                        <group string="Privacidade" groups="base.group_no_one">
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" position="attributes">
+                                <attribute name="invisible">1</attribute>
+                            </field>
+                            <field string="Público" name="public" help="Se não estiver a público, outros utilizadores não têm acesso à dissertação"/>
+                        </group>
+                    </group>
+                  </sheet>
+                </form>
+            </field>
+        </record>
+
+    <!-- Form View -->
+    <record id="gestao_diss_processo_view_form" model="ir.ui.view">
+        <field name="name">Formulário do Processo</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <form create="false">
+                <header>
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="registo_aluno_action" string="Registar Aluno" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_correcoes_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="correcoes_action" string="Registar Correções" type="object" attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_prop_juri_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}"/>
+                    <!-- enviar convites por email -->
+                    <button confirm="De certeza que quer enviar os convites para o júri? Pode verificar abaixo se os convites já foram enviados" name="enviar_convites_juri" string="Enviar Convites" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_confirmacao_juri'])]}"/>
+                    <!-- -->
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="prop_juri_action" string="Registar Júri" type="object" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado? Vai ter que reiniciar o processo de convite do júri" name="undo_juri_confirmado_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_confirmacao_juri'])]}"/>
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="juri_confirmado_action" string="Confirmar Júri" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_confirmacao_juri'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_aguardar_homologacao_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_homologacao'])]}"/>
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="aguardar_homologacao_action" string="Confirmar Homologação" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_homologacao'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_homologacao_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}"/>
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="homologacao_action" string="Registar Homologação" type="object" attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_ata_primeira_reuniao_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}"/>
+                    <!-- enviar ata primeira reuniao -->
+                    <button confirm="Tem a certeza que quer enviar a ata da primeira reunião?" name="enviar_ata_primeira_reuniao" string="Enviar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}"/>
+                    <!-- -->
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="ata_primeira_reuniao_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_declaracao_aluno_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['declaracao_aluno'])]}"/>
+                    <!-- enviar declaracao do aluno -->
+                    <button confirm="Tem a certeza que quer enviar a declaração para o aluno?" name="enviar_declaracao_aluno" string="Enviar Declaração" type="object" attrs="{'invisible': [('estado', 'not in', ['declaracao_aluno'])]}"/>
+                    <!-- -->
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="declaracao_aluno_action" string="Registar Declaração" type="object" attrs="{'invisible': [('estado', 'not in', ['declaracao_aluno'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_ata_prova_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}"/>
+                    <!-- enviar ata da prova -->
+                    <button confirm="Tem a certeza que quer enviar a ata da prova?" name="enviar_ata_prova" string="Enviar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}"/>
+                    <!-- -->
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="ata_prova_action" string="Registar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_registo_nota_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}"/>
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="registo_nota_action" string="Registar Nota" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_aguardar_versao_final_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_versao_final'])]}"/>
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="aguardar_versao_final_action" string="Registar Versão Final" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_versao_final'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_finalizar_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['finalizado'])]}"/>
+                    <field name="estado" widget="statusbar"/>
+                    <!---->
+                </header>
+                <sheet>
+                    <!-- Pin da informação do aluno -->
+                    <group attrs="{'invisible': [('estado', 'in', ['registo_inicial'])]}">
+                        <group string="Aluno">
+                            <field name="nome" readonly="1"/>
+                            <field name="numero" readonly="1"/>
+                            <field name="curso" readonly="1"/>
+                            <field name="email" readonly="1"/>
+                            <field name="diss_titulo" readonly="1"/>
+                            <field name="ano_letivo" readonly="1"/>
+                            <field name="orientador_id" readonly="1"/>
+                            <field name="coorientador_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]" context="{'form_view_ref': 'gestao_dissertacoes.view_dissertacao_form', 'default_public': True}"/>
+                            <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/>
+                        </group>
+                        <group string="Júri" attrs="{'invisible': [('estado', 'in', ['registo_inicial','correcoes','proposta_juri'])]}">
+                            <field name="juri_presidente_id" readonly="1"/>
+                            <field name="juri_arguente_id" readonly="1"/>
+                            <field name="juri_vogal_id" readonly="1"/>
+                            <field name="convite_presidente_url" readonly="1" widget ="url"/>
+                            <field name="convite_vogal_url" readonly="1" widget ="url"/>
+                            <field name="convite_arguente_url" readonly="1" widget ="url"/>
+                        </group>
+                        <group string="Convites">
+                            <field name="convites_juri_enviados" widget="checkbox" readonly="1"/>
+                            <field name="primeira_ata_enviada" widget="checkbox" readonly="1"/>
+                            <field name="ata_prova_enviada" widget="checkbox" readonly="1"/>
+                            <field name="declaracao_aluno_enviada" widget="checkbox" readonly="1"/>
+                        </group>
+                    </group>
+                    <hr/>
+                    <group>
+                        <!-- Registo Inicial -->
+                        <group string="Aluno" readonly="False" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
+                            <field name="nome" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <field name="numero" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <field name="curso" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <field name="email" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <field name="ano_letivo" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <field name="diss_titulo" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                        </group>
+                        <group string="Orientadores" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
+                            <field name="orientador_id" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <field name="coorientador_id"/>
+                        </group>
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
+                            <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]" context="{'form_view_ref': 'gestao_dissertacoes.view_dissertacao_form', 'default_public': True}"/>
+                            <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/>
+                        </group>
+                        <!-- Correções  -->
+                        <group attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}">
+                            <sheet>
+                                <div class="form-group">
+                                    <p>Correções</p>
+                                    <textarea id="w3review" name="w3review" rows="4" cols="50">
+                                        O ficheiro x não está bem preenchido
+                                    </textarea>
+                                    <button name="enviar_correcoes_action" string="Enviar Documento" type="object"/>
+                                    <button name="enviar_correcoes_action" string="Pré-Visualizar" type="object"/>
+                                </div>
+                            </sheet>
+                        </group>
+                        <!-- Proposta do Júri  -->
+                        <group string="Júri" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
+                            <field name="juri_presidente_id" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
+                            <field name="juri_arguente_id" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
+                            <field name="juri_vogal_id" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
+                        </group>
+                        <!-- Aguardar confirmação do júri  -->
+                        <group attrs="{'invisible': [('estado', 'not in', ['aguardar_confirmacao_juri'])]}">
+                            <sheet>
+                                <h1 style="margin-bottom: 20px"><u>Aguardar pela resposta do Júri</u></h1>
+                                <group string="Convites">
+                                    <field name="convite_presidente" readonly="1"/>
+                                    <field name="convite_vogal" readonly="1"/>
+                                    <field name="convite_arguente" readonly="1"/>
+                                </group>
+                            </sheet>
+                        </group>
+                        <!-- Aguardar pela Homologação  -->
+                        <group attrs="{'invisible': [('estado', 'not in', ['aguardar_homologacao'])]}">
+                            <sheet>
+                                <h1 style="margin-bottom: 20px"><u>Aguardar pela Homologação</u></h1>
+                            </sheet>
+                        </group>
+                        <group string="Defesa" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
+                            <field name="data_hora" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
+                            <field name="local" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
+                            <field name="sala" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
+                        </group>
+                        <!-- Homologação  -->
+                        <group attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}">
+                            <field name="data_homologacao" attrs="{'required' :[('estado','in',['homologacao'])]}"/>
+                        </group>
+                        <!-- Ata Primeira Reunião -->
+                        <group attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}">
+                            <field name="data_hora_primeira_reuniao" attrs="{'required' :[('estado','in',['ata_primeira_reuniao'])]}"/>
+                        </group>
+                        <h6 attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}">Adicionar ficheiro da ata com o seguinte nome: ata-primeira-reuniao</h6>
+                        <!-- Declaração do Aluno -->
+                        <h6 attrs="{'invisible': [('estado', 'not in', ['declaracao_aluno'])]}">Adcionar ficheiro da declaração com o seguinte nome: declaracao-aluno</h6>
+                        <!-- Ata da Prova -->
+                        <h6 attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}">Adcionar ficheiro da ata com o seguinte nome: ata-prova</h6>
+                        <!-- Registo de Nota  -->
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
+                            <field name="nota" attrs="{'required' :[('estado','in',['registo_nota'])]}"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree(list) View -->
+    <record id="gestao_diss_processo_view_tree" model="ir.ui.view">
+        <field name="name">Listagem de Processos</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="nome"/>
+                <field name="numero"/>
+                <field name="email"/>
+                <field name="curso" widget="many2one"/>
+                <field name="ano_letivo" widget="many2one"/>
+                <field name="juri_presidente_id" widget="many2one"/>
+                <field name="juri_arguente_id" widget="many2one"/>
+                <field name="juri_vogal_id" widget="many2one"/>
+                <field name="orientador_id" widget="many2one"/>
+                <field name="coorientador_id" widget="many2one"/>
+                <field name="data_hora" optional="hide"/>
+                <field name="local" optional="hide"/>
+                <field name="sala" optional="hide"/>
+                <field name="data_homologacao" optional="hide"/>
+                <field name="convites_aceites" optional="hide"/>
+                <field name="estado"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

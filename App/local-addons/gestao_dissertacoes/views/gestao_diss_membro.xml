@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Search options -->
+    <record id="gestao_diss_membro_view_search" model="ir.ui.view">
+        <field name="name">gestao_diss_membro_view_search</field>
+        <field name="model">gest_diss.membro</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="filiacao_id" widget="many2one"/>
+                <field name="departamento" widget="many2one"/>
+                <field name="centro_investigacao" widget="many2one"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="categoria" widget="many2one"/>
+                <newline/>
+                <group>
+                    <filter name="filter_uminho" string="Universidade do Minho" domain="[('filiacao_id', '=', 'Universidade do Minho')]"/>
+                    <filter name="filter_di" string="Departamento de Informática" domain="[('departamento', '=', 'Departamento de Informática')]"/>
+                    <newline/>
+                    <filter name="filter_docente" string="Docentes" domain="[('tipo_de_membro', '=', 'dc')]"/>
+                    <filter name="filter_arguente" string="Arguentes" domain="[('tipo_de_membro', '=', 'arg')]"/>
+                </group>
+                <group expand="0" string="Agrupar por...">
+                    <filter name="group_by_filiacao" string="Filiação" context="{'group_by':'filiacao_id'}"/>
+                    <filter name="group_by_departamento" string="Departamento" context="{'group_by':'departamento'}"/>
+                    <filter name="group_by_centro_inv" string="Centro de Investigação" context="{'group_by':'centro_investigacao'}"/>
+                    <filter name="group_by_categoria" string="Categoria" context="{'group_by':'categoria'}"/>
+                    <filter name="group_by_tipo_de_membro" string="Tipo de Membro" context="{'group_by':'tipo_de_membro'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Form -->
+    <record id="gestao_diss_membro_view_form" model="ir.ui.view">
+        <field name="name">membro_view_form</field>
+        <field name="model">gest_diss.membro</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <h1 class="oe_inline">Ficha Membro</h1>
+                    </group>
+                    <group string="Informação Pessoal">
+                        <field name="name" required="True"/>
+                        <field name="tipo_de_membro" widget="radio" required="True"/>
+                        <field name="email" required="True"/>
+                        <field name="email_facultativo"/>
+                        <field name="phone"/>
+                        <field name="website" widget ="url"/>
+                    </group>
+                    <group string="Filiação">
+                        <field name="filiacao_id" placeholder="Empresa ou Universidade associada" class="o_address_street"/>
+                        <field name="departamento" placeholder="Departamento" class="o_address_street"/>
+                        <field name="centro_investigacao" placeholder="Centro de Investigação" class="o_address_street"/>
+                        <field name="categoria" placeholder="Categoria" class="o_address_street"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree(list) View -->
+    <record id="gestao_diss_membro_view_tree" model="ir.ui.view">
+        <field name="name">Listagem de Membros</field>
+        <field name="model">gest_diss.membro</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="categoria" widget="many2one" optional="show"/>
+                <field name="filiacao_id" widget="many2one"/>
+                <field name="departamento" widget="many2one" optional="show"/>
+                <field name="centro_investigacao" widget="many2one" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Adicionar depois aqui uma search view com filtros etc, ver exemplo do codigo chapter 12 da drive que coloquei no discord -->
+
+    <record id='gestao_diss_membro_action' model='ir.actions.act_window'>
+        <field name="name">Gestão de Dissertações - Membros</field>
+        <field name="res_model">gest_diss.membro</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('gestao_diss_membro_view_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('gestao_diss_membro_view_form')})]"/>
+        <field name="search_view_id" ref="gestao_diss_membro_view_search"/>
+    </record>
+
+    <menuitem name="Membros" id="gestao_diss_membro_menu" parent="gestao_diss_menu_base" action="gestao_diss_membro_action" sequence="2"/>
+
+</odoo>

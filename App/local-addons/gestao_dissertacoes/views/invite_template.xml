@@ -1,0 +1,181 @@
+<odoo>
+    <data>
+        <template id="processo">
+            <head>
+                <title>Convocatória para Prova</title>
+            </head>
+            <!-- Latest compiled and minified CSS -->
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+
+            <!-- jQuery library -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+            <!-- Popper JS -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+            <!-- Latest compiled JavaScript -->
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+            <div class="container pt-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Convocatória para Prova</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-around">
+                            <div class="p-2 container ">
+                                <div class="card">
+                                    <p class="mx-3 mt-3"><b>Nome:</b> <t t-esc="invite_processo.nome"/></p>
+                                    <p class="mx-3"><b>Número:</b> <t t-esc="invite_processo.numero"/></p>
+                                    <p class="mx-3"><b>Título:</b> <t t-esc="invite_processo.diss_titulo"/></p>
+                                    <p class="mx-3"><b>Curso:</b> <t t-esc="invite_processo.curso.nome"/></p>
+                                    <p class="mx-3"><b>Orientador:</b> <t t-esc="invite_processo.orientador_id.name"/></p>
+                                    <p class="mx-3 mb-3"><b>Coorientador:</b> <t t-esc="invite_processo.coorientador_id.name"/></p>
+                                </div>
+                            </div>
+                            <div class="p-2 container">
+                                <div class="card">
+                                    <p class="mx-3 mt-3"><b>Presidente:</b> <t t-esc="invite_processo.juri_presidente_id.name"/></p>
+                                    <p class="mx-3"><b>Arguente:</b> <t t-esc="invite_processo.juri_arguente_id.name"/></p>
+                                    <p class="mx-3"><b>Vogal:</b> <t t-esc="invite_processo.juri_vogal_id.name"/></p>
+                                    <p class="mx-3"><b>Data:</b> <t t-esc="data"/></p>
+                                    <t t-if="invite_processo.local == 'presencial'">
+                                        <p class="mx-3"><b>Tipo de Defesa:</b> Presencial</p>
+                                        <p class="mx-3 mb-3"><b>Local:</b> <t t-esc="invite_processo.sala"/></p>
+                                    </t>
+                                    <t t-if="invite_processo.local == 'virtual'">
+                                        <p class="mx-3"><b>Tipo de Defesa:</b> Virtual</p>
+                                        <p class="mx-3 mb-3"><b>Link Zoom:</b> <a t-attf-href="#{invite_processo.sala}" target="_blank">Link</a></p>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <div class="p-2 mr-auto">
+                                <p><b>Dissertação:</b> <a t-attf-href="/web/content/#{invite_processo.dissertacao.id}" target="_blank"> Pré-visualizar</a> <a t-attf-href="/web/content/#{invite_processo.dissertacao.id}?download=true" target="_blank"> Download</a></p>
+                                <button class="btn btn-secondary" onclick="download()">Adicionar ao Calendário</button>
+                            </div>
+                            <t t-if="existe">
+                                <div class="p-2">
+                                    <t t-if="status == 'aguardar'">
+                                        <button class="btn btn-success" data-toggle="modal" data-target="#modalAceitar">Aceitar</button>
+                                        <button class="btn btn-danger" data-toggle="modal" data-target="#modalRejeitar">Rejeitar</button>
+                                    </t>
+                                    <t t-if="status == 'aceitado'">
+                                        <p>Convite Aceite</p>
+                                    </t>
+                                    <t t-if="status == 'rejeitado'">
+                                        <p>Convite Rejeitado. Pretende mudar decisão?</p>
+                                        <button class="btn btn-success" data-toggle="modal" data-target="#modalAceitar">Aceitar</button>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                    <div class="card-footer"><p class="text-center" id="footer"></p></div>
+                </div>
+                <!-- Modal Aceitar -->
+                <div class="modal fade" id="modalAceitar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Confirmação convite</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Pretende aceitar o convite?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                <form>
+                                    <button type="submit" name="convite" class="btn btn-success" value="aceitado">Aceitar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal Rejeitar -->
+                <div class="modal fade" id="modalRejeitar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Confirmação convite</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Pretende rejeitar o convite?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                                <form>
+                                    <button type="submit" name="convite" class="btn btn-danger" value="rejeitado">Rejeitar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script text="text/javascript">
+                var ics = `<t t-esc="ics"/>`
+                var numero = "<t t-esc="invite_processo.numero"/>"
+                console.log(ics)
+                console.log("teste")
+                var year = new Date().getFullYear();
+
+                document.getElementById("footer").innerHTML = "Gestão de Dissertações - " + year
+                function download(){
+                    console.log("download")
+                    var element = document.createElement('a');
+                    element.setAttribute('href', 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics));
+                    element.setAttribute('download', numero + '.ics');
+
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+
+                    element.click();
+
+                    document.body.removeChild(element);
+                }
+            </script>
+        </template>
+
+        <template id="not-found">
+            <head>
+                <title>Convocatória para Prova</title>
+            </head>
+            <!-- Latest compiled and minified CSS -->
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+
+            <!-- jQuery library -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+            <!-- Popper JS -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+            <!-- Latest compiled JavaScript -->
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <div class="container pt-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Convocatória para Prova</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-around">
+                            <h1><t t-esc="code"/> - <t t-esc="msg"/></h1>
+                        </div>
+                    </div>
+                    <div class="card-footer"><p class="text-center" id="footer"></p></div>
+                </div>
+            </div>
+            <script>
+
+            var year = new Date().getFullYear();
+
+            document.getElementById("footer").innerHTML = "Gestão de Dissertações - " + year
+
+            </script>
+        </template>
+    </data>
+</odoo>

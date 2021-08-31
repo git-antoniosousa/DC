@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="gerar_form_candidato_wizard" model="ir.ui.view">
+        <field name="name">gerar_form_candidato.wizard</field>
+        <field name="model">gest_diss.form_candidato_doc</field>
+        <field name="arch" type="xml">
+            <form string="Adicionar Processos">
+                <group>
+                    <field name="linguagem" />
+                </group>
+                <group>
+                    <field name="tipo_ficheiro" />
+                </group>
+                <group>
+                    <field name="processos_ids" />
+                </group>
+                <footer>
+                    <button name="gerar_doc" type="object"
+                            string="Gerar Formulário do Candidato" class="oe_highlight"/>
+                    ou
+                    <button special="cancel" string="Cancelar"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="abrir_gerar_form_candidato_wizard"
+            name="Gerar Formulário Candidato"
+            binding_model="gest_diss.processo"
+            res_model="gest_diss.form_candidato_doc"
+            view_mode="form"
+            target="new"/>
+</odoo>

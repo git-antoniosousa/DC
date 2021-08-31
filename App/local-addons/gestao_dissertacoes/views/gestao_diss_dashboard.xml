@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Search options -->
+    <record id="gestao_diss_dashboard_view_search" model="ir.ui.view">
+        <field name="name">gestao_diss_dashboard_view_search</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="numero"/>
+                <field name="nome"/>
+                <field name="nota"/>
+                <field name="diss_titulo"/>
+                <field name="curso" widget="many2one"/>
+                <field name="ano_letivo" widget="many2one"/>
+<!--                <field name="juri_id" widget="many2one"/>-->
+                <field name="orientador_id" widget="many2one"/>
+                <field name="coorientador_id" widget="many2one"/>
+                <group expand="0" string="Agrupar por...">
+                    <filter name="group_by_nota" string="Nota" context="{'group_by':'nota'}"/>
+                    <filter name="group_by_orientador" string="Orientador" context="{'group_by':'orientador_id'}"/>
+                    <filter name="group_by_curso" string="Curso" context="{'group_by':'curso'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Tree(list) View -->
+    <record id="gestao_diss_dashboard_view_tree" model="ir.ui.view">
+        <field name="name">Listagem de Processos Finalizados</field>
+        <field name="model">gest_diss.processo</field>
+        <field name="arch" type="xml">
+            <tree create="false">
+                <field name="numero"/>
+                <field name="nome"/>
+                <field name="email"/>
+                <field name="curso" widget="many2one"/>
+                <field name="ano_letivo" widget="many2one"/>
+                <field name="diss_titulo"/>
+                <field name="nota"/>
+<!--                <field name="juri_id" optional="hide" widget="many2one"/>-->
+                <field name="orientador_id" optional="hide" widget="many2one"/>
+                <field name="coorientador_id" optional="hide" widget="many2one"/>
+            </tree>
+        </field>
+    </record>
+
+    <!--  Ignorar para já este record, temos de apagar isto e ver como se da add de records de dashboard -->
+     
+    <record id='gestao_diss_dashboard_action' model='ir.actions.act_window'>
+        <field name="name">Gestão de Dissertações - Dashboard</field>
+        <field name="res_model">gest_diss.processo</field>
+        <field name="view_mode">form,tree,kanban</field>
+        <field name="domain">
+                [('estado', '=', 'finalizado')]
+            </field>
+        <field name="view_ids" eval="[(5, 0, 0),
+
+ (0, 0, {'view_mode': 'tree', 'view_id': ref('gestao_diss_dashboard_view_tree')})
+]"/>
+    <field name="search_view_id" ref="gestao_diss_dashboard_view_search"/>
+    </record>
+    
+    <menuitem name="Dashboard" id="gestao_diss_dashboard_menu" parent="gestao_diss_menu_base" action="gestao_diss_dashboard_action" sequence="7"/>
+    
+</odoo>

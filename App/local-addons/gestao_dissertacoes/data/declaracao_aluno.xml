@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="declaracao_aluno" model="mail.template">
+        <field name="name">Declaração do Aluno</field>
+        <field name="email_from">${object.env['ir.config_parameter'].get_param( "di_email") }</field>
+        <field name="email_to">${object.email}</field>
+        <field name="subject">${object.curso.codigo} - Provas de Mestrado - ${object.nome} - anexo 4 (candidato)</field>
+        <field name="model_id" ref="gestao_dissertacoes.model_gest_diss_processo"/>
+        <field name="body_html"><![CDATA[
+        <p>Caro ${object.nome},</p>
+        <p><br></p>
+        <p>o seu pedido de provas de mestrado já foi validado pela Direção de Curso.</p>
+        <p><br></p>
+        <p>De acordo com a Nota Informativa (NI) EEUM-CP-03/2020 sobre o Regime excecional e temporário de funcionamento de júris e provas académicas - Mestrado, e cumprindo o seu ponto 3, alínea iii) solicita-se que preencha, por favor, o anexo 4, e nos devolva o mesmo com a sua assinatura (digital ou manual - ver NI).</p>
+        <p><br></p>
+        <p>Agradecemos o envio, ainda hoje se possível em resposta a este email.</p>
+        <p><br></p>
+        <p>Importante: Deve editar o documento e colocar o seu nome e curso.</p>
+        <p><br></p>
+        <p>Muito obrigada,&nbsp;</p>
+        <p><br></p>
+        <p>Melhores Cumprimentos,</p>
+        <p><br></p>
+        <p>Direção de Curso</p>
+            ]]></field>
+    </record>
+
+</odoo>
