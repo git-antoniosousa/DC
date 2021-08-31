@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<odoo>
+  <record id="module_dissertation_admission_category" model="ir.module.category">
+    <field name="name">Dissertation Admission</field>
+  </record>
+
+  <!-- Dissertation User Group -->
+  <record id="dissertation_admission_group_user" model="res.groups">
+    <field name="name">Utilizador</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+
+  <!-- Dissertation Student Group -->
+  <record id="dissertation_admission_group_student" model="res.groups">
+    <field name="name">Aluno</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('dissertation_admission_app.dissertation_admission_group_user'))]"/>
+  </record>
+
+  <!-- Dissertation Coadviser Group -->
+  <record id="dissertation_admission_group_coadviser" model="res.groups">
+    <field name="name">Coorientador</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('dissertation_admission_app.dissertation_admission_group_user'))]"/>
+  </record>
+
+  <!-- Dissertation Course Company Employee Group -->
+  <record id="dissertation_admission_group_company_employee" model="res.groups">
+    <field name="name">Funcionario Empresa</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('dissertation_admission_app.dissertation_admission_group_user'))]"/>
+  </record>
+
+  <!-- Dissertation Adviser Group -->
+  <record id="dissertation_admission_group_adviser" model="res.groups">
+    <field name="name">Orientador</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('dissertation_admission_app.dissertation_admission_group_coadviser'))]"/>
+  </record>
+
+  <!-- Dissertation Direction Group -->
+  <record id="dissertation_admission_group_direction" model="res.groups">
+    <field name="name">Secretaria Direção de Curso</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('dissertation_admission_app.dissertation_admission_group_user'))]"/>
+  </record>
+
+  <!-- Dissertation Course Director Group -->
+  <record id="dissertation_admission_group_course_director" model="res.groups">
+    <field name="name">Direção de Curso</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('dissertation_admission_app.dissertation_admission_group_adviser')), (4, ref('dissertation_admission_app.dissertation_admission_group_direction'))]"/>
+  </record>
+
+  <!-- Dissertation Course Admin Group -->
+  <record id="dissertation_admission_group_admin" model="res.groups">
+    <field name="name">Administrador</field>
+    <field name="category_id" ref="module_dissertation_admission_category"/>
+    <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+
+</odoo>

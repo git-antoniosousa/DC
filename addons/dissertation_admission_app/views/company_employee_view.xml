@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <!-- Company Employee Form -->
+    <record id="view_dissertation_admission_company_employee_form" model="ir.ui.view">
+        <field name="name">Company Employee Form</field>
+        <field name="model">dissertation_admission.company_employee</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet string="Funcionario Empresa" >
+                    <field name="create_uid" id="user_id" invisible="True"/>
+                    <group>
+                        <field string="Utilizador" name="user_id" on_change="1" required="True" id="user_id"
+                               attrs="{'readonly': [('create_uid', '!=', False)]}"/>
+                        <field string="Email" name="email" readonly="True"
+                               attrs="{'invisible': [('create_uid', '=', False)]}"/>
+                        <field string="Empresa" name="company_id" required="True" id="company_id"/>
+                        <field string="Cursos" name="courses" required="True" id="courses" widget="many2many_tags" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_dissertation_admission_company_employee" model="ir.actions.act_window">
+        <field name="name">Funcionario Empresa</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">dissertation_admission.company_employee</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_dissertation_admission_company_employee"
+              name="Funcionario Empresa"
+              groups="dissertation_admission_group_direction,dissertation_admission_group_admin"
+              action="action_dissertation_admission_company_employee"
+              parent="dissertation_admission_manage_menu" />
+
+</odoo>

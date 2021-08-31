@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<odoo>
+    <record model="ir.ui.view" id="publish_dissertation_wizard_form">
+        <field name="name">dissertation_admission_publish_dissertation_wizard_view</field>
+        <field name="model">dissertation_admission.publish_dissertation_wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml" >
+            <form string="Selecionar dissertações" create="false" edit="false">
+                <field name="dissertations"
+                       domain="['&amp;', ('is_public', '=', False), ('state', '=', 'approved')]">
+                    <tree create="false">
+                        <field name="name" string="Titulo"/>
+                        <field name="name_en" string="Titulo Inglês"/>
+                        <field name="create_uid" string="Autor"/>
+                        <field name="adviser_id" string="Orientador"/>
+                        <field name="school_year" string="Ano Letivo"/>
+                    </tree>
+                </field>
+            </form>
+            <footer>
+                <button string="Confirmar" name="confirm"
+                        type="object" class="oe_highlight oe_read_only"/>
+                <button string="Cancelar" special="cancel"/>
+            </footer>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="publish_dissertation_wizard_action">
+        <field name="name">Publicar dissertações</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">dissertation_admission.publish_dissertation_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="view_id" ref="publish_dissertation_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

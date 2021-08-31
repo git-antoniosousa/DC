@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+  web:
+    image: odoo:14.0
+    depends_on:
+      - db
+      - dss-server
+    ports:
+      - "8069:8069"
+    volumes:
+      - ./addons:/mnt/extra-addons
+      - ./templates:/mnt/templates
+      - ./config:/mnt/config
+  db:
+    image: postgres:10
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+  dss-server:
+    build: 
+      context: ./DSS-Server

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <!-- Adviser Form -->
+    <record id="view_dissertation_admission_adviser_form" model="ir.ui.view">
+        <field name="name">Adviser Form</field>
+        <field name="model">dissertation_admission.adviser</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet string="Orientador" >
+                    <field name="create_uid" id="user_id" invisible="True"/>
+                    <group>
+                        <field string="Utilizador" name="user_id" on_change="1" required="True" id="user_id"
+                               attrs="{'readonly': [('create_uid', '!=', False)]}"/>
+                        <field string="Email" name="email" readonly="True"
+                               attrs="{'invisible': [('create_uid', '=', False)]}"/>
+                        <field string="Número Mecanográfico" name="university_id" required="True" id="university_id"/>
+                        <field string="Cursos" name="courses" required="True" id="courses" widget="many2many_tags" />
+                        <field string="Centro de Investigação" name="investigation_center" id="investigation_center" />
+                        <field string="Departamento" name="department" id="department" />
+                        <field string="Permissões" name="perms" id="perms"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dissertation_admission_adviser" model="ir.ui.view">
+        <field name="name">adviser_view_tree</field>
+        <field name="model">dissertation_admission.adviser</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field string="Nome" name="name"/>
+                <field string="Email" name="email"/>
+                <field string="Identificação Universitaria" name="university_id"/>
+                <field string="Permissões" name="perms"/>
+                <field string="Cursos" name="courses"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_dissertation_admission_adviser" model="ir.actions.act_window">
+        <field name="name">Orientadores</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">dissertation_admission.adviser</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <menuitem id="menu_dissertation_admission_adviser"
+              name="Orientadores"
+              groups="dissertation_admission_group_admin,dissertation_admission_group_direction"
+              action="action_dissertation_admission_adviser"
+              parent="dissertation_admission_manage_menu" />
+
+</odoo>

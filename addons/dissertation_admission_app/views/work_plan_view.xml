@@ -1,0 +1,79 @@
+<odoo>
+    <record id="view_dissertation_admission_work_plan_form" model="ir.ui.view">
+        <field name="name">Dissertation Simple Form</field>
+        <field name="model">dissertation_admission.work_plan</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Assinar Planos de Estudo" type="object"
+                            name="open_sign_wizard" class="oe_highlight oe_read_only"
+                            groups="dissertation_admission_app.dissertation_admission_group_course_director"/>
+                    <button string="Upload Plano de Trabalho" type="action"
+                            name="%(upload_work_plan_wizard_action)d" class="oe_highlight oe_read_only"
+                            groups="dissertation_admission_app.dissertation_admission_group_student"/>
+                    <button string="Upload Pré Tese" type="action"
+                            name="%(upload_pre_thesis_wizard_action)d" class="oe_highlight oe_read_only"
+                            groups="dissertation_admission_app.dissertation_admission_group_student"/>
+                    <button string="Transferir template latex" name="download_latex" type="object"
+                            class="oe_highlight oe_read_only"
+                            groups="dissertation_admission_app.dissertation_admission_group_student"/>
+                    <button string="Transferir template word" name="download_word" type="object"
+                            class="oe_highlight oe_read_only"
+                            groups="dissertation_admission_app.dissertation_admission_group_student"/>
+                </header>
+                <sheet string="Plano de Trabalho">
+                    <group>
+                        <field string="Dissertação" name="dissertation" required="True"/>
+                        <field string="Aluno" name="student" required="True"/>
+                        <field string="Plano de Trabalho" name="pdf" filename="pdf_fname"/>
+                        <field name="pdf_fname" invisible="True"/>
+                        <field string="Plano de Trabalho Assinado" name="pdf_signed" filename="pdf_signed_fname"/>
+                        <field name="pdf_signed_fname" invisible="True"/>
+                        <field string="Verificado" name="verified"
+                               groups="dissertation_admission_app.dissertation_admission_group_direction"/>
+                        <field string="Assinado Diretor de Curso" name="signed_director"/>
+                        <field string="Pré-Tese" name="pdf_pre_thesis" filename="pdf_pre_thesis_fname"/>
+                        <field name="pdf_pre_thesis_fname" invisible="True"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dissertation_admission_work_plan_view_tree" model="ir.ui.view">
+        <field name="name">work_plan_view_tree</field>
+        <field name="model">dissertation_admission.work_plan</field>
+        <field name="arch" type="xml">
+            <tree create="false">
+                <field name="dissertation" string="Tema"/>
+                <field name="student" string="Aluno"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_dissertation_admission_work_plan_student" model="ir.actions.act_window">
+        <field name="name">Plano de Trabalho</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">dissertation_admission.work_plan</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_dissertation_admission_work_plan_student"
+              name="Plano de Trabalho"
+              groups="dissertation_admission_group_student"
+              action="action_dissertation_admission_work_plan_student"
+              parent="dissertation_admission_menu" />
+
+    <record id="action_dissertation_admission_work_plan" model="ir.actions.act_window">
+        <field name="name">Planos de Trabalho</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">dissertation_admission.work_plan</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_dissertation_admission_work_plan"
+              name="Planos de Trabalho"
+              groups="dissertation_admission_group_direction,dissertation_admission_group_company_employee,dissertation_admission_group_coadviser"
+              action="action_dissertation_admission_work_plan"
+              parent="dissertation_admission_menu" />
+</odoo>

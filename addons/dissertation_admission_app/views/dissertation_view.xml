@@ -1,0 +1,261 @@
+<?xml version="1.0"?>
+<odoo>
+
+	<!-- FORM VIEWS -->
+
+	<!-- Dissertation Director Form -->
+	<record id="view_dissertation_admission_dissertation_director_form" model="ir.ui.view">
+		<field name="name">Dissertation Form</field>
+		<field name="model">dissertation_admission.dissertation</field>
+		<field name="priority" eval="1"/>
+		<field name="arch" type="xml">
+			<form create="false" edit="false" duplicate="false">
+				<header groups="dissertation_admission_app.dissertation_admission_group_course_director">
+					<button string="Publicar multiplas dissertações" type="action"
+							name="%(publish_dissertation_wizard_action)d" class="oe_highlight oe_read_only" />
+					<button string="Rever dissertação" type="action"
+							name="%(make_review_wizard_action)d" class="oe_highlight oe_read_only"
+							context="{'dissertation': id}"/>
+					<button string="Limpar Revisões" type="object"
+							name="unlink_reviews" class="oe_highlight oe_read_only"
+							confirm="Tem a certeza que quer limpar as revisões para esta dissertação?"/>
+					<button string="Publicar" name="publish" type="object" class="oe_highlight oe_read_only"
+							confirm="Tem a certeza que quer publicar esta dissertação?"
+							attrs="{'invisible': ['|', ('is_public', '=', True), ('state', '!=', 'approved')]}"/>
+					<button string="Cancelar Publicação" name="unpublish" type="object" class="oe_highlight oe_read_only"
+							confirm="Tem a certeza que quer cancelar a publicação desta dissertação?"
+							attrs="{'invisible': [('is_public', '==', False)]}" />
+					<button string="Aprovar" name="approve" type="object" class="oe_highlight oe_read_only"
+							confirm="Tem certeza que quer aprovar esta dissertação?"
+							attrs="{'invisible': [('state', '==', 'approved')]}" />
+					<button string="Reprovar" name="disapprove" type="object" class="oe_highlight oe_read_only"
+							confirm="Tem a certeza que quer reprovar esta dissertação?"
+							attrs="{'invisible': ['|', ('state', '==', 'disapproved'), ('is_public', '=', True)]}" />
+				</header>
+				<sheet string="Dissertação" >
+					<group>
+						<field name="id" required="True" id="id" invisible="True"/>
+						<field string="Titulo" name="name" required="True" id="name" readonly="True"/>
+						<field string="Titulo Inglês" name="name_en" required="True" id="name" readonly="True"/>
+						<field string="Descrição" name="description" required="True" colspan="4" id="description" readonly="True"/>
+						<field string="Estado" name="state" required="True" id="state" readonly="True"/>
+						<field string="Ano Letivo" name="school_year" required="True" id="school_year" readonly="True"/>
+						<field string="Publico?" name="is_public" id="is_public" readonly="True"/>
+						<field string="Cursos" name="course" id="course" required="True" widget="many2many_tags" readonly="True"/>
+						<field string="Autor" name="create_uid" id="create_uid"/>
+						<field string="Orientador" name="adviser_id" id="adviser_id"
+							   domain="['|',('perms','=','adviser'),('perms','=','director')]" readonly="True"/>
+						<field string="Coorientador Interno" name="coadviser_id_internal"
+							   id="coadviser_internal_id" readonly="True"/>
+						<field string="Coorientador Externo" name="coadviser_id_external"
+							   id="coadviser_external_id"
+							   attrs="{'readonly': [('state', '=', 'approved')]}" readonly="True"/>
+						<field string="Estudante" name="student_id" id="student_id"
+							   domain="[('id', 'in', candidates)]" readonly="True"/>
+						<field string="Candidatos" name="candidates" id="candidates" widget="many2many_tags"/>
+						<field string="Revisões" name="reviews" colspan="2" id="reviews" widget="many2many"
+							   context="{'default_dissertation': id}" domain="[('dissertation.id', '=', id)]">
+							<tree><field name="text"/></tree>
+						</field>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+	<!-- Dissertation Adviser Form -->
+	<record id="view_dissertation_admission_dissertation_adviser_form" model="ir.ui.view">
+		<field name="name">Dissertation Form</field>
+		<field name="model">dissertation_admission.dissertation</field>
+		<field name="priority" eval="1"/>
+		<field name="arch" type="xml">
+			<form>
+				<sheet>
+					<group string="Dissertação">
+						<field name="id" required="True" id="id" invisible="True"/>
+						<field string="Titulo" name="name" required="True" id="name"
+							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+						<field string="Titulo Inglês" name="name_en" required="True" id="name"
+							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+						<field string="Descrição" name="description" required="True" colspan="4" id="description"
+							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+						<field string="Estado" name="state" required="True" id="state" readonly="True"
+								attrs="{'invisible': [('create_uid', '=', False)]}"/>
+						<field string="Ano Letivo" name="school_year" required="True" id="school_year"
+							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+						<field string="Publico?" name="is_public" id="is_public" readonly="True"
+								attrs="{'invisible': [('create_uid', '=', False)]}"/>
+						<field string="Cursos" name="course" id="course" required="True" widget="many2many_tags"
+							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+						<field string="Autor" name="create_uid" id="create_uid"
+							   attrs="{'invisible': [('create_uid', '=', False)]}"/>
+						<field string="Orientador" name="adviser_id" id="adviser_id"
+							   domain="['|',('perms','=','adviser'),('perms','=','director')]"
+							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+						<field string="Coorientador Interno" name="coadviser_id_internal"
+							   id="coadviser_internal_id"
+							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+						<field string="Coorientador Externo" name="coadviser_id_external"
+							   id="coadviser_external_id"
+							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+						<field string="Plano de Trabalho" name="work_plan_id" id="work_plan_id" invisible="True"/>
+						<field string="Estudante" name="student_id" id="student_id" domain="[('id', 'in', candidates)]"
+							   attrs="{'readonly': [('work_plan_id', '!=', False)], 'invisible': [('create_uid', '=', False)]}"/>
+						<field string="Candidatos" name="candidates" id="candidates" widget="many2many"
+								attrs="{'invisible': [('create_uid', '=', False)]}"/>
+						<field string="Revisões" name="reviews" colspan="2" id="reviews" widget="many2many"
+							   context="{'default_dissertation': id}" domain="[('dissertation.id', '=', id)]"
+                               readonly="True" attrs="{'invisible': [('create_uid', '=', False)]}">
+							<tree><field name="text"/></tree>
+						</field>
+					</group>
+					<button string="Pedir Revisão" name="ask_revision" type="object"
+							confirm="Tem a certeza que quer pedir revisão?"
+							class="oe_highlight oe_read_only" style="margin: 10px 5px; float: right;"
+							attrs="{'invisible': [('state', '!=', 'disapproved')]}"/>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+	<!-- Dissertation Student Form -->
+	<record id="view_dissertation_admission_dissertation_simple_form" model="ir.ui.view">
+		<field name="name">Dissertation Simple Form</field>
+		<field name="model">dissertation_admission.dissertation</field>
+		<field name="arch" type="xml">
+			<form create="false" edit="false" delete="false" duplicate="false">
+				<header>
+					<button string="Candidatar" name="register_candidate" type="object"
+							class="oe_highlight oe_read_only"
+							confirm="Tem a certeza que quer candidatar-se a esta dissertação?"
+							groups="dissertation_admission_app.dissertation_admission_group_student"/>
+				</header>
+				<sheet string="Dissertação">
+					<group>
+						<field string="Titulo" name="name" required="True" id="name"/>
+						<field string="Titulo Inglês" name="name_en" required="True" id="name"/>
+						<field string="Descrição" name="description" required="True"  colspan="4" id="description"/>
+						<field string="Curso" name="course" id="course" required="True" widget="many2many_tags"/>
+						<field string="Autor" name="create_uid_internal" attrs="{'invisible': [('create_uid_internal', '=', False)]}"/>
+						<field string="Autor" name="create_uid_external" attrs="{'invisible': [('create_uid_external', '=', False)]}"/>
+						<field string="Orientador" name="adviser_id" id="adviser_id"/>
+						<field string="Coorientador" name="coadviser_id_internal" attrs="{'invisible': [('coadviser_id_internal', '=', False)]}"/>
+						<field string="Coorientador" name="coadviser_id_external" attrs="{'invisible': [('coadviser_id_external', '=', False)]}"/>
+						<field string="Candidatos" name="candidates" id="candidates" widget="many2many_tags" readonly="True"/>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+    <!-- TREE VIEWS -->
+
+
+	<!-- Tree view -->
+	<record id="view_dissertation_admission_dissertation_simple_tree" model="ir.ui.view">
+		<field name="name">dissertation_view_tree</field>
+		<field name="model">dissertation_admission.dissertation</field>
+		<field name="arch" type="xml">
+			<tree >
+				<field name="name" string="Titulo"/>
+				<field name="create_uid" string="Criador"/>
+			</tree>
+		</field>
+	</record>
+
+	<!-- Tree view -->
+	<record id="view_dissertation_admission_dissertation_adviser_tree" model="ir.ui.view">
+		<field name="name">dissertation_view_tree</field>
+		<field name="model">dissertation_admission.dissertation</field>
+		<field name="arch" type="xml">
+			<tree>
+				<field name="name" string="Titulo"/>
+				<field name="create_uid" string="Autor"/>
+				<field name="adviser_id" string="Orientador"/>
+				<field name="state" string="Estado"/>
+				<field name="is_public" string="Publico?"/>
+				<field name="school_year" string="Ano Letivo"/>
+			</tree>
+		</field>
+	</record>
+
+	<!-- Director view -->
+	<record id="view_dissertation_admission_dissertation_director_tree" model="ir.ui.view">
+		<field name="name">dissertation_view_tree</field>
+		<field name="model">dissertation_admission.dissertation</field>
+		<field name="arch" type="xml">
+			<tree create="false">
+				<field name="name" string="Titulo"/>
+				<field name="create_uid" string="Autor"/>
+				<field name="adviser_id" string="Orientador"/>
+				<field name="state" string="Estado"/>
+				<field name="is_public" string="Publico?"/>
+				<field name="school_year" string="Ano Letivo"/>
+				<button string="Publicar" name="publish" type="object"
+						class="oe_highlight oe_read_only"
+						attrs="{'invisible': ['|', ('is_public', '=', True), ('state', '!=', 'approved')]}"/>
+			</tree>
+		</field>
+	</record>
+
+	<!-- Student Dissertation Menu -->
+	<record id="action_dissertation_admission_dissertation_student" model="ir.actions.act_window">
+		<field name="name">Dissertações</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">dissertation_admission.dissertation</field>
+		<field name="view_mode">tree,form</field>
+		<field name="context">{}</field>
+		<field name="view_ids"
+			   eval="[(5, 0, 0),
+                    (0, 0, {'sequence': 0, 'view_mode': 'tree', 'view_id': ref('dissertation_admission_app.view_dissertation_admission_dissertation_simple_tree')}),
+                    (0, 0, {'sequence': 1, 'view_mode': 'form', 'view_id': ref('dissertation_admission_app.view_dissertation_admission_dissertation_simple_form')}),
+                ]"/>
+	</record>
+
+	<menuitem id="menu_dissertation_admission_dissertation_student"
+			  name="Dissertações"
+			  groups="dissertation_admission_group_student"
+			  action="action_dissertation_admission_dissertation_student"
+			  parent="dissertation_admission_menu" />
+
+	<!-- Adviser Dissertation Menu -->
+	<record id="action_dissertation_admission_dissertation_adviser" model="ir.actions.act_window">
+		<field name="name">Dissertações</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">dissertation_admission.dissertation</field>
+		<field name="view_mode">tree,form</field>
+		<field name="context">{}</field>
+		<field name="view_ids"
+			   eval="[(5, 0, 0),
+                    (0, 0, {'sequence': 0, 'view_mode': 'tree', 'view_id': ref('dissertation_admission_app.view_dissertation_admission_dissertation_adviser_tree')}),
+                    (0, 0, {'sequence': 1, 'view_mode': 'form', 'view_id': ref('dissertation_admission_app.view_dissertation_admission_dissertation_adviser_form')}),
+                ]"/>
+	</record>
+
+	<menuitem id="menu_dissertation_admission_dissertation_adviser"
+			  name="Dissertações"
+			  groups="dissertation_admission_group_coadviser,dissertation_admission_group_company_employee"
+			  action="action_dissertation_admission_dissertation_adviser"
+			  parent="dissertation_admission_menu" />
+
+	<!-- Direction Dissertation Menu -->
+	<record id="action_dissertation_admission_dissertation_director" model="ir.actions.act_window">
+		<field name="name">Gerir Dissertações</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">dissertation_admission.dissertation</field>
+		<field name="view_mode">tree,form</field>
+		<field name="context">{}</field>
+		<field name="view_ids"
+			   eval="[(5, 0, 0),
+                    (0, 0, {'sequence': 0, 'view_mode': 'tree', 'view_id': ref('dissertation_admission_app.view_dissertation_admission_dissertation_director_tree')}),
+                    (0, 0, {'sequence': 1, 'view_mode': 'form', 'view_id': ref('dissertation_admission_app.view_dissertation_admission_dissertation_director_form')}),
+                ]"/>
+	</record>
+
+	<menuitem id="menu_dissertation_admission_dissertation_director"
+			  name="Gerir Dissertações"
+			  groups="dissertation_admission_group_direction"
+			  action="action_dissertation_admission_dissertation_director"
+			  parent="dissertation_admission_menu" />
+
+</odoo>

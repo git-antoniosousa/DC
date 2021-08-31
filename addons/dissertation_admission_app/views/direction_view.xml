@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <!-- Direction Form -->
+    <record id="view_dissertation_admission_direction_form" model="ir.ui.view">
+        <field name="name">Adviser Form</field>
+        <field name="model">dissertation_admission.direction</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet string="Secretaria de Curso" >
+                    <field name="create_uid" id="user_id" invisible="True"/>
+                    <group>
+                        <field string="Utilizador" name="user_id" on_change="1" required="True" id="user_id"
+                               attrs="{'readonly': [('create_uid', '!=', False)]}"/>
+                        <field string="Identificação universitaria" name="university_id" id="university_id"/>
+                        <field string="Cursos" name="courses" required="True" id="courses" widget="many2many_tags" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_dissertation_admission_direction" model="ir.actions.act_window">
+        <field name="name">Secretaria de Curso</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">dissertation_admission.direction</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <menuitem id="menu_dissertation_admission_direction"
+              name="Secretaria de Curso"
+              groups="dissertation_admission_group_course_director,dissertation_admission_group_admin"
+              action="action_dissertation_admission_direction"
+              parent="dissertation_admission_manage_menu" />
+
+</odoo>
