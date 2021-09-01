@@ -9,4 +9,3 @@ from . import direction
 from . import company
 from . import company_employee
 
-from . import course

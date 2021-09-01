@@ -3,6 +3,7 @@ import logging
 
 class UploadWorkPlanWizard(models.TransientModel):
     _name = 'dissertation_admission.upload_work_plan_wizard'
+    _description = 'upload workplan wizard'
 
     pdf = fields.Binary(required=True, attachment=True)
 

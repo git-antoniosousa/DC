@@ -106,7 +106,7 @@ class CompanyEmployeeUser(models.Model):
 
 class UserCourses(models.Model):
     _inherit = 'res.users'
-    delegated_courses = fields.Many2many('dissertation_admission.course', compute='_get_courses',
+    delegated_courses = fields.Many2many('gest_diss.curso', compute='_get_courses',
                                          relation='dissertation_admission_dissertation_user_course_rel')
 
     def _get_courses(self):

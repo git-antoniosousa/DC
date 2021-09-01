@@ -12,6 +12,7 @@ import zipfile
 
 class SignWizard(models.TransientModel):
     _name = 'dissertation_admission.sign_wizard'
+    _description = 'Sign wizard'
     work_plans = fields.Many2many('dissertation_admission.work_plan'
                                   , relation='dissertation_admission_sign_wizard_rel')
     phone = fields.Char()

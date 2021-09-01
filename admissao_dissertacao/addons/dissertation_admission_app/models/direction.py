@@ -9,8 +9,8 @@ class Direction(models.Model):
     _description = 'Secretaria de Curso'
     user_id = fields.Many2one('res.users', ondelete='restrict', required=True)
     university_id = fields.Char()
-    courses = fields.Many2many('dissertation_admission.course', required=True,
-                               relation="dissertation_admission_direction_course_rel")
+    courses = fields.Many2many('gest_diss.curso', required=True)#,
+                               #relation="dissertation_admission_direction_course_rel")
 
     def super_create(self, values):
         return super(Direction, self).create(values)

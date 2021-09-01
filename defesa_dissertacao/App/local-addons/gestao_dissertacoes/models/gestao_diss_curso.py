@@ -7,7 +7,7 @@ class Curso(models.Model):
     _name = 'gest_diss.curso'
     _description = 'Cursos'
     _order = 'codigo'
-    _rec_name = 'codigo'
+    _rec_name = 'nome'
 
     codigo = fields.Char(string="Código", required=True)
 

@@ -14,8 +14,8 @@ class Adviser(models.Model):
     user_id = fields.Many2one('res.users', ondelete='restrict', required=True)
     university_id = fields.Char(required=False)
     department = fields.Many2one('gest_diss.filiacao')
-    courses = fields.Many2many('dissertation_admission.course', required=True,
-                               relation="dissertation_admission_adviser_course_rel")
+    courses = fields.Many2many('gest_diss.curso', required=True)#,
+                               #relation="dissertation_admission_adviser_course_rel")
     #investigation_center = fields.Char()
     perms = fields.Selection(perms, required=True, default='pending')
 

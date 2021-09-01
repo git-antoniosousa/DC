@@ -5,9 +5,9 @@ class Student(models.Model):
     _name = 'dissertation_admission.student'
     _inherits = {'res.users': 'user_id'}
     _description = 'Estudante'
-    user_id = fields.Many2one('res.users', ondelete='restrict')
+    user_id = fields.Many2one('res.users', required=True, ondelete='restrict')
     university_id = fields.Char(required=True)
-    course = fields.Many2one('dissertation_admission.course', required=True)
+    course = fields.Many2one('gest_diss.curso', required=True)
 
     def super_create(self, values):
         return super(Student, self).create(values)

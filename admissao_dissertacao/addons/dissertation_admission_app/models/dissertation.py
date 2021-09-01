@@ -28,19 +28,19 @@ class Dissertation(models.Model):
     state = fields.Selection(states, string='Estado', required=True, default='pending')
 
     # --- ano letivo ---
-    #school_year = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo')
-    school_year = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo', default=_default_school_year)
+    school_year = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo')
+    #school_year = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo', default=_default_school_year)
     #ano_letivo = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo')
 
     #school_year = fields.Selection([(str(num) + '/' + str(num + 1), str(num) + '/' + str(num + 1))
     #                                for num in range(2018, datetime.datetime.now().year+1)]
     #                               , required=True)
     is_public = fields.Boolean(string='Publico?', required=True, default=False)
-    course = fields.Many2many('dissertation_admission.course',
-                              relation='dissertation_admission_dissertation_course_rel')
+    course = fields.Many2many('gest_diss.curso')#,
+                              #relation='dissertation_admission_dissertation_course_rel')
     adviser_id = fields.Many2one('dissertation_admission.adviser', string='Orientador')
     coadviser_id_internal = fields.Many2one('dissertation_admission.adviser', string='Coorientador')
-    coadviser_id_external = fields.Many2one('dissertation_admission.company_employee', string='Coorientador')
+    coadviser_id_external = fields.Many2one('dissertation_admission.company_employee', string='Supervisor na empresa')
     student_id = fields.Many2one('dissertation_admission.student', string='Estudante')
     candidates = fields.Many2many('dissertation_admission.student', readonly=True
                                   , relation='dissertation_admission_dissertation_candidates_rel')

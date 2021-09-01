@@ -21,7 +21,6 @@
      'views/dissertation_view.xml',
      'views/reviews_view.xml',
      'views/work_plan_view.xml',
-     'views/course_view.xml',
 #     'demo/course.xml',
 #     'demo/user.xml',
  ],
