@@ -1,6 +1,6 @@
 {'name': 'Aplicação para Admissão a Dissertação',
  'description': 'Gestão do processo de admissão à dissertação',
- 'depends': ['base'],
+ 'depends': ['base', 'gestao_dissertacoes'],
  'data': [
      'security/dissertation_admission_security_groups.xml',
      'security/dissertation_admission_security_dissertation.xml',

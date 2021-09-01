@@ -1,9 +1,19 @@
 from odoo import api, fields, models
 from odoo import exceptions
-import datetime
-
+#import datetime
+from datetime import datetime
 
 class Dissertation(models.Model):
+
+    @api.model
+    def _default_school_year(self):
+        now = datetime.now()
+        ano = now.year
+        mes = now.month
+        if mes >= 7: return self.env['gest_diss.ano_letivo'].search([('ano_letivo', 'like', f"{ano }/{ano +1}")],
+                                                                    limit=1)
+        return self.env['gest_diss.ano_letivo'].search([('ano_letivo', 'like', f"{ano -1}/{ano }")], limit=1)
+
     states = [
         ('disapproved', 'Reprovado'),
         ('pending', 'Aprovação Pendente'),
@@ -13,12 +23,18 @@ class Dissertation(models.Model):
     _description = 'Dissertação'
 
     name = fields.Char('Titulo Português', required=True)
-    name_en = fields.Char('Titulo Inglês', required=True)
+    name_en = fields.Char('Titulo Inglês', required=False)
     description = fields.Text(string='Descrição', required=True)
     state = fields.Selection(states, string='Estado', required=True, default='pending')
-    school_year = fields.Selection([(str(num) + '/' + str(num + 1), str(num) + '/' + str(num + 1))
-                                    for num in range(2020, datetime.datetime.now().year)]
-                                   , required=True)
+
+    # --- ano letivo ---
+    #school_year = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo')
+    school_year = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo', default=_default_school_year)
+    #ano_letivo = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo')
+
+    #school_year = fields.Selection([(str(num) + '/' + str(num + 1), str(num) + '/' + str(num + 1))
+    #                                for num in range(2018, datetime.datetime.now().year+1)]
+    #                               , required=True)
     is_public = fields.Boolean(string='Publico?', required=True, default=False)
     course = fields.Many2many('dissertation_admission.course',
                               relation='dissertation_admission_dissertation_course_rel')

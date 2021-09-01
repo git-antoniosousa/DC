@@ -36,7 +36,7 @@
 					<group>
 						<field name="id" required="True" id="id" invisible="True"/>
 						<field string="Titulo" name="name" required="True" id="name" readonly="True"/>
-						<field string="Titulo Inglês" name="name_en" required="True" id="name" readonly="True"/>
+						<field string="Titulo Inglês" name="name_en" required="False" id="name" readonly="True"/>
 						<field string="Descrição" name="description" required="True" colspan="4" id="description" readonly="True"/>
 						<field string="Estado" name="state" required="True" id="state" readonly="True"/>
 						<field string="Ano Letivo" name="school_year" required="True" id="school_year" readonly="True"/>
@@ -75,7 +75,7 @@
 						<field name="id" required="True" id="id" invisible="True"/>
 						<field string="Titulo" name="name" required="True" id="name"
 							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
-						<field string="Titulo Inglês" name="name_en" required="True" id="name"
+						<field string="Titulo Inglês" name="name_en" required="False" id="name"
 							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
 						<field string="Descrição" name="description" required="True" colspan="4" id="description"
 							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
@@ -91,13 +91,13 @@
 							   attrs="{'invisible': [('create_uid', '=', False)]}"/>
 						<field string="Orientador" name="adviser_id" id="adviser_id"
 							   domain="['|',('perms','=','adviser'),('perms','=','director')]"
-							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+							   attrs="{'readonly': [('state', '!=', 'approved')]}"/>
 						<field string="Coorientador Interno" name="coadviser_id_internal"
 							   id="coadviser_internal_id"
-							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+							   attrs="{'readonly': [('state', '!=', 'approved')]}"/>
 						<field string="Coorientador Externo" name="coadviser_id_external"
 							   id="coadviser_external_id"
-							   attrs="{'readonly': [('state', '=', 'approved')]}"/>
+							   attrs="{'readonly': [('state', '!=', 'approved')]}"/>
 						<field string="Plano de Trabalho" name="work_plan_id" id="work_plan_id" invisible="True"/>
 						<field string="Estudante" name="student_id" id="student_id" domain="[('id', 'in', candidates)]"
 							   attrs="{'readonly': [('work_plan_id', '!=', False)], 'invisible': [('create_uid', '=', False)]}"/>
@@ -133,7 +133,7 @@
 				<sheet string="Dissertação">
 					<group>
 						<field string="Titulo" name="name" required="True" id="name"/>
-						<field string="Titulo Inglês" name="name_en" required="True" id="name"/>
+						<field string="Titulo Inglês" name="name_en" required="False" id="name"/>
 						<field string="Descrição" name="description" required="True"  colspan="4" id="description"/>
 						<field string="Curso" name="course" id="course" required="True" widget="many2many_tags"/>
 						<field string="Autor" name="create_uid_internal" attrs="{'invisible': [('create_uid_internal', '=', False)]}"/>

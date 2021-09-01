@@ -47,7 +47,7 @@ class IrActionsReport(models.Model):
             selections.append((name, description))
         return selections
 
-    report_type = fields.Selection(selection_add=[("py3o", "py3o")])
+    report_type = fields.Selection(selection_add=[("py3o", "py3o")], ondelete={'py3o': 'cascade'})
     py3o_filetype = fields.Selection(
         selection="_get_py3o_filetypes", string="Output Format"
     )
@@ -65,7 +65,7 @@ class IrActionsReport(models.Model):
             "or an absolute path on your server."
         ),
     )
-    report_type = fields.Selection(selection_add=[("py3o", "Py3o")])
+    report_type = fields.Selection(selection_add=[("py3o", "Py3o")], ondelete={'py3o': 'cascade'})
     py3o_multi_in_one = fields.Boolean(
         string="Multiple Records in a Single Report",
         help="If you execute a report on several records, "
