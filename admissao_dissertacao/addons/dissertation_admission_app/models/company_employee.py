@@ -7,8 +7,7 @@ class CompanyEmployee(models.Model):
     _description = 'Orientador'
     user_id = fields.Many2one('res.users', ondelete='restrict', required=True)
     company_id = fields.Many2one('dissertation_admission.company', required=True)
-    courses = fields.Many2many('dissertation_admission.course', required=True,
-                               relation="dissertation_admission_employee_course_rel")
+    courses = fields.Many2many('gest_diss.curso', required=True)
 
     def super_create(self, values):
         return super(CompanyEmployee, self).create(values)

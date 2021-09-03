@@ -6,6 +6,7 @@ class Company(models.Model):
     _description = 'Empresa'
     partner_id = fields.Many2one('res.partner', ondelete='restrict', required=True)
     employees = fields.Many2many('dissertation_admission.company_employee', compute='_get_employees')
+    #employees = fields.Many2many('dissertation_admission.company_employee', 'dissertation_admission_company_emplyees_rel')
 
     def _get_employees(self):
         self.employees = self.env['dissertation_admission.company_employee'].sudo()\
