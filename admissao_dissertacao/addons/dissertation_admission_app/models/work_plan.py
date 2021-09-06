@@ -31,9 +31,9 @@ class WorkPlan(models.Model):
         super(WorkPlan, self).create(vals)
 
     def download_latex(self):
-        with open("/mnt/templates/work_plan.tex", "r") as ftext:
+        with open(f"{self.sudo().env['ir.config_parameter'].get_param('dissertation_templates_dir','/mnt/templates')}/work_plan.tex", "r") as ftext:
             text = ftext.read() \
-                .replace('$year$', self.dissertation.school_year) \
+                .replace('$year$', self.dissertation.school_year.ano_letivo) \
                 .replace('$name$', self.student.name) \
                 .replace('$number$', self.student.university_id) \
                 .replace('$title$', self.dissertation.name) \
@@ -41,7 +41,7 @@ class WorkPlan(models.Model):
 
         zip_buf = io.BytesIO()
         with zipfile.ZipFile(zip_buf, 'w') as zip_h:
-            zip_h.write('/mnt/templates/logo.png', arcname='logo.png')
+            zip_h.write(f"{self.sudo().env['ir.config_parameter'].get_param('dissertation_templates_dir','/mnt/templates')}/logo.png", arcname='logo.png')
             zip_h.writestr('work_plan.tex', text)
 
         zip_buf.seek(0)
@@ -50,7 +50,7 @@ class WorkPlan(models.Model):
                                       'work_plan_' + self.student.university_id + '.zip')
 
     def download_word(self):
-        return self.create_attachment(base64.b64encode(open("/mnt/templates/work_plan.docx", "rb").read()),
+        return self.create_attachment(base64.b64encode(open(f"{self.sudo().env['ir.config_parameter'].get_param('dissertation_templates_dir','/mnt/templates')}/work_plan.docx", "rb").read()),
                                       'work_plan_' + self.student.university_id + '.docx')
 
     def create_attachment(self, result, name):

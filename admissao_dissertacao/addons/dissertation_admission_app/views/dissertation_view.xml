@@ -45,9 +45,9 @@
 						<field string="Autor" name="create_uid" id="create_uid"/>
 						<field string="Orientador" name="adviser_id" id="adviser_id"
 							   domain="['|',('perms','=','adviser'),('perms','=','director')]" readonly="True"/>
-						<field string="Coorientador Interno" name="coadviser_id_internal"
+						<field string="Coorientador" name="coadviser_id_internal"
 							   id="coadviser_internal_id" readonly="True"/>
-						<field string="Coorientador Externo" name="coadviser_id_external"
+						<field string="Supervisor" name="coadviser_id_external"
 							   id="coadviser_external_id"
 							   attrs="{'readonly': [('state', '=', 'approved')]}" readonly="True"/>
 						<field string="Estudante" name="student_id" id="student_id"
@@ -141,7 +141,7 @@
 						<field string="Autor" name="create_uid" id="create_uid"/>
 						<field string="Orientador" name="adviser_id" id="adviser_id"/>
 						<field string="Coorientador" name="coadviser_id_internal" attrs="{'invisible': [('coadviser_id_internal', '=', False)]}"/>
-						<field string="Coorientador" name="coadviser_id_external" attrs="{'invisible': [('coadviser_id_external', '=', False)]}"/>
+						<field string="Supervisor" name="coadviser_id_external" attrs="{'invisible': [('coadviser_id_external', '=', False)]}"/>
 						<field string="Candidatos" name="candidates" id="candidates" widget="many2many_tags" readonly="True"/>
 					</group>
 				</sheet>
