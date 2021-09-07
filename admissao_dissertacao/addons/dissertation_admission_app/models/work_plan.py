@@ -11,6 +11,7 @@ class WorkPlan(models.Model):
 
     dissertation = fields.Many2one('dissertation_admission.dissertation', readonly=True, required=True)
     student = fields.Many2one('dissertation_admission.student', readonly=True, required=True)
+    adviser = fields.Char(compute="_get_adviser_name")
 
     pdf = fields.Binary(readonly=True, default=None)
     pdf_fname = fields.Char(compute="_get_pdf_fname")
@@ -70,6 +71,9 @@ class WorkPlan(models.Model):
 
     def _get_pdf_fname(self):
         self.pdf_fname = 'plano_de_trabalho.pdf'
+
+    def _get_adviser_name(self):
+        self.adviser = self.dissertation.adviser_id.name
 
     def _get_pdf_signed_fname(self):
         self.pdf_signed_fname = 'plano_de_trabalho_assinado.pdf'
