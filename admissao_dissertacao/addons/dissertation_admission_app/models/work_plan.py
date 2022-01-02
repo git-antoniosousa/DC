@@ -73,7 +73,8 @@ class WorkPlan(models.Model):
         self.pdf_fname = 'plano_de_trabalho.pdf'
 
     def _get_adviser_name(self):
-        self.adviser = self.dissertation.adviser_id.name
+        for rec in self:
+            rec.adviser = rec.dissertation.adviser_id.name
 
     def _get_pdf_signed_fname(self):
         self.pdf_signed_fname = 'plano_de_trabalho_assinado.pdf'
