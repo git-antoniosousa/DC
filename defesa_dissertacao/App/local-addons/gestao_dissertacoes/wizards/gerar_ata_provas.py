@@ -6,10 +6,6 @@ class DocAtaProvas(models.TransientModel):
     _name = 'gest_diss.ata_provas_doc'
     _description = 'Ata das Provas'
 
-    ano = fields.Char(string="Ano da Ata", required=True)
-
-    nr_ultima_ata = fields.Char(string="Número da Última Ata", required=True)
-
     def _default_processos(self):
         return self.env['gest_diss.processo'].browse(self._context.get('active_ids'))
 
@@ -26,5 +22,9 @@ class DocAtaProvas(models.TransientModel):
                                       "Só pode gerar a ata da prova após ter concluído o estado da \"Declaração do Aluno\"")
 
         processos = self._context.get('active_ids')
+
+        for processo in self.env['gest_diss.processo'].browse(processos):
+            print(f"PROCESSO {processo}")
+            processo.gera_numero_ata()
 
         return self.env.ref('gestao_dissertacoes.gerar_ata_provas_report_odt').report_action(processos)
