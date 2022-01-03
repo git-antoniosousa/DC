@@ -212,7 +212,6 @@ class Py3oReport(models.TransientModel):
         with closing(os.fdopen(result_fd, "wb+")) as out_stream:
             template = Template(in_stream, out_stream, escape_false=True)
             localcontext = self._get_parser_context(model_instance, data)
-            print(f"Template render {template} ctx {localcontext}")
             template.render(localcontext)
             out_stream.seek(0)
             tmpl_data = out_stream.read()
@@ -341,24 +340,63 @@ class Py3oReport(models.TransientModel):
     def create_report(self, res_ids, data):
         """ Override this function to handle our py3o report
         """
-        print(f"create report {res_ids} {data} {self.ir_actions_report_id.py3o_multi_in_one}")
         model_instances = self.env[self.ir_actions_report_id.model].browse(res_ids)
         reports_path = []
+        mimetype = ''
+        if self.ir_actions_report_id.model == 'gest_diss.processo':
+            if self.ir_actions_report_id.report_name == "Ata da Primeira Reunião PDF":
+                attach_name = 'ata-primeira-reuniao'
+                mimetype = 'application/pdf'
+            elif self.ir_actions_report_id.report_name == "Ata da Primeira Reunião Word":
+                attach_name = 'ata-primeira-reuniao'
+                mimetype = 'application/vnd.oasis.opendocument.text'
+            elif self.ir_actions_report_id.report_name == "Formulário Candidato PT PDF":
+                attach_name = 'declaracao-aluno'
+                mimetype = 'application/pdf'
+            elif self.ir_actions_report_id.report_name == "Formulário Candidato PT Word":
+                attach_name = 'declaracao-aluno'
+                mimetype = 'application/vnd.oasis.opendocument.text'
+            elif self.ir_actions_report_id.report_name == "Ata das Provas Word":
+                attach_name = 'ata-prova'
+                mimetype = 'application/vnd.oasis.opendocument.text'
+            else:
+                attach_name = self.ir_actions_report_id.report_name
         if len(res_ids) > 1 and self.ir_actions_report_id.py3o_multi_in_one:
-            reports_path.append(self._create_single_report(model_instances, data))
+            rep_path = self._create_single_report(model_instances, data)
+            if self.ir_actions_report_id.model == 'gest_diss.processo':
+                fd = open(rep_path, "r+b")
+                content = fd.read()
+                vals = {
+                    'res_model': self.ir_actions_report_id.model,
+                    'res_id': res_ids[0],
+                    'datas': base64.b64encode(content),
+                    'name': attach_name,
+                    'mimetype': mimetype,
+                }
+                at_id = self.env['ir.attachment'].create(vals)
+                model_instances[0].write({'attachment_ids': [(4, at_id.id)]})
+            reports_path.append(rep_path)
         else:
             existing_reports_attachment = self.ir_actions_report_id._get_attachments(
                 res_ids
             )
             for model_instance in model_instances:
-                reports_path.append(
-                    self._get_or_create_single_report(
-                        model_instance, data, existing_reports_attachment
-                    )
-                )
+                rep_path = self._get_or_create_single_report(model_instance, data, existing_reports_attachment)
+                if self.ir_actions_report_id.model == 'gest_diss.processo':
+                    fd = open(rep_path, "r+b")
+                    content = fd.read()
+                    vals = {
+                        'res_model': self.ir_actions_report_id.model,
+                        'res_id': model_instance.id,
+                        'datas': base64.b64encode(content),
+                        'name': attach_name,
+                        'mimetype': mimetype,
+                    }
+                    at_id = self.env['ir.attachment'].create(vals)
+                    model_instance.write({'attachment_ids': [(4, at_id.id)]})
+                reports_path.append( rep_path )
 
         result_path, filetype = self._merge_results(reports_path)
-        print(f"{result_path} {filetype} {reports_path}")
         reports_path.append(result_path)
 
         # Here is a little joke about Odoo
