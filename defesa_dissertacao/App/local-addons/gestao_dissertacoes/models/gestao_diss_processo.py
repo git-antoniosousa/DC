@@ -82,6 +82,9 @@ class Processo(models.Model):
     # true se a declaracao do aluno foi enviada, false caso contrario
     declaracao_aluno_enviada = fields.Boolean(string="Declaração do aluno", default=False)
 
+    nr_ata = fields.Char(string="Numero de ata")
+    nr_ata1 = fields.Char(string="Numero da primeira ata")
+
     def write(self, vals):
         if self.estado == 'proposta_juri' and self.data_hora:
             dh = str(self.data_hora).split(" ")
@@ -181,6 +184,20 @@ class Processo(models.Model):
         else:
             raise ValidationError("O ficheiro da ata da primeira reunião não foi encontrado."
                                   " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
+
+    def gera_numero_ata(self):
+        print(f"gera_numero_ata {self.nr_ata}")
+        data = dict()
+        if self.nr_ata == False:
+            data['nr_ata'] = self.env['ir.sequence'].next_by_code('gestao_dissertacoes.atanumber')
+            self.write(data)
+
+    def gera_numero_ata1(self):
+        print(f"gera_numero_ata1 {self.nr_ata1}")
+        data = dict()
+        if self.nr_ata1 == False:
+            data['nr_ata1'] = self.env['ir.sequence'].next_by_code('gestao_dissertacoes.ata1number')
+            self.write(data)
 
     # --- declaracao do aluno ---
     def declaracao_aluno_action(self):

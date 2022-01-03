@@ -52,7 +52,8 @@
         'data/convite_vogal.xml',
         'data/ata_primeira_reuniao.xml',
         'data/declaracao_aluno.xml',
-        'data/ata_prova.xml'
+        'data/ata_prova.xml',
+        'data/ata_sequence.xml',
     ],
     'demo': [
         #'demo/alunos.xml',

@@ -212,6 +212,7 @@ class Py3oReport(models.TransientModel):
         with closing(os.fdopen(result_fd, "wb+")) as out_stream:
             template = Template(in_stream, out_stream, escape_false=True)
             localcontext = self._get_parser_context(model_instance, data)
+            print(f"Template render {template} ctx {localcontext}")
             template.render(localcontext)
             out_stream.seek(0)
             tmpl_data = out_stream.read()
@@ -324,10 +325,9 @@ class Py3oReport(models.TransientModel):
             return False, False
         if len(reports_path) == 1:
             return reports_path[0], filetype
-        if filetype == formats.FORMAT_PDF:
-            return self._merge_pdf(reports_path), formats.FORMAT_PDF
         else:
             return self._zip_results(reports_path), "zip"
+
 
     @api.model
     def _cleanup_tempfiles(self, temporary_files):
@@ -341,6 +341,7 @@ class Py3oReport(models.TransientModel):
     def create_report(self, res_ids, data):
         """ Override this function to handle our py3o report
         """
+        print(f"create report {res_ids} {data} {self.ir_actions_report_id.py3o_multi_in_one}")
         model_instances = self.env[self.ir_actions_report_id.model].browse(res_ids)
         reports_path = []
         if len(res_ids) > 1 and self.ir_actions_report_id.py3o_multi_in_one:
@@ -357,6 +358,7 @@ class Py3oReport(models.TransientModel):
                 )
 
         result_path, filetype = self._merge_results(reports_path)
+        print(f"{result_path} {filetype} {reports_path}")
         reports_path.append(result_path)
 
         # Here is a little joke about Odoo

@@ -6,9 +6,6 @@ class DocAtaPrimeiraReuniao(models.TransientModel):
     _name = 'gest_diss.ata_primeira_reuniao_doc'
     _description = 'Ata da Primeira Reunião'
 
-    ano = fields.Char(string="Ano da Ata", required=True)
-
-    nr_ultima_ata = fields.Char(string="Número da Última Ata", required=True)
 
     tipo_ficheiro = fields.Selection([
         ('pdf', 'PDF'),
@@ -31,7 +28,12 @@ class DocAtaPrimeiraReuniao(models.TransientModel):
 
         processos = self._context.get('active_ids')
 
+        for processo in self.env['gest_diss.processo'].browse(processos):
+            processo.gera_numero_ata1()
+
         if self.tipo_ficheiro == 'pdf':
-            return self.env.ref('gestao_dissertacoes.gerar_ata_primeira_reuniao_report_pdf').report_action(processos)
+            res = self.env.ref('gestao_dissertacoes.gerar_ata_primeira_reuniao_report_pdf').report_action(processos)
+            print(f"RES {res}")
+            return res
         else:
             return self.env.ref('gestao_dissertacoes.gerar_ata_primeira_reuniao_report_odt').report_action(processos)
