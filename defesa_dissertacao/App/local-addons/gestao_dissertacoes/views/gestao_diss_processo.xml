@@ -13,7 +13,7 @@
         <field name="model">gest_diss.processo</field>
         <field name="arch" type="xml">
             <search>
-                <field name="nome"/>
+                <field name="name"/>
                 <field name="numero"/>
                 <field name="curso" widget="many2one"/>
                 <field name="email"/>
@@ -51,6 +51,7 @@
                     <filter name="group_by_estado" string="Estado" context="{'group_by':'estado'}"/>
                     <filter name="group_by_orientador" string="Orientador" context="{'group_by':'orientador_id'}"/>
                     <filter name="group_by_curso" string="Curso" context="{'group_by':'curso'}"/>
+                    <filter name="group_by_anoletivo" string="Ano Letivo" context="{'group_by':'ano_letivo'}"/>
                 </group>
             </search>
         </field>
@@ -61,7 +62,7 @@
         <field name="res_model">gest_diss.processo</field>
         <field name="type">ir.actions.act_window</field>
         <field name="view_mode">tree,form,kanban</field>
-        <field name="context">{'search_default_group_by_curso': 1}</field>
+        <field name="context">{'search_default_group_by_curso': 1, 'search_default_group_by_anoletivo':1}</field>
         <field name="search_view_id" ref="gestao_diss_processo_view_search"/>
     </record>
 
@@ -154,7 +155,7 @@
                     <!-- Pin da informação do aluno -->
                     <group attrs="{'invisible': [('estado', 'in', ['registo_inicial'])]}">
                         <group string="Aluno">
-                            <field name="nome" readonly="1"/>
+                            <field name="name" readonly="1"/>
                             <field name="numero" readonly="1"/>
                             <field name="curso" readonly="1"/>
                             <field name="email" readonly="1"/>
@@ -186,7 +187,7 @@
                     <group>
                         <!-- Registo Inicial -->
                         <group string="Aluno" readonly="False" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
-                            <field name="nome" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <field name="name" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                             <field name="numero" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                             <field name="curso" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                             <field name="email" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
@@ -237,13 +238,13 @@
                                 <h1 style="margin-bottom: 20px"><u>Aguardar pela Homologação</u></h1>
                             </sheet>
                         </group>
-                        <group string="Defesa" attrs="{'invisible': [('estado', 'not in', ['proposta_juri'])]}">
+                        <group string="Defesa" attrs="{'invisible': [('estado', 'in', ['registo_inicial', 'correcoes'])]}">
                             <field name="data_hora" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
                             <field name="local" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
                             <field name="sala" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
                         </group>
                         <!-- Homologação  -->
-                        <group attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}">
+                        <group attrs="{'invisible': [('estado', 'in', ['registo_inicial', 'correcoes', 'proposta_juri', 'aguardar_confirmacao_juri', 'aguardar_homologacao'])]}">
                             <field name="data_homologacao" attrs="{'required' :[('estado','in',['homologacao'])]}"/>
                         </group>
                         <!-- Ata Primeira Reunião -->
@@ -256,8 +257,9 @@
                         <!-- Ata da Prova -->
                         <h6 attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}">Adcionar ficheiro da ata com o seguinte nome: ata-prova</h6>
                         <!-- Registo de Nota  -->
-                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}">
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota', 'aguardar_versao_final', 'finalizado'])]}">
                             <field name="nota" attrs="{'required' :[('estado','in',['registo_nota'])]}"/>
+                            <field name="pauta"/>
                         </group>
                     </group>
                 </sheet>
@@ -271,7 +273,7 @@
         <field name="model">gest_diss.processo</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="nome"/>
+                <field name="name"/>
                 <field name="numero"/>
                 <field name="email"/>
                 <field name="curso" widget="many2one"/>

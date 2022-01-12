@@ -52,9 +52,9 @@
                         <field name="website" widget ="url"/>
                     </group>
                     <group string="Filiação">
-                        <field name="filiacao_id" placeholder="Empresa ou Universidade associada" class="o_address_street"/>
-                        <field name="departamento" placeholder="Departamento" class="o_address_street"/>
-                        <field name="centro_investigacao" placeholder="Centro de Investigação" class="o_address_street"/>
+                        <field name="filiacao_id" placeholder="Empresa ou Universidade associada" class="o_address_street" domain="[('tipo_de_filiacao', 'in', ['u', 'e'])]"/>
+                        <field name="departamento" placeholder="Departamento" class="o_address_street" domain="[('filiacao' ,'=', filiacao_id)]"/>
+                        <field name="centro_investigacao" placeholder="Centro de Investigação" class="o_address_street" domain="[('filiacao' ,'=', departamento)]"/>
                         <field name="categoria" placeholder="Categoria" class="o_address_street"/>
                     </group>
                 </sheet>

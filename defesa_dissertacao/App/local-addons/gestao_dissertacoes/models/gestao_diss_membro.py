@@ -5,6 +5,8 @@ from phonenumbers import is_valid_number, parse as parse_number
 class Membro(models.Model):
     _name = 'gest_diss.membro'
     _description = 'Arguentes e Docentes'
+    _inherits =  {'res.partner':'partner_id'}
+    #_inherit = 'res.partner'
     _order = 'name'
     _rec_name = 'name'
 
@@ -15,18 +17,34 @@ class Membro(models.Model):
     departamento = fields.Many2one('gest_diss.filiacao', 'Departamento', domain = "[('tipo_de_filiacao','=','d')]")
 
     centro_investigacao = fields.Many2one('gest_diss.filiacao', 'Centro de Investigação', domain = "[('tipo_de_filiacao','=','c')]")
+    partner_id = fields.Many2one('res.partner', required=True, ondelete="cascade")
+    name = fields.Char(related='partner_id.name', inherited=True, readonly=False)
+    email = fields.Char(related='partner_id.email', inherited=True, readonly=False)
+    phone = fields.Char(related='partner_id.mobile', inherited=True, readonly=False)
+    #name = fields.Char(string="Nome")
 
-    name = fields.Char(string="Nome")
+    #phone = fields.Char(string="Número de Contacto")
 
-    phone = fields.Char(string="Número de Contacto")
-
-    email = fields.Char(string="Email")
+    #email = fields.Char(string="Email")
 
     email_facultativo = fields.Char(string="Email Facultativo")
 
     website = fields.Char(string="Website")
 
     tipo_de_membro = fields.Selection([('dc', 'Docente'), ('arg', 'Arguente')], string="Tipo de membro", default='dc',required=True)
+
+    def compute_filiacao_desc(self):
+        print(f"compute filiacao desc ")
+        res = ''
+        if self.centro_investigacao != False:
+            res = f"{self.centro_investigacao.name}, "
+        if self.departamento != False:
+            res = f"{res}{self.departamento.name}, "
+        res = f"{res}{self.filiacao_id.name}"
+        print(f"compute filiacao desc {res}")
+        self.filiacao_desc = res
+
+    filiacao_desc = fields.Char(compute=compute_filiacao_desc)
 
     '''
     colocar tag de docente

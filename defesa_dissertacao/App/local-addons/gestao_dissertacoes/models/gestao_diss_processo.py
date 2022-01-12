@@ -36,6 +36,7 @@ class Processo(models.Model):
     # --- titulo e nota ---
     diss_titulo = fields.Char(string="Título da Tese")
     nota = fields.Integer(string="Nota")
+    pauta = fields.Integer(string="Nr Pauta")
 
     # --- homologacao ---
     data_homologacao = fields.Date(string="Data de Homologação")
@@ -44,7 +45,7 @@ class Processo(models.Model):
     # --- data primeira reuniao ---
     data_hora_primeira_reuniao = fields.Datetime(string="Data e Hora da Primeira Reunião")
     data_primeira_reuniao_words = fields.Char(string="Data da Primeira Reunião por Extenso")
-    hora_primeira_reuniao_words = fields.Char(string="Data da Primeira Reunião por Extenso")
+    hora_primeira_reuniao_words = fields.Char(string="Hora da Primeira Reunião por Extenso")
 
     # --- data primeira reuniao ---
     data_primeira_reuniao = fields.Date(string="Data da Primeira Reunião")
@@ -157,7 +158,8 @@ class Processo(models.Model):
 
     # --- homologacaco ---
     def homologacao_action(self):
-        return self.write({'estado': 'ata_primeira_reuniao'})
+        #return self.write({'estado': 'ata_primeira_reuniao'})
+        return self.write({'estado': 'ata_prova'})
 
     def undo_homologacao_action(self):
         return self.write({'estado': 'aguardar_homologacao'})
@@ -227,7 +229,8 @@ class Processo(models.Model):
         return self.write({'estado': 'registo_nota'})
 
     def undo_ata_prova_action(self):
-        return self.write({'estado': 'declaracao_aluno'})
+        #return self.write({'estado': 'declaracao_aluno'})
+        return self.write({'estado': 'homologacao'})
 
     def enviar_ata_prova(self):
         id = None

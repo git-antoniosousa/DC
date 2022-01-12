@@ -5,21 +5,28 @@ from phonenumbers import is_valid_number, parse as parse_number
 
 class Filiacao(models.Model):
     _name = 'gest_diss.filiacao'
+    _inherits = {'res.partner': 'partner_id'}
     _description = 'Filiacao dos Arguentes e Docentes'
     _order = 'name'
     _rec_name = 'name'
 
+    partner_id = fields.Many2one('res.partner', required=True, ondelete="cascade")
+
     filiacao = fields.Many2one('gest_diss.filiacao', 'Filiação')
+
+    name = fields.Char(related='partner_id.name', inherited=True, readonly=False)
+    email = fields.Char(related='partner_id.email', inherited=True, readonly=False)
+    phone = fields.Char(related='partner_id.mobile', inherited=True, readonly=False)
 
     tipo_de_filiacao = fields.Selection([('u', 'Universidade'), ('e', 'Empresa'), ('d', 'Departamento'), ('c', 'Centro de Investigação')], string="Tipo de Filiação", default='d', required=True)
 
-    name = fields.Char(string="Nome")
+#    name = fields.Char(string="Nome")
 
-    email = fields.Char(string="Email")
+#    email = fields.Char(string="Email")
 
     email_facultativo = fields.Char(string="Email Facultativo")
 
-    phone = fields.Char(string="Número de Contacto")
+#    phone = fields.Char(string="Número de Contacto")
 
     website = fields.Char(string="Website")
 
@@ -28,6 +35,21 @@ class Filiacao(models.Model):
     city = fields.Char(string="Cidade")
 
     zip = fields.Char(string="Zip")
+
+
+    def tmp_name_get(self):
+        if self.name == False:
+            return ''
+        else:
+            return (f"{self.name}, {self.filiacao.tmp_name_get()}")
+
+    def zzname_get(self):
+        print(f"name_get {self} {dir(self.env)}")
+        ret = list()
+        for rec in self:
+            ret.append((rec.id, rec.tmp_name_get()))
+        print(ret)
+        return ret
 
     @api.constrains('phone')
     @api.depends('phone')
