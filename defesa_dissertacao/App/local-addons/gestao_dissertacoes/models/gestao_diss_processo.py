@@ -140,6 +140,7 @@ class Processo(models.Model):
         self.message_post_with_template(presidente.id)
         self.message_post_with_template(arguente.id)
         self.message_post_with_template(vogal.id)
+        print(f" ${self} ${self.juri_presidente_id} ${self.juri_presidente_id.email}")
         self.write({'convites_juri_enviados': True})
 
     # --- confirmação do juri ---
@@ -337,7 +338,6 @@ class Processo(models.Model):
         print(link)
         token = (fernet.encrypt(link.encode())).decode()
         url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
-        self.write({'convite_arguente_url' : url})
         self.write({'convite_arguente_url' : url})
 
     def converter_data_hora_para_words(self, data_hora):
