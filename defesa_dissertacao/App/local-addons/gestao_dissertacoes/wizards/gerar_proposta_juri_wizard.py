@@ -34,6 +34,7 @@ class DocHomologacao(models.TransientModel):
                                       "Registo inicial.")
 
         if self.tipo_ficheiro == 'pdf':
+            print("CALL report pdf")
             return self.env.ref('gestao_dissertacoes.gerar_proposta_juri_report_pdf').report_action(self)
         else:
             return self.env.ref('gestao_dissertacoes.gerar_proposta_juri_report_odt').report_action(self)

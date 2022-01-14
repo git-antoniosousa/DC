@@ -62,7 +62,7 @@
         <field name="res_model">gest_diss.processo</field>
         <field name="type">ir.actions.act_window</field>
         <field name="view_mode">tree,form,kanban</field>
-        <field name="context">{'search_default_group_by_curso': 1, 'search_default_group_by_anoletivo':1}</field>
+        <field name="context">{'search_default_group_by_curso': 1, 'search_default_group_by_anoletivo':2, 'search_default_group_by_estado':3}</field>
         <field name="search_view_id" ref="gestao_diss_processo_view_search"/>
     </record>
 
@@ -147,6 +147,10 @@
                     <button confirm="Tem a certeza que quer avançar de estado?" name="registo_nota_action" string="Registar Nota" type="object" attrs="{'invisible': [('estado', 'not in', ['registo_nota'])]}"/>
                     <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_aguardar_versao_final_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_versao_final'])]}"/>
                     <button confirm="Tem a certeza que quer avançar de estado?" name="aguardar_versao_final_action" string="Registar Versão Final" type="object" attrs="{'invisible': [('estado', 'not in', ['aguardar_versao_final'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_lancar_pauta_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['lancar_pauta'])]}"/>
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="aguardar_lancar_pauta_action" string="Registar lançamento de pauta" type="object" attrs="{'invisible': [('estado', 'not in', ['lancar_pauta'])]}"/>
+
+
                     <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_finalizar_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['finalizado'])]}"/>
                     <field name="estado" widget="statusbar"/>
                     <!---->
@@ -155,12 +159,14 @@
                     <!-- Pin da informação do aluno -->
                     <group attrs="{'invisible': [('estado', 'in', ['registo_inicial'])]}">
                         <group string="Aluno">
-                            <field name="name" readonly="1"/>
+                            <field name="partner_id" string="Name" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <!--<field name="name" readonly="1"/>-->
                             <field name="numero" readonly="1"/>
                             <field name="curso" readonly="1"/>
                             <field name="email" readonly="1"/>
                             <field name="diss_titulo" readonly="1"/>
                             <field name="ano_letivo" readonly="1"/>
+                            <field name="data_requerimento" readonly="1"/>
                             <field name="orientador_id" readonly="1"/>
                             <field name="coorientador_id" readonly="1"/>
                         </group>
@@ -187,12 +193,15 @@
                     <group>
                         <!-- Registo Inicial -->
                         <group string="Aluno" readonly="False" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
-                            <field name="name" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+
+                            <field name="partner_id" string="Name" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <!--<field name="name" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>-->
                             <field name="numero" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                             <field name="curso" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                             <field name="email" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                             <field name="ano_letivo" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                             <field name="diss_titulo" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
+                            <field name="data_requerimento" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
                         </group>
                         <group string="Orientadores" attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
                             <field name="orientador_id" attrs="{'required' :[('estado','in',['registo_inicial'])]}"/>
@@ -242,6 +251,7 @@
                             <field name="data_hora" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
                             <field name="local" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
                             <field name="sala" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
+                            <field name="link_vc" />
                         </group>
                         <!-- Homologação  -->
                         <group attrs="{'invisible': [('estado', 'in', ['registo_inicial', 'correcoes', 'proposta_juri', 'aguardar_confirmacao_juri', 'aguardar_homologacao'])]}">
@@ -257,9 +267,10 @@
                         <!-- Ata da Prova -->
                         <h6 attrs="{'invisible': [('estado', 'not in', ['ata_prova'])]}">Adcionar ficheiro da ata com o seguinte nome: ata-prova</h6>
                         <!-- Registo de Nota  -->
-                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota', 'aguardar_versao_final', 'finalizado'])]}">
+                        <group attrs="{'invisible': [('estado', 'not in', ['registo_nota', 'aguardar_versao_final', 'lancar_pauta', 'finalizado'])]}">
                             <field name="nota" attrs="{'required' :[('estado','in',['registo_nota'])]}"/>
                             <field name="pauta"/>
+                            <field name="nr_ata" readonly="1" />
                         </group>
                     </group>
                 </sheet>
@@ -278,6 +289,7 @@
                 <field name="email"/>
                 <field name="curso" widget="many2one"/>
                 <field name="ano_letivo" widget="many2one"/>
+                <field name="data_requerimento"/>
                 <field name="juri_presidente_id" widget="many2one"/>
                 <field name="juri_arguente_id" widget="many2one"/>
                 <field name="juri_vogal_id" widget="many2one"/>

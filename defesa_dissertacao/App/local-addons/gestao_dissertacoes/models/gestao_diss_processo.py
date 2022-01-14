@@ -15,7 +15,7 @@ class Processo(models.Model):
     _name = "gest_diss.processo"
     _inherit = ['gest_diss.aluno', 'gest_diss.defesa', 'gest_diss.juri', 'mail.thread']
     _description = 'Processo de gestão da dissertação'
-
+    _order = "data_requerimento desc"
     # --- ano letivo ---
     @api.model
     def _default_ano_letivo(self):
@@ -30,13 +30,18 @@ class Processo(models.Model):
     # --- desativa o trackback ---
     sys.tracebacklimit = 0
 
+    #aluno_id = fields.Many2oneReference()
     orientador_id = fields.Many2one('gest_diss.membro', 'Orientador')
     coorientador_id = fields.Many2one('gest_diss.membro', 'Co-orientador')
 
     # --- titulo e nota ---
     diss_titulo = fields.Char(string="Título da Tese")
     nota = fields.Integer(string="Nota")
-    pauta = fields.Integer(string="Nr Pauta")
+    pauta = fields.Integer(string="Número de  Pauta")
+
+    # --- pedido de porvas ---
+
+    data_requerimento = fields.Date(string="Data de Requerimento")#, default=datetime.today())
 
     # --- homologacao ---
     data_homologacao = fields.Date(string="Data de Homologação")
@@ -63,6 +68,7 @@ class Processo(models.Model):
         ('ata_prova', 'Ata da Prova'),
         ('registo_nota', 'Registo de Nota'),
         ('aguardar_versao_final', 'A Aguardar Versão Final'),
+        ('lancar_pauta', 'Lançar Pauta'),
         ('finalizado', 'Finalizado')
     ], string='Estado', readonly=False, copy=False, index=True, tracking=3, default='registo_inicial')
 
@@ -258,17 +264,27 @@ class Processo(models.Model):
 
     # --- aguardar versao final ---
     def aguardar_versao_final_action(self):
-        return self.write({'estado': 'finalizado'})
+        return self.write({'estado': 'lancar_pauta'})
+        #return self.write({'estado': 'finalizado'})
 
     def undo_aguardar_versao_final_action(self):
         return self.write({'estado': 'registo_nota'})
+
+    # --- lancar pauta ---
+    def aguardar_lancar_pauta_action(self):
+        return self.write({'estado': 'finalizado'})
+
+    def undo_lancar_pauta_action(self):
+        return self.write({'estado': 'aguardar_versao_final'})
+        #return self.write({'estado': 'registo_nota'})
 
     # --- finalizar ---
     def finalizar_action(self):
         pass
 
     def undo_finalizar_action(self):
-        return self.write({'estado': 'aguardar_versao_final'})
+        return self.write({'estado': 'lancar_pauta'})
+        #return self.write({'estado': 'aguardar_versao_final'})
 
     # --- ---
     def gerar_edital_action(self):
@@ -371,3 +387,7 @@ class Processo(models.Model):
         mes = calendar.month_name[date_object.month]
         data_str = str(date_object.day) + '.' + mes[:3] + '.' + str(date_object.year)
         return data_str
+
+    @api.onchange('gest_diss.aluno.partner_id')
+    def _onchange_gest_diss_aluno_partner_id(self):
+        print(f"ONCHANGE gest_diss.aluno.partner_id")

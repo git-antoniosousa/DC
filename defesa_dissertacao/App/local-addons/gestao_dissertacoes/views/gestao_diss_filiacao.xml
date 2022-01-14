@@ -16,15 +16,15 @@
                 <field name="zip"/>
                 <field name="tipo_de_filiacao"/>
                 <newline/>
-                <group string="Tipo de Filiação">
+                <group string="Tipo de AFiliação">
                     <filter name="filter_empresas" string="Empresas" domain="[('tipo_de_filiacao', '=', 'e')]"/>
                     <filter name="filter_universidades" string="Universidades" domain="[('tipo_de_filiacao', '=', 'u')]"/>
                     <filter name="filter_departamentos" string="Departamentos" domain="[('tipo_de_filiacao', '=', 'd')]"/>
                     <filter name="filter_centro_investigacao" string="Centros de Investigação" domain="[('tipo_de_filiacao', '=', 'c')]"/>
                 </group>
                 <group expand="0" string="Agrupar por...">
-                    <filter name="group_by_tipo_filiacao" string="Tipo de Filiação" context="{'group_by':'tipo_de_filiacao'}"/>
-                    <filter name="group_by_filiacao" string="Filiacao" context="{'group_by':'filiacao'}"/>
+                    <filter name="group_by_tipo_filiacao" string="Tipo de AFiliação" context="{'group_by':'tipo_de_filiacao'}"/>
+                    <filter name="group_by_filiacao" string="AFiliacao" context="{'group_by':'filiacao'}"/>
                     <filter name="group_by_cidade" string="Cidade" context="{'group_by':'city'}"/>
                 </group>
             </search>
@@ -39,7 +39,7 @@
             <form>
                 <sheet>
                     <group>
-                        <h1 class="oe_inline">Ficha Filiação</h1>
+                        <h1 class="oe_inline">Ficha AFiliação</h1>
                     </group>
                     <group>
                         <field name="name" required="True"/>
@@ -65,7 +65,7 @@
 
     <!-- Tree(list) View -->
     <record id="gestao_diss_filiacao_view_tree" model="ir.ui.view">
-        <field name="name">Listagem de Filiações</field>
+        <field name="name">Listagem de AFiliações</field>
         <field name="model">gest_diss.filiacao</field>
         <field name="arch" type="xml">
             <tree>
@@ -80,7 +80,7 @@
     </record>
 
     <record id='gestao_diss_filiacao_action' model='ir.actions.act_window'>
-        <field name="name">Gestão de Dissertações - Filiação</field>
+        <field name="name">Gestão de Dissertações - AFiliação</field>
         <field name="res_model">gest_diss.filiacao</field>
         <field name="view_mode">tree,form</field>
         <field name="view_ids" eval="[(5, 0, 0),
@@ -89,6 +89,6 @@
         <field name="search_view_id" ref="gestao_diss_filiacao_view_search"/>
     </record>
 
-    <menuitem name="Filiações" id="gestao_diss_filiacao_menu" parent="gestao_diss_menu_base" action="gestao_diss_filiacao_action" sequence="3"/>
+    <menuitem name="AFiliações" id="gestao_diss_filiacao_menu" parent="gestao_diss_menu_base" action="gestao_diss_filiacao_action" sequence="3"/>
 
 </odoo>

@@ -10,7 +10,7 @@
     'author': "Joel Ferreira, João Linhares, Rui Azevedo",
     'category': 'Processo',
     'version': '1.0.0',
-    'depends': ['base', 'report_py3o', 'mail'],
+    'depends': ['base', 'report_py3o', 'mail',],
     'license': "LGPL-3",
     'data': [
         ########################## SECURITY #############################

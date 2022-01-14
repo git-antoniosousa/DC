@@ -6,19 +6,19 @@ from phonenumbers import is_valid_number, parse as parse_number
 class Filiacao(models.Model):
     _name = 'gest_diss.filiacao'
     _inherits = {'res.partner': 'partner_id'}
-    _description = 'Filiacao dos Arguentes e Docentes'
+    _description = 'AFiliacao dos Arguentes e Docentes'
     _order = 'name'
     _rec_name = 'name'
 
     partner_id = fields.Many2one('res.partner', required=True, ondelete="cascade")
 
-    filiacao = fields.Many2one('gest_diss.filiacao', 'Filiação')
+    filiacao = fields.Many2one('gest_diss.filiacao', string="Afiliação")
 
-    name = fields.Char(related='partner_id.name', inherited=True, readonly=False)
+    name = fields.Char(related='partner_id.name', inherited=True, readonly=False, string="Nome")
     email = fields.Char(related='partner_id.email', inherited=True, readonly=False)
     phone = fields.Char(related='partner_id.mobile', inherited=True, readonly=False)
 
-    tipo_de_filiacao = fields.Selection([('u', 'Universidade'), ('e', 'Empresa'), ('d', 'Departamento'), ('c', 'Centro de Investigação')], string="Tipo de Filiação", default='d', required=True)
+    tipo_de_filiacao = fields.Selection([('u', 'Universidade'), ('e', 'Empresa'), ('d', 'Departamento'), ('c', 'Centro de Investigação')], string="Tipo de AFiliação", default='d', required=True)
 
 #    name = fields.Char(string="Nome")
 

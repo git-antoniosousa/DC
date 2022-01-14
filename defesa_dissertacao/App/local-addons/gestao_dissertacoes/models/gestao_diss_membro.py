@@ -6,13 +6,12 @@ class Membro(models.Model):
     _name = 'gest_diss.membro'
     _description = 'Arguentes e Docentes'
     _inherits =  {'res.partner':'partner_id'}
-    #_inherit = 'res.partner'
     _order = 'name'
     _rec_name = 'name'
 
     categoria = fields.Many2one('gest_diss.categoria', "Categoria", required=True)
 
-    filiacao_id = fields.Many2one('gest_diss.filiacao', 'Filiação', domain = "[('tipo_de_filiacao','in',['u', 'e'])]")
+    filiacao_id = fields.Many2one('gest_diss.filiacao', 'Afiliação', domain = "[('tipo_de_filiacao','in',['u', 'e'])]")
 
     departamento = fields.Many2one('gest_diss.filiacao', 'Departamento', domain = "[('tipo_de_filiacao','=','d')]")
 
@@ -34,14 +33,15 @@ class Membro(models.Model):
     tipo_de_membro = fields.Selection([('dc', 'Docente'), ('arg', 'Arguente')], string="Tipo de membro", default='dc',required=True)
 
     def compute_filiacao_desc(self):
-        print(f"compute filiacao desc ")
+        print(f"compute filiacao desc {self.name} {self.centro_investigacao} {self.departamento.name} {self.filiacao_id.name}")
         res = ''
-        if self.centro_investigacao != False:
+        if len(self.centro_investigacao) != 0:
             res = f"{self.centro_investigacao.name}, "
-        if self.departamento != False:
+        if len(self.departamento) != 0:
             res = f"{res}{self.departamento.name}, "
-        res = f"{res}{self.filiacao_id.name}"
-        print(f"compute filiacao desc {res}")
+        if len(self.filiacao_id) != 0:
+            res = f"{res}{self.filiacao_id.name}"
+        print(f"compute filiacao desc final {res}")
         self.filiacao_desc = res
 
     filiacao_desc = fields.Char(compute=compute_filiacao_desc)
