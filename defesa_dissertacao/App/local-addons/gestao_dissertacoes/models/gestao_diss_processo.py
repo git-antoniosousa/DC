@@ -387,7 +387,3 @@ class Processo(models.Model):
         mes = calendar.month_name[date_object.month]
         data_str = str(date_object.day) + '.' + mes[:3] + '.' + str(date_object.year)
         return data_str
-
-    @api.onchange('gest_diss.aluno.partner_id')
-    def _onchange_gest_diss_aluno_partner_id(self):
-        print(f"ONCHANGE gest_diss.aluno.partner_id")

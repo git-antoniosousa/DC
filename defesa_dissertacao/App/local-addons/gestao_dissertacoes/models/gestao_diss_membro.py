@@ -16,7 +16,7 @@ class Membro(models.Model):
     departamento = fields.Many2one('gest_diss.filiacao', 'Departamento', domain = "[('tipo_de_filiacao','=','d')]")
 
     centro_investigacao = fields.Many2one('gest_diss.filiacao', 'Centro de Investigação', domain = "[('tipo_de_filiacao','=','c')]")
-    partner_id = fields.Many2one('res.partner', required=True, ondelete="cascade")
+    partner_id = fields.Many2one('res.partner', required=True, ondelete="restrict")
     name = fields.Char(related='partner_id.name', inherited=True, readonly=False)
     email = fields.Char(related='partner_id.email', inherited=True, readonly=False)
     phone = fields.Char(related='partner_id.mobile', inherited=True, readonly=False)

@@ -7,7 +7,9 @@ class Aluno(models.Model):
     _description = 'Aluno'
     _rec_name = "numero"
 
-    partner_id = fields.Many2one('res.partner', required=True, ondelete="cascade")
+
+
+    partner_id = fields.Many2one('res.partner', required=True, ondelete="restrict")
     name = fields.Char(related='partner_id.name', inherited=True, readonly=False)
     email = fields.Char(related='partner_id.email', inherited=True, readonly=False)
 

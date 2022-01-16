@@ -10,7 +10,7 @@ class Filiacao(models.Model):
     _order = 'name'
     _rec_name = 'name'
 
-    partner_id = fields.Many2one('res.partner', required=True, ondelete="cascade")
+    partner_id = fields.Many2one('res.partner', required=True, ondelete="restrict")
 
     filiacao = fields.Many2one('gest_diss.filiacao', string="Afiliação")
 
