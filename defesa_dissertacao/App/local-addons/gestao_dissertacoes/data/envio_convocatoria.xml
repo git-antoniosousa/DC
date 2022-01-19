@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="0">
+    <record id="envio_convocatoria" model="mail.template">
+        <field name="name">Convocatória</field>
+        <field name="email_from">${object.curso.email}</field>
+        <field name="email_to">${object.juri_presidente_id.email}, ${object.juri_arguente_id.email}, ${object.juri_vogal_id.email}, ${object.email}</field>
+        <field name="subject">${object.curso.codigo} - Provas de Mestrado - ${object.name} – Convocatória -  ${object.data_defesa} - ${object.hora_defesa} - ${object-sala}</field>
+        <field name="model_id" ref="gestao_dissertacoes.model_gest_diss_processo"/>
+        <field name="body_html"><![CDATA[
+        <p>Caros membros do júri,</p>
+        <p>e caro  ${object.name},</p>
+        <p><br></p>
+        <p>serve o presente email de convocatória formal para as provas de mestrado, já homologadas pela Presidência da Escola de Engenharia e confirmadas para dia ${object.data_defesa} às ${object.hora_defesa}.</p>
+% if object.link_vc != False:
+        <p><br></p>
+        <p> O link para a participação do arguente por Videoconferência é o seguinte: ${object.link_vc}</p>
+        <p><br></p>
+        <p> Atenção:  Os restantes membros do júri e o aluno deverão estar presentes fisicamente na sala indicada no assunto deste email. <p>
+
+% endif
+        <p><br></p>
+        <p>O respetivo edital já foi publicado e está disponível para consulta em http://cp.eng.uminho.pt/editais.aspx.</p>
+        <p><br></p>
+        <p>Solicita-se que todos respondam em Reply-all a confirmar a participação nas provas e a leitura desta mensagem.</p>
+        <p><br></p>
+        <p>Muito obrigada.</p>
+        <p>Melhores cumprimentos,</p>
+
+            ]]></field>
+    </record>
+
+</odoo>
