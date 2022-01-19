@@ -63,6 +63,7 @@ class Processo(models.Model):
         ('aguardar_confirmacao_juri', 'Aguardar Confirmação do Júri'),
         ('aguardar_homologacao', 'Aguardar Homologação'),
         ('homologacao', 'Homologação'),
+        ('envio_convocatoria', 'Envio de Convocatória'),
         ('ata_primeira_reuniao', 'Ata da Primeira Reunião'),
         ('declaracao_aluno', 'Declaração do Aluno'),
         ('ata_prova', 'Ata da Prova'),
@@ -115,7 +116,8 @@ class Processo(models.Model):
 
     # --- ações dos butões dos estados ---
     def registo_aluno_action(self):
-        return self.write({'estado': 'correcoes'})
+        #return self.write({'estado': 'correcoes'})
+        return self.write({'estado': 'proposta_juri'})
 
     # --- correções ---
     def correcoes_action(self):
@@ -137,7 +139,8 @@ class Processo(models.Model):
         return self.write({'estado': 'aguardar_confirmacao_juri'})
 
     def undo_prop_juri_action(self):
-        return self.write({'estado': 'correcoes'})
+        #return self.write({'estado': 'correcoes'})
+        return self.write({'estado': 'registo_inicial'})
 
     def enviar_convites_juri(self):
         presidente = self.env.ref('gestao_dissertacoes.convite_presidente')
@@ -146,7 +149,6 @@ class Processo(models.Model):
         self.message_post_with_template(presidente.id)
         self.message_post_with_template(arguente.id)
         self.message_post_with_template(vogal.id)
-        print(f" ${self} ${self.juri_presidente_id} ${self.juri_presidente_id.email}")
         self.write({'convites_juri_enviados': True})
 
     # --- confirmação do juri ---
@@ -166,10 +168,20 @@ class Processo(models.Model):
     # --- homologacaco ---
     def homologacao_action(self):
         #return self.write({'estado': 'ata_primeira_reuniao'})
-        return self.write({'estado': 'ata_prova'})
+        return self.write({'estado': 'envio_convocatoria'})
 
     def undo_homologacao_action(self):
         return self.write({'estado': 'aguardar_homologacao'})
+    #------- convocatoria ----------------
+    def envio_convocatoria_action(self):
+        return self.write({'estado': 'ata_prova'})
+
+    def undo_envio_convocatoria_action(self):
+        return self.write({'estado': 'homologacao'})
+
+    def enviar_envio_convocatoria(self):
+        template_id = self.env.ref('gestao_dissertacoes.envio_convocatoria')
+        self.message_post_with_template(template_id.id)
 
     # --- ata primeira reuniao ---
     def ata_primeira_reuniao_action(self):
@@ -198,7 +210,9 @@ class Processo(models.Model):
         print(f"gera_numero_ata {self.nr_ata}")
         data = dict()
         if self.nr_ata == False:
-            data['nr_ata'] = self.env['ir.sequence'].next_by_code('gestao_dissertacoes.atanumber')
+            print(f"{self.curso.contador_ata_id.id}")
+            data['nr_ata'] = self.env['ir.sequence'].get_id(self.curso.contador_ata_id.id)
+            #data['nr_ata'] = self.env['ir.sequence'].next_by_code('gestao_dissertacoes.atanumber')
             self.write(data)
 
     def gera_numero_ata1(self):
@@ -237,7 +251,9 @@ class Processo(models.Model):
 
     def undo_ata_prova_action(self):
         #return self.write({'estado': 'declaracao_aluno'})
-        return self.write({'estado': 'homologacao'})
+        #return self.write({'estado': 'homologacao'})
+        return self.write({'estado': 'envio_convocatoria'})
+
 
     def enviar_ata_prova(self):
         id = None

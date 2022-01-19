@@ -27,6 +27,10 @@ class Curso(models.Model):
 
     website = fields.Char(string="Website")
 
+    contador_ata_id = fields.Many2one('ir.sequence', ondelete="restrict")
+
+    number_next = fields.Integer(related='contador_ata_id.number_next', string="Número da próxima ata", readonly=False, store= False)
+
     @api.constrains('phone')
     @api.depends('phone')
     def _check_phone(self):
@@ -43,3 +47,22 @@ class Curso(models.Model):
             if rec.email and not validate_email(rec.email):
                 raise models.ValidationError(
                     'O email \'{}\' não é um email válido.'.format(rec.email))
+
+    def _set_seqnumber(self):
+        model = self.env['ir.sequence']
+        seq = model.create(
+            {
+                'name': f"{self.codigo}_ata_number",
+                'prefix': f"{self.codigo}-",
+                'padding': 3,
+                'suffix': '/%(year)s'
+            }
+        )
+        self.contador_ata_id = seq
+
+    @api.model
+    def create(self, values):
+        print(f"{values}")
+        obj = super(Curso, self).create(values)
+        obj._set_seqnumber()
+        return obj

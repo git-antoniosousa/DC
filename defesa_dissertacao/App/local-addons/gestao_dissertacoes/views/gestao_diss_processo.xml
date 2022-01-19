@@ -62,7 +62,7 @@
         <field name="res_model">gest_diss.processo</field>
         <field name="type">ir.actions.act_window</field>
         <field name="view_mode">tree,form,kanban</field>
-        <field name="context">{'search_default_group_by_curso': 1, 'search_default_group_by_anoletivo':2, 'search_default_group_by_estado':3}</field>
+        <field name="context">{'search_default_group_by_curso': 2, 'search_default_group_by_estado':2}</field>
         <field name="search_view_id" ref="gestao_diss_processo_view_search"/>
     </record>
 
@@ -129,6 +129,12 @@
                     <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_homologacao_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}"/>
                     <button confirm="Tem a certeza que quer avançar de estado?" name="homologacao_action" string="Registar Homologação" type="object" attrs="{'invisible': [('estado', 'not in', ['homologacao'])]}"/>
                     <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_ata_primeira_reuniao_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}"/>
+                    <!-- Envio convocatoria -->
+                    <button confirm="Tem a certeza que quer enviar a convocatória das provas" name="enviar_envio_convocatoria" string="Enviar Convocatória" type="object" attrs="{'invisible': [('estado', 'not in', ['envio_convocatoria'])]}"/>
+                    <!-- -->
+                    <button confirm="Tem a certeza que quer avançar de estado?" name="envio_convocatoria_action" string="Avançar" type="object" attrs="{'invisible': [('estado', 'not in', ['envio_convocatoria'])]}"/>
+                    <button confirm="Tem a certeza que quer desfazer o estado?" name="undo_envio_convocatoria_action" string="Desfazer" type="object" attrs="{'invisible': [('estado', 'not in', ['envio_convocatoria'])]}"/>
+
                     <!-- enviar ata primeira reuniao -->
                     <button confirm="Tem a certeza que quer enviar a ata da primeira reunião?" name="enviar_ata_primeira_reuniao" string="Enviar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['ata_primeira_reuniao'])]}"/>
                     <!-- -->
