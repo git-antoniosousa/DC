@@ -178,7 +178,8 @@
                         </group>
                         <group>
                             <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]" context="{'form_view_ref': 'gestao_dissertacoes.view_dissertacao_form', 'default_public': True}"/>
-                            <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/>
+                            <!--<field name="attachment_ids" widget="many2many_binary" class="oe_inline"/> -->
+                            <field name="attachment_ids" widget="many2many_binary" />
                         </group>
                         <group string="Júri" attrs="{'invisible': [('estado', 'in', ['registo_inicial','correcoes','proposta_juri'])]}">
                             <field name="juri_presidente_id" readonly="1"/>
@@ -193,6 +194,8 @@
                             <field name="primeira_ata_enviada" widget="checkbox" readonly="1"/>
                             <field name="ata_prova_enviada" widget="checkbox" readonly="1"/>
                             <field name="declaracao_aluno_enviada" widget="checkbox" readonly="1"/>
+                            <field name="convocatoria_enviada" widget="checkbox" readonly="1"/>
+
                         </group>
                     </group>
                     <hr/>
@@ -215,7 +218,8 @@
                         </group>
                         <group attrs="{'invisible': [('estado', 'not in', ['registo_inicial'])]}">
                             <field name="dissertacao" widget="many2one_binary" class="oe_inline" domain="[('id', '=', -1)]" context="{'form_view_ref': 'gestao_dissertacoes.view_dissertacao_form', 'default_public': True}"/>
-                            <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/>
+                            <!-- <field name="attachment_ids" widget="many2many_binary" class="oe_inline"/> -->
+                            <field name="attachment_ids" widget="many2many_binary" />
                         </group>
                         <!-- Correções  -->
                         <group attrs="{'invisible': [('estado', 'not in', ['correcoes'])]}">
@@ -237,7 +241,7 @@
                             <field name="juri_vogal_id" attrs="{'required' :[('estado','in',['proposta_juri'])]}"/>
                         </group>
                         <!-- Aguardar confirmação do júri  -->
-                        <group attrs="{'invisible': [('estado', 'not in', ['aguardar_confirmacao_juri'])]}">
+                        <group attrs="{'invisible': [('estado', 'in', ['registo_inicial', 'correcoes', 'proposta_juri','aguardar_confirmacao_juri'])]}">
                             <sheet>
                                 <h1 style="margin-bottom: 20px"><u>Aguardar pela resposta do Júri</u></h1>
                                 <group string="Convites">

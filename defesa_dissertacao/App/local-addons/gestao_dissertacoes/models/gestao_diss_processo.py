@@ -89,6 +89,7 @@ class Processo(models.Model):
     ata_prova_enviada = fields.Boolean(string="Ata da Prova", default=False)
     # true se a declaracao do aluno foi enviada, false caso contrario
     declaracao_aluno_enviada = fields.Boolean(string="Declaração do aluno", default=False)
+    convocatoria_enviada = fields.Boolean(string="Convocatória", default=False)
 
     nr_ata = fields.Char(string="Numero de ata")
     nr_ata1 = fields.Char(string="Numero da primeira ata")
@@ -180,8 +181,10 @@ class Processo(models.Model):
         return self.write({'estado': 'homologacao'})
 
     def enviar_envio_convocatoria(self):
+        print(f"ENVIO CONV {self}")
         template_id = self.env.ref('gestao_dissertacoes.envio_convocatoria')
         self.message_post_with_template(template_id.id)
+        self.write({'convocatoria_enviada': True})
 
     # --- ata primeira reuniao ---
     def ata_primeira_reuniao_action(self):

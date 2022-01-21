@@ -40,15 +40,15 @@ class Membro(models.Model):
             print(f"compute filiacao desc {rec.name} {rec.centro_investigacao} {rec.departamento.name} {rec.filiacao_id.name}")
             res = ''
             if len(rec.centro_investigacao) != 0:
-                res = f"{rec.centro_investigacao.name}, "
+                res = f"{rec.centro_investigacao.name}; "
             if len(rec.departamento) != 0:
-                res = f"{res}{rec.departamento.name}, "
+                res = f"{res}{rec.departamento.name}; "
             if len(rec.filiacao_id) != 0:
-                res = f"{res}{rec.filiacao_id.name}"
-            print(f"compute filiacao desc final {res}")
+                res = f"{res}{rec.filiacao_id.name}."
+            print(f"compute filiacao desc final {res}.")
             rec.filiacao_desc = res
 
-    filiacao_desc = fields.Char(compute=compute_filiacao_desc, store=True)
+    filiacao_desc = fields.Char(compute=compute_filiacao_desc, store=False)
 
     '''
     colocar tag de docente
