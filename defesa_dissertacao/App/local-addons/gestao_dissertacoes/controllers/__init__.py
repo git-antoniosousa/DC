@@ -1,1 +1,1 @@
-from . import invite_controller
+from . import invite_controller, link_vc_controller

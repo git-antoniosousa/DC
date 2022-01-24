@@ -55,6 +55,7 @@
         'data/ata_prova.xml',
         'data/ata_sequence.xml',
         'data/envio_convocatoria.xml',
+        'data/envio_pedido_link.xml',
     ],
     'demo': [
         #'demo/alunos.xml',

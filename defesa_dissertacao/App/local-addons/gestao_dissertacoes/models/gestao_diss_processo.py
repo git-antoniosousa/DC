@@ -17,6 +17,11 @@ class Processo(models.Model):
     _description = 'Processo de gestão da dissertação'
     _order = "data_requerimento desc"
     # --- ano letivo ---
+    @api.constrains('nota')
+    def validate_nota(self):
+        for rec in self:
+            if self.nota < 10 or self.nota >20:
+                raise ValidationError("Nota inválida tem de estar entre 10 e 20")
     @api.model
     def _default_ano_letivo(self):
         now = datetime.now()
@@ -36,7 +41,7 @@ class Processo(models.Model):
 
     # --- titulo e nota ---
     diss_titulo = fields.Char(string="Título da Tese")
-    nota = fields.Integer(string="Nota")
+    nota = fields.Integer(string="Nota" )
     pauta = fields.Integer(string="Número de  Pauta")
 
     # --- pedido de porvas ---
@@ -54,24 +59,37 @@ class Processo(models.Model):
 
     # --- data primeira reuniao ---
     data_primeira_reuniao = fields.Date(string="Data da Primeira Reunião")
-
-    # --- estados do processo ---
+    
+    transicoes ={
+        '010': ['-' , '030'],
+        '030': ['010' , '040'],
+        '040': ['030' , '050'],
+        '050': ['040' , '060'],
+        '060': ['050' , '070'],
+        '070': ['060' , '100'],
+        '100': ['070' , '110'],
+        '110': ['100' , '120'],
+        '120': ['110' , '130'],
+        '130': ['120' , '140'],
+        '140': ['130' , '-'],
+    }
+    
     estado = fields.Selection([
-        ('registo_inicial', 'Registo Inicial'),
-        ('correcoes', 'Correções'),
-        ('proposta_juri', 'Proposta de Júri'),
-        ('aguardar_confirmacao_juri', 'Aguardar Confirmação do Júri'),
-        ('aguardar_homologacao', 'Aguardar Homologação'),
-        ('homologacao', 'Homologação'),
-        ('envio_convocatoria', 'Envio de Convocatória'),
-        ('ata_primeira_reuniao', 'Ata da Primeira Reunião'),
-        ('declaracao_aluno', 'Declaração do Aluno'),
-        ('ata_prova', 'Ata da Prova'),
-        ('registo_nota', 'Registo de Nota'),
-        ('aguardar_versao_final', 'A Aguardar Versão Final'),
-        ('lancar_pauta', 'Lançar Pauta'),
-        ('finalizado', 'Finalizado')
-    ], string='Estado', readonly=False, copy=False, index=True, tracking=3, default='registo_inicial')
+        ('010', 'Registo Inicial'),
+        ('020', 'Correções'),
+        ('030', 'Proposta de Júri'),
+        ('040', 'Aguardar Confirmação do Júri'),
+        ('050', 'Aguardar Homologação'),
+        ('060', 'Homologação'),
+        ('070', 'Envio de Convocatória'),
+        ('080', 'Ata da Primeira Reunião'),
+        ('090', 'Declaração do Aluno'),
+        ('100', 'Ata da Prova'),
+        ('110', 'Registo de Nota'),
+        ('120', 'A Aguardar Versão Final'),
+        ('130', 'Lançar Pauta'),
+        ('140', 'Finalizado')
+    ], string='Estado', readonly=False, copy=False, index=True, tracking=3, default='010')
 
     # --- anexar documentos ---
     attachment_ids = fields.Many2many('ir.attachment', 'attachment_id', string="Outros Documentos")
@@ -95,7 +113,7 @@ class Processo(models.Model):
     nr_ata1 = fields.Char(string="Numero da primeira ata")
 
     def write(self, vals):
-        if self.estado == 'proposta_juri' and self.data_hora:
+        if self.estado == '030' and self.data_hora:
             dh = str(self.data_hora).split(" ")
             d = dh[0]
             h = ":".join(dh[1].split(":")[:2])
@@ -106,26 +124,35 @@ class Processo(models.Model):
             data_words, hora_words = self.converter_data_hora_para_words(str(self.data_hora))
             vals['data_words'] = data_words
             vals['hora_words'] = hora_words
-        elif self.estado == 'ata_primeira_reuniao' and self.data_hora_primeira_reuniao:
+        elif self.estado == '080' and self.data_hora_primeira_reuniao:
             data_words, hora_words = self.converter_data_hora_para_words(str(self.data_hora_primeira_reuniao))
             vals['data_primeira_reuniao_words'] = data_words
             vals['hora_primeira_reuniao_words'] = hora_words
-        elif self.estado == 'homologacao' and self.data_homologacao:
+        elif self.estado == '060' and self.data_homologacao:
             data_homologacao_words = self.converter_data_para_words(str(self.data_homologacao))
             vals['data_homologacao_words'] = data_homologacao_words
         return super(Processo, self).write(vals)
 
     # --- ações dos butões dos estados ---
-    def registo_aluno_action(self):
-        #return self.write({'estado': 'correcoes'})
-        return self.write({'estado': 'proposta_juri'})
+    def recuar_action(self):
+        for rec in self:
+            state = rec.estado
+            transicao = self.transicoes[state][0]
+            if transicao != '-':
+                rec.write({'estado': transicao})
+            print(f"RECUAR {state} {self.estado}")
+        # return self.write({'estado': '020'})
 
-    # --- correções ---
-    def correcoes_action(self):
-        return self.write({'estado': 'proposta_juri'})
 
-    def undo_correcoes_action(self):
-        return self.write({'estado': 'registo_inicial'})
+    def avancar_action(self):
+        for rec in self:
+            state = rec.estado
+            transicao = self.transicoes[state][1]
+            if transicao != '-':
+                rec.write({'estado': transicao})
+            print(f"AVANÇAR  {state} {self.estado}")
+        # return self.write({'estado': '020'})
+
 
     # --- proposta do juri ---
     def prop_juri_action(self):
@@ -137,11 +164,8 @@ class Processo(models.Model):
         self.link_presidente()
         self.link_arguente()
         self.link_vogal()
-        return self.write({'estado': 'aguardar_confirmacao_juri'})
+        return self.write({'estado': '040'})
 
-    def undo_prop_juri_action(self):
-        #return self.write({'estado': 'correcoes'})
-        return self.write({'estado': 'registo_inicial'})
 
     def enviar_convites_juri(self):
         presidente = self.env.ref('gestao_dissertacoes.convite_presidente')
@@ -152,33 +176,7 @@ class Processo(models.Model):
         self.message_post_with_template(vogal.id)
         self.write({'convites_juri_enviados': True})
 
-    # --- confirmação do juri ---
-    def juri_confirmado_action(self):
-        return self.write({'estado': 'aguardar_homologacao'})
-
-    def undo_juri_confirmado_action(self):
-        return self.write({'estado': 'proposta_juri'})
-
-    # --- aguardar homologacao ---
-    def aguardar_homologacao_action(self):
-        return self.write({'estado': 'homologacao'})
-
-    def undo_aguardar_homologacao_action(self):
-        return self.write({'estado': 'aguardar_confirmacao_juri'})
-
-    # --- homologacaco ---
-    def homologacao_action(self):
-        #return self.write({'estado': 'ata_primeira_reuniao'})
-        return self.write({'estado': 'envio_convocatoria'})
-
-    def undo_homologacao_action(self):
-        return self.write({'estado': 'aguardar_homologacao'})
     #------- convocatoria ----------------
-    def envio_convocatoria_action(self):
-        return self.write({'estado': 'ata_prova'})
-
-    def undo_envio_convocatoria_action(self):
-        return self.write({'estado': 'homologacao'})
 
     def enviar_envio_convocatoria(self):
         print(f"ENVIO CONV {self}")
@@ -187,11 +185,6 @@ class Processo(models.Model):
         self.write({'convocatoria_enviada': True})
 
     # --- ata primeira reuniao ---
-    def ata_primeira_reuniao_action(self):
-        return self.write({'estado': 'declaracao_aluno'})
-
-    def undo_ata_primeira_reuniao_action(self):
-        return self.write({'estado': 'homologacao'})
 
     def enviar_ata_primeira_reuniao(self):
         id = None
@@ -226,11 +219,6 @@ class Processo(models.Model):
             self.write(data)
 
     # --- declaracao do aluno ---
-    def declaracao_aluno_action(self):
-        return self.write({'estado': 'ata_prova'})
-
-    def undo_declaracao_aluno_action(self):
-        return self.write({'estado': 'ata_primeira_reuniao'})
 
     def enviar_declaracao_aluno(self):
         id = None
@@ -249,13 +237,6 @@ class Processo(models.Model):
                                   " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
 
     # --- ata da prova ---
-    def ata_prova_action(self):
-        return self.write({'estado': 'registo_nota'})
-
-    def undo_ata_prova_action(self):
-        #return self.write({'estado': 'declaracao_aluno'})
-        #return self.write({'estado': 'homologacao'})
-        return self.write({'estado': 'envio_convocatoria'})
 
 
     def enviar_ata_prova(self):
@@ -275,35 +256,12 @@ class Processo(models.Model):
                                   " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
 
     # --- registo da nota ---
-    def registo_nota_action(self):
-        return self.write({'estado': 'aguardar_versao_final'})
-
-    def undo_registo_nota_action(self):
-        return self.write({'estado': 'ata_prova'})
 
     # --- aguardar versao final ---
-    def aguardar_versao_final_action(self):
-        return self.write({'estado': 'lancar_pauta'})
-        #return self.write({'estado': 'finalizado'})
-
-    def undo_aguardar_versao_final_action(self):
-        return self.write({'estado': 'registo_nota'})
 
     # --- lancar pauta ---
-    def aguardar_lancar_pauta_action(self):
-        return self.write({'estado': 'finalizado'})
-
-    def undo_lancar_pauta_action(self):
-        return self.write({'estado': 'aguardar_versao_final'})
-        #return self.write({'estado': 'registo_nota'})
 
     # --- finalizar ---
-    def finalizar_action(self):
-        pass
-
-    def undo_finalizar_action(self):
-        return self.write({'estado': 'lancar_pauta'})
-        #return self.write({'estado': 'aguardar_versao_final'})
 
     # --- ---
     def gerar_edital_action(self):
@@ -317,11 +275,11 @@ class Processo(models.Model):
 
     def enviar_correcoes_action(self):
         pass
-    
+
     def update_estado(self):
         if self.convite_presidente == 'aceitado' and self.convite_vogal == 'aceitado' and self.convite_arguente == 'aceitado':
-            if self.estado == 'aguardar_confirmacao_juri':
-                return self.write({'estado': 'aguardar_homologacao'})
+            if self.estado == '040':
+                return self.write({'estado': '050'})
 
     def update_numero_convites_aceites(self):
         num = 0
@@ -374,6 +332,24 @@ class Processo(models.Model):
         token = (fernet.encrypt(link.encode())).decode()
         url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
         self.write({'convite_arguente_url' : url})
+
+    def gera_link_vc(self):
+        key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
+        fernet = Fernet(key)
+        link = f"linkvc-/-{self.id}-/-{self.name}"
+        print(link)
+        token = (fernet.encrypt(link.encode())).decode()
+        url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/linkvc/{token}"
+        self.write({'link_vc_url': url})
+        print(f"ENVIO PEDIDO LINK VC {self}")
+        template_id = self.env.ref('gestao_dissertacoes.envio_pedido_link')
+        self.message_post_with_template(template_id.id)
+
+
+    def update_link_vc(self, resposta):
+        if resposta != '':
+            self.write({'link_vc': resposta})
+        return self
 
     def converter_data_hora_para_words(self, data_hora):
         date_object = datetime.strptime(data_hora, "%Y-%m-%d %H:%M:%S")

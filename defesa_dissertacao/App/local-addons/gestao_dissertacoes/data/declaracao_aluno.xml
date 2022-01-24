@@ -4,6 +4,7 @@
         <field name="name">Declaração do Aluno</field>
         <field name="email_from">${object.env['ir.config_parameter'].get_param( "di_email") }</field>
         <field name="email_to">${object.email}</field>
+        <field name="email_cc">${object.curso.email}</field>
         <field name="subject">${object.curso.codigo} - Provas de Mestrado - ${object.nome} - anexo 4 (candidato)</field>
         <field name="model_id" ref="gestao_dissertacoes.model_gest_diss_processo"/>
         <field name="body_html"><![CDATA[

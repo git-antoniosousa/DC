@@ -22,4 +22,5 @@ class Defesa(models.Model):
     local = fields.Selection([('presencial', 'Presencial'), ('virtual', 'Virtual')])
     sala = fields.Char(string="Sala")
     link_vc = fields.Char(string="Videoconferência")
+    link_vc_url = fields.Char(string="link Videoconferência")
 

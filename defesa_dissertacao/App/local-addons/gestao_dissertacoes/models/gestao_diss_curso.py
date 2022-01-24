@@ -24,7 +24,7 @@ class Curso(models.Model):
     phone = fields.Char(string="Número de Contacto")
 
     email = fields.Char(string="Email")
-
+    email_suporte = fields.Char(string="Email para Suporte")
     website = fields.Char(string="Website")
 
     contador_ata_id = fields.Many2one('ir.sequence', ondelete="restrict")

@@ -29,12 +29,13 @@ class Invite(http.Controller):
         except InvalidToken:
             return http.request.render('gestao_dissertacoes.not-found', {'code': 403,'msg': "Não tem acesso a este processo"})
         params = url.split("-/-")
-        print(url)
+        print(f"URL {url}")
         if len(params) != 3: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo"})
         id = params[1]
         juri = params[0]
         if juri not in ['p', 'v', 'a']: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo"})
-        processo = http.request.env['gest_diss.processo'].sudo().search([('id', 'ilike', id)]) 
+        processo = http.request.env['gest_diss.processo'].sudo().search([('id', '=', id)])
+        print(f"PROCESS {processo}")
         if processo:
             processo_resposta = processo
             local = pytz.timezone("Europe/Lisbon")
@@ -46,8 +47,8 @@ class Invite(http.Controller):
             ics = self.ics_file(data_inicio, data_fim, processo.local, processo.numero, processo.sala)
             print(ics)
             if(kw.get('convite')):
-                http.request.env['gest_diss.processo'].sudo().search([('id', 'ilike', id)]).convite(kw.get('convite'),juri)
-                processo_resposta = http.request.env['gest_diss.processo'].sudo().search([('id', 'ilike', id)])
+                http.request.env['gest_diss.processo'].sudo().search([('id', '=', id)]).convite(kw.get('convite'),juri)
+                processo_resposta = http.request.env['gest_diss.processo'].sudo().search([('id', '=', id)])
             if(juri == 'p'):
                 if processo.juri_presidente_id.name != params[2]: 
                     return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo"})
