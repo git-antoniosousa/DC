@@ -17,7 +17,7 @@ class Processo(models.Model):
     _description = 'Processo de gestão da dissertação'
     _order = "data_requerimento desc"
     # --- ano letivo ---
-    @api.constrains('nota')
+    #@api.constrains('nota')
     def validate_nota(self):
         for rec in self:
             if self.nota < 10 or self.nota >20:
