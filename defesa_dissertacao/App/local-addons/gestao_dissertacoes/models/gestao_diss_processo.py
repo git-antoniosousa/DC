@@ -181,8 +181,47 @@ class Processo(models.Model):
     def enviar_envio_convocatoria(self):
         print(f"ENVIO CONV {self}")
         template_id = self.env.ref('gestao_dissertacoes.envio_convocatoria')
-        self.message_post_with_template(template_id.id)
-        self.write({'convocatoria_enviada': True})
+        #self.message_post_with_template(template_id.id)
+        for rec in self:
+            print(f"REC {rec}")
+            composer = self.env['mail.compose.message'].with_context(
+                active_id=rec.id,
+                active_ids=[rec.id,],
+                active_model=rec._name,
+                default_composition_mode='mass_mail',
+                default_model=rec._name,
+                default_res_id=rec.id,
+                default_template_id=template_id,
+                custom_layout=None,
+                message_type='notification'
+            ).create({
+                'composition_mode':'mass_mail',
+                'message_type': 'notification'
+            })
+
+            update_values = composer.onchange_template_id(template_id.id,'mass_mail', rec._name, rec.id)['value']
+            composer.write(update_values)
+            update_values = composer.render_message(rec.id)
+            message = self.env['mail.message'].create(
+                {
+                    'subject': update_values['subject'],
+                    'body': update_values['body'],
+                    'message_type': 'email',
+                    'email_from': rec.curso.email,
+                }
+            )
+            mail_to = f"{rec.juri_presidente_id.email},{rec.juri_arguente_id.email},{rec.juri_vogal_id.email},{rec.email}"
+            mail_cc = f"{rec.curso.email}"
+            mailer = self.env['mail.mail'].create(
+                {
+                    'email_to': mail_to,
+                    'email_cc': mail_cc,
+                    'mail_message_id': message.id,
+                }
+            )
+            mailer.send()
+
+            self.write({'convocatoria_enviada': True})
 
     # --- ata primeira reuniao ---
 
