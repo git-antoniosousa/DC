@@ -143,6 +143,9 @@ class Processo(models.Model):
             print(f"RECUAR {state} {self.estado}")
         # return self.write({'estado': '020'})
 
+    def reset_ata(self):
+        for rec in self:
+            rec.nr_ata = False
 
     def avancar_action(self):
         for rec in self:
