@@ -198,37 +198,20 @@ class Processo(models.Model):
                 'composition_mode':'mass_mail',
                 'message_type': 'notification'
             })
-
-
-            print(f"REC 1")
             update_values = composer.onchange_template_id(template_id.id,'mass_mail', rec._name, rec.id)['value']
-            print(f"REC 1.2")
             composer.write(update_values)
-            print(f"REC 1.3")
             update_values = composer.render_message(rec.id)
-            print(f"REC 2")
-            #message = self.env['mail.message'].create(
-            #    {
-            #        'subject': update_values['subject'],
-            #        'body': update_values['body'],
-            #        #'body_html': update_values['body'],
-            ##        'message_type': 'email',
-             #       'email_from': rec.curso.email,
-             #   }
-            #)
-            print(f"REC 3")
             mail_to = f"{rec.juri_presidente_id.email},{rec.juri_arguente_id.email},{rec.juri_vogal_id.email},{rec.email}"
             mail_cc = f"{rec.curso.email}"
             mailer = self.env['mail.mail'].sudo().create(
                 {
                     'email_to': mail_to,
                     'email_cc': mail_cc,
+                    'subject': update_values['subject'],
                     'body_html': update_values['body'],
                 }
             )
-            print(f"Mailer.send")
             mailer.send()
-
             self.write({'convocatoria_enviada': True})
 
     # --- ata primeira reuniao ---
