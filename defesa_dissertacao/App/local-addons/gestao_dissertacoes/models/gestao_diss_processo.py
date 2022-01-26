@@ -220,6 +220,7 @@ class Processo(models.Model):
                     'mail_message_id': message.id,
                 }
             )
+            print(f"Mailer.send")
             mailer.send()
 
             self.write({'convocatoria_enviada': True})
