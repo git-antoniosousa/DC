@@ -219,7 +219,7 @@ class Processo(models.Model):
             print(f"REC 3")
             mail_to = f"{rec.juri_presidente_id.email},{rec.juri_arguente_id.email},{rec.juri_vogal_id.email},{rec.email}"
             mail_cc = f"{rec.curso.email}"
-            mailer = self.env['mail.mail'].create(
+            mailer = self.env['mail.mail'].sudo().create(
                 {
                     'email_to': mail_to,
                     'email_cc': mail_cc,
