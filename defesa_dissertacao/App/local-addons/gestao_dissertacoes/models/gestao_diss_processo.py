@@ -206,6 +206,7 @@ class Processo(models.Model):
                 {
                     'subject': update_values['subject'],
                     'body': update_values['body'],
+                    'body_html': update_values['body'],
                     'message_type': 'email',
                     'email_from': rec.curso.email,
                 }
