@@ -205,7 +205,7 @@ class Processo(models.Model):
             message = self.env['mail.message'].create(
                 {
                     'subject': update_values['subject'],
-                    'body': update_values['body'],
+                    #'body': update_values['body'],
                     'body_html': update_values['body'],
                     'message_type': 'email',
                     'email_from': rec.curso.email,
