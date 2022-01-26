@@ -191,7 +191,7 @@ class Processo(models.Model):
                 default_composition_mode='mass_mail',
                 default_model=rec._name,
                 default_res_id=rec.id,
-                default_template_id=template_id,
+                default_template_id=template_id.id,
                 custom_layout=None,
                 message_type='notification'
             ).create({
