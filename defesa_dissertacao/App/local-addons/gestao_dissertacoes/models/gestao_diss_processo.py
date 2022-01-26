@@ -201,7 +201,9 @@ class Processo(models.Model):
 
             print(f"REC 1")
             update_values = composer.onchange_template_id(template_id.id,'mass_mail', rec._name, rec.id)['value']
+            print(f"REC 1.2")
             composer.write(update_values)
+            print(f"REC 1.3")
             update_values = composer.render_message(rec.id)
             print(f"REC 2")
             message = self.env['mail.message'].create(
