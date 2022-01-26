@@ -199,6 +199,7 @@ class Processo(models.Model):
                 'message_type': 'notification'
             })
 
+
             print(f"REC 1")
             update_values = composer.onchange_template_id(template_id.id,'mass_mail', rec._name, rec.id)['value']
             print(f"REC 1.2")
@@ -209,8 +210,8 @@ class Processo(models.Model):
             message = self.env['mail.message'].create(
                 {
                     'subject': update_values['subject'],
-                    #'body': update_values['body'],
-                    'body_html': update_values['body'],
+                    'body': update_values['body'],
+                    #'body_html': update_values['body'],
                     'message_type': 'email',
                     'email_from': rec.curso.email,
                 }
