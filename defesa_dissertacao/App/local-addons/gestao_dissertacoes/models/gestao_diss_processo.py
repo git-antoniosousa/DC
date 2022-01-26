@@ -207,15 +207,15 @@ class Processo(models.Model):
             print(f"REC 1.3")
             update_values = composer.render_message(rec.id)
             print(f"REC 2")
-            message = self.env['mail.message'].create(
-                {
-                    'subject': update_values['subject'],
-                    'body': update_values['body'],
-                    #'body_html': update_values['body'],
-                    'message_type': 'email',
-                    'email_from': rec.curso.email,
-                }
-            )
+            #message = self.env['mail.message'].create(
+            #    {
+            #        'subject': update_values['subject'],
+            #        'body': update_values['body'],
+            #        #'body_html': update_values['body'],
+            ##        'message_type': 'email',
+             #       'email_from': rec.curso.email,
+             #   }
+            #)
             print(f"REC 3")
             mail_to = f"{rec.juri_presidente_id.email},{rec.juri_arguente_id.email},{rec.juri_vogal_id.email},{rec.email}"
             mail_cc = f"{rec.curso.email}"
@@ -223,7 +223,7 @@ class Processo(models.Model):
                 {
                     'email_to': mail_to,
                     'email_cc': mail_cc,
-                    'mail_message_id': message.id,
+                    'body_html': update_values['body'],
                 }
             )
             print(f"Mailer.send")
