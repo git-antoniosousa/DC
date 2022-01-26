@@ -44,7 +44,7 @@ class Membro(models.Model):
             if len(rec.departamento) != 0:
                 res = f"{res}{rec.departamento.name}; "
             if len(rec.filiacao_id) != 0:
-                res = f"{res}{rec.filiacao_id.name}."
+                res = f"{res}{rec.filiacao_id.name}"
             print(f"compute filiacao desc final {res}.")
             rec.filiacao_desc = res
 
