@@ -204,8 +204,16 @@ class Processo(models.Model):
             update_values = composer.onchange_template_id(template_id.id,'mass_mail', rec._name, rec.id)['value']
             composer.write(update_values)
             update_values = composer.render_message(rec.id)
+            if rec.juri_presidente_id.email == False or rec.juri_arguente_id.email == False\
+                or rec.juri_vogal_id.email == False or rec.email == False or \
+                    rec.juri_presidente_id.email == '' or rec.juri_arguente_id.email == '' \
+                    or rec.juri_vogal_id.email == '' or rec.email == '':
+                raise ValidationError("Um dos elementos do juri ou o aluno não têm email atribuído")
+
             mail_to = f"{rec.juri_presidente_id.email},{rec.juri_arguente_id.email},{rec.juri_vogal_id.email},{rec.email}"
             mail_cc = f"{rec.curso.email}"
+            if rec.curso.email_suporte != False:
+                mail_cc = f"{mail_cc},{rec.curso.email_suporte}"
             mailer = self.env['mail.mail'].sudo().create(
                 {
                     'email_to': mail_to,
