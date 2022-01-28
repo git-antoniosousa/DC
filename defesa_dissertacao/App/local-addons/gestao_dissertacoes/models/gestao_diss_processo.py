@@ -151,6 +151,8 @@ class Processo(models.Model):
         for rec in self:
             state = rec.estado
             transicao = self.transicoes[state][1]
+            if transicao == '040':
+                rec.prop_juri_action()
             if transicao != '-':
                 rec.write({'estado': transicao})
             print(f"AVANÇAR  {state} {self.estado}")
@@ -167,7 +169,7 @@ class Processo(models.Model):
         self.link_presidente()
         self.link_arguente()
         self.link_vogal()
-        return self.write({'estado': '040'})
+        #return self.write({'estado': '040'})
 
 
     def enviar_convites_juri(self):
