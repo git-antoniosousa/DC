@@ -202,8 +202,8 @@
                                 <field name="coorientador_id" attrs="{'readonly': [('estado','not in',['010'])]}"/>
                             </group>
                             <group string="Prova" attrs="{'invisible': [('estado', '&lt;=', '020')]}">
-                                <field name="data_hora" attrs="{'required' :[('estado','in',['030'])]}"/>
-                                <field name="data_homologacao" attrs="{'required' :[('estado','in',['060'])], 'invisible': [('estado', '&lt;', '060')]}"/>
+                                <field name="data_hora" attrs="{'required' :[('estado','in',['030'])], 'readonly': [('estado','not in',['030'])]}"/>
+                                <field name="data_homologacao" attrs="{'required' :[('estado','in',['060'])], 'invisible': [('estado', '&lt;', '060')], 'readonly': [('estado','not in',['060'])]}"/>
                                 <!-- Ata Primeira Reunião -->
                                 <field name="data_hora_primeira_reuniao" attrs="{'required' :[('estado','in',['080'])], 'invisible': [('estado', 'not in', ['080'])]}"/>
                                 <field name="local" attrs="{'required' :[('estado','in',['030'])]}"/>

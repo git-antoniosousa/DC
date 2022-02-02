@@ -113,18 +113,7 @@ class Processo(models.Model):
     nr_ata1 = fields.Char(string="Numero da primeira ata")
 
     def write(self, vals):
-        if self.estado == '030' and self.data_hora:
-            dh = str(self.data_hora).split(" ")
-            d = dh[0]
-            h = ":".join(dh[1].split(":")[:2])
-            vals['data_defesa'] = d
-            vals['hora_defesa'] = h
-            vals['data_str'] = self.converter_data_para_str(d)
-            vals['hora_str'] = h.replace(':', 'h')
-            data_words, hora_words = self.converter_data_hora_para_words(str(self.data_hora))
-            vals['data_words'] = data_words
-            vals['hora_words'] = hora_words
-        elif self.estado == '080' and self.data_hora_primeira_reuniao:
+        if self.estado == '080' and self.data_hora_primeira_reuniao:
             data_words, hora_words = self.converter_data_hora_para_words(str(self.data_hora_primeira_reuniao))
             vals['data_primeira_reuniao_words'] = data_words
             vals['hora_primeira_reuniao_words'] = hora_words
@@ -225,6 +214,7 @@ class Processo(models.Model):
                 }
             )
             mailer.send()
+            print(f"{update_values['subject']} {update_values['body']}")
             self.write({'convocatoria_enviada': True})
 
     # --- ata primeira reuniao ---

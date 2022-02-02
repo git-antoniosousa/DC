@@ -50,7 +50,7 @@ class Curso(models.Model):
 
     def _set_seqnumber(self):
         model = self.env['ir.sequence']
-        seq = model.create(
+        seq = model.sudo().create(
             {
                 'name': f"{self.codigo}_ata_number",
                 'prefix': f"{self.codigo}-",
