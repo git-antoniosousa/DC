@@ -275,7 +275,7 @@ class Processo(models.Model):
     def enviar_ata_prova(self):
         id = None
         for obj in self.attachment_ids:
-            if obj.name.split('.')[0] == "ata-prova":
+            if obj.name == f"Provas-{self.nr_ata.replace('/','-')}-{self.name}.odt":
                 id = obj.id
                 break
         if id:

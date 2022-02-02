@@ -385,6 +385,8 @@ class Py3oReport(models.TransientModel):
                 if self.ir_actions_report_id.model == 'gest_diss.processo':
                     fd = open(rep_path, "r+b")
                     content = fd.read()
+                    if self.ir_actions_report_id.report_name == "Ata das Provas Word":
+                        attach_name = f"Provas-{model_instance.nr_ata.replace('/','-')}-{model_instance.name}.odt"
                     vals = {
                         'res_model': self.ir_actions_report_id.model,
                         'res_id': model_instance.id,
