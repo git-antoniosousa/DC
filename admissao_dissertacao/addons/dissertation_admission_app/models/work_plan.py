@@ -11,7 +11,9 @@ class WorkPlan(models.Model):
 
     dissertation = fields.Many2one('dissertation_admission.dissertation', readonly=True, required=True)
     student = fields.Many2one('dissertation_admission.student', readonly=True, required=True)
-    adviser = fields.Char(compute="_get_adviser_name")
+    student_id = fields.Many2one(related = 'student.university_id')
+    adviser = fields.Many2one( related = 'dissertation.adviser_id')
+    course = fields.Many2one(related= 'student.course')
 
     pdf = fields.Binary(readonly=True, default=None)
     pdf_fname = fields.Char(compute="_get_pdf_fname")
