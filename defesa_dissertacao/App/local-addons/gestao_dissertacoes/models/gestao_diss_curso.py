@@ -66,3 +66,11 @@ class Curso(models.Model):
         obj = super(Curso, self).create(values)
         obj._set_seqnumber()
         return obj
+
+    #@api.model
+    def write(self, vals):
+        if 'number_next' in vals.keys():
+            seq = self.env['ir.sequence'].sudo().browse(self.contador_ata_id.id)
+            seq.number_next = vals['number_next']
+            del vals['number_next']
+        return super(Curso, self).write(vals)
