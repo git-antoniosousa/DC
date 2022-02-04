@@ -1,4 +1,22 @@
 <odoo>
+      <record id="dissertation_admission_work_plan_view_search" model="ir.ui.view">
+        <field name="name">dissertation_admission_work_plan_view_search</field>
+        <field name="model">dissertation_admission.work_plan</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="adviser"/>
+                <field name="course"/>
+
+                <group expand="0" string="Agrupar por...">
+                    <filter name="group_by_orientador" string="Orientador" context="{'group_by':'adviser'}"/>
+                    <filter name="group_by_curso" string="Curso" context="{'group_by':'course'}"/>
+
+                </group>
+            </search>
+        </field>
+    </record>
+
+
     <record id="view_dissertation_admission_work_plan_form" model="ir.ui.view">
         <field name="name">Dissertation Simple Form</field>
         <field name="model">dissertation_admission.work_plan</field>
