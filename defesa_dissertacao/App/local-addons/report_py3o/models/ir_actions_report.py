@@ -176,6 +176,10 @@ class IrActionsReport(models.Model):
         if report.print_report_name and not len(res_ids) > 1:
             obj = self.env[self.model].browse(res_ids)
             return safe_eval(report.print_report_name, {"object": obj, "time": time})
+        if self.report_name == "Ata das Provas Word" and not len(res_ids) > 1:
+            obj = self.env[self.model].browse(res_ids)
+            name = f"Provas-{obj.nr_ata.replace('/', '-')}-{obj.name}.odt"
+            return "{}.{}".format(name, self.py3o_filetype)
         return "{}.{}".format(self.name, self.py3o_filetype)
 
     def _get_attachments(self, res_ids):

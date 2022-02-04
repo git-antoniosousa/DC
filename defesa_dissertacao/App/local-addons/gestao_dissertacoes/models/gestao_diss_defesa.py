@@ -68,7 +68,7 @@ class Defesa(models.Model):
         print(f" compute_hora_defesa {self}")
         res = dict()
         for rec in self:
-            date_object = rec.data_hora.strftime("%Y-%m-%d")
+            date_object = rec.data_hora.strftime("%d-%m-%Y")
             res[rec.id] = date_object
             rec.data_defesa = date_object
         print(f"Return {res}")

@@ -6,16 +6,20 @@ from ics import Calendar, Event
 
 class Invite(http.Controller):
 
-    def ics_file(self, data_inicio, data_fim, local, numero, sala):
+    def ics_file(self, data_inicio, data_fim, local, numero, sala, name, link_vc=False):
         c = Calendar()
         e = Event()
-        e.name = "Defesa Dissertação - Aluno " + numero
+        e.name = f"Prova de defesa dissertação - {numero} {name}"
         e.begin = data_inicio
         e.end = data_fim
-        if local == 'presencial':
-            e.description = "Defesa presencial da dissertação do aluno " + numero + " no "  + sala + " da Universidade do Minho" 
-        if local == 'virtual':
-            e.description = "Defesa virtual da dissertação do aluno " + numero + " através do link " + sala
+        e.description = f"Prova de defesa de disseração de {numero} {name}"
+        e.location = sala
+        if link_vc != False:
+            e.description = f"{e.description}\n link para a participação do arguente {link_vc}"
+        #if local == 'presencial':
+        #    e.description = "Defesa presencial da dissertação do aluno " + numero + " no "  + sala + " da Universidade do Minho"
+        #if local == 'virtual':
+        #    e.description = "Defesa virtual da dissertação do aluno " + numero + " através do link " + sala
         c.events.add(e)
         return str(c)
 
@@ -42,10 +46,7 @@ class Invite(http.Controller):
             data = datetime.strftime(pytz.utc.localize(datetime.strptime(str(processo.data_hora), "%Y-%m-%d %H:%M:%S")).astimezone(local),"%d/%m/%Y %H:%M %Z%z")
             data_inicio = datetime.strftime(datetime.strptime(str(processo.data_hora), "%Y-%m-%d %H:%M:%S"),"%Y-%m-%d %H:%M")
             data_fim = datetime.strftime(datetime.strptime(str(processo.data_hora + timedelta(minutes=55)), "%Y-%m-%d %H:%M:%S"),"%Y-%m-%d %H:%M")
-            print(data_inicio)
-            print(data_fim)
-            ics = self.ics_file(data_inicio, data_fim, processo.local, processo.numero, processo.sala)
-            print(ics)
+            ics = self.ics_file(data_inicio, data_fim, processo.local, processo.numero, processo.sala, processo.name, processo.link_vc)
             if(kw.get('convite')):
                 http.request.env['gest_diss.processo'].sudo().search([('id', '=', id)]).convite(kw.get('convite'),juri)
                 processo_resposta = http.request.env['gest_diss.processo'].sudo().search([('id', '=', id)])
