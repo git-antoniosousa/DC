@@ -92,11 +92,13 @@ class WorkPlan(models.Model):
 
     @api.depends('pdf')
     def _get_workplan_submitted(self):
-        self.work_plan_submitted = not not self.pdf
+        for rec in self:
+            rec.work_plan_submitted = not not rec.pdf
 
     @api.depends('pdf_pre_thesis')
     def _get_workplan_submitted(self):
-        self.rpd_submitted = not not self.pdf_pre_thesis
+        for rec in self:
+            rec.rpd_submitted = not not rec.pdf_pre_thesis
 
     def open_sign_wizard(self):
         return {
