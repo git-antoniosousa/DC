@@ -24,6 +24,9 @@ class WorkPlan(models.Model):
     pdf_pre_thesis = fields.Binary(default=None)
     pdf_pre_thesis_fname = fields.Char(compute="_get_pdf_pre_thesis_fname")
 
+    work_plan_submitted = fields.Boolean(compute ="_get_workplan_submitted")
+    rpd_submitted = fields.Boolean(compute="_get_rpd_submitted")
+
     def create(self, vals):
         ndiss = len(self.env['dissertation_admission.work_plan'].sudo() \
                     .search([('dissertation.id', '=', vals['dissertation'])]))
@@ -86,6 +89,14 @@ class WorkPlan(models.Model):
 
     def _get_signed_director(self):
         self.signed_director = not not self.pdf_signed
+
+    @api.depends('pdf')
+    def _get_workplan_submitted(self):
+        self.work_plan_submitted = not not self.pdf
+
+    @api.depends('pdf_pre_thesis')
+    def _get_workplan_submitted(self):
+        self.rpd_submitted = not not self.pdf_pre_thesis
 
     def open_sign_wizard(self):
         return {
