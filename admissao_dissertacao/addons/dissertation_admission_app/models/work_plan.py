@@ -24,8 +24,8 @@ class WorkPlan(models.Model):
     pdf_pre_thesis = fields.Binary(default=None)
     pdf_pre_thesis_fname = fields.Char(compute="_get_pdf_pre_thesis_fname")
 
-    work_plan_submitted = fields.Boolean(compute ="_get_workplan_submitted")
-    rpd_submitted = fields.Boolean(compute="_get_rpd_submitted")
+    work_plan_submitted = fields.Boolean(compute ="_get_workplan_submitted", store=True)
+    rpd_submitted = fields.Boolean(compute="_get_rpd_submitted", store=True)
 
     def create(self, vals):
         ndiss = len(self.env['dissertation_admission.work_plan'].sudo() \
@@ -92,11 +92,13 @@ class WorkPlan(models.Model):
 
     @api.depends('pdf')
     def _get_workplan_submitted(self):
+        print(f"_get_workplan_submitted {self}")
         for rec in self:
             rec.work_plan_submitted = not not rec.pdf
 
     @api.depends('pdf_pre_thesis')
-    def _get_workplan_submitted(self):
+    def _get_rpd_submitted(self):
+        print(f"_get_rpd_submitted {self}")
         for rec in self:
             rec.rpd_submitted = not not rec.pdf_pre_thesis
 
