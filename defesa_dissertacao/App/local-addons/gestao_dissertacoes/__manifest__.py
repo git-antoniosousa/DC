@@ -56,6 +56,7 @@
         'data/ata_sequence.xml',
         'data/envio_convocatoria.xml',
         'data/envio_pedido_link.xml',
+        'data/pedido_anexos.xml',
     ],
     'demo': [
         #'demo/alunos.xml',

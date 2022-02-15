@@ -19,12 +19,57 @@ class Curso(models.Model):
 
     descricao = fields.Char(string="Descrição")
 
-    area_cientifica_predominante = fields.Char(string="Área Científica Predominante")
-    
+    #area_cientifica_predominante = fields.Char(string="Área Científica Predominante")
+    area_cientifica_predominante = fields.Selection([
+        ('Agricultura, Silvicultura e Pescas', 'Agricultura, Silvicultura e Pescas'),
+        ('Artes', 'Artes'),
+        ('Biotecnologia Agrária e Alimentar ', 'Biotecnologia Agrária e Alimentar '),
+        ('Biotecnologia Ambiental', 'Biotecnologia Ambiental'),
+        ('Biotecnologia Industrial', 'Biotecnologia Industrial'),
+        ('Biotecnologia Médica', 'Biotecnologia Médica'),
+        ('Ciência Animal e dos Lacticínios', 'Ciência Animal e dos Lacticínios'),
+        ('Ciências Biológicas', 'Ciências Biológicas'),
+        ('Ciências da Computação e da Informação ', 'Ciências da Computação e da Informação '),
+        ('Ciências da Comunicação', 'Ciências da Comunicação'),
+        ('Ciências da Educação', 'Ciências da Educação'),
+        ('Ciências da Saúde', 'Ciências da Saúde'),
+        ('Ciências da Terra e Ciências do Ambiente ', 'Ciências da Terra e Ciências do Ambiente '),
+        ('Ciências Politicas', 'Ciências Politicas'),
+        ('Ciências Veterinárias', 'Ciências Veterinárias'),
+        ('Direito', 'Direito'),
+        ('Economia e Gestão', 'Economia e Gestão'),
+        ('Engenharia Civil', 'Engenharia Civil'),
+        ('Engenharia do Ambiente', 'Engenharia do Ambiente'),
+        ('Engenharia dos Materiais', 'Engenharia dos Materiais'),
+        ('Engenharia Eletrotécnica, Eletrónica e Informática', 'Engenharia Eletrotécnica, Eletrónica e Informática'),
+        ('Engenharia Mecânica ', 'Engenharia Mecânica '),
+        ('Engenharia Médica ', 'Engenharia Médica '),
+        ('Engenharia Química ', 'Engenharia Química '),
+        ('Filosofia, Ética e Religião ', 'Filosofia, Ética e Religião '),
+        ('Física', 'Física'),
+        ('Geografia Económica e Social ', 'Geografia Económica e Social '),
+        ('História e Arqueologia ', 'História e Arqueologia '),
+        ('Línguas e Literaturas Matemática', 'Línguas e Literaturas Matemática'),
+        ('Medicina Básica', 'Medicina Básica'),
+        ('Medicina Clínica', 'Medicina Clínica'),
+        ('Nanotecnologia', 'Nanotecnologia'),
+        ('Não Classificado', 'Não Classificado'),
+        ('Outras Ciências Agrárias', 'Outras Ciências Agrárias'),
+        ('Outras Ciências de Engenharia e Tecnologias ', 'Outras Ciências de Engenharia e Tecnologias '),
+        ('Outras Ciências Médicas', 'Outras Ciências Médicas'),
+        ('Outras Ciências Naturais ', 'Outras Ciências Naturais '),
+        ('Outras Ciências Sociais ', 'Outras Ciências Sociais '),
+        ('Outras Humanidades ', 'Outras Humanidades '),
+        ('Psicologia', 'Psicologia'),
+        ('Química ', 'Química '),
+        ('Sociologia', 'Sociologia'),
+    ], string ="Área Científica Predominante", readonly=False, default='Electrical, Electronic and Information Engineering')
+
     phone = fields.Char(string="Número de Contacto")
 
     email = fields.Char(string="Email")
     email_suporte = fields.Char(string="Email para Suporte")
+    email_secretaria = fields.Char(string="Email secretariado")
     website = fields.Char(string="Website")
 
     contador_ata_id = fields.Many2one('ir.sequence', ondelete="restrict")

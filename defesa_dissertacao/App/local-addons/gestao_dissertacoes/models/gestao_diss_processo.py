@@ -80,7 +80,7 @@ class Processo(models.Model):
         ('030', 'Proposta de Júri'),
         ('040', 'Aguardar Confirmação do Júri'),
         ('050', 'Aguardar Homologação'),
-        ('060', 'Homologação'),
+        ('060', 'Homolugado'),
         ('070', 'Envio de Convocatória'),
         ('080', 'Ata da Primeira Reunião'),
         ('090', 'Declaração do Aluno'),
@@ -106,7 +106,7 @@ class Processo(models.Model):
     # true se a ata da prova foi enviada, false caso contrario
     ata_prova_enviada = fields.Boolean(string="Ata da Prova", default=False)
     # true se a declaracao do aluno foi enviada, false caso contrario
-    declaracao_aluno_enviada = fields.Boolean(string="Declaração do aluno", default=False)
+    declaracao_aluno_enviada = fields.Boolean(string="Pedido de anexos enviado", default=False)
     convocatoria_enviada = fields.Boolean(string="Convocatória", default=False)
 
     nr_ata = fields.Char(string="Numero de ata")
@@ -269,14 +269,26 @@ class Processo(models.Model):
             raise ValidationError("O ficheiro da declaração do aluno não foi encontrado."
                                   " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
 
+    def enviar_pedido_anexos(self):
+        if self.nota < 10 or self.nota > 20:
+            raise ValidationError(f"A nota tem de ser entre 10 e 20. É {self.nota}.")
+        template_id = self.env.ref('gestao_dissertacoes.pedido_anexos')
+        self.message_post_with_template(template_id.id)
+        self.write({'declaracao_aluno_enviada': True})
+
     # --- ata da prova ---
 
 
     def enviar_ata_prova(self):
         id = None
+        attach_name =''
         for obj in self.attachment_ids:
+            if self.nr_ata == False:
+                raise ValidationError("Nao foi encontrado numero de ata. Gere a ata das provas")
+
             if obj.name == f"Provas-{self.nr_ata.replace('/','-')}-{self.name}.odt":
                 id = obj.id
+                attach_name = f"Provas-{self.nr_ata.replace('/','-')}-{self.name}.odt"
                 break
         if id:
             template_id = self.env.ref('gestao_dissertacoes.ata_prova')
@@ -285,8 +297,7 @@ class Processo(models.Model):
             template_id.attachment_ids = [(3, id)]
             self.write({'ata_prova_enviada': True})
         else:
-            raise ValidationError("O ficheiro da ata da prova não foi encontrado."
-                                  " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
+            raise ValidationError(f"O ficheiro da ata da prova não foi encontrado.\n Verifique se o carregou para a plataforma ou se o nome({attach_name}) do ficheiro está correto")
 
     # --- registo da nota ---
 
