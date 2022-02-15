@@ -80,7 +80,7 @@ class Processo(models.Model):
         ('030', 'Proposta de Júri'),
         ('040', 'Aguardar Confirmação do Júri'),
         ('050', 'Aguardar Homologação'),
-        ('060', 'Homolugado'),
+        ('060', 'Homologado'),
         ('070', 'Envio de Convocatória'),
         ('080', 'Ata da Primeira Reunião'),
         ('090', 'Declaração do Aluno'),
