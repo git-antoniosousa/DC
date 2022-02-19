@@ -398,12 +398,12 @@ class Processo(models.Model):
     def converter_data_hora_para_words(self, data_hora):
         date_object = datetime.strptime(data_hora, "%Y-%m-%d %H:%M:%S")
 
-        ano = num2words(date_object.year, to='year', lang='pt_BR')
+        ano = num2words(date_object.year, to='year', lang='pt_PT')
         mes = calendar.month_name[date_object.month]
-        dia = num2words(date_object.day, to='year', lang='pt_BR')
+        dia = num2words(date_object.day, to='year', lang='pt_PT')
 
-        hora = num2words(date_object.hour, to='year', lang='pt_BR')
-        minuto = num2words(date_object.minute, to='year', lang='pt_BR')
+        hora = num2words(date_object.hour, to='year', lang='pt_PT')
+        minuto = num2words(date_object.minute, to='year', lang='pt_PT')
 
         data_words = dia + ' dias do mês de ' + mes.lower() + ' do ano de ' + ano
         if date_object.minute > 0:
@@ -415,9 +415,9 @@ class Processo(models.Model):
 
     def converter_data_para_words(self, data):
         data_object = datetime.strptime(data, "%Y-%m-%d")
-        ano = num2words(data_object.year, to='year', lang='pt_BR')
+        ano = num2words(data_object.year, to='year', lang='pt_PT')
         mes = calendar.month_name[data_object.month]
-        dia = num2words(data_object.day, to='year', lang='pt_BR')
+        dia = num2words(data_object.day, to='year', lang='pt_PT')
         data_words = dia + ' de ' + mes.lower() + ' de ' + ano
         return data_words
 
