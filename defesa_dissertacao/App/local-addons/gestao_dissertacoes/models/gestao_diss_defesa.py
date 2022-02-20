@@ -18,12 +18,12 @@ class Defesa(models.Model):
         for rec in self:
             #date_object = datetime.strptime(rec.data_hora, "%Y-%m-%d %H:%M:%S")
             date_object = rec.data_hora
-            ano = num2words(date_object.year, to='year', lang='pt_BR')
+            ano = num2words(date_object.year, to='year', lang='pt_PT')
             mes = calendar.month_name[date_object.month]
-            dia = num2words(date_object.day, to='year', lang='pt_BR')
+            dia = num2words(date_object.day, to='year', lang='pt_PT')
 
-            hora = num2words(date_object.hour, to='year', lang='pt_BR')
-            minuto = num2words(date_object.minute, to='year', lang='pt_BR')
+            hora = num2words(date_object.hour, to='year', lang='pt_PT')
+            minuto = num2words(date_object.minute, to='year', lang='pt_PT')
 
             data_words = dia + ' dias do mês de ' + mes.lower() + ' do ano de ' + ano
             if date_object.minute > 0:
@@ -43,9 +43,9 @@ class Defesa(models.Model):
         for rec in self:
             #data_object = datetime.strptime(rec.data_hora, "%Y-%m-%d")
             data_object = rec.data_hora
-            ano = num2words(data_object.year, to='year', lang='pt_BR')
+            ano = num2words(data_object.year, to='year', lang='pt_PT')
             mes = calendar.month_name[data_object.month]
-            dia = num2words(data_object.day, to='year', lang='pt_BR')
+            dia = num2words(data_object.day, to='year', lang='pt_PT')
             data_words = dia + ' de ' + mes.lower() + ' de ' + ano
             res[rec.id] = data_words
             rec.data_words = data_words

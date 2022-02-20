@@ -63,7 +63,7 @@ class Curso(models.Model):
         ('Psicologia', 'Psicologia'),
         ('Química ', 'Química '),
         ('Sociologia', 'Sociologia'),
-    ], string ="Área Científica Predominante", readonly=False, default='Electrical, Electronic and Information Engineering')
+    ], string ="Área Científica", readonly=False, default='Electrical, Electronic and Information Engineering')
 
     phone = fields.Char(string="Número de Contacto")
 
@@ -72,6 +72,8 @@ class Curso(models.Model):
     email_secretaria = fields.Char(string="Email secretariado")
     website = fields.Char(string="Website")
 
+    departamento = fields.Char(string="Departamento")
+    ECTS_diss = fields.Integer(string ="ECTS")
     contador_ata_id = fields.Many2one('ir.sequence', ondelete="restrict")
 
     number_next = fields.Integer(related='contador_ata_id.number_next', string="Número da próxima ata", readonly=False, store= False)

@@ -1,12 +1,19 @@
+import os
 import sys
 
 import calendar
 import locale
+import base64
+import PyPDF2
+from PyPDF2 import PdfFileWriter, PdfFileReader
+from PyPDF2.generic import BooleanObject, NameObject, IndirectObject
+from contextlib import closing
 from num2words import num2words
 from datetime import datetime
 from odoo import api, models, fields
 from odoo.exceptions import ValidationError, UserError
 from cryptography.fernet import Fernet
+import tempfile
 
 # Definir o locale PT
 locale.setlocale(locale.LC_ALL, 'pt_PT')
@@ -50,12 +57,51 @@ class Processo(models.Model):
 
     # --- homologacao ---
     data_homologacao = fields.Date(string="Data de Homologação")
-    data_homologacao_words = fields.Char(string="Data de Homologação por Extenso")
 
-    # --- data primeira reuniao ---
+    @api.depends('data_homologacao')
+    def data_homolugacao_para_words(self):
+        print(f"data_homolugacao_para_words {self}")
+        data_words = dict()
+        for rec in self:
+            #data_object = datetime.strptime(rec.data_homologacao, "%Y-%m-%d")
+            data_object = rec.data_homologacao
+            ano = num2words(data_object.year, to='year', lang='pt_PT')
+            mes = calendar.month_name[data_object.month]
+            dia = num2words(data_object.day, to='year', lang='pt_PT')
+            data_words[rec.id] = dia + ' de ' + mes.lower() + ' de ' + ano
+            rec.data_homologacao_words = dia + ' de ' + mes.lower() + ' de ' + ano
+        print(f"data_homolugacao_para_words {data_words}")
+        return data_words
+
+
+    data_homologacao_words = fields.Char(compute = 'data_homolugacao_para_words', string="Data de Homologação por Extenso")
+
     data_hora_primeira_reuniao = fields.Datetime(string="Data e Hora da Primeira Reunião")
-    data_primeira_reuniao_words = fields.Char(string="Data da Primeira Reunião por Extenso")
-    hora_primeira_reuniao_words = fields.Char(string="Hora da Primeira Reunião por Extenso")
+
+    @api.depends('data_hora_primeira_reuniao')
+    def data_hora_para_words(self, data_hora):
+        for rec in self:
+            date_object = rec.data_hora_primeira_reuniao #datetime.strptime(data_hora, "%Y-%m-%d %H:%M:%S")
+
+            ano = num2words(date_object.year, to='year', lang='pt_PT')
+            mes = calendar.month_name[date_object.month]
+            dia = num2words(date_object.day, to='year', lang='pt_PT')
+
+            hora = num2words(date_object.hour, to='year', lang='pt_PT')
+            minuto = num2words(date_object.minute, to='year', lang='pt_PT')
+
+            data_words = dia + ' dias do mês de ' + mes.lower() + ' do ano de ' + ano
+            if date_object.minute > 0:
+                hora_words = hora + ' horas e ' + minuto + ' minutos'
+            else:
+                hora_words = hora + ' horas'
+            rec.data_primeira_reuniao_words = data_words
+            rec.hora_primeira_reuniao_words = hora_words
+            return data_words, hora_words
+    # --- data primeira reuniao ---
+
+    data_primeira_reuniao_words = fields.Char(compute = 'data_hora_para_words', string="Data da Primeira Reunião por Extenso")
+    hora_primeira_reuniao_words = fields.Char(compute = 'data_hora_para_words', string="Hora da Primeira Reunião por Extenso")
 
     # --- data primeira reuniao ---
     data_primeira_reuniao = fields.Date(string="Data da Primeira Reunião")
@@ -111,16 +157,6 @@ class Processo(models.Model):
 
     nr_ata = fields.Char(string="Numero de ata")
     nr_ata1 = fields.Char(string="Numero da primeira ata")
-
-    def write(self, vals):
-        if self.estado == '080' and self.data_hora_primeira_reuniao:
-            data_words, hora_words = self.converter_data_hora_para_words(str(self.data_hora_primeira_reuniao))
-            vals['data_primeira_reuniao_words'] = data_words
-            vals['hora_primeira_reuniao_words'] = hora_words
-        elif self.estado == '060' and self.data_homologacao:
-            data_homologacao_words = self.converter_data_para_words(str(self.data_homologacao))
-            vals['data_homologacao_words'] = data_homologacao_words
-        return super(Processo, self).write(vals)
 
     # --- ações dos butões dos estados ---
     def recuar_action(self):
@@ -272,8 +308,97 @@ class Processo(models.Model):
     def enviar_pedido_anexos(self):
         if self.nota < 10 or self.nota > 20:
             raise ValidationError(f"A nota tem de ser entre 10 e 20. É {self.nota}.")
+
+        if len(self.coorientador_id) != 0:
+            orientador = f"{self.orientador_id.name}, {self.coorientador_id.name}"
+        else:
+            orientador = f"{self.orientador_id.name}"
+        now = datetime.now()
+        fields5a = {
+            'Nome': self.name,
+            'email': self.email,
+            #'Text3': "omeu telefone",
+            #'CC': "o meu CC",
+            'Check Box5': 'Yes',
+            'Titulo': self.diss_titulo,
+            'Text7': orientador,
+            'Text9': self.data_hora.strftime('%d-%m-%Y'),
+            'Text11': self.curso.nome,
+            'Check Box17': 'Yes',
+            'Text14': now.strftime('%d'),
+            'Text15': now.strftime('%m'),
+            'Text16': now.strftime('%Y'),
+            # pag 2 5B
+            'Text34': self.name,
+            'Check Box26': 'Yes',
+            'Text35': self.diss_titulo,
+            'Text4': orientador,
+            'Text37': self.data_hora.strftime('%d-%m-%Y'),
+            'Text39': self.curso.nome,
+            'UOEIS': 'Escola de Engenharia',
+            'Text41': self.curso.departamento,
+            'FOS': self.curso.area_cientifica_predominante,
+            'Text45': self.curso.ECTS_diss,
+            'Text46': self.nota,
+        }
+
+
+        fda, fnamea = tempfile.mkstemp(suffix=".pdf", prefix="Anexo5A.")
+        fdb, fnameb = tempfile.mkstemp(suffix=".pdf", prefix="Anexo5B.")
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+        anexo5a = f"{path}/../templates/Anexo5AeB.PDF"
+
+        writer1 = PyPDF2.PdfFileWriter()
+        writer2 = PyPDF2.PdfFileWriter()
+
+        with closing(open(anexo5a, 'rb')) as infile:
+            reader = PyPDF2.PdfFileReader(infile, strict=False)
+            writer1.addPage(reader.getPage(0))
+            writer2.addPage(reader.getPage(1))
+            writer1.updatePageFormFieldValues(writer1.getPage(0), fields5a)
+            writer2.updatePageFormFieldValues(writer2.getPage(0), fields5a)
+
+            with closing(os.fdopen(fda, 'wb')) as outfile:
+                writer1.write(outfile)
+
+            with closing(open(fnamea, 'rb')) as infile:
+                data1 = infile.read()
+                vals = {
+                    'res_model': self._name,
+                    'res_id': self.id,
+                    'datas': base64.b64encode(data1),
+                    'name': "Anexo5A.pdf",
+                    'mimetype': 'application/pdf',
+                }
+                at_id1 = self.env['ir.attachment'].create(vals)
+                self.write({'attachment_ids': [(4, at_id1.id)]})
+
+            with closing(os.fdopen(fdb, 'wb')) as outfile:
+                writer2.write(outfile)
+
+            with closing(open(fnameb, 'rb')) as infile:
+                data1 = infile.read()
+                vals = {
+                    'res_model': self._name,
+                    'res_id': self.id,
+                    'datas': base64.b64encode(data1),
+                    'name': "Anexo5B.pdf",
+                    'mimetype': 'application/pdf',
+                }
+                at_id2 = self.env['ir.attachment'].create(vals)
+                self.write({'attachment_ids': [(4, at_id2.id)]})
+
+            os.unlink(fnamea)
+            os.unlink(fnameb)
+            print(f"PATH {os.path} {os.curdir} {os.getcwd()} {path}")
+
+
         template_id = self.env.ref('gestao_dissertacoes.pedido_anexos')
+        template_id.attachment_ids = [(4, at_id1.id)]
+        template_id.attachment_ids = [(4, at_id2.id)]
         self.message_post_with_template(template_id.id)
+        template_id.attachment_ids = [(3, at_id1.id)]
+        template_id.attachment_ids = [(3, at_id2.id)]
         self.write({'declaracao_aluno_enviada': True})
 
     # --- ata da prova ---
