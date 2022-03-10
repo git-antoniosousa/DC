@@ -15,6 +15,7 @@ from odoo.exceptions import ValidationError, UserError
 from cryptography.fernet import Fernet
 import tempfile
 
+import pytz
 # Definir o locale PT
 locale.setlocale(locale.LC_ALL, 'pt_PT')
 
@@ -79,9 +80,11 @@ class Processo(models.Model):
     data_hora_primeira_reuniao = fields.Datetime(string="Data e Hora da Primeira Reunião")
 
     @api.depends('data_hora_primeira_reuniao')
-    def data_hora_para_words(self, data_hora):
+    def data_hora_para_words(self, data_hora_primeira_reuniao):
+        user_tz = self.env.user.tz or pytz.utc
+        local = pytz.timezone(user_tz)
         for rec in self:
-            date_object = rec.data_hora_primeira_reuniao #datetime.strptime(data_hora, "%Y-%m-%d %H:%M:%S")
+            date_object = rec.data_hora_primeira_reuniao.astimezone(local) #datetime.strptime(data_hora, "%Y-%m-%d %H:%M:%S")
 
             ano = num2words(date_object.year, to='year', lang='pt_PT')
             mes = calendar.month_name[date_object.month]
@@ -521,7 +524,9 @@ class Processo(models.Model):
         return self
 
     def converter_data_hora_para_words(self, data_hora):
-        date_object = datetime.strptime(data_hora, "%Y-%m-%d %H:%M:%S")
+        user_tz = self.env.user.tz or pytz.utc
+        local = pytz.timezone(user_tz)
+        date_object = datetime.strptime(data_hora, "%Y-%m-%d %H:%M:%S").astimezone(local)
 
         ano = num2words(date_object.year, to='year', lang='pt_PT')
         mes = calendar.month_name[date_object.month]

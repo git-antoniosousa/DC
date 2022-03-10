@@ -3,7 +3,7 @@ from datetime import datetime
 import calendar
 import locale
 from num2words import num2words
-
+import pytz
 locale.setlocale(locale.LC_ALL, 'pt_PT')
 
 class Defesa(models.Model):
@@ -14,10 +14,14 @@ class Defesa(models.Model):
     @api.depends("data_hora")
     def converter_hora_para_words(self):
         print(f" converter_hora_para_words {self}")
+        user_tz = self.env.user.tz or pytz.utc
+        local = pytz.timezone(user_tz)
         res = dict()
         for rec in self:
             #date_object = datetime.strptime(rec.data_hora, "%Y-%m-%d %H:%M:%S")
-            date_object = rec.data_hora
+
+            date_object = rec.data_hora.astimezone(local)
+            print(f"{rec.data_hora} ---> TZ {date_object}")
             ano = num2words(date_object.year, to='year', lang='pt_PT')
             mes = calendar.month_name[date_object.month]
             dia = num2words(date_object.day, to='year', lang='pt_PT')
@@ -39,10 +43,12 @@ class Defesa(models.Model):
     @api.depends("data_hora")
     def converter_data_para_words(self):
         print(f" converter_data_para_words {self}")
+        user_tz = self.env.user.tz or pytz.utc
+        local = pytz.timezone(user_tz)
         res = dict()
         for rec in self:
             #data_object = datetime.strptime(rec.data_hora, "%Y-%m-%d")
-            data_object = rec.data_hora
+            data_object = rec.data_hora.astimezone(local)
             ano = num2words(data_object.year, to='year', lang='pt_PT')
             mes = calendar.month_name[data_object.month]
             dia = num2words(data_object.day, to='year', lang='pt_PT')
@@ -55,9 +61,11 @@ class Defesa(models.Model):
     @api.depends("data_hora")
     def converter_data_para_str(self):
         print(f" converter_data_para_str {self}")
+        user_tz = self.env.user.tz or pytz.utc
+        local = pytz.timezone(user_tz)
         res = dict()
         for rec in self:
-            date_object = rec.data_hora.strftime("%d.%b.%Y")
+            date_object = rec.data_hora.astimezone(local).strftime("%d.%b.%Y")
             res[rec.id] = date_object
             rec.data_str = date_object
         print(f"Return {res}")
@@ -66,9 +74,11 @@ class Defesa(models.Model):
     @api.depends("data_hora")
     def compute_data_defesa(self):
         print(f" compute_hora_defesa {self}")
+        user_tz = self.env.user.tz or pytz.utc
+        local = pytz.timezone(user_tz)
         res = dict()
         for rec in self:
-            date_object = rec.data_hora.strftime("%d-%m-%Y")
+            date_object = rec.data_hora.astimezone(local).strftime("%d-%m-%Y")
             res[rec.id] = date_object
             rec.data_defesa = date_object
         print(f"Return {res}")
@@ -78,8 +88,10 @@ class Defesa(models.Model):
     def compute_hora_defesa(self):
         print(f" compute_hora_defesa {self}")
         res = dict()
+        user_tz = self.env.user.tz or pytz.utc
+        local = pytz.timezone(user_tz)
         for rec in self:
-            date_object = rec.data_hora.strftime("%Hh%M")
+            date_object = rec.data_hora.astimezone(local).strftime("%Hh%M")
             res[rec.id] = date_object
             rec.hora_defesa = date_object
         print(f"Return {res}")
