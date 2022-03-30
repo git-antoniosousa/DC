@@ -73,22 +73,20 @@ class Defesa(models.Model):
 
     @api.depends("data_hora")
     def compute_data_defesa(self):
-        print(f" compute_hora_defesa {self}")
-        user_tz = self.env.user.tz or pytz.utc
+        user_tz = self.env.user.tz or str(pytz.utc)
         local = pytz.timezone(user_tz)
         res = dict()
         for rec in self:
             date_object = rec.data_hora.astimezone(local).strftime("%d-%m-%Y")
             res[rec.id] = date_object
             rec.data_defesa = date_object
-        print(f"Return {res}")
         return res
 
     @api.depends("data_hora")
     def compute_hora_defesa(self):
         print(f" compute_hora_defesa {self}")
         res = dict()
-        user_tz = self.env.user.tz or pytz.utc
+        user_tz = self.env.user.tz or str(pytz.utc)
         local = pytz.timezone(user_tz)
         for rec in self:
             date_object = rec.data_hora.astimezone(local).strftime("%Hh%M")
