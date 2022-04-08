@@ -241,8 +241,8 @@
                         </group>
                         <group>
                         <!-- Registo de Nota  -->
-                            <group string="Resultado" attrs="{'invisible': [('estado', '&lt;', '100')]}">
-                                <field name="nota" attrs="{'required' :[('estado','in',['110'])]}"/>
+                            <group string="Resultado" attrs="{'invisible': [('estado', '&lt;', '070')]}">
+                                <field name="nota" attrs="{'required' :[('estado','in',['110'])], 'readonly': [('estado','not in',['110'])]}"/>
                                 <field name="pauta"/>
                                 <field name="nr_ata" readonly="1" />
                             </group>
@@ -298,13 +298,14 @@
                 <field name="juri_arguente_id" widget="many2one"/>
                 <field name="juri_vogal_id" widget="many2one"/>
                 <field name="orientador_id" widget="many2one"/>
-                <field name="coorientador_id" widget="many2one"/>
+                <field name="coorientador_id" widget="many2one" optional="hide"/>
+                <field name="pauta" optional="hide"/>
                 <field name="data_hora" optional="hide"/>
                 <field name="local" optional="hide"/>
                 <field name="sala" optional="hide"/>
                 <field name="data_homologacao" optional="hide"/>
                 <field name="convites_aceites" optional="hide"/>
-                <field name="estado"/>
+                <field name="estado" />
             </tree>
         </field>
     </record>

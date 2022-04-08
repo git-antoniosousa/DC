@@ -23,10 +23,15 @@ class LinkVC(http.Controller):
         if processo:
             print(f"KW {kw}")
             processo_resposta = processo
+            local = pytz.timezone("Europe/Lisbon")
+            data = datetime.strftime(
+                pytz.utc.localize(datetime.strptime(str(processo.data_hora), "%Y-%m-%d %H:%M:%S")).astimezone(local),
+                "%d/%m/%Y %H:%M %Z%z")
+
             if(kw.get('linkvc')):
                 http.request.env['gest_diss.processo'].sudo().search([('id', '=', id)]).update_link_vc(kw.get('linkvc'))
                 processo_resposta = http.request.env['gest_diss.processo'].sudo().search([('id', '=', id)])
             else:
-                return http.request.render('gestao_dissertacoes.linkvc', {'invite_processo': processo_resposta})
+                return http.request.render('gestao_dissertacoes.linkvc', {'invite_processo': processo_resposta, 'data': data})
         else:
             return http.request.render('gestao_dissertacoes.not-found', {'code': 404 ,'msg': "Processo não encontrado"})
