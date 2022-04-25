@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Search options -->
+    <record id="dissertation_admission_dashboard_view_search" model="ir.ui.view">
+        <field name="name">dissertation_admission_dashboard_view_search</field>
+        <field name="model">dissertation_admission.work_plan</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="student" widget="many2one"/>
+                <field name="dissertation">
+                    <tree>
+                    <field name="name"/>
+                    <field name="adviser_id"/>
+                    </tree>
+                </field>
+            </search>
+        </field>
+    </record>
+
+    <!-- Tree(list) View -->
+    <record id="dissertation_admission_dashboard_view_tree" model="ir.ui.view">
+        <field name="name">Listagem de Processos Finalizados</field>
+        <field name="model">dissertation_admission.work_plan</field>
+        <field name="arch" type="xml">
+            <tree create="false">
+                <field name="student" widget="many2one"/>
+                <!--
+                <field name="dissertation.name"/>
+                <field name="dissertation.adviser" widget="many2one"/>
+                -->
+                <field name="dissertation">
+                    <tree>
+                    <field name="name"/>
+                    <field name="adviser_id"/>
+                    </tree>
+                </field>
+            </tree>
+        </field>
+    </record>
+
+    <!--  Ignorar para já este record, temos de apagar isto e ver como se da add de records de dashboard -->
+     
+    <record id='dissertation_admission_dashboard_action' model='ir.actions.act_window'>
+        <field name="name">Gestão de Dissertações - Dashboard</field>
+        <field name="res_model">dissertation_admission.work_plan</field>
+        <field name="view_mode">form,tree,kanban</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+ (0, 0, {'view_mode': 'tree', 'view_id': ref('dissertation_admission_dashboard_view_tree')})
+]"/>
+    <field name="search_view_id" ref="dissertation_admission_dashboard_view_search"/>
+    </record>
+    
+    <menuitem name="Dashboard" id="dissertation_admission_dashboard_menu" parent="dissertation_admission_menu" action="dissertation_admission_dashboard_action" sequence="7"/>
+    
+</odoo>

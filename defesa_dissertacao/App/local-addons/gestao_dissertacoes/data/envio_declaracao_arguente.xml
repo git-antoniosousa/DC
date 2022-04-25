@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="0">
+    <record id="declaracao_arguente" model="mail.template">
+        <field name="name">Envio de declaração de presença para o Arguente do Júri</field>
+        <field name="email_from">${object.curso.email}</field>
+        <field name="email_to">${object.juri_arguente_id.email}</field>
+        <field name="email_cc">${object.curso.email}</field>
+        <field name="subject">${object.curso.codigo} - Provas de Mestrado - ${object.name} - Envio de declaração de presença para Arguente do Júri de Dissertação de 2ºciclo</field>
+        <field name="model_id" ref="gestao_dissertacoes.model_gest_diss_processo"/>
+        <field name="body_html"><![CDATA[
+
+            <p></p>
+            <p></p>
+            <p></p>
+            <p></p>
+            <p></p>
+            <p>Estimado(a) Doutor(a) ${object.juri_arguente_id.name}</p>
+            <p><br></p>
+            <p>Vem por este meio a Comissão Diretiva do ${object.curso.nome}
+            da Universidade do Minho  enviar-lhe a declaração de presença como arguente do
+            júri de dissertação de mestrado abaixo identificada, aproveitando para agradecer
+            mais uma vez a participação  nas provas.</p>
+            <p><br></p>
+            <p></p>
+            <br><b>Aluno:</b> ${object.name}
+            <p></p>
+            <p><b>Título:</b> ${object.diss_titulo}</p>
+            <p><br></p>
+            <hr>
+            <p></p>
+            <p>Com os melhores cumprimentos, </p>
+            <p><br></p>
+            <p>A Comissão Diretiva de Mestrado<br></p>
+            ]]></field>
+    </record>
+    </data>
+</odoo>
+

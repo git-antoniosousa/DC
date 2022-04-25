@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="0">
+    <record id="pedido_assinatura" model="mail.template">
+        <field name="name">Pedido assinatura declaração</field>
+        <field name="email_from">${object.curso.email}</field>
+        <field name="email_to">${object.curso.email_suporte}</field>
+        <field name="email_cc">${object.curso.email}</field>
+        <field name="subject">${object.curso.codigo} - Provas de Mestrado - ${object.name} – Pedido de Assinatura de Declração de Participação</field>
+        <field name="model_id" ref="gestao_dissertacoes.model_gest_diss_processo"/>
+        <field name="body_html"><![CDATA[
+        <p>Vem a DC do ${object.curso.nome}, solicitar a assinatura da declaração em anexo e upload no <a href="${object.decl_arguente_url}"> link</a>  </p>
+
+        <p><br></p>
+        ${object.decl_arguente_url}
+        <p><br></p>
+
+        <p><br></p>
+            ]]></field>
+    </record>
+    </data>
+</odoo>

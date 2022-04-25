@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="0">
+    <record id="convocatoria_presidente" model="mail.template">
+        <field name="name">Convocatória para o Presidente do Júri</field>
+        <field name="email_from">${object.curso.email}</field>
+        <field name="email_to">${object.juri_presidente_id.email}</field>
+        <field name="email_cc">${object.curso.email}</field>
+        <field name="subject">${object.curso.codigo} - Provas de Mestrado - ${object.name} - Convocatória para Presidente do Júri de Dissertação de 2ºciclo</field>
+        <field name="model_id" ref="gestao_dissertacoes.model_gest_diss_processo"/>
+        <field name="body_html"><![CDATA[
+            <p></p>
+            <p>Estimado(a) Doutor(a) ${object.juri_presidente_id.name}</p>
+            <p><br></p>
+            <p>Vem por este meio a Comissão Diretiva do ${object.curso.nome} da Universidade do Minho convocá-lo para presidir do júri de dissertação de mestrado abaixo identificada, agradecendo desde já a disponibilidade manifestada.</p>
+            <p><br></p>
+            <p>Pode confirmar a presença em <a href="${object.convocatoria_presidente_url}" data-original-title="" title="" aria-describedby="tooltip736786">aqui<br></a></p><p><br></p>
+            <p><br></p>
+            <hr>
+            <p></p>
+            <br><b>Aluno:</b> ${object.name}
+            <p></p>
+            <p><b>Título:</b> ${object.diss_titulo}</p>
+            <p><b>Data da Prova:</b> ${object.data_defesa}</p>
+            <p><b>Hora da Prova:</b> ${object.hora_defesa}</p>
+            <p><b>Local da Prova:</b> ${object.sala}</p>
+            % if object.link_vc != False:
+            <p><br></p>
+            <p> O link para a participação do arguente por Videoconferência é o seguinte: <a href="${object.link_vc}"> ${object.link_vc} </a></p>
+            <p><br></p>
+            <p> Atenção:  Os restantes membros do júri e o aluno deverão estar presentes fisicamente na sala indicada no assunto deste email. </a><p>
+            % endif
+        <p><br></p>
+        <p>O respetivo edital já foi publicado e está disponível para consulta em <a href="http://cp.eng.uminho.pt/editais.aspx">http://cp.eng.uminho.pt/editais.aspx .</p>
+        <p><br></p>
+            <p><br></p>
+            <hr>
+            <p></p>
+            <br>A prova pública durará no máximo 60 minutos repartidos da seguinte forma: apresentação do candidato: 15 minutos; arguição: 35 minutos; outros membros do júri: 10 minutos.<br><br>
+            <p></p>
+            <p>Muito agradece a Comissão Diretiva que confirme, com a brevidade possível, a sua presença neste ato académico. </p>
+            <p>Com os melhores cumprimentos, </p>
+            <p>A Comissão Diretiva de Mestrado<br></p>
+            ]]></field>
+    </record>
+    </data>
+</odoo>
+

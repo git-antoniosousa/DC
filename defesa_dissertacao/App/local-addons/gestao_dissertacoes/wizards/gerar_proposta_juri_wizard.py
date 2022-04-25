@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 class DocHomologacao(models.TransientModel):
     _name = 'gest_diss.proposta_juri_doc'
     _description = 'Documento de Homologação que contém vários processos'
-
+    _order = "processos_ids.data_hora asc"
     curso = None
 
     tipo_ficheiro = fields.Selection([

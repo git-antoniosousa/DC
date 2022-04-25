@@ -23,9 +23,9 @@ class Processo(models.Model):
     _name = "gest_diss.processo"
     _inherit = ['gest_diss.aluno', 'gest_diss.defesa', 'gest_diss.juri', 'mail.thread']
     _description = 'Processo de gestão da dissertação'
-    _order = "data_requerimento desc"
+    _order = "data_hora asc, data_requerimento asc"
     # --- ano letivo ---
-    #@api.constrains('nota')
+    @api.constrains('nota')
     def validate_nota(self):
         for rec in self:
             if self.nota < 10 or self.nota >20:
@@ -39,7 +39,6 @@ class Processo(models.Model):
         return self.env['gest_diss.ano_letivo'].search([('ano_letivo', 'like', f"{ano}/{ano + 1}")], limit=1)
 
     ano_letivo = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo', default=_default_ano_letivo)
-
     # --- desativa o trackback ---
     sys.tracebacklimit = 0
 
@@ -48,11 +47,24 @@ class Processo(models.Model):
     coorientador_id = fields.Many2one('gest_diss.membro', 'Co-orientador')
 
     # --- titulo e nota ---
+
+
     diss_titulo = fields.Char(string="Título da Tese")
     nota = fields.Integer(string="Nota" )
     pauta = fields.Integer(string="Número de  Pauta")
 
-    # --- pedido de porvas ---
+    @api.depends('nota')
+    def _compute_cnota(self):
+        print(f"Compute CNOTA {self}")
+        for obj in self:
+            print(f" Process Compute NOTA {obj}")
+            obj.enviar_pedido_anexos()
+            obj.enviar_pedido_assinatura_decl_arguente()
+            obj.avancar_action()
+
+    cnota = fields.Boolean(compute='_compute_cnota', store = True)
+
+    # --- pedido de provas ---
 
     data_requerimento = fields.Date(string="Data de Requerimento")#, default=datetime.today())
 
@@ -115,11 +127,13 @@ class Processo(models.Model):
         '040': ['030' , '050'],
         '050': ['040' , '060'],
         '060': ['050' , '070'],
-        '070': ['060' , '100'],
+        '070': ['060' , '075'],
+        '075': ['070', '100'],
         '100': ['070' , '110'],
         '110': ['100' , '120'],
-        '120': ['110' , '130'],
-        '130': ['120' , '140'],
+        '120': ['110' , '125'],
+        '125': ['120', '130'],
+        '130': ['125' , '140'],
         '140': ['130' , '-'],
     }
     
@@ -131,11 +145,13 @@ class Processo(models.Model):
         ('050', 'Aguardar Homologação'),
         ('060', 'Homologado'),
         ('070', 'Envio de Convocatória'),
-        ('080', 'Ata da Primeira Reunião'),
-        ('090', 'Declaração do Aluno'),
+        ('075', 'Convocatória Confirmada'),
+        #('080', 'Ata da Primeira Reunião'),
+        #('090', 'Declaração do Aluno'),
         ('100', 'Ata da Prova'),
         ('110', 'Registo de Nota'),
         ('120', 'A Aguardar Versão Final'),
+        ('125', 'Validar Versão Final/Anexos'),
         ('130', 'Lançar Pauta'),
         ('140', 'Finalizado')
     ], string='Estado', readonly=False, copy=False, index=True, tracking=3, default='010')
@@ -144,8 +160,19 @@ class Processo(models.Model):
     attachment_ids = fields.Many2many('ir.attachment', 'attachment_id', string="Outros Documentos")
 
     dissertacao = fields.Many2one('ir.attachment', string="Dissertação")
-
+    ata_assinada = fields.Many2one('ir.attachment', string="Ata das Provas")
+    atualizacao_diss = fields.Boolean(string="Necessita Atualizações", default=False)
+    dissertacao_final = fields.Many2one('ir.attachment', string="Dissertação final")
+    anexo5a = fields.Many2one('ir.attachment', string="Anexo 5A")
+    anexos_url = fields.Char(string="URL Anexos")
+    anexo5b = fields.Many2one('ir.attachment', string="Anexo 5B")
+    enviar_decl_arguente = fields.Boolean(string="Enviar Declaração participação", default=False)
+    decl_arguente_url = fields.Char(string="URL declaração arguente")
+    decl_arguente = fields.Many2one('ir.attachment', string="declaração arguente")
+    decl_arguente_assinada_enviada = fields.Boolean(string="Declaração arguente enviada", default=False)
+    decl_arguente_enviada = fields.Boolean(string="Pedido assinatura de declaração arguente enviada", default=False)
     dissertacao_url = fields.Char(string="URL da Dissertacao")
+    nota_url = fields.Char(string="URL da Nota")
 
     # --- verificacao de emails ---
     # true se os convites para o juri foram enviados, false caso contrario
@@ -157,6 +184,16 @@ class Processo(models.Model):
     # true se a declaracao do aluno foi enviada, false caso contrario
     declaracao_aluno_enviada = fields.Boolean(string="Pedido de anexos enviado", default=False)
     convocatoria_enviada = fields.Boolean(string="Convocatória", default=False)
+
+    convocatoria_presidente_url  = fields.Char(string="Link Convocatória Presidente Júri")
+    convocatoria_arguente_url = fields.Char(string="Link Convocatória Arguente Júri")
+    convocatoria_vogal_url = fields.Char(string="Link Convocatória Vogal Júri")
+    convocatoria_aluno_url = fields.Char(string="Link Convocatória Aluno")
+    convocatoria_presidente = fields.Boolean(string="Confirmação Presidente Júri")
+    convocatoria_arguente = fields.Boolean(string="Confirmação Arguente Júri")
+    convocatoria_vogal = fields.Boolean(string="Confirmação Vogal Júri")
+    convocatoria_aluno = fields.Boolean(string="Confirmação Aluno")
+    numero_convites_convocatoria = fields.Integer(string="Convocatorias Aceites", default=0)
 
     nr_ata = fields.Char(string="Numero de ata")
     nr_ata1 = fields.Char(string="Numero da primeira ata")
@@ -176,11 +213,24 @@ class Processo(models.Model):
             rec.nr_ata = False
 
     def avancar_action(self):
+
         for rec in self:
+
             state = rec.estado
             transicao = self.transicoes[state][1]
+            print(f"avancar_action {rec.estado} {transicao} {rec.numero_convites_convocatoria}")
             if transicao == '040':
                 rec.prop_juri_action()
+            if transicao == '070':
+                if rec.numero_convites_convocatoria == 4:
+                    transicao = self.transicoes[transicao][1]
+            if state == '125':
+                print(f"VALIDAR {rec.anexo5a.id} {rec.anexo5b.id} {rec.atualizacao_diss} {rec.dissertacao_final.id}")
+                if rec.anexo5a.id == False or\
+                    rec.anexo5b.id == False or \
+                    (rec.atualizacao_diss == True and rec.dissertacao_final.id == False):
+                    raise ValidationError("Falta versão final da tese ou anexos")
+
             if transicao != '-':
                 rec.write({'estado': transicao})
             print(f"AVANÇAR  {state} {self.estado}")
@@ -211,7 +261,38 @@ class Processo(models.Model):
 
     #------- convocatoria ----------------
 
+    def gerar_links_convocatoria(self):
+        key = bytes(self.env['ir.config_parameter'].sudo().get_param('gest_diss.fernet_key',
+                                                                     'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='),
+                    'utf-8')
+        fernet = Fernet(key)
+        data =[('presidente','cp'), ('arguente', 'ca'), ('vogal','cv'), ('aluno', 'cal')]
+        for k,v in data:
+            if eval(f"self.convocatoria_{k}_url") ==False:
+                now = datetime.now()
+                link = f"{v}-/-{self.id}-/-{self.name}-/-{now}"
+                print(link)
+                token = (fernet.encrypt(link.encode())).decode()
+                url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/convocatoria/{token}"
+                self.write({f'convocatoria_{k}_url' : url})
+
+
     def enviar_envio_convocatoria(self):
+        print(f"ENVIO CONV {self}")
+        template_id = self.env.ref('gestao_dissertacoes.envio_convocatoria')
+        #self.message_post_with_template(template_id.id)
+        for rec in self:
+            print(f"Gerar links {rec}")
+            rec.gerar_links_convocatoria()
+            data = [('presidente', 'cp'), ('arguente', 'ca'), ('vogal', 'cv'), ('aluno', 'cal')]
+
+            for k,v in data:
+                print(f"envir {k}")
+                template_id = self.env.ref(f'gestao_dissertacoes.convocatoria_{k}')
+                rec.message_post_with_template(template_id.id)
+            rec.write({'convocatoria_enviada': True})
+
+    def enviar_envio_convocatoria_old(self):
         print(f"ENVIO CONV {self}")
         template_id = self.env.ref('gestao_dissertacoes.envio_convocatoria')
         #self.message_post_with_template(template_id.id)
@@ -309,100 +390,106 @@ class Processo(models.Model):
                                   " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
 
     def enviar_pedido_anexos(self):
-        if self.nota < 10 or self.nota > 20:
-            raise ValidationError(f"A nota tem de ser entre 10 e 20. É {self.nota}.")
-
-        if len(self.coorientador_id) != 0:
-            orientador = f"{self.orientador_id.name}, {self.coorientador_id.name}"
-        else:
-            orientador = f"{self.orientador_id.name}"
-        now = datetime.now()
-        fields5a = {
-            'Nome': self.name,
-            'email': self.email,
-            #'Text3': "omeu telefone",
-            #'CC': "o meu CC",
-            'Check Box5': 'Yes',
-            'Titulo': self.diss_titulo,
-            'Text7': orientador,
-            'Text9': self.data_hora.strftime('%d-%m-%Y'),
-            'Text11': self.curso.nome,
-            'Check Box17': 'Yes',
-            'Text14': now.strftime('%d'),
-            'Text15': now.strftime('%m'),
-            'Text16': now.strftime('%Y'),
-            # pag 2 5B
-            'Text34': self.name,
-            'Check Box26': 'Yes',
-            'Text35': self.diss_titulo,
-            'Text4': orientador,
-            'Text37': self.data_hora.strftime('%d-%m-%Y'),
-            'Text39': self.curso.nome,
-            'UOEIS': 'Escola de Engenharia',
-            'Text41': self.curso.departamento,
-            'FOS': self.curso.area_cientifica_predominante,
-            'Text45': self.curso.ECTS_diss,
-            'Text46': self.nota,
-        }
-
-
-        fda, fnamea = tempfile.mkstemp(suffix=".pdf", prefix="Anexo5A.")
-        fdb, fnameb = tempfile.mkstemp(suffix=".pdf", prefix="Anexo5B.")
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-        anexo5a = f"{path}/../templates/Anexo5AeB.PDF"
-
-        writer1 = PyPDF2.PdfFileWriter()
-        writer2 = PyPDF2.PdfFileWriter()
-
-        with closing(open(anexo5a, 'rb')) as infile:
-            reader = PyPDF2.PdfFileReader(infile, strict=False)
-            writer1.addPage(reader.getPage(0))
-            writer2.addPage(reader.getPage(1))
-            writer1.updatePageFormFieldValues(writer1.getPage(0), fields5a)
-            writer2.updatePageFormFieldValues(writer2.getPage(0), fields5a)
-
-            with closing(os.fdopen(fda, 'wb')) as outfile:
-                writer1.write(outfile)
-
-            with closing(open(fnamea, 'rb')) as infile:
-                data1 = infile.read()
-                vals = {
-                    'res_model': self._name,
-                    'res_id': self.id,
-                    'datas': base64.b64encode(data1),
-                    'name': "Anexo5A.pdf",
-                    'mimetype': 'application/pdf',
+        print(f"enviar_pedido_anexos {self}")
+        for obj in self:
+            if obj.declaracao_aluno_enviada == False:
+                if obj.nota == 0:
+                    continue
+                if obj.nota < 10 or obj.nota > 20:
+                    raise ValidationError(f"A nota tem de ser entre 10 e 20. É {obj.nota}.")
+    
+                obj.gera_link_anexos()
+                if len(obj.coorientador_id) != 0:
+                    orientador = f"{obj.orientador_id.name}, {obj.coorientador_id.name}"
+                else:
+                    orientador = f"{obj.orientador_id.name}"
+                now = datetime.now()
+                fields5a = {
+                    'Nome': obj.name,
+                    'email': obj.email,
+                    #'Text3': "omeu telefone",
+                    #'CC': "o meu CC",
+                    'Check Box5': 'Yes',
+                    'Titulo': obj.diss_titulo,
+                    'Text7': orientador,
+                    'Text9': obj.data_hora.strftime('%d-%m-%Y'),
+                    'Text11': obj.curso.nome,
+                    'Check Box17': 'Yes',
+                    'Text14': now.strftime('%d'),
+                    'Text15': now.strftime('%m'),
+                    'Text16': now.strftime('%Y'),
+                    # pag 2 5B
+                    'Text34': obj.name,
+                    'Check Box26': 'Yes',
+                    'Text35': obj.diss_titulo,
+                    'Text4': orientador,
+                    'Text37': obj.data_hora.strftime('%d-%m-%Y'),
+                    'Text39': obj.curso.nome,
+                    'UOEIS': 'Escola de Engenharia',
+                    'Text41': obj.curso.departamento,
+                    'FOS': obj.curso.area_cientifica_predominante,
+                    'Text45': obj.curso.ECTS_diss,
+                    'Text46': obj.nota,
                 }
-                at_id1 = self.env['ir.attachment'].create(vals)
-                self.write({'attachment_ids': [(4, at_id1.id)]})
-
-            with closing(os.fdopen(fdb, 'wb')) as outfile:
-                writer2.write(outfile)
-
-            with closing(open(fnameb, 'rb')) as infile:
-                data1 = infile.read()
-                vals = {
-                    'res_model': self._name,
-                    'res_id': self.id,
-                    'datas': base64.b64encode(data1),
-                    'name': "Anexo5B.pdf",
-                    'mimetype': 'application/pdf',
-                }
-                at_id2 = self.env['ir.attachment'].create(vals)
-                self.write({'attachment_ids': [(4, at_id2.id)]})
-
-            os.unlink(fnamea)
-            os.unlink(fnameb)
-            print(f"PATH {os.path} {os.curdir} {os.getcwd()} {path}")
-
-
-        template_id = self.env.ref('gestao_dissertacoes.pedido_anexos')
-        template_id.attachment_ids = [(4, at_id1.id)]
-        template_id.attachment_ids = [(4, at_id2.id)]
-        self.message_post_with_template(template_id.id)
-        template_id.attachment_ids = [(3, at_id1.id)]
-        template_id.attachment_ids = [(3, at_id2.id)]
-        self.write({'declaracao_aluno_enviada': True})
+    
+    
+                fda, fnamea = tempfile.mkstemp(suffix=".pdf", prefix="Anexo5A.")
+                fdb, fnameb = tempfile.mkstemp(suffix=".pdf", prefix="Anexo5B.")
+                path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+                anexo5a = f"{path}/../templates/Anexo5AeB.PDF"
+    
+                writer1 = PyPDF2.PdfFileWriter()
+                writer2 = PyPDF2.PdfFileWriter()
+    
+                with closing(open(anexo5a, 'rb')) as infile:
+                    reader = PyPDF2.PdfFileReader(infile, strict=False)
+                    writer1.addPage(reader.getPage(0))
+                    writer2.addPage(reader.getPage(1))
+                    writer1.updatePageFormFieldValues(writer1.getPage(0), fields5a)
+                    writer2.updatePageFormFieldValues(writer2.getPage(0), fields5a)
+    
+                    with closing(os.fdopen(fda, 'wb')) as outfile:
+                        writer1.write(outfile)
+    
+                    with closing(open(fnamea, 'rb')) as infile:
+                        data1 = infile.read()
+                        vals = {
+                            'res_model': obj._name,
+                            'res_id': obj.id,
+                            'datas': base64.b64encode(data1),
+                            'name': "Anexo5A.pdf",
+                            'mimetype': 'application/pdf',
+                        }
+                        at_id1 = obj.env['ir.attachment'].create(vals)
+                        obj.write({'attachment_ids': [(4, at_id1.id)]})
+    
+                    with closing(os.fdopen(fdb, 'wb')) as outfile:
+                        writer2.write(outfile)
+    
+                    with closing(open(fnameb, 'rb')) as infile:
+                        data1 = infile.read()
+                        vals = {
+                            'res_model': obj._name,
+                            'res_id': obj.id,
+                            'datas': base64.b64encode(data1),
+                            'name': "Anexo5B.pdf",
+                            'mimetype': 'application/pdf',
+                        }
+                        at_id2 = obj.env['ir.attachment'].create(vals)
+                        obj.write({'attachment_ids': [(4, at_id2.id)]})
+    
+                    os.unlink(fnamea)
+                    os.unlink(fnameb)
+                    print(f"PATH {os.path} {os.curdir} {os.getcwd()} {path}")
+    
+    
+                template_id = obj.env.ref('gestao_dissertacoes.pedido_anexos')
+                template_id.attachment_ids = [(4, at_id1.id)]
+                template_id.attachment_ids = [(4, at_id2.id)]
+                obj.message_post_with_template(template_id.id)
+                template_id.attachment_ids = [(3, at_id1.id)]
+                template_id.attachment_ids = [(3, at_id2.id)]
+                obj.write({'declaracao_aluno_enviada': True})
 
     # --- ata da prova ---
 
@@ -418,14 +505,20 @@ class Processo(models.Model):
                 id = obj.id
                 attach_name = f"Provas-{self.nr_ata.replace('/','-')}-{self.name}.odt"
                 break
-        if id:
+        if id and self.ata_prova_enviada == False:
+            self.gera_link_nota()
             template_id = self.env.ref('gestao_dissertacoes.ata_prova')
             template_id.attachment_ids = [(4, id)]
             self.message_post_with_template(template_id.id)
             template_id.attachment_ids = [(3, id)]
             self.write({'ata_prova_enviada': True})
+            if self.estado == '100':
+                self.avancar_action()
         else:
+            if self.ata_prova_enviada == True:
+                raise ValidationError(f"A ata da prova já foi enviada")
             raise ValidationError(f"O ficheiro da ata da prova não foi encontrado.\n Verifique se o carregou para a plataforma ou se o nome({attach_name}) do ficheiro está correto")
+
 
     # --- registo da nota ---
 
@@ -449,9 +542,12 @@ class Processo(models.Model):
         pass
 
     def update_estado(self):
-        if self.convite_presidente == 'aceitado' and self.convite_vogal == 'aceitado' and self.convite_arguente == 'aceitado':
-            if self.estado == '040':
+        if self.estado == '040':
+            if self.convite_presidente == 'aceitado' and self.convite_vogal == 'aceitado' and self.convite_arguente == 'aceitado':
                 return self.write({'estado': '050'})
+        if self.estado == '070':
+            if self.numero_convites_convocatoria == 4:
+                return self.write({'estado': self.transicoes['070'][1]})
 
     def update_numero_convites_aceites(self):
         num = 0
@@ -462,6 +558,21 @@ class Processo(models.Model):
         if self.convite_arguente == 'aceitado':
             num +=1
         self.convites_aceites = num
+
+    @api.depends('convocatoria_presidente', 'convocatoria_vogal', 'convocatoria_arguente', 'convocatoria_aluno')
+    def update_numero_convites_convocatoria(self):
+        print(f"update_numero_convites_convocatoria")
+        num = 0
+        vars = ['convocatoria_presidente', 'convocatoria_vogal', 'convocatoria_arguente', 'convocatoria_aluno']
+
+        for v in vars:
+            print(f"{v} " + str(eval(f"self.{v}")))
+            if eval(f"self.{v}"):
+                num+=1
+        self.write({'numero_convites_convocatoria': num})
+        if num == 4:
+            if self.estado == '070':
+                self.update_estado()
 
     def convite(self, resposta, juri):
         print(self.convite_arguente_url)
@@ -478,45 +589,112 @@ class Processo(models.Model):
         self.update_estado()
         return self
 
+    def convocatoria(self, resposta, juri):
+        print(self.convite_arguente_url)
+        print(self.convite_presidente_url)
+        print(self.convite_vogal_url)
+        print(f"CONVOCATORIA {juri} {resposta}")
+        if resposta != '':
+            if juri == 'cp' and resposta =='aceitado':
+                self.write({'convocatoria_presidente': True})
+            if juri == 'cv' and resposta =='aceitado':
+                self.write({'convocatoria_vogal': True})
+            if juri == 'ca' and resposta =='aceitado':
+                self.write({'convocatoria_arguente': True})
+            if juri == 'cal' and resposta =='aceitado':
+                self.write({'convocatoria_aluno': True})
+        self.update_numero_convites_convocatoria()
+        self.update_estado()
+        return self
+
     def link_presidente(self):
-        key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
-        fernet = Fernet(key)
-        link = f"p-/-{self._origin.id}-/-{self.juri_presidente_id.name}"
-        print(link)
-        token = (fernet.encrypt(link.encode())).decode()
-        url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
-        self.write({'convite_presidente_url' : url})
+        if self.convite_presidente_url ==False:
+            key = bytes(self.env['ir.config_parameter'].sudo().get_param('gest_diss.fernet_key',  'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='), 'utf-8')
+            fernet = Fernet(key)
+            now = datetime.now()
+            link = f"p-/-{self._origin.id}-/-{self.juri_presidente_id.name}-/-{now}"
+            print(link)
+            token = (fernet.encrypt(link.encode())).decode()
+            url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
+            self.write({'convite_presidente_url' : url})
 
     def link_vogal(self):
-        key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
-        fernet = Fernet(key)
-        link = f"v-/-{self._origin.id}-/-{self.juri_vogal_id.name}"
-        print(link)
-        token = (fernet.encrypt(link.encode())).decode()
-        url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
-        self.write({'convite_vogal_url' : url})
+        if self.convite_vogal_url == False:
+            key =  bytes(self.env['ir.config_parameter'].sudo().get_param('gest_diss.fernet_key',  b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='), 'utf-8')
+            fernet = Fernet(key)
+            now = datetime.now()
+            link = f"v-/-{self._origin.id}-/-{self.juri_vogal_id.name}-/-{now}"
+            print(link)
+            token = (fernet.encrypt(link.encode())).decode()
+            url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
+            self.write({'convite_vogal_url' : url})
 
     def link_arguente(self):
-        key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
+
+        if self.convite_arguente_url == False:
+            key =  bytes(self.env['ir.config_parameter'].sudo().get_param('gest_diss.fernet_key',  b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='), 'utf-8')
+            fernet = Fernet(key)
+            now = datetime.now()
+            link = f"a-/-{self.id}-/-{self.juri_arguente_id.name}-/-{now}"
+            print(link)
+            token = (fernet.encrypt(link.encode())).decode()
+            url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
+            self.write({'convite_arguente_url' : url})
+
+    def gera_token_link(self, target=""):
+        print(f"LINK {target} {type(self.id)} {type(models.NewId)}")
+
+        if type(self.id) == models.NewId:
+            oid = self.id.origin
+        else:
+            oid = self.id
+        key = bytes(self.env['ir.config_parameter'].sudo().get_param('gest_diss.fernet_key',
+                                                                     b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='),
+                    'utf-8')
         fernet = Fernet(key)
-        link = f"a-/-{self._origin.id}-/-{self.juri_arguente_id.name}"
+        now = datetime.now()
+        print(f"LINK {target} {type(self.id)} OID {oid}")
+        link = f"{target}-/-{oid}-/-{self.name}-/-{now}"
         print(link)
         token = (fernet.encrypt(link.encode())).decode()
-        url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/invite/{token}"
-        self.write({'convite_arguente_url' : url})
+
+        return token
 
     def gera_link_vc(self):
-        key = b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='
-        fernet = Fernet(key)
-        link = f"linkvc-/-{self.id}-/-{self.name}"
-        print(link)
-        token = (fernet.encrypt(link.encode())).decode()
-        url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/linkvc/{token}"
-        self.write({'link_vc_url': url})
-        print(f"ENVIO PEDIDO LINK VC {self}")
-        template_id = self.env.ref('gestao_dissertacoes.envio_pedido_link')
-        self.message_post_with_template(template_id.id)
+        if self.link_vc_url == False:
+            token = self.gera_token_link(target="linkvc")
+            url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/linkvc/{token}"
+            self.write({'link_vc_url': url})
+            print(f"ENVIO PEDIDO LINK VC {self}")
+            template_id = self.env.ref('gestao_dissertacoes.envio_pedido_link')
+            self.message_post_with_template(template_id.id)
 
+    def gera_link_anexos(self):
+        print(f"GERA LINK ANEXOS {'=='*100} {self.anexos_url}")
+        if self.anexos_url == False:
+            token = self.gera_token_link(target="anexos")
+            url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/anexos/{token}"
+            #self.write({'link_vc_url': url})
+            self.write({'anexos_url': url})
+
+
+    def gera_link_nota(self):
+        if self.nota_url == False:
+            token = self.gera_token_link(target="nota")
+            url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/nota/{token}"
+            self.write({'nota_url': url})
+
+    def gera_link_decl_arguente(self):
+        print(f"GERA LINK DECL ARGUENTE {self.decl_arguente_url } {self.id}")
+        if self.decl_arguente_url == False:
+            token = self.gera_token_link(target="declArguente")
+            url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/declArguente/{token}"
+            if type(self.id) == models.NewId:
+                oid = self.id.origin
+            else:
+                oid = self.id
+            #self.env['gest_diss.processo'].sudo().update(oid, {'decl_arguente_url': url})
+            self.update({'decl_arguente_url': url})
 
     def update_link_vc(self, resposta):
         if resposta != '':
@@ -524,6 +702,7 @@ class Processo(models.Model):
         return self
 
     def converter_data_hora_para_words(self, data_hora):
+        print(f"converter_data_hora_para_words {data_hora}")
         user_tz = self.env.user.tz or pytz.utc
         local = pytz.timezone(user_tz)
         date_object = datetime.strptime(data_hora, "%Y-%m-%d %H:%M:%S").astimezone(local)
@@ -543,16 +722,147 @@ class Processo(models.Model):
 
         return data_words, hora_words
 
-    def converter_data_para_words(self, data):
-        data_object = datetime.strptime(data, "%Y-%m-%d")
-        ano = num2words(data_object.year, to='year', lang='pt_PT')
-        mes = calendar.month_name[data_object.month]
-        dia = num2words(data_object.day, to='year', lang='pt_PT')
-        data_words = dia + ' de ' + mes.lower() + ' de ' + ano
-        return data_words
+    #def converter_data_para_words(self, data):
+    #    print(f"converter_data_para_words {self} -- {data}")
+    #    data_object = datetime.strptime(data, "%Y-%m-%d")
+    #    ano = num2words(data_object.year, to='year', lang='pt_PT')
+    #    mes = calendar.month_name[data_object.month]
+    #    dia = num2words(data_object.day, to='year', lang='pt_PT')
+    #    data_words = dia + ' de ' + mes.lower() + ' de ' + ano
+    #    return data_words
 
-    def converter_data_para_str(self, data):
-        date_object = datetime.strptime(data, "%Y-%m-%d")
-        mes = calendar.month_name[date_object.month]
-        data_str = str(date_object.day) + '.' + mes[:3] + '.' + str(date_object.year)
-        return data_str
+    #def converter_data_para_str(self, data):
+    #    date_object = datetime.strptime(data, "%Y-%m-%d")
+    #    mes = calendar.month_name[date_object.month]
+    #    data_str = str(date_object.day) + '.' + mes[:3] + '.' + str(date_object.year)
+    #    return data_str
+
+    @api.depends('enviar_decl_arguente', 'nota')
+    def _change_enviar_decl_arguente(self):
+        print(f"_ohange_enviar_decl_arguente {self.estado} {self.enviar_decl_arguente}")
+        if self.estado >= '110' and self.enviar_decl_arguente == True:
+            print(f"Enviar decl")
+            self.enviar_pedido_assinatura_decl_arguente()
+            print(f"Enviar decl2")
+
+    def enviar_pedido_assinatura_decl_arguente(self):
+        print(f"enviar_pedido_assinatura_decl_arguente {self.env.context} {self.id}")
+        for objects in self:
+            print(f"pedido {objects.enviar_decl_arguente} enviado {objects.decl_arguente_enviada}")
+            if objects.decl_arguente_enviada == False and objects.enviar_decl_arguente ==True:
+                id = None
+                attach_name =''
+                for obj in objects.attachment_ids:
+                    #print(f"{obj.name}")
+                    if obj.name == f"justificacao_arguente PDF":
+                        id = obj.id
+                        attach_name = f"justificacao_arguente.pdf"
+                        break
+                print(f"TESTE {id} {objects.decl_arguente_enviada} {objects} {objects.id} {dir(objects.id)}")
+                if id == None:
+                    print(f"DOC CREATINFG {objects.id} {objects._context.get('active_ids')}")
+                    doc = objects.env['gest_diss.justificacao_arguente_doc'].create({
+                        'tipo_ficheiro': 'pdf',
+                        'processos_ids': [(4, objects.id)]
+                    })
+                    print("DOC CREATED")
+                    res = doc.gerar_doc()
+    
+                    res = objects.env.ref('gestao_dissertacoes.gerar_justificacao_arguente_report_pdf').render_py3o(
+                        res_ids=[objects.id, ], data=dict())
+    
+    
+                    for obj in objects.attachment_ids:
+                        #print(f"{obj.name}")
+                        if obj.name == f"justificacao_arguente PDF":
+                            id = obj.id
+                            attach_name = f"justificacao_arguente.pdf"
+                            break
+                print(f"TESTE {id} {objects.decl_arguente_enviada} {objects} {objects.id} {dir(objects.id)}")
+    
+                if id != None:
+                    print(f"Enviar pedido {objects.decl_arguente_url}")
+                    if objects.decl_arguente_url == False:
+                        objects.gera_link_decl_arguente()
+                        print("LINK GERADO")
+                        return
+                    template_id = objects.env.ref('gestao_dissertacoes.pedido_assinatura')
+                    template_id.attachment_ids = [(4, id)]
+                    print(f"LINK: {objects.decl_arguente_url}")
+                    objects.message_post_with_template(template_id.id)
+                    template_id.attachment_ids = [(3, id)]
+                    objects.update({'decl_arguente_enviada': True})
+            else:
+                msg = 'Erro: '
+                if objects.decl_arguente_enviada:
+                    msg =f"{msg} Pedido ja enviado, "
+                if not objects.enviar_decl_arguente:
+                    msg =f"{msg} Arguente nao pediu declaracao"
+                #raise ValidationError(f"{msg}")
+
+    def decl_arguente_assinada(self, data):
+        print(f"decl_arguente_assinada")
+        vals = {
+            'res_model': 'gest_diss.processo',
+            'res_id': self.id,
+            'datas': base64.b64encode(data),
+            'name': "declaracao_participacao.pdf",
+            'mimetype': 'application/pdf',
+        }
+
+        if self.decl_arguente.id ==False:
+            at_id1 = self.env['ir.attachment'].sudo().create(vals)
+            self.write({'decl_arguente': at_id1})
+            self.enviar_decl_arguente_assinada()
+
+    def enviar_decl_arguente_assinada(self):
+        print(f"enviar_decl_arguente_assinada")
+        for rec in self:
+            print(f"{rec} {rec.decl_arguente.id} {rec.decl_arguente_assinada_enviada}")
+            if rec.decl_arguente.id == False or rec.decl_arguente_assinada_enviada == True:
+                continue
+            id = rec.decl_arguente.id
+
+            if id :
+                template_id = self.env.ref('gestao_dissertacoes.declaracao_arguente')
+                template_id.attachment_ids = [(4, id)]
+                self.message_post_with_template(template_id.id)
+                template_id.attachment_ids = [(3, id)]
+                self.write({'decl_arguente_assinada_enviada': True})
+
+    def processa_notacontroller(self, atualizacao_diss:bool, nota:int):
+        if atualizacao_diss:
+            self.write({'atualizacao_diss': True})
+
+        if self.nota ==0:
+            self.write({'nota': nota})
+            self.enviar_pedido_anexos()
+
+    def processa_anexos_controller(self, kw):
+        for key in ('anexo5a', 'anexo5b', 'dissertacao_final'):
+            if kw.get(key, False):
+                fname = kw.get(key, False).filename
+                file = kw.get(key, False)
+                data = file.read()
+
+                vals = {
+                    'res_model': 'gest_diss.processo',
+                    'res_id': self.id,
+                    'datas': base64.b64encode(data),
+                    'name': fname,
+                    'mimetype': 'application/pdf',
+                }
+                print(f"READ {key} {self.read([key])} {eval(f'self.{key}.id')}")
+                if eval(f"self.{key}.id") == False:
+                    # print(f"{vals}")
+                    at_id1 = self.env['ir.attachment'].sudo().create(vals)
+                    print(f"{at_id1}")
+                    self.write({key: at_id1.id})
+
+        print(f"DOC AVANCAR {self.dissertacao_final.id} {self.estado == '120' and (  self.anexo5a.id != False and self.anexo5b.id != False and (self.atualizacao_diss == False or self.dissertacao_final.id != False) )}")
+        if self.estado == '120' and ( \
+                        self.anexo5a.id != False and \
+                        self.anexo5b.id != False and \
+                        (self.atualizacao_diss == False or self.dissertacao_final.id != False) \
+                ):
+            self.avancar_action()

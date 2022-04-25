@@ -19,6 +19,8 @@ class Curso(models.Model):
 
     descricao = fields.Char(string="Descrição")
 
+
+
     #area_cientifica_predominante = fields.Char(string="Área Científica Predominante")
     area_cientifica_predominante = fields.Selection([
         ('Agricultura, Silvicultura e Pescas', 'Agricultura, Silvicultura e Pescas'),
@@ -77,6 +79,9 @@ class Curso(models.Model):
     contador_ata_id = fields.Many2one('ir.sequence', ondelete="restrict")
 
     number_next = fields.Integer(related='contador_ata_id.number_next', string="Número da próxima ata", readonly=False, store= False)
+
+    comissao_curso = fields.Many2many('gest_diss.membro', string='Comissao Curso')
+    diretor_curso = fields.Many2one('gest_diss.membro', string='Diretor Curso')
 
     @api.constrains('phone')
     @api.depends('phone')

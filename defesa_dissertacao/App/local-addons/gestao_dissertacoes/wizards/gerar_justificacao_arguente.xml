@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="gerar_justificacao_arguente_wizard" model="ir.ui.view">
+        <field name="name">gerar_justificacao_arguente.wizard</field>
+        <field name="model">gest_diss.justificacao_arguente_doc</field>
+        <field name="arch" type="xml">
+            <form string="Adicionar Processos">
+                 <group>
+                    <field name="tipo_ficheiro" />
+                </group>
+                <group>
+                    <field name="processos_ids" />
+                </group>
+                <footer>
+                    <button name="gerar_doc" type="object"
+                            string="Gerar justificacao_arguente" class="oe_highlight"/>
+                    ou
+                    <button special="cancel" string="Cancelar"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="abrir_gerar_justificacao_arguente_wizard"
+            name="Gerar justificacao_arguente"
+            binding_model="gest_diss.processo"
+            res_model="gest_diss.justificacao_arguente_doc"
+            view_mode="form"
+            target="new"/>
+</odoo>

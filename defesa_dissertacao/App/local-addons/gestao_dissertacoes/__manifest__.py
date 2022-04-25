@@ -27,11 +27,13 @@
         'views/gestao_diss_dashboard.xml',
         'views/invite_template.xml',
 
+
         ######################## REPORT'S PDF ############################
         'reports/pdf/report_proposta_juri.xml',
         'reports/pdf/report_formulario_candidato_pt.xml',
         'reports/pdf/report_formulario_candidato_eng.xml',
         'reports/pdf/report_ata_primeira_reuniao.xml',
+        'reports/pdf/report_justificacao_arguente.xml',
 
         ######################## REPORT'S ODT ############################
         'reports/odt/report_proposta_juri.xml',
@@ -39,22 +41,30 @@
         'reports/odt/report_formulario_candidato_eng.xml',
         'reports/odt/report_ata_primeira_reuniao.xml',
         'reports/odt/report_ata_provas.xml',
+        'reports/odt/report_justificacao_arguente.xml',
 
         ############################ WIZARDS #############################
         'wizards/gerar_proposta_juri_wizard.xml',
         'wizards/gerar_form_candidato_wizard.xml',
         'wizards/gerar_ata_provas.xml',
         'wizards/gerar_ata_primeira_reuniao.xml',
+        'wizards/gerar_justificacao_arguente.xml',
 
         ############################# EMAILS #############################
 		'data/convite_presidente.xml',
         'data/convite_arguente.xml',
         'data/convite_vogal.xml',
+        'data/convocatoria_aluno.xml',
+        'data/convocatoria_arguente.xml',
+        'data/convocatoria_presidente.xml',
+        'data/convocatoria_vogal.xml',
         'data/ata_primeira_reuniao.xml',
         'data/declaracao_aluno.xml',
         'data/ata_prova.xml',
         'data/ata_sequence.xml',
         'data/envio_convocatoria.xml',
+        'data/envio_declaracao_arguente.xml',
+        'data/envio_pedido_assinatura.xml',
         'data/envio_pedido_link.xml',
         'data/pedido_anexos.xml',
     ],

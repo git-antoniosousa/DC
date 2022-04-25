@@ -27,19 +27,22 @@ class Invite(http.Controller):
     def get_processo(self, token,**kw):
         id = 4
         juri ='p'
-        fernet = Fernet(b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w=')
+        key = bytes(http.request.env['ir.config_parameter'].sudo().get_param('gest_diss.fernet_key',b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='), 'utf-8')
+        fernet = Fernet(key)
         try:
             url = fernet.decrypt(token.encode()).decode()
         except InvalidToken:
             return http.request.render('gestao_dissertacoes.not-found', {'code': 403,'msg': "Não tem acesso a este processo"})
         params = url.split("-/-")
         print(f"URL {url}")
-        if len(params) != 3: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo"})
+        if len(params) < 3: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo", 'header': "Convite para Júri de Prova de Defesa de Dissertação" })
         id = params[1]
         juri = params[0]
-        if juri not in ['p', 'v', 'a']: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo"})
+        if juri not in ['p', 'v', 'a']: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo", 'header': "Convite para Júri de Prova de Defesa de Dissertação"})
         processo = http.request.env['gest_diss.processo'].sudo().search([('id', '=', id)])
-        print(f"PROCESS {processo}")
+        print(f"PROCESS {processo} {kw.keys()} \n\n JURI {juri} {kw.get('enviar_decl_arguente')}"
+
+              )
         if processo:
             processo_resposta = processo
             local = pytz.timezone("Europe/Lisbon")
@@ -52,18 +55,29 @@ class Invite(http.Controller):
                 processo_resposta = http.request.env['gest_diss.processo'].sudo().search([('id', '=', id)])
             if(juri == 'p'):
                 if processo.juri_presidente_id.name != params[2]: 
-                    return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo"})
+                    return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo", 'header': "Convite para Júri de Prova de Defesa de Dissertação"})
                 else : 
                     return http.request.render('gestao_dissertacoes.processo', {'ics': ics,'data': data,'invite_processo': processo_resposta, 'tipo_juri': juri, 'status': processo_resposta.convite_presidente, 'existe': processo_resposta.juri_presidente_id})
             if(juri == 'v'):
-                if processo.juri_vogal_id.name != params[2]: 
-                    return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo"})
+                if processo.juri_vogal_id.name != params[2]:
+                    return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo", 'header': "Convite para Júri de Prova de Defesa de Dissertação"})
                 else:
                     return http.request.render('gestao_dissertacoes.processo', {'ics': ics,'data': data,'invite_processo': processo_resposta, 'tipo_juri': juri, 'status': processo_resposta.convite_vogal, 'existe': processo_resposta.juri_vogal_id})
             if(juri == 'a'):
+                print(f"Atualizar declaracao {kw.get('enviar_decl_arguente')}")
+                if kw.get('enviar_decl_arguente') != None:
+                    print(f"Atualizar declaracao {kw.get('enviar_decl_arguente')}")
+                    if kw.get('enviar_decl_arguente') == 'True':
+                        http.request.env['gest_diss.processo'].sudo().browse(processo_resposta.id).enviar_decl_arguente=True
+                    else:
+                        http.request.env['gest_diss.processo'].sudo().browse(processo_resposta.id).enviar_decl_arguente = False
+
+                        #.write(
+                        #{'enviar_decl_arguente': kw.get('enviar_decl_arguente')})
+                    print(f"{http.request.env['gest_diss.processo'].sudo().browse(processo_resposta.id).enviar_decl_arguente}")
                 if processo.juri_arguente_id.name != params[2]: 
-                    return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo"})
+                    return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo", 'header': "Convite para Júri de Prova de Defesa de Dissertação"})
                 else:
                     return http.request.render('gestao_dissertacoes.processo', {'ics': ics,'data': data,'invite_processo': processo_resposta, 'tipo_juri': juri, 'status': processo_resposta.convite_arguente, 'existe': processo_resposta.juri_arguente_id})
         else:
-            return http.request.render('gestao_dissertacoes.not-found', {'code': 404 ,'msg': "Processo não encontrado"})
+            return http.request.render('gestao_dissertacoes.not-found', {'code': 404 ,'msg': "Processo não encontrado", 'header': "Convite para Júri de Prova de Defesa de Dissertação"})

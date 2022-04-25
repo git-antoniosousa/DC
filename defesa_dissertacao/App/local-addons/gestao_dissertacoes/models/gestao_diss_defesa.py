@@ -14,7 +14,7 @@ class Defesa(models.Model):
     @api.depends("data_hora")
     def converter_hora_para_words(self):
         print(f" converter_hora_para_words {self}")
-        user_tz = self.env.user.tz or pytz.utc
+        user_tz = self.env.user.tz or str(pytz.utc)
         local = pytz.timezone(user_tz)
         res = dict()
         for rec in self:
@@ -43,10 +43,12 @@ class Defesa(models.Model):
     @api.depends("data_hora")
     def converter_data_para_words(self):
         print(f" converter_data_para_words {self}")
-        user_tz = self.env.user.tz or pytz.utc
+        user_tz = self.env.user.tz or str(pytz.utc)
         local = pytz.timezone(user_tz)
         res = dict()
+        print(f" converter_data_para_words {self}")
         for rec in self:
+            print(f" DATA {rec.data_hora} {local}")
             #data_object = datetime.strptime(rec.data_hora, "%Y-%m-%d")
             data_object = rec.data_hora.astimezone(local)
             ano = num2words(data_object.year, to='year', lang='pt_PT')
@@ -61,7 +63,7 @@ class Defesa(models.Model):
     @api.depends("data_hora")
     def converter_data_para_str(self):
         print(f" converter_data_para_str {self}")
-        user_tz = self.env.user.tz or pytz.utc
+        user_tz = self.env.user.tz or str(pytz.utc)
         local = pytz.timezone(user_tz)
         res = dict()
         for rec in self:

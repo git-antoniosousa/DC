@@ -33,7 +33,6 @@ class DocAtaPrimeiraReuniao(models.TransientModel):
 
         if self.tipo_ficheiro == 'pdf':
             res = self.env.ref('gestao_dissertacoes.gerar_ata_primeira_reuniao_report_pdf').report_action(processos)
-            print(f"RES {res}")
             return res
         else:
             return self.env.ref('gestao_dissertacoes.gerar_ata_primeira_reuniao_report_odt').report_action(processos)

@@ -28,7 +28,7 @@ class Filiacao(models.Model):
 
 #    phone = fields.Char(string="Número de Contacto")
 
-    website = fields.Char(string="Website")
+    website = fields.Char(string="Website ")
 
     street = fields.Char(string="Rua")
 

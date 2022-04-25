@@ -28,7 +28,7 @@ class Membro(models.Model):
 
     email_facultativo = fields.Char(string="Email Facultativo")
 
-    website = fields.Char(string="Website")
+    website = fields.Char(string="Membro's Website")
 
     tipo_de_membro = fields.Selection([('dc', 'Docente'), ('arg', 'Arguente')], string="Tipo de membro", default='dc',required=True)
 
