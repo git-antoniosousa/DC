@@ -61,6 +61,7 @@ class Processo(models.Model):
             obj.enviar_pedido_anexos()
             obj.enviar_pedido_assinatura_decl_arguente()
             obj.avancar_action()
+            obj.cnota = obj.nota
 
     cnota = fields.Boolean(compute='_compute_cnota', store = True)
 
