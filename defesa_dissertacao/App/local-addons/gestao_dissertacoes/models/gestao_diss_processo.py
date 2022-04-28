@@ -283,15 +283,16 @@ class Processo(models.Model):
         template_id = self.env.ref('gestao_dissertacoes.envio_convocatoria')
         #self.message_post_with_template(template_id.id)
         for rec in self:
-            print(f"Gerar links {rec}")
-            rec.gerar_links_convocatoria()
-            data = [('presidente', 'cp'), ('arguente', 'ca'), ('vogal', 'cv'), ('aluno', 'cal')]
+            if rec.convocatoria_enviada == False:
+                print(f"Gerar links {rec}")
+                rec.gerar_links_convocatoria()
+                data = [('presidente', 'cp'), ('arguente', 'ca'), ('vogal', 'cv'), ('aluno', 'cal')]
 
-            for k,v in data:
-                print(f"envir {k}")
-                template_id = self.env.ref(f'gestao_dissertacoes.convocatoria_{k}')
-                rec.message_post_with_template(template_id.id)
-            rec.write({'convocatoria_enviada': True})
+                for k,v in data:
+                    print(f"envir {k}")
+                    template_id = self.env.ref(f'gestao_dissertacoes.convocatoria_{k}')
+                    rec.message_post_with_template(template_id.id)
+                rec.write({'convocatoria_enviada': True})
 
     def enviar_envio_convocatoria_old(self):
         print(f"ENVIO CONV {self}")
