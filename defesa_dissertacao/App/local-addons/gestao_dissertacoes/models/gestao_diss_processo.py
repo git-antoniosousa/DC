@@ -128,9 +128,9 @@ class Processo(models.Model):
         '040': ['030' , '050'],
         '050': ['040' , '060'],
         '060': ['050' , '070'],
-        '070': ['060' , '075'],
-        '075': ['070', '100'],
-        '100': ['070' , '110'],
+        '070': ['060' , '100'],
+        '100': ['070' , '105'],
+        '105': ['100', '110'],
         '110': ['100' , '120'],
         '120': ['110' , '125'],
         '125': ['120', '130'],
@@ -146,10 +146,11 @@ class Processo(models.Model):
         ('050', 'Aguardar Homologação'),
         ('060', 'Homologado'),
         ('070', 'Envio de Convocatória'),
-        ('075', 'Convocatória Confirmada'),
+
         #('080', 'Ata da Primeira Reunião'),
         #('090', 'Declaração do Aluno'),
         ('100', 'Ata da Prova'),
+        ('105', 'Aguradar confirmação convocatória'),
         ('110', 'Registo de Nota'),
         ('120', 'A Aguardar Versão Final'),
         ('125', 'Validar Versão Final/Anexos'),
@@ -222,7 +223,7 @@ class Processo(models.Model):
             print(f"avancar_action {rec.estado} {transicao} {rec.numero_convites_convocatoria}")
             if transicao == '040':
                 rec.prop_juri_action()
-            if transicao == '070':
+            if state == '100':
                 if rec.numero_convites_convocatoria == 4:
                     transicao = self.transicoes[transicao][1]
             if state == '125':
@@ -252,6 +253,8 @@ class Processo(models.Model):
 
 
     def enviar_convites_juri(self):
+        if self.dissertacao.id == False:
+            raise ValidationError("Falta o documento da dissertação")
         presidente = self.env.ref('gestao_dissertacoes.convite_presidente')
         arguente = self.env.ref('gestao_dissertacoes.convite_arguente')
         vogal = self.env.ref('gestao_dissertacoes.convite_vogal')
@@ -293,6 +296,7 @@ class Processo(models.Model):
                     template_id = self.env.ref(f'gestao_dissertacoes.convocatoria_{k}')
                     rec.message_post_with_template(template_id.id)
                 rec.write({'convocatoria_enviada': True})
+                rec.avancar_action()
 
     def enviar_envio_convocatoria_old(self):
         print(f"ENVIO CONV {self}")
@@ -547,9 +551,9 @@ class Processo(models.Model):
         if self.estado == '040':
             if self.convite_presidente == 'aceitado' and self.convite_vogal == 'aceitado' and self.convite_arguente == 'aceitado':
                 return self.write({'estado': '050'})
-        if self.estado == '070':
+        if self.estado == '105':
             if self.numero_convites_convocatoria == 4:
-                return self.write({'estado': self.transicoes['070'][1]})
+                return self.write({'estado': self.transicoes['105'][1]})
 
     def update_numero_convites_aceites(self):
         num = 0
@@ -573,8 +577,7 @@ class Processo(models.Model):
                 num+=1
         self.write({'numero_convites_convocatoria': num})
         if num == 4:
-            if self.estado == '070':
-                self.update_estado()
+            self.update_estado()
 
     def convite(self, resposta, juri):
         print(self.convite_arguente_url)
@@ -644,14 +647,15 @@ class Processo(models.Model):
             self.write({'convite_arguente_url' : url})
 
     def gera_token_link(self, target=""):
-        print(f"LINK {target} {type(self.id)} {type(models.NewId)}")
 
         if type(self.id) == models.NewId:
             oid = self.id.origin
         else:
             oid = self.id
+        print(f"LINK {target} {type(self.id)} {type(models.NewId)} OID {oid}")
+
         key = bytes(self.env['ir.config_parameter'].sudo().get_param('gest_diss.fernet_key',
-                                                                     b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='),
+                                                                         b'd7Jt7g7Cj3-we7PY_3Ym1mPH1U5Zx_KBQ69-WLhSD0w='),
                     'utf-8')
         fernet = Fernet(key)
         now = datetime.now()
