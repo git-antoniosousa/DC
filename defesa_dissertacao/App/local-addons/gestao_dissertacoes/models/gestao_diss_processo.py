@@ -150,7 +150,7 @@ class Processo(models.Model):
         #('080', 'Ata da Primeira Reunião'),
         #('090', 'Declaração do Aluno'),
         ('100', 'Ata da Prova'),
-        ('105', 'Aguradar confirmação convocatória'),
+        ('105', 'Aguardar confirmação convocatória'),
         ('110', 'Registo de Nota'),
         ('120', 'A Aguardar Versão Final'),
         ('125', 'Validar Versão Final/Anexos'),
@@ -226,7 +226,8 @@ class Processo(models.Model):
             if state == '100':
                 if rec.numero_convites_convocatoria == 4:
                     transicao = self.transicoes[transicao][1]
-            if state == '125':
+            #voltar a  colcoar qdo passar esta fase
+            if state == '0125':
                 print(f"VALIDAR {rec.anexo5a.id} {rec.anexo5b.id} {rec.atualizacao_diss} {rec.dissertacao_final.id}")
                 if rec.anexo5a.id == False or\
                     rec.anexo5b.id == False or \
