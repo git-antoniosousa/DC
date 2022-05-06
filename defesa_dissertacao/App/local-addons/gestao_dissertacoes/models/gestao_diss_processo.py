@@ -396,6 +396,157 @@ class Processo(models.Model):
             raise ValidationError("O ficheiro da declaração do aluno não foi encontrado."
                                   " Verifique se o carregou para a plataforma ou se o nome do ficheiro está correto")
 
+
+    def gera_anexo_5a(self, final = False):
+        for obj in self:
+            if obj.nota == 0:
+                continue
+            if obj.nota < 10 or obj.nota > 20:
+                raise ValidationError(f"A nota tem de ser entre 10 e 20. É {obj.nota}.")
+
+            obj.gera_link_anexos()
+            if len(obj.coorientador_id) != 0:
+                orientador = f"{obj.orientador_id.name}, {obj.coorientador_id.name}"
+            else:
+                orientador = f"{obj.orientador_id.name}"
+            now = datetime.now()
+            fields5a = {
+                'Nome': obj.name,
+                'email': obj.email,
+                # 'Text3': "omeu telefone",
+                # 'CC': "o meu CC",
+                'Check Box5': 'Yes',
+                'Titulo': obj.diss_titulo,
+                'Text7': orientador,
+                'Text9': obj.data_hora.strftime('%d-%m-%Y'),
+                'Text11': obj.curso.nome,
+                'Check Box17': 'Yes',
+                'Text14': now.strftime('%d'),
+                'Text15': now.strftime('%m'),
+                'Text16': now.strftime('%Y'),
+                # pag 2 5B
+                'Text34': obj.name,
+                'Check Box26': 'Yes',
+                'Text35': obj.diss_titulo,
+                'Text4': orientador,
+                'Text37': obj.data_hora.strftime('%d-%m-%Y'),
+                'Text39': obj.curso.nome,
+                'UOEIS': 'Escola de Engenharia',
+                'Text41': obj.curso.departamento,
+                'FOS': obj.curso.area_cientifica_predominante,
+                'Text45': obj.curso.ECTS_diss,
+                'Text46': obj.nota,
+            }
+
+            fda, fnamea = tempfile.mkstemp(suffix=".pdf", prefix="Anexo5A.")
+            path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+            anexo5a = f"{path}/../templates/Anexo5AeB.PDF"
+
+            writer1 = PyPDF2.PdfFileWriter()
+
+            with closing(open(anexo5a, 'rb')) as infile:
+                reader = PyPDF2.PdfFileReader(infile, strict=False)
+                writer1.addPage(reader.getPage(0))
+                writer1.updatePageFormFieldValues(writer1.getPage(0), fields5a)
+
+                with closing(os.fdopen(fda, 'wb')) as outfile:
+                    writer1.write(outfile)
+
+                with closing(open(fnamea, 'rb')) as infile:
+                    data1 = infile.read()
+                    vals = {
+                        'res_model': obj._name,
+                        'res_id': obj.id,
+                        'datas': base64.b64encode(data1),
+                        'name': "Anexo5A.pdf",
+                        'mimetype': 'application/pdf',
+                    }
+
+                    if final == True and obj.anexo5a.id == False:
+                        at_id2 = obj.env['ir.attachment'].create(vals)
+                        obj.write({'anexo5a': at_id2.id})
+
+                os.unlink(fnamea)
+                print(f"PATH {os.path} {os.curdir} {os.getcwd()} {path}")
+
+
+
+    def gera_anexo_5b(self, final = False):
+        print(f"gerar anexo 5b {self}")
+        for obj in self:
+            if obj.nota == 0:
+                continue
+            if obj.nota < 10 or obj.nota > 20:
+                raise ValidationError(f"A nota tem de ser entre 10 e 20. É {obj.nota}.")
+
+            obj.gera_link_anexos()
+            if len(obj.coorientador_id) != 0:
+                orientador = f"{obj.orientador_id.name}, {obj.coorientador_id.name}"
+            else:
+                orientador = f"{obj.orientador_id.name}"
+            now = datetime.now()
+            fields5a = {
+                'Nome': obj.name,
+                'email': obj.email,
+                # 'Text3': "omeu telefone",
+                # 'CC': "o meu CC",
+                'Check Box5': 'Yes',
+                'Titulo': obj.diss_titulo,
+                'Text7': orientador,
+                'Text9': obj.data_hora.strftime('%d-%m-%Y'),
+                'Text11': obj.curso.nome,
+                'Check Box17': 'Yes',
+                'Text14': now.strftime('%d'),
+                'Text15': now.strftime('%m'),
+                'Text16': now.strftime('%Y'),
+                # pag 2 5B
+                'Text34': obj.name,
+                'Check Box26': 'Yes',
+                'Text35': obj.diss_titulo,
+                'Text4': orientador,
+                'Text37': obj.data_hora.strftime('%d-%m-%Y'),
+                'Text39': obj.curso.nome,
+                'UOEIS': 'Escola de Engenharia',
+                'Text41': obj.curso.departamento,
+                'FOS': obj.curso.area_cientifica_predominante,
+                'Text45': obj.curso.ECTS_diss,
+                'Text46': obj.nota,
+            }
+
+            print("GERAR Anexo 5B")
+            fdb, fnameb = tempfile.mkstemp(suffix=".pdf", prefix="Anexo5B.")
+            path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+            anexo5a = f"{path}/../templates/Anexo5AeB.PDF"
+
+            writer2 = PyPDF2.PdfFileWriter()
+
+            with closing(open(anexo5a, 'rb')) as infile:
+                reader = PyPDF2.PdfFileReader(infile, strict=False)
+                writer2.addPage(reader.getPage(1))
+                writer2.updatePageFormFieldValues(writer2.getPage(0), fields5a)
+
+                with closing(os.fdopen(fdb, 'wb')) as outfile:
+                    writer2.write(outfile)
+
+                with closing(open(fnameb, 'rb')) as infile:
+                    data1 = infile.read()
+                    vals = {
+                        'res_model': obj._name,
+                        'res_id': obj.id,
+                        'datas': base64.b64encode(data1),
+                        'name': "Anexo5B.pdf",
+                        'mimetype': 'application/pdf',
+                    }
+
+                    print(f"GERAR? {final}, {obj.anexo5b.id}")
+                    if final == True and obj.anexo5b.id == False:
+                        at_id2 = obj.env['ir.attachment'].create(vals)
+                        obj.write({'anexo5b': at_id2.id})
+                os.unlink(fnameb)
+                print(f"PATH {os.path} {os.curdir} {os.getcwd()} {path}")
+        return True
+
+
     def enviar_pedido_anexos(self):
         print(f"enviar_pedido_anexos {self}")
         for obj in self:
@@ -677,7 +828,7 @@ class Processo(models.Model):
             self.message_post_with_template(template_id.id)
 
     def gera_link_anexos(self):
-        print(f"GERA LINK ANEXOS {'=='*100} {self.anexos_url}")
+        print(f"GERA LINK ANEXOS {self} {'=='*100}  {self.anexos_url}")
         if self.anexos_url == False:
             token = self.gera_token_link(target="anexos")
             url = f"{self.env['ir.config_parameter'].sudo().get_param('web.base.url')}/anexos/{token}"
