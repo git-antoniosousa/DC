@@ -123,7 +123,8 @@ class Processo(models.Model):
     data_primeira_reuniao = fields.Date(string="Data da Primeira Reunião")
     
     transicoes ={
-        '010': ['-' , '030'],
+        '010': ['-' , '020'],
+        '020': ['010', '030'],
         '030': ['010' , '040'],
         '040': ['030' , '050'],
         '050': ['040' , '060'],
