@@ -49,7 +49,7 @@
         'wizards/gerar_ata_provas.xml',
         'wizards/gerar_ata_primeira_reuniao.xml',
         'wizards/gerar_justificacao_arguente.xml',
-        'wizards/gerar_anexo5b.xml',
+        #'wizards/gerar_anexo5b.xml',
 
         ############################# EMAILS #############################
 		'data/convite_presidente.xml',
