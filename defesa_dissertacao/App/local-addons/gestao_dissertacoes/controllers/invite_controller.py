@@ -32,13 +32,13 @@ class Invite(http.Controller):
         try:
             url = fernet.decrypt(token.encode()).decode()
         except InvalidToken:
-            return http.request.render('gestao_dissertacoes.not-found', {'code': 403,'msg': "Não tem acesso a este processo"})
+            return http.request.render('gestao_dissertacoes.not-found', {'code': 403,'msg': "Não tem acesso a este processo (1)"})
         params = url.split("-/-")
         print(f"URL {url}")
-        if len(params) < 3: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo", 'header': "Convite para Júri de Prova de Defesa de Dissertação" })
+        if len(params) < 3: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processoi (2)", 'header': "Convite para Júri de Prova de Defesa de Dissertação" })
         id = params[1]
         juri = params[0]
-        if juri not in ['p', 'v', 'a']: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processo", 'header': "Convite para Júri de Prova de Defesa de Dissertação"})
+        if juri not in ['p', 'v', 'a']: return http.request.render('gestao_dissertacoes.not-found', {'code': 403 ,'msg': "Não tem acesso a este processoi (3)", 'header': "Convite para Júri de Prova de Defesa de Dissertação"})
         processo = http.request.env['gest_diss.processo'].sudo().search([('id', '=', id)])
         print(f"PROCESS {processo} {kw.keys()} \n\n JURI {juri} {kw.get('enviar_decl_arguente')}"
 

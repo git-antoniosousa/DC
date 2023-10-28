@@ -10,7 +10,7 @@ class Dissertation(models.Model):
         now = datetime.now()
         ano = now.year
         mes = now.month
-        if mes >= 7: return self.env['gest_diss.ano_letivo'].search([('ano_letivo', 'like', f"{ano }/{ano +1}")],
+        if mes >= 6: return self.env['gest_diss.ano_letivo'].search([('ano_letivo', 'like', f"{ano }/{ano +1}")],
                                                                     limit=1)
         return self.env['gest_diss.ano_letivo'].search([('ano_letivo', 'like', f"{ano -1}/{ano }")], limit=1)
 
@@ -28,8 +28,8 @@ class Dissertation(models.Model):
     state = fields.Selection(states, string='Estado', required=True, default='pending')
 
     # --- ano letivo ---
-    school_year = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo')
-    #school_year = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo', default=_default_school_year)
+    #school_year = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo')
+    school_year = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo', default=_default_school_year)
     #ano_letivo = fields.Many2one('gest_diss.ano_letivo', 'Ano Letivo')
 
     #school_year = fields.Selection([(str(num) + '/' + str(num + 1), str(num) + '/' + str(num + 1))
@@ -42,7 +42,8 @@ class Dissertation(models.Model):
     coadviser_id_internal = fields.Many2one('dissertation_admission.adviser', string='Coorientador')
     coadviser_id_external = fields.Many2one('dissertation_admission.company_employee', string='Supervisor na empresa')
     student_id = fields.Many2one('dissertation_admission.student', string='Estudante')
-    candidates = fields.Many2many('dissertation_admission.student', readonly=True
+    #candidates = fields.Many2many('dissertation_admission.student', readonly=True
+    candidates = fields.Many2many('dissertation_admission.student', readonly=False
                                   , relation='dissertation_admission_dissertation_candidates_rel')
     reviews = fields.Many2many('dissertation_admission.dissertation_review'
                                , compute='_get_reviews')
@@ -99,7 +100,7 @@ class Dissertation(models.Model):
         self.sudo().write({'is_public': False})
 
     def check_unique_coadvisers(self):
-        if len(self.coadviser_id_external) + len(self.coadviser_id_internal) >= 2:
+        if len(self.coadviser_id_external) + len(self.coadviser_id_internal) >= 3:
             raise exceptions.ValidationError("Não pode selecionar dois coorientadores.")
 
     def check_valid_courses(self, vals):

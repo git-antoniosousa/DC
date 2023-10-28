@@ -58,7 +58,7 @@ class Processo(models.Model):
         print(f"Compute CNOTA {self}")
         for obj in self:
             print(f" Process Compute NOTA {obj}")
-            obj.enviar_pedido_anexos()
+            #obj.enviar_pedido_anexos()
             obj.enviar_pedido_assinatura_decl_arguente()
             obj.avancar_action()
             obj.cnota = obj.nota
@@ -126,8 +126,13 @@ class Processo(models.Model):
         '010': ['-' , '020'],
         '020': ['010', '030'],
         '030': ['010' , '040'],
-        '040': ['030' , '050'],
-        '050': ['040' , '060'],
+        #'040': ['030' , '050'],
+        #'050': ['040' , '060'],
+        #novo estado 45
+        '040': ['030' , '045'],
+        '045': ['040' , '050'],
+         '050': ['045' , '060'],
+        # novo estado
         '060': ['050' , '070'],
         '070': ['060' , '100'],
         '100': ['070' , '105'],
@@ -144,7 +149,9 @@ class Processo(models.Model):
         ('020', 'Correções'),
         ('030', 'Proposta de Júri'),
         ('040', 'Aguardar Confirmação do Júri'),
+        ('045', 'Enviar Júri para Homologação'),
         ('050', 'Aguardar Homologação'),
+
         ('060', 'Homologado'),
         ('070', 'Envio de Convocatória'),
 
@@ -187,6 +194,8 @@ class Processo(models.Model):
     # true se a declaracao do aluno foi enviada, false caso contrario
     declaracao_aluno_enviada = fields.Boolean(string="Pedido de anexos enviado", default=False)
     convocatoria_enviada = fields.Boolean(string="Convocatória", default=False)
+
+    enviado_homologacao = fields.Boolean(string="Enviado para homologação", default=False)
 
     convocatoria_presidente_url  = fields.Char(string="Link Convocatória Presidente Júri")
     convocatoria_arguente_url = fields.Char(string="Link Convocatória Arguente Júri")
@@ -551,6 +560,8 @@ class Processo(models.Model):
     def enviar_pedido_anexos(self):
         print(f"enviar_pedido_anexos {self}")
         for obj in self:
+            if obj.declaracao_aluno_enviada == True:
+                raise ValidationError(f"As decalracoes ja foram geradas.")
             if obj.declaracao_aluno_enviada == False:
                 if obj.nota == 0:
                     continue
@@ -642,12 +653,12 @@ class Processo(models.Model):
                     print(f"PATH {os.path} {os.curdir} {os.getcwd()} {path}")
     
     
-                template_id = obj.env.ref('gestao_dissertacoes.pedido_anexos')
-                template_id.attachment_ids = [(4, at_id1.id)]
-                template_id.attachment_ids = [(4, at_id2.id)]
-                obj.message_post_with_template(template_id.id)
-                template_id.attachment_ids = [(3, at_id1.id)]
-                template_id.attachment_ids = [(3, at_id2.id)]
+                #template_id = obj.env.ref('gestao_dissertacoes.pedido_anexos')
+                #template_id.attachment_ids = [(4, at_id1.id)]
+                #template_id.attachment_ids = [(4, at_id2.id)]
+                #obj.message_post_with_template(template_id.id)
+                #template_id.attachment_ids = [(3, at_id1.id)]
+                #template_id.attachment_ids = [(3, at_id2.id)]
                 obj.write({'declaracao_aluno_enviada': True})
 
     # --- ata da prova ---
@@ -703,7 +714,7 @@ class Processo(models.Model):
     def update_estado(self):
         if self.estado == '040':
             if self.convite_presidente == 'aceitado' and self.convite_vogal == 'aceitado' and self.convite_arguente == 'aceitado':
-                return self.write({'estado': '050'})
+                return self.write({'estado': '045'})
         if self.estado == '105':
             if self.numero_convites_convocatoria == 4:
                 return self.write({'estado': self.transicoes['105'][1]})
@@ -896,7 +907,7 @@ class Processo(models.Model):
     #    data_str = str(date_object.day) + '.' + mes[:3] + '.' + str(date_object.year)
     #    return data_str
 
-    @api.depends('enviar_decl_arguente', 'nota')
+    @api.depends('enviar_decl_arguente', 'nota', 'estado')
     def _change_enviar_decl_arguente(self):
         print(f"_ohange_enviar_decl_arguente {self.estado} {self.enviar_decl_arguente}")
         if self.estado >= '110' and self.enviar_decl_arguente == True:
@@ -995,7 +1006,7 @@ class Processo(models.Model):
 
         if self.nota ==0:
             self.write({'nota': nota})
-            self.enviar_pedido_anexos()
+            #self.enviar_pedido_anexos()
 
     def processa_anexos_controller(self, kw):
         for key in ('anexo5a', 'anexo5b', 'dissertacao_final'):

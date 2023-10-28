@@ -122,7 +122,7 @@
                     <!-- -->
                     <!-- Envio convocatoria -->
                     <button confirm="Tem a certeza que quer enviar a convocatória das provas" name="enviar_envio_convocatoria" string="Enviar Convocatória" type="object" attrs="{'invisible': [('estado', 'not in', ['070'])]}"/>
-                    <button confirm="Tem a certeza que quer gerar um link para Video Conferência?" name="gera_link_vc" string="Pedir Link VC" type="object" attrs="{'invisible': [('estado', 'not in', ['070'])]}"/>
+                    <button confirm="Tem a certeza que quer gerar um link para Video Conferência?" name="gera_link_vc" string="Pedir Link VC" type="object" attrs="{'invisible': [('estado', 'not in', ['030', '040', '045', '050', '060' ,'070'])]}"/>
                     <!-- enviar ata primeira reuniao -->
                     <button confirm="Tem a certeza que quer enviar a ata da primeira reunião?" name="enviar_ata_primeira_reuniao" string="Enviar Ata" type="object" attrs="{'invisible': [('estado', 'not in', ['080'])]}"/>
                     <!-- enviar declaracao do aluno -->
@@ -166,7 +166,7 @@
                                 <!-- Ata Primeira Reunião -->
                                 <field name="data_hora_primeira_reuniao" attrs="{'required' :[('estado','in',['080'])], 'invisible': [('estado', 'not in', ['080'])]}"/>
                                 <field name="local" attrs="{'required' :[('estado','in',['030'])]}"/>
-                                <field name="sala" attrs="{'required' :[('estado','in',['030'])]}"/>
+                                <field name="sala" attrs="{'required' :[('estado','in',['060'])]}"/>
                                 <field name="link_vc" />
                             </group>
                         </group>
